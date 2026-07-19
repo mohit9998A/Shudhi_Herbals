@@ -3951,7 +3951,7 @@
           "hd_home_bg_header_normal": "#ffffff",
           "hd_bg_header_opacity": 1,
           "enable_sticky_hd_home": true,
-          "hd_home_logo": "",
+          "hd_home_logo": "shopify://shop_images/SHUDHI_HERBALS_LOGO_COLOR-01.png",
           "hd_home_logo_maxwidth": 250,
           "hd_home_logo_svg": "",
           "select_hds_all": "header_ver1",
@@ -3960,10 +3960,9 @@
           "hd_other_bg_header_normal": "#ffffff",
           "hd_other_bg_header_opacity": 1,
           "enable_sticky_hd_other": true,
-          "hd_other_logo": "",
           "hd_other_logo_maxwidth": 160,
           "hd_other_logo_svg": "",
-          "main_menu_store": "header",
+          "main_menu_store": "",
           "hd_icon_search": "icon-search",
           "hd_icon_search_svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewbox=\"0 0 400 400\" height=\"400\" width=\"400\" id=\"svg2\" version=\"1.1\" xmlns:dc=\"http://purl.org/dc/elements/1.1/\" xmlns:cc=\"http://creativecommons.org/ns#\" xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\" xmlns:svg=\"http://www.w3.org/2000/svg\" xml:space=\"preserve\"><metadata id=\"metadata8\"><rdf><work rdf:about=\"\"><format>image/svg+xml</format><type rdf:resource=\"http://purl.org/dc/dcmitype/StillImage\"></type></work></rdf></metadata><defs id=\"defs6\"></defs><g transform=\"matrix(1.3333333,0,0,-1.3333333,0,400)\" id=\"g10\"><g transform=\"scale(0.1)\" id=\"g12\"><path id=\"path14\" style=\"fill-opacity:1;fill-rule:nonzero;stroke:none\" d=\"m 1312.7,795.5 c -472.7,0 -857.204,384.3 -857.204,856.7 0,472.7 384.504,857.2 857.204,857.2 472.7,0 857.3,-384.5 857.3,-857.2 0,-472.4 -384.6,-856.7 -857.3,-856.7 z M 2783.9,352.699 2172.7,963.898 c 155.8,194.702 241.5,438.602 241.5,688.302 0,607.3 -494.1,1101.4 -1101.5,1101.4 -607.302,0 -1101.399,-494.1 -1101.399,-1101.4 0,-607.4 494.097,-1101.501 1101.399,-1101.501 249.8,0 493.5,85.5 687.7,241 L 2611.7,181 c 23,-23 53.6,-35.699 86.1,-35.699 32.4,0 63,12.699 86,35.699 23.1,22.801 35.8,53.301 35.8,85.898 0,32.602 -12.7,63 -35.7,85.801\"></path></g></g></svg>",
           "hd_icon_wishlist": "icon-heart",
@@ -6130,21 +6129,21 @@
             "type": "link_list",
             "settings": {
               "heading": "Product",
-              "menu": "product"
+              "menu": ""
             }
           },
           "link_list_ne4Vmk": {
             "type": "link_list",
             "settings": {
               "heading": "About",
-              "menu": "about"
+              "menu": ""
             }
           },
           "link_list_QTYFMH": {
             "type": "link_list",
             "settings": {
               "heading": "Legal",
-              "menu": "legal"
+              "menu": ""
             }
           },
           "latest-footer-1": {
@@ -6179,6 +6178,13 @@
           "padding_top": 36,
           "padding_bottom": 36
         }
+      },
+      "hov-search-overlay": {
+        "type": "hov-search-overlay",
+        "settings": {
+          "trending_collection_handle": "trending-this-week",
+          "popular_searches": "Organic Tea, Honey, Detox, Weight Loss, Immunity, Ayurvedic, Digestive, Calming, Women's Wellness, Energy"
+        }
       }
     },
     "content_for_index": [
@@ -6191,55 +6197,7 @@
       "1623030751ead92bdd",
       "16173320280a632935",
       "162373083198e445e0"
-    ],
-    "blocks": {
-      "10583289249535060075": {
-        "type": "shopify://apps/wishlist/blocks/popup/1611f065-e251-4250-8609-2fa2f1877c57",
-        "disabled": true,
-        "settings": {
-          "icon_width": 34,
-          "icon": "regular",
-          "icon_color": "#000000",
-          "counter_font_size": 11,
-          "counter_padding": 4,
-          "counter_radius": 30,
-          "counter_offset": 4,
-          "counter_color": "#ffffff",
-          "counter_bg_color": "#303030",
-          "sidebar_position": "centerright",
-          "sidebar_border_width": 2,
-          "sidebar_border_radius": 22,
-          "sidebar_padding": 14,
-          "sidebar_margin": 20,
-          "sidebar_bg_color": "#ffffff",
-          "sidebar_border_color": "#ebebeb",
-          "popup_border_radius": 0,
-          "popup_border_width": 1,
-          "popup_bg_color": "#ffffff",
-          "popup_border_color": "#e7e7e7",
-          "popup_heading": "#121212",
-          "close_icon": "thin",
-          "popup_image_radius": 0,
-          "popup_link": "#121212",
-          "popup_backdrop": "#eaeaea"
-        }
-      },
-      "17332068787184144230": {
-        "type": "shopify://apps/spinnio-wheel-spin/blocks/star_rating/1d42278f-2151-4c55-a676-eedb2d0dbcc4",
-        "disabled": true,
-        "settings": {}
-      },
-      "14060646107696862457": {
-        "type": "shopify://apps/judge-me-reviews/blocks/judgeme_core/61ccd3b1-a9f2-4160-9fe9-4fec8413e5d8",
-        "disabled": false,
-        "settings": {}
-      },
-      "yoast-seo-metatags": {
-        "type": "shopify://apps/yoast-seo-seo-for-everyone/blocks/metatags/7c777011-bc88-4743-a24e-64336e1e5b46",
-        "disabled": false,
-        "settings": {}
-      }
-    }
+    ]
   },
   "presets": {
     "Home 1": {
