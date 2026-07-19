@@ -1,0 +1,286 @@
+<div class="hov-filter__section widget widget-price filter-price">
+  <div class="hov-filter__heading">
+    <!-- Price tag icon -->
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+      <path d="M12 2H2v10l9.29 9.29c.39.39 1.02.39 1.41 0l7.29-7.29c.39-.39.39-1.02 0-1.41L12 2zM5 7a1 1 0 112 0 1 1 0 01-2 0z"/>
+    </svg>
+    <span>SHOP BY PRICE</span>
+  </div>
+  <div class="widget-content hov-price-filter__content">
+    {%- assign max_price_cents = collection.price_range.max | default: 200000 -%}
+    {%- assign max_price = max_price_cents | divided_by: 100.0 | ceil -%}
+    {%- if max_price < 2000 -%}
+      {%- assign max_price = 2000 -%}
+    {%- endif -%}
+
+    <div class="hov-price-filter__range-slider">
+      <div class="hov-price-filter__slider-container">
+        <div class="hov-price-filter__track"></div>
+        <div class="hov-price-filter__progress"></div>
+        <input type="range" id="hov-price-range-min" class="hov-price-filter__range-input" min="0" max="{{ max_price }}" value="0" step="1">
+        <input type="range" id="hov-price-range-max" class="hov-price-filter__range-input" min="0" max="{{ max_price }}" value="{{ max_price }}" step="1">
+      </div>
+      
+      <div class="hov-price-filter__labels">
+        <span class="hov-price-filter__label-text">Price:</span>
+        <span class="hov-price-filter__amount">
+          <span id="hov-price-lbl-min">{{ cart.currency.symbol }}0</span> - <span id="hov-price-lbl-max">{{ cart.currency.symbol }}{{ max_price }}</span>
+        </span>
+      </div>
+    </div>
+    
+    <button type="button" id="hov-price-apply" class="hov-price-filter__apply-btn">Apply</button>
+  </div>
+</div>
+
+<style>
+.hov-price-filter__content {
+  padding: 4px 10px 10px !important;
+}
+.hov-price-filter__range-slider {
+  margin-bottom: 20px !important;
+  width: 90% !important;
+}
+.hov-price-filter__slider-container {
+  position: relative !important;
+  height: 6px !important;
+  width: 100% !important;
+  /* top/bottom margin must be at least half the thumb size (10px) so thumbs don't overflow parent */
+  margin: 20px 0 28px 0 !important;
+}
+.hov-price-filter__track {
+  position: absolute !important;
+  height: 5px !important;
+  border-radius: 3px !important;
+  background: #E0DDD4 !important;
+  width: 100% !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  z-index: 1 !important;
+}
+.hov-price-filter__progress {
+  position: absolute !important;
+  height: 5px !important;
+  border-radius: 3px !important;
+  background: #6B8E4E !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  z-index: 2 !important;
+}
+/* Range inputs: height matches container, both overlap on the same track */
+.hov-price-filter__range-input {
+  position: absolute !important;
+  width: 100% !important;
+  height: 6px !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  background: none !important;
+  pointer-events: none !important;
+  -webkit-appearance: none !important;
+  appearance: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  z-index: 3 !important;
+}
+.hov-price-filter__range-input::-webkit-slider-runnable-track {
+  height: 5px !important;
+  background: transparent !important;
+  border-radius: 3px !important;
+}
+.hov-price-filter__range-input::-webkit-slider-thumb {
+  height: 20px !important;
+  width: 20px !important;
+  border-radius: 50% !important;
+  background: #FFFFFF !important;
+  border: 2.5px solid #6B8E4E !important;
+  cursor: pointer !important;
+  pointer-events: auto !important;
+  -webkit-appearance: none !important;
+  appearance: none !important;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.20) !important;
+  transition: transform 0.12s ease, background 0.12s ease, border-color 0.12s ease !important;
+  /* Pull thumb up by (thumb-height - track-height)/2 to center on track */
+  margin-top: -7.5px !important;
+}
+.hov-price-filter__range-input::-webkit-slider-thumb:hover {
+  transform: scale(1.15) !important;
+  background: #6B8E4E !important;
+  border-color: #2D5A27 !important;
+}
+.hov-price-filter__range-input::-webkit-slider-thumb:active {
+  transform: scale(1.2) !important;
+  background: #2D5A27 !important;
+}
+.hov-price-filter__range-input::-moz-range-track {
+  height: 5px !important;
+  background: transparent !important;
+  border-radius: 3px !important;
+}
+.hov-price-filter__range-input::-moz-range-thumb {
+  height: 20px !important;
+  width: 20px !important;
+  border-radius: 50% !important;
+  background: #FFFFFF !important;
+  border: 2.5px solid #6B8E4E !important;
+  cursor: pointer !important;
+  pointer-events: auto !important;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.20) !important;
+  transition: transform 0.12s ease, background 0.12s ease !important;
+}
+.hov-price-filter__range-input::-moz-range-thumb:hover {
+  transform: scale(1.15) !important;
+  background: #6B8E4E !important;
+}
+.hov-price-filter__range-input:focus {
+  outline: none !important;
+}
+.hov-price-filter__labels {
+  display: flex !important;
+  align-items: center !important;
+  font-size: 13.5px !important;
+  color: #6A6A5E !important;
+  font-weight: 500 !important;
+  margin-top: 10px !important;
+}
+.hov-price-filter__label-text {
+  margin-right: 5px !important;
+}
+.hov-price-filter__amount {
+  color: #2D5A27 !important;
+  font-weight: 600 !important;
+}
+.hov-price-filter__apply-btn {
+  width: 100% !important;
+  background: #6B8E4E !important;
+  color: #FFFFFF !important;
+  border: none !important;
+  border-radius: 8px !important;
+  padding: 9px !important;
+  font-size: 13.5px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: background 0.18s ease, transform 0.1s ease !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+.hov-price-filter__apply-btn:hover {
+  background: #2D5A27 !important;
+  color: #FFFFFF !important;
+}
+.hov-price-filter__apply-btn:active {
+  transform: scale(0.98) !important;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const currencySymbol = '{{ cart.currency.symbol }}' || '₹';
+
+  // Client-side filter: hides product cards outside the price range.
+  // product.price is stored in paise (cents), slider values are in rupees.
+  function applyClientSideFilter(minRupees, maxRupees) {
+    document.querySelectorAll('[data-price]').forEach(function(card) {
+      var priceRupees = parseInt(card.dataset.price, 10) / 100;
+      card.style.display = (priceRupees >= minRupees && priceRupees <= maxRupees) ? '' : 'none';
+    });
+  }
+
+  function initPriceFilter() {
+    var minInput = document.getElementById('hov-price-range-min');
+    var maxInput = document.getElementById('hov-price-range-max');
+    var progress = document.querySelector('.hov-price-filter__progress');
+    var lblMin = document.getElementById('hov-price-lbl-min');
+    var lblMax = document.getElementById('hov-price-lbl-max');
+    var applyBtn = document.getElementById('hov-price-apply');
+
+    if (!minInput || !maxInput || !progress || !lblMin || !lblMax || !applyBtn) return;
+
+    var maxLimit = parseInt(minInput.max, 10) || 1000;
+
+    var urlParams = new URLSearchParams(window.location.search);
+    var initialMin = parseInt(urlParams.get('filter.v.price.gte'), 10) || 0;
+    var initialMax = parseInt(urlParams.get('filter.v.price.lte'), 10) || maxLimit;
+
+    if (initialMin < 0) initialMin = 0;
+    if (initialMax > maxLimit) initialMax = maxLimit;
+    if (initialMin > initialMax) initialMin = 0;
+
+    minInput.value = initialMin;
+    maxInput.value = initialMax;
+
+    // If URL already has filter params, apply client-side filter immediately
+    // (covers the case where Search & Discovery is not installed)
+    if (urlParams.get('filter.v.price.gte') || urlParams.get('filter.v.price.lte')) {
+      applyClientSideFilter(initialMin, initialMax);
+    }
+
+    function updateProgress() {
+      var minVal = parseInt(minInput.value, 10);
+      var maxVal = parseInt(maxInput.value, 10);
+
+      if (minVal > maxVal - 5) {
+        if (this === minInput) {
+          minInput.value = maxVal - 5;
+        } else {
+          maxInput.value = minVal + 5;
+        }
+      }
+
+      var currentMin = parseInt(minInput.value, 10);
+      var currentMax = parseInt(maxInput.value, 10);
+      var minPct = (currentMin / maxLimit) * 100;
+      var maxPct = (currentMax / maxLimit) * 100;
+
+      progress.style.left = minPct + '%';
+      progress.style.right = (100 - maxPct) + '%';
+
+      lblMin.textContent = currencySymbol + currentMin;
+      lblMax.textContent = currencySymbol + currentMax;
+    }
+
+    minInput.addEventListener('input', updateProgress);
+    maxInput.addEventListener('input', updateProgress);
+    updateProgress.call(minInput);
+
+    applyBtn.addEventListener('click', function() {
+      var minVal = parseInt(minInput.value, 10);
+      var maxVal = parseInt(maxInput.value, 10);
+
+      // Immediate client-side filter so the user sees feedback before page reload
+      applyClientSideFilter(minVal, maxVal);
+
+      // Build URL with Shopify Search & Discovery filter params and navigate.
+      // When S&D is active, the reload returns server-filtered products.
+      // When S&D is not installed, the URL params are ignored server-side but
+      // the client-side filter above re-applies on the next DOMContentLoaded.
+      var url = new URL(window.location.href);
+      url.searchParams.delete('page');
+
+      if (minVal > 0) {
+        url.searchParams.set('filter.v.price.gte', minVal);
+      } else {
+        url.searchParams.delete('filter.v.price.gte');
+      }
+
+      if (maxVal < maxLimit) {
+        url.searchParams.set('filter.v.price.lte', maxVal);
+      } else {
+        url.searchParams.delete('filter.v.price.lte');
+      }
+
+      window.location.href = url.toString();
+    });
+  }
+
+  initPriceFilter();
+
+  if (typeof $ !== 'undefined') {
+    $(document).ajaxComplete(function(event, xhr, settings) {
+      if (settings.url && settings.url.indexOf('/collections/') > -1) {
+        setTimeout(initPriceFilter, 100);
+      }
+    });
+  }
+});
+</script>

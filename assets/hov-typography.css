@@ -1,0 +1,104 @@
+/* ============================================================================
+   Shudhi Herbals — Unified typography (single source of truth)
+   Loaded LAST in layout/theme.liquid <head>.
+
+   - Unifies body + headings + UI onto ONE family (Plus Jakarta Sans), immune to
+     the hundreds of scattered SofiaPro / {{ settings.fonts_name_1 }} declarations
+     (no existing !important font-family rules exist to conflict with this).
+   - Preserves icon fonts (FontAwesome + timber 'icons') and the cursive accent.
+   - Fixes price-numeral clarity (lining + tabular figures) and thin small-text.
+   ========================================================================== */
+
+:root {
+  /* Shudhi Herbals typography — body/UI = Jost (geometric sans), headings = Cormorant
+     Garamond (high-contrast serif). This is the working fallback for the brand's
+     Guffie/Brokman; swap in the self-hosted @font-face below once the licensed files
+     are in assets/. Loaded via snippets/engo-header-fonts.liquid. */
+  --hov-font-primary: 'Jost', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-heading: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+}
+
+/* ── [PLACEHOLDER] Self-hosted brand fonts — add the licensed .woff2 files to assets/,
+   uncomment, then set --hov-font-primary to 'Brokman'… and --font-heading to 'Guffie'…
+   (relative url() resolves against /assets/ when this file is served by Shopify):
+@font-face { font-family: 'Guffie';  src: url('Guffie.woff2')  format('woff2'); font-weight: 400 700; font-display: swap; }
+@font-face { font-family: 'Brokman'; src: url('Brokman.woff2') format('woff2'); font-weight: 300 700; font-display: swap; }
+── */
+
+/* ── Unify all text onto one family ──────────────────────────────────────────
+   <i> is intentionally excluded (it's the FontAwesome icon element). Icon glyphs
+   render via ::before pseudo-elements, which element selectors never match. */
+html, body,
+h1, h2, h3, h4, h5, h6,
+p, a, span, div, li, ul, ol, dl, dt, dd,
+td, th, table, caption,
+button, input, select, textarea, optgroup, label, legend,
+small, strong, b, em, blockquote, q, cite, figcaption, address,
+mark, sub, sup, time {
+  font-family: var(--hov-font-primary) !important;
+}
+
+/* ── Headings use the display serif (Cormorant Garamond). Placed AFTER the unify block
+   above so it is the final word on h1–h6. Slight tracking for the editorial feel. ── */
+h1, h2, h3, h4, h5, h6,
+.h1, .h2, .h3, .h4, .h5, .h6 {
+  font-family: var(--font-heading) !important;
+  letter-spacing: 0.01em;
+}
+
+/* ── Accessibility (WCAG 2.2 AA) — from the palette review. This file loads LAST so these
+   win the cascade. The text palette passed AA; these cover non-text-contrast + use-of-colour. ── */
+/* 1.4.11 Non-text contrast: form-field borders need >=3:1 vs ivory. Soft Sand (1.15:1) is
+   decorative-only; give inputs a darker warm-taupe border (#8C7B5E, ~3.6:1). */
+input[type="text"], input[type="email"], input[type="password"], input[type="search"],
+input[type="tel"], input[type="number"], input[type="url"], input[type="date"],
+input[type="time"], textarea, select {
+  border-color: #8C7B5E !important;
+}
+/* 1.4.1 Use of colour: in-text (rich-text) links need a non-colour cue. Buttons are exempt. */
+.rte a:not(.btn):not(.button) {
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+/* 2.4.7 Focus visible: a forest-green ring offset just outside each control (sits on the
+   ivory/white page background, ~8:1). Works on light surfaces and beside green buttons. */
+a:focus-visible, button:focus-visible, input:focus-visible,
+select:focus-visible, textarea:focus-visible, [tabindex]:focus-visible,
+.btn:focus-visible, .button:focus-visible {
+  outline: 2px solid var(--shudhi-forest, #335030);
+  outline-offset: 2px;
+}
+
+/* ── Re-assert icon fonts (class specificity beats the element rules above; also
+   cover ::before in case the glyph font is inherited rather than set directly) ── */
+.fa, .fa::before, .fas, .far, .fab, .fal,
+[class*="fa-"], [class*="fa-"]::before {
+  font-family: 'FontAwesome' !important;
+}
+[class^="icon-"], [class^="icon-"]::before,
+[class*=" icon-"], [class*=" icon-"]::before {
+  font-family: 'icons' !important;
+}
+
+/* ── Keep the cursive brand accent (now actually loaded via engo-header-fonts) ── */
+.vibes-font {
+  font-family: 'Great Vibes', cursive !important;
+}
+
+/* ── Numeral legibility: force lining + tabular figures wherever a price/count
+   appears, so digits stay uniform-width and unambiguous at small sizes (the '9'). ── */
+[class*="price"], [class*="amount"], .money,
+.enj-cartcost, .enj-cart-subtotal,
+[data-coupon-saved-amount], [data-coupon-total], [data-coupon-subtotal],
+.ajaxcart__qty-num, .hov-cart-page__total-amount {
+  font-variant-numeric: lining-nums tabular-nums;
+  font-feature-settings: "lnum" 1, "tnum" 1;
+}
+
+/* ── Small-text weight nudge: thin strokes go fuzzy at small sizes (the 's'). ── */
+.hov-cart-page__line-sub,
+.hov-cart-page__total-label small,
+.hov-cart-page__cs-meta,
+.hov-testi__role {
+  font-weight: 500;
+}

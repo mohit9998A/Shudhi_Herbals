@@ -1,0 +1,89 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "blog_template": {
+      "type": "blog-template",
+      "settings": {
+        "bg_breadcrumb": "shopify://shop_images/home-2_d28ad0ac-c0e4-4603-825b-b11e14acb67a.jpg",
+        "blog_layout": "blog_layo_none",
+        "blog_template": "blog_grid",
+        "posts_limit": 6,
+        "show_author": true,
+        "show_comment": true,
+        "show_datetime": true,
+        "show_cate": true,
+        "show_summary": true,
+        "show_btn": true,
+        "enable_widget_search": true,
+        "widget_search_title": "Search",
+        "shop_by_search_placeholder": "Search...",
+        "enable_widget_cate": true,
+        "widget_cate_title": "Categories",
+        "widget_cate_menu": "",
+        "enable_widget_related": true,
+        "widget_related_title": "RECENT POSTS",
+        "select_blog": "organic-sweeteners",
+        "blogs_limit": 5,
+        "enable_widget_tag": true,
+        "shop_by_tag_title": "Tags",
+        "banner_blog_url": "https://www.shopify.com/free-trial?ref=shopifycenter"
+      }
+    },
+    "f0df91b7-66a5-4c12-b699-e352f2d9b0a1": {
+      "type": "rich-text",
+      "settings": {
+        "rich_icon": "<p>Shudhi Herbals is a premium herbal wellness brand with one guiding idea — purify your skin, cleanse your aura. Our handmade Negativity Removal Cleansing Bar is crafted in small batches from herbs and pure essential oils, turning an everyday wash into a calm, grounding ritual.</p>",
+        "rich_text": "",
+        "rich_icon_svg": "",
+        "section_title": "A TALE OF PURITY AND PRESENCE"
+      }
+    },
+    "95bed60c-c4c6-4ab1-b8ee-2dd07b625efd": {
+      "type": "section-blog-v2",
+      "disabled": true,
+      "settings": {
+        "bg_section_color": "#fbf3f0",
+        "section_title": "Our Blogs",
+        "color_title": "#222222",
+        "description_title": "A collection of stories about the people and<br>places we admire.",
+        "color_sub_title": "#666666",
+        "select_blog": "",
+        "blogs_limit": 3,
+        "enable_category": true,
+        "enable_date": true,
+        "enable_title": true,
+        "enable_excerpt": true,
+        "margin_top": "",
+        "margin_bottom": ""
+      }
+    },
+    "3a1678d2-b89c-485e-bf7d-2703fb7e1bbc": {
+      "type": "section-blog-v3",
+      "disabled": true,
+      "settings": {
+        "section_title": "",
+        "color_title": "#000000",
+        "select_blog": "organic-sweeteners",
+        "blogs_limit": 2,
+        "enable_description": true,
+        "button_name": "Read More",
+        "margin_top": "",
+        "margin_bottom": ""
+      }
+    }
+  },
+  "order": [
+    "blog_template",
+    "f0df91b7-66a5-4c12-b699-e352f2d9b0a1",
+    "95bed60c-c4c6-4ab1-b8ee-2dd07b625efd",
+    "3a1678d2-b89c-485e-bf7d-2703fb7e1bbc"
+  ]
+}

@@ -1,0 +1,273 @@
+{{ 'hov-testimonials.css' | asset_url | stylesheet_tag }}
+
+<section class="hov-testi" id="hov-testimonials-section">
+  <!-- Header -->
+  <div class="hov-testi__header">
+    <div class="hov-testi__eyebrow">
+      <svg class="hov-testi__eyebrow-leaf" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2D5A27" stroke-width="1.8">
+        <path d="M12 2C6 2 2 8 2 14c0 4 2.5 7 6 8 1-3 3-5 4-6-1 1-2 3-2 5 2 0 4-1 5.5-3C17 16 18 12 18 8z"/>
+      </svg>
+      <span>TESTIMONIALS</span>
+      <svg class="hov-testi__eyebrow-leaf hov-testi__eyebrow-leaf--flip" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2D5A27" stroke-width="1.8">
+        <path d="M12 2C6 2 2 8 2 14c0 4 2.5 7 6 8 1-3 3-5 4-6-1 1-2 3-2 5 2 0 4-1 5.5-3C17 16 18 12 18 8z"/>
+      </svg>
+    </div>
+    <h2 class="hov-testi__title">
+      What Our <span class="hov-testi__title-accent">Community</span> Says
+    </h2>
+    <div class="hov-testi__divider">
+      <span class="hov-testi__divider-line"></span>
+      <span class="hov-testi__divider-mark">✺</span>
+      <span class="hov-testi__divider-line"></span>
+    </div>
+  </div>
+
+  <div class="container container-v2">
+    <div class="hov-testi__grid">
+      {% assign testimonial_index = 0 %}
+      {% for block in section.blocks %}
+        {% if block.type == 'testimonial' %}
+          {% assign testimonial_index = testimonial_index | plus: 1 %}
+          <div class="hov-testi__card" {{ block.shopify_attributes }}>
+
+            {% if testimonial_index <= 3 %}
+              <!-- Blocks 1–3: video reel. Block 1 autoplays, 2 & 3 are
+                   click-to-play, set via the data-autoplay attribute -->
+              <div class="hov-testi__card-top hov-testi__card-top--reel">
+                <div class="hov-testi__reel-wrap"
+                     data-reel-card
+                     data-autoplay="{% if testimonial_index == 1 %}true{% else %}false{% endif %}">
+                  {% assign fallback_video = '[PLACEHOLDER — video URL]' %}
+                  {% if testimonial_index == 1 %}
+                    {% assign fallback_video = '[PLACEHOLDER — video URL]' %}
+                  {% elsif testimonial_index == 3 %}
+                    {% assign fallback_video = '[PLACEHOLDER — video URL]' %}
+                  {% endif %}
+                  
+                  <video
+                    class="hov-testi__reel-video"
+                    src="{% if block.settings.video_url != blank %}{{ block.settings.video_url }}{% else %}{{ fallback_video }}{% endif %}"
+                    muted
+                    loop
+                    playsinline
+                    preload="metadata">
+                  </video>
+
+                  {% if testimonial_index == 1 %}
+                    <!-- Block 1 only: unmute control, since it autoplays muted -->
+                    <button class="hov-testi__reel-unmute" data-reel-unmute aria-label="Toggle sound">
+                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+                        <line x1="23" y1="9" x2="17" y2="15"/>
+                        <line x1="17" y1="9" x2="23" y2="15"/>
+                      </svg>
+                      <span>Tap to unmute</span>
+                    </button>
+                  {% else %}
+                    <!-- Blocks 2 & 3: paused thumbnail with a visible play button -->
+                    <button class="hov-testi__reel-play" data-reel-play aria-label="Play video">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="#FFF">
+                        <path d="M8 5v14l11-7z"/>
+                      </svg>
+                    </button>
+                  {% endif %}
+                </div>
+              </div>
+            {% else %}
+              <!-- Block 4 onward: normal static photo avatar -->
+              <div class="hov-testi__card-top">
+                <img
+                  class="hov-testi__avatar"
+                  src="{% if block.settings.photo %}{{ block.settings.photo | image_url: width: 200 }}{% else %}https://images.unsplash.com/photo-1633332755192-727a05c4013d?q=80&w=200{% endif %}"
+                  alt="{{ block.settings.name | escape }}"
+                  width="96" height="96"
+                  loading="lazy">
+              </div>
+            {% endif %}
+
+            <div class="hov-testi__card-body">
+              <h3 class="hov-testi__name">{{ block.settings.name }}</h3>
+              <p class="hov-testi__role">{{ block.settings.role }}</p>
+              <p class="hov-testi__quote">{{ block.settings.quote }}</p>
+              <div class="hov-testi__stars" aria-label="{{ block.settings.rating }} out of 5 stars">
+                {% for i in (1..5) %}
+                  <svg width="16" height="16" viewBox="0 0 22 20" fill="{% if i <= block.settings.rating %}#E8A020{% else %}#E5E0D5{% endif %}">
+                    <path d="M10.525.464a.5.5 0 0 1 .95 0l2.107 6.482a.5.5 0 0 0 .475.346h6.817a.5.5 0 0 1 .294.904l-5.515 4.007a.5.5 0 0 0-.181.559l2.106 6.483a.5.5 0 0 1-.77.559l-5.514-4.007a.5.5 0 0 0-.588 0l-5.514 4.007a.5.5 0 0 1-.77-.56l2.106-6.482a.5.5 0 0 0-.181-.56L.832 8.197a.5.5 0 0 1 .294-.904h6.817a.5.5 0 0 0 .475-.346z"/>
+                  </svg>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+        {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<script>
+(function() {
+  'use strict';
+
+  const reelCards = document.querySelectorAll('[data-reel-card]');
+
+  reelCards.forEach(wrap => {
+    const video = wrap.querySelector('.hov-testi__reel-video');
+    const unmuteBtn = wrap.querySelector('[data-reel-unmute]');
+    const playBtn = wrap.querySelector('[data-reel-play]');
+    const isAutoplay = wrap.dataset.autoplay === 'true';
+    if (!video) return;
+
+    if (isAutoplay) {
+      // FIRST card only: autoplay muted once scrolled into view
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            video.muted = true;
+            video.play().catch(() => {
+              // Autoplay blocked by browser — fall back to requiring a tap
+              wrap.addEventListener('click', () => video.play(), { once: true });
+            });
+          } else {
+            video.pause();
+          }
+        });
+      }, { threshold: 0.3 });
+      observer.observe(wrap);
+
+      unmuteBtn?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        video.muted = !video.muted;
+        unmuteBtn.querySelector('span').textContent =
+          video.muted ? 'Tap to unmute' : 'Tap to mute';
+      });
+
+    } else {
+      // SECOND & THIRD cards: stay paused on the first frame until
+      // clicked. Once clicked, play WITH sound (not muted), hide the
+      // play button overlay, and pause+reset the other click-to-play
+      // card if it happens to be playing, so only one plays at a time.
+      video.pause();
+      video.currentTime = 0; // ensure the visible frame is the start
+                                // of the clip, acting as a thumbnail
+
+      playBtn?.addEventListener('click', () => {
+        // Pause any other click-to-play reel currently playing
+        document.querySelectorAll('[data-reel-card][data-autoplay="false"]').forEach(otherWrap => {
+          if (otherWrap !== wrap) {
+            const otherVideo = otherWrap.querySelector('.hov-testi__reel-video');
+            const otherPlayBtn = otherWrap.querySelector('[data-reel-play]');
+            if (otherVideo) {
+              otherVideo.pause();
+              otherVideo.currentTime = 0;
+            }
+            otherPlayBtn?.classList.remove('is-hidden');
+          }
+        });
+
+        video.muted = false;   // plays WITH sound, since this was an
+                                 // explicit user click, not autoplay
+        video.play();
+        playBtn.classList.add('is-hidden');
+      });
+
+      // If the video finishes (loop is on, but in case it's toggled
+      // off later) or is paused some other way, restore the play button
+      video.addEventListener('pause', () => {
+        if (!video.ended) return;
+        playBtn?.classList.remove('is-hidden');
+      });
+    }
+  });
+
+})();
+</script>
+
+{% schema %}
+{
+  "name": "Testimonials",
+  "class": "index-section",
+  "settings": [],
+  "blocks": [
+    {
+      "type": "testimonial",
+      "name": "Testimonial",
+      "settings": [
+        {
+          "type": "text",
+          "id": "name",
+          "label": "Name",
+          "default": "[PLACEHOLDER — customer name]"
+        },
+        {
+          "type": "text",
+          "id": "role",
+          "label": "Role/Location",
+          "default": "[PLACEHOLDER — role/location]"
+        },
+        {
+          "type": "textarea",
+          "id": "quote",
+          "label": "Quote",
+          "default": "[PLACEHOLDER — review]"
+        },
+        {
+          "type": "range",
+          "id": "rating",
+          "min": 1,
+          "max": 5,
+          "step": 1,
+          "label": "Rating",
+          "default": 5
+        },
+        {
+          "type": "text",
+          "id": "video_url",
+          "label": "Video URL (MP4/WEBM)",
+          "info": "Provide a direct link to a video file for this testimonial."
+        },
+        {
+          "type": "image_picker",
+          "id": "photo",
+          "label": "Avatar Photo"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Testimonials",
+      "blocks": [
+        {
+          "type": "testimonial",
+          "settings": {
+            "name": "[PLACEHOLDER — customer name]",
+            "role": "[PLACEHOLDER — role/location]",
+            "quote": "[PLACEHOLDER — review]",
+            "rating": 5,
+            "video_url": "[PLACEHOLDER — video URL]"
+          }
+        },
+        {
+          "type": "testimonial",
+          "settings": {
+            "name": "[PLACEHOLDER — customer name]",
+            "role": "[PLACEHOLDER — role/location]",
+            "quote": "[PLACEHOLDER — review]",
+            "rating": 5
+          }
+        },
+        {
+          "type": "testimonial",
+          "settings": {
+            "name": "[PLACEHOLDER — customer name]",
+            "role": "[PLACEHOLDER — role/location]",
+            "quote": "[PLACEHOLDER — review]",
+            "rating": 5,
+            "video_url": "[PLACEHOLDER — video URL]"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

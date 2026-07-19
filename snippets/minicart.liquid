@@ -1,0 +1,1600 @@
+<style>
+  /* 3-Region Layout */
+  .minicart.hov-cart-drawer {
+    display: flex !important;
+    flex-direction: column !important;
+    height: 100vh !important;
+    height: 100dvh !important;
+    overflow: hidden !important;
+    background: #fff;
+    position: fixed;
+    transition: all .3s ease;
+    z-index: 999999;
+  }
+  .minicart.active { right: 0 !important; }
+
+  @media (min-width: 1024px) {
+    .minicart { width: 400px !important; max-width: 400px !important; right: -400px !important; }
+    .minicart.active { right: 0 !important; }
+  }
+  @media (min-width: 768px) and (max-width: 1023px) {
+    .minicart { width: 380px !important; max-width: 380px !important; right: -380px !important; }
+    .minicart.active { right: 0 !important; }
+  }
+  @media (max-width: 767px) {
+    .minicart { width: 100vw !important; max-width: 100vw !important; right: -100vw !important; }
+    .minicart.active { right: 0 !important; }
+  }
+
+  .mini-content {
+    display: flex !important;
+    flex-direction: column !important;
+    height: 100% !important;
+    overflow: hidden !important;
+  }
+  .enj-minicart-ajax {
+    flex: 1 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+  }
+  
+  /* Region A - Sticky header */
+  .hov-cart__header-region {
+    flex-shrink: 0;
+    position: relative;
+    z-index: 3;
+    border-bottom: 1px solid #F0EBE0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    background: #FFFFFF;
+  }
+  .hov-cart-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 18px 8px;
+    position: relative;
+  }
+  .hov-cart-header h2 { font-size: 19px; font-weight: 700; color: #1A2E1A; margin: 0; position: relative; z-index: 1; }
+  .hov-cart-close { width: 32px; height: 32px; border-radius: 50%; box-shadow: 0 2px 8px rgba(0,0,0,0.08); display: flex; align-items: center; justify-content: center; background: #fff; border: none; cursor: pointer; position: relative; z-index: 3; text-decoration: none; }
+  .hov-cart-close svg { width: 13px; height: 13px; fill: #1A2E1A; }
+  .hov-cart-leaf { position: absolute; top: -4px; right: 8px; width: 70px; height: auto; pointer-events: none; z-index: 0; }
+
+  .hov-cart-shipping { background: #F5F2EC; border-radius: 12px; padding: 8px 16px; margin: 0 16px; }
+  .hov-cart-shipping-top { display: flex; align-items: center; gap: 8px; }
+  .hov-cart-shipping-text { font-size: 12px; font-weight: 600; color: #1A2E1A; margin: 0 0 6px 0; }
+  .hov-cart-shipping-track { height: 5px; background: #E5DEC9; border-radius: 999px; overflow: hidden; }
+  .hov-cart-shipping-fill { height: 100%; background: #2D5A27; border-radius: 999px; transition: width 0.4s ease; }
+
+  /* Region B - Scrollable items list */
+  .hov-cart__items-region {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 14px 20px 0;
+    min-height: 120px;
+  }
+  .hov-cart__items-region::-webkit-scrollbar {
+    width: 4px;
+  }
+  .hov-cart__items-region::-webkit-scrollbar-thumb {
+    background: #D4C5A9;
+    border-radius: 999px;
+  }
+  
+  /* ── Cart item: 2-column grid so image spans both rows ── */
+  .hov-cart-item.hov-cart__item-card {
+    display: grid !important;
+    grid-template-columns: 60px 1fr !important;
+    grid-template-rows: 1fr auto !important;
+    column-gap: 10px !important;
+    row-gap: 0 !important;
+    background: #FFFFFF;
+    border-radius: 14px;
+    padding: 8px 10px;
+    margin: 0 0 8px 0;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.07), 0 1px 3px rgba(0,0,0,0.04);
+    border: 1px solid #F2EDE2;
+    position: relative;
+    transition: box-shadow 0.2s ease;
+    min-height: 60px;
+  }
+  .hov-cart-item.hov-cart__item-card:hover {
+    box-shadow: 0 6px 20px rgba(0,0,0,0.10);
+  }
+  /* Image: spans both grid rows, locked to left column */
+  .hov-cart-item-img.hov-cart__item-image {
+    grid-column: 1 !important;
+    grid-row: 1 / 3 !important;
+    width: 60px !important;
+    height: 60px !important;
+    border-radius: 8px;
+    object-fit: cover;
+    align-self: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  }
+  /* Content col wrapper is gone – rows go directly into the grid */
+  .hov-cart__item-content-col {
+    display: contents !important;
+  }
+  /* Row 1: title + price  */
+  .hov-cart__item-row-top {
+    grid-column: 2 !important;
+    grid-row: 1 !important;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+    align-self: start;
+    padding-top: 2px;
+  }
+  .hov-cart-item-info { flex: 1; display: flex; flex-direction: column; align-items: flex-start; text-align: left; min-width: 0; }
+  .hov-cart-item-title { font-size: 13px; font-weight: 600; color: #1A2E1A; margin: 0; text-decoration: none; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; text-align: left; }
+  .hov-cart__item-price-block {
+    flex-shrink: 0;
+    text-align: right;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+  }
+  .hov-cart-item-price { font-size: 13px; font-weight: 700; color: #1A2E1A; }
+  .hov-cart__item-price-strike { font-size: 11px; color: #AAA; text-decoration: line-through; margin-top: 1px; }
+  /* Row 2: delete + qty – always at the bottom of the image */
+  .hov-cart__item-row-bottom {
+    grid-column: 2 !important;
+    grid-row: 2 !important;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 12px;
+    align-self: end;
+    padding-bottom: 2px;
+  }
+  .hov-cart-item-delete {
+    width: 26px;
+    height: 26px;
+    border: 1.2px solid #DDD;
+    border-radius: 5px;
+    background: #FFFFFF;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    padding: 0;
+    transition: border-color 0.15s ease, background 0.15s ease;
+    flex-shrink: 0;
+    color: #999;
+    margin-left: 0;
+  }
+  .hov-cart-item-delete:hover {
+    border-color: #C0392B;
+    background: #FFF5F5;
+    color: #C0392B;
+  }
+  .hov-cart-item-delete svg {
+    width: 13px;
+    height: 13px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+  }
+  .hov-cart-item-qty {
+    display: flex !important;
+    align-items: center !important;
+    border: 1px solid #DDD !important;
+    border-radius: 999px !important;
+    padding: 3px 8px !important;
+    gap: 8px !important;
+    background: #fff !important;
+    flex-shrink: 0 !important;
+    width: auto !important;
+    min-width: fit-content !important;
+    height: auto !important;
+  }
+  .hov-cart-item-qty button.ajaxcart__qty-adjust {
+    position: static !important;
+    background: none !important;
+    border: none !important;
+    padding: 0 !important;
+    cursor: pointer !important;
+    color: #1A2E1A !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 14px !important;
+    height: 14px !important;
+    flex-shrink: 0 !important;
+    margin: 0 !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+  }
+  .hov-cart-item-qty .ajaxcart__qty-num {
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    color: #1A2E1A !important;
+    text-align: center !important;
+    width: 20px !important;
+    border: none !important;
+    background: transparent !important;
+    padding: 0 !important;
+    pointer-events: none !important;
+    margin: 0 !important;
+    height: auto !important;
+    line-height: 1 !important;
+    display: block !important;
+  }
+
+  /* Region C - Sticky footer */
+  .hov-cart__footer-region {
+    flex-shrink: 0;
+    border-top: 1px solid #F0EBE0;
+    box-shadow: 0 -2px 8px rgba(0,0,0,0.04);
+    background: #FFFFFF;
+    position: relative;
+    z-index: 2;
+  }
+  .hov-cart-promo-row { display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; cursor: pointer; border-bottom: 1px solid #F0EBE0; }
+  .hov-cart-promo-left { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; color: #1A2E1A; }
+  .hov-cart-promo-left svg { width: 16px; height: 16px; fill: #2D5A27; }
+  .hov-cart-promo-chevron { transition: transform 0.3s; width: 16px; height: 16px; fill: #1A2E1A; }
+  .hov-cart-promo-row.is-expanded .hov-cart-promo-chevron { transform: rotate(90deg); }
+  .hov-cart-promo-panel { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; padding: 0 20px; background: #FAFAFA; border-bottom: 1px solid #F0EBE0; }
+  .hov-cart-promo-panel.is-expanded { max-height: 100px; padding: 14px 20px; }
+  .hov-cart-promo-form { display: flex; gap: 8px; }
+  .hov-cart-promo-input { flex: 1; border: 1px solid #DDD; border-radius: 6px; padding: 8px 12px; font-size: 14px; outline: none; }
+  .hov-cart-promo-btn { background: #1A2E1A; color: #fff; border: none; border-radius: 6px; padding: 8px 16px; font-weight: 600; cursor: pointer; }
+
+  .hov-cart-summary { padding: 14px 20px; }
+  .hov-cart-summary-row { display: flex; justify-content: space-between; font-size: 14px; color: #444; margin-bottom: 8px; }
+  .hov-cart-summary-shipping { color: #888; font-style: italic; }
+  .hov-cart-summary-divider { border-top: 1px solid #EEE; margin: 12px 0; }
+  .hov-cart-summary-total { display: flex; justify-content: space-between; font-size: 16px; font-weight: 700; color: #1A2E1A; }
+
+  .hov-cart-cta { padding: 0 20px 20px; display: flex; flex-direction: row; gap: 10px; }
+  .hov-cart-btn { flex: 1; min-width: 0; display: flex; align-items: center; justify-content: center; gap: 6px !important; border-radius: 999px; height: 48px; font-size: 13px !important; font-weight: 600; text-decoration: none; transition: all 0.2s; cursor: pointer; white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important; }
+  .hov-cart-btn-view { background: #fff; border: 1.5px solid #DDD; color: #1A2E1A; }
+  .hov-cart-btn-checkout { background: #2D5A27; border: 1.5px solid #2D5A27; color: #FFF; }
+  .hov-cart-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+  .hov-cart-btn svg { width: 16px; height: 16px; fill: currentColor; }
+
+  @media (max-width: 480px) {
+    .hov-cart-btn {
+      padding: 0 8px !important;
+      font-size: 12px !important;
+      gap: 4px !important;
+    }
+  }
+
+  /* Mini Trust Strip under Shipping Bar */
+  .hov-cart__mini-trust {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 20px;
+    padding: 6px 16px;
+    background: #FFFFFF;
+    overflow: visible;
+  }
+  .hov-cart__mini-trust-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    flex-shrink: 0;
+    min-width: 0;
+  }
+  .hov-cart__mini-trust-item svg {
+    width: 12px;
+    height: 12px;
+    flex-shrink: 0;
+    fill: #2D5A27;
+  }
+  .hov-cart__mini-trust-item span {
+    font-size: 10.5px;
+    font-weight: 600;
+    color: #444;
+    white-space: nowrap;
+    overflow: visible;
+  }
+
+  /* Narrow Drawer Sizing (340px to 419px) */
+  @media (max-width: 419px) {
+    .hov-cart__mini-trust {
+      gap: 6px 10px;
+      padding: 10px 12px;
+    }
+    .hov-cart__mini-trust-item svg {
+      width: 12px;
+      height: 12px;
+    }
+    .hov-cart__mini-trust-item span {
+      font-size: 9.5px;
+    }
+  }
+
+  /* Very Narrow Drawer Sizing (<340px) */
+  @media (max-width: 339px) {
+    .hov-cart__mini-trust {
+      gap: 8px 10px;
+      padding: 8px 10px;
+    }
+    .hov-cart__mini-trust-item svg {
+      width: 12px;
+      height: 12px;
+    }
+    .hov-cart__mini-trust-item span {
+      font-size: 9.5px;
+    }
+  }
+
+  .hov-cart-empty { text-align: center; padding: 40px 20px; flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+  .hov-cart-empty p { margin-bottom: 20px; color: #888; font-size: 14px; }
+  .hov-cart-empty a { display: inline-block; background: #2D5A27; color: #fff; padding: 10px 20px; border-radius: 999px; text-decoration: none; font-weight: 600; font-size: 14px;}
+
+  @media (max-width: 767px) {
+    .minicart { width: 100vw !important; max-width: 100vw !important; right: -100vw !important; }
+    .minicart.active { right: 0 !important; }
+    .hov-cart__items-region { padding: 14px 16px 0; }
+    .hov-cart-promo-row, .hov-cart-promo-panel.is-expanded, .hov-cart-summary, .hov-cart-cta { padding-left: 16px; padding-right: 16px; }
+    .hov-cart-cta { padding: 0 16px 16px; }
+  }
+
+  /* Promo Strip Sizing and Responsiveness */
+  .hov-cart__promo-strip {
+    background: #2D5A27;
+    color: #FFFFFF;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 6px 16px;
+    font-size: 11px;
+    font-weight: 600;
+    text-align: center;
+    line-height: 1.4;
+    overflow: visible;
+  }
+  .hov-cart__promo-strip-emoji {
+    font-size: 11px;
+  }
+  .hov-cart__promo-strip-divider {
+    margin: 0 4px;
+    opacity: 0.6;
+    font-weight: 400;
+  }
+  .hov-cart__promo-strip-code {
+    background: rgba(255,255,255,0.18);
+    padding: 1px 8px;
+    border-radius: 5px;
+    letter-spacing: 0.5px;
+    font-weight: 800;
+  }
+  @media (max-width: 480px) {
+    .hov-cart__promo-strip {
+      font-size: 11px;
+      padding: 8px 12px;
+    }
+    }
+  }
+
+  /* Coupon Savings Preview */
+  .hov-cart__coupon-preview {
+    background: linear-gradient(135deg, rgba(45,90,39,0.08), rgba(45,90,39,0.04));
+    border: 1px solid rgba(45,90,39,0.18);
+    border-radius: 12px;
+    padding: 12px 14px;
+    margin: 4px 0 14px 0;
+    backdrop-filter: blur(6px);
+  }
+  .hov-cart__coupon-preview-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+  .hov-cart__coupon-preview-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+  }
+  .hov-cart__coupon-icon { width: 18px; height: 18px; flex-shrink: 0; }
+  .hov-cart__coupon-preview-text {
+    font-size: 12.5px;
+    color: #1A2E1A;
+    font-weight: 500;
+  }
+  .hov-cart__coupon-amount { color: #2D5A27; font-weight: 800; }
+  .hov-cart__coupon-input {
+    flex: 1;
+    min-width: 0;
+    border: 1px solid rgba(45,90,39,0.3);
+    border-radius: 8px;
+    padding: 7px 10px;
+    font-size: 12.5px;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+    color: #1A2E1A;
+    background: #FFFFFF;
+    text-transform: uppercase;
+  }
+  .hov-cart__coupon-input::placeholder { color: #9A9A9A; font-weight: 500; letter-spacing: 0; text-transform: none; }
+  .hov-cart__coupon-input:focus { outline: none; border-color: #2D5A27; box-shadow: 0 0 0 2px rgba(45,90,39,0.12); }
+  .hov-cart__coupon-applied {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12.5px;
+    color: #2D5A27;
+    font-weight: 600;
+    min-width: 0;
+  }
+  .hov-cart__coupon-applied[hidden] { display: none; }
+  .hov-cart__coupon-applied strong { font-weight: 800; }
+  .hov-cart__coupon-remove {
+    border: none;
+    background: rgba(45,90,39,0.12);
+    color: #2D5A27;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 14px;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    padding: 0;
+  }
+  .hov-cart__coupon-remove:hover { background: rgba(192,57,43,0.15); color: #C0392B; }
+  .hov-cart__coupon-apply-btn {
+    background: #FFFFFF;
+    border: 1.5px solid #2D5A27;
+    color: #2D5A27;
+    font-size: 11.5px;
+    font-weight: 700;
+    padding: 6px 16px;
+    border-radius: 999px;
+    flex-shrink: 0;
+    cursor: pointer;
+  }
+  .hov-cart__coupon-apply-btn:hover { background: #2D5A27; color: #FFFFFF; }
+  .hov-cart__coupon-preview-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid rgba(45,90,39,0.12);
+    font-size: 11px;
+  }
+  .hov-cart__coupon-more-offers {
+    display: flex; align-items: center; gap: 5px;
+    color: #2D5A27; font-weight: 600;
+  }
+  .hov-cart__coupon-view-all { color: #888; text-decoration: none; }
+  .hov-cart__coupon-view-all:hover { color: #2D5A27; }
+
+  @media (max-width: 480px) {
+    .hov-cart__coupon-preview-text { font-size: 11.5px; }
+    .hov-cart__coupon-apply-btn { padding: 5px 12px; }
+    .hov-cart__coupon-preview-row { flex-wrap: wrap; }
+  }
+
+  /* ── Delete Confirmation Modal ── */
+  .hov-remove-modal {
+    position: absolute;
+    inset: 0;
+    z-index: 10000000; /* above the drawer's 999999 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.25s ease;
+  }
+  .hov-remove-modal[data-state="visible"] {
+    pointer-events: auto;
+    opacity: 1;
+  }
+  /* Full /cart page context: center on the real viewport, not the off-screen drawer box.
+     (Drawer / default context keeps the absolute, drawer-scoped positioning above, unchanged.) */
+  .hov-remove-modal[data-context="cart-page"] { position: fixed; }
+  .hov-remove-modal[data-context="cart-page"] .hov-remove-modal__overlay { position: fixed; }
+  .hov-remove-modal__overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+  }
+  .hov-remove-modal__card {
+    position: relative;
+    background: #FFFFFF;
+    border-radius: 18px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.18), 0 4px 16px rgba(0,0,0,0.08);
+    padding: 24px 20px 20px;
+    width: 88%;
+    max-width: 340px;
+    transform: scale(0.92) translateY(12px);
+    transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .hov-remove-modal[data-state="visible"] .hov-remove-modal__card {
+    transform: scale(1) translateY(0);
+  }
+  .hov-remove-modal__close {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    width: 30px;
+    height: 30px;
+    border: none;
+    background: #F5F2EC;
+    border-radius: 50%;
+    font-size: 18px;
+    line-height: 1;
+    color: #666;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+  .hov-remove-modal__close:hover {
+    background: #E8E3D9;
+    color: #333;
+  }
+  .hov-remove-modal__trash-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #FFF0ED 0%, #FFE0DA 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 16px;
+  }
+  .hov-remove-modal__trash-icon svg {
+    width: 24px;
+    height: 24px;
+    fill: none;
+    stroke: #C0392B;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .hov-remove-modal__title {
+    font-size: 17px;
+    font-weight: 700;
+    color: #1A2E1A;
+    margin: 0 0 6px 0;
+    line-height: 1.35;
+    padding-right: 24px;
+  }
+  .hov-remove-modal__subtitle {
+    font-size: 13px;
+    color: #666;
+    margin: 0 0 18px 0;
+    line-height: 1.45;
+  }
+
+  /* Cross-sell card */
+  .hov-remove-modal__crosssell {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: #FAFAF5;
+    border: 1px solid #F0EBE0;
+    border-radius: 12px;
+    padding: 12px;
+    margin-bottom: 14px;
+  }
+  .hov-remove-modal__crosssell img {
+    width: 52px;
+    height: 52px;
+    border-radius: 8px;
+    object-fit: cover;
+    flex-shrink: 0;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  }
+  .hov-remove-modal__crosssell-info {
+    flex: 1;
+    min-width: 0;
+  }
+  .hov-remove-modal__crosssell-title {
+    font-size: 12.5px;
+    font-weight: 700;
+    color: #2D5A27;
+    margin: 0 0 3px 0;
+    line-height: 1.3;
+  }
+  .hov-remove-modal__crosssell-desc {
+    font-size: 11.5px;
+    color: #666;
+    margin: 0;
+    line-height: 1.35;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .hov-remove-modal__add-now {
+    flex-shrink: 0;
+    background: #FFFFFF;
+    border: 1.5px solid #2D5A27;
+    color: #2D5A27;
+    font-size: 11.5px;
+    font-weight: 700;
+    padding: 7px 14px;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+    white-space: nowrap;
+  }
+  .hov-remove-modal__add-now:hover {
+    background: #2D5A27;
+    color: #FFFFFF;
+  }
+  .hov-remove-modal__add-now[disabled] {
+    opacity: 0.5;
+    pointer-events: none;
+  }
+
+  /* Savings warning strip */
+  .hov-remove-modal__warning {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    background: linear-gradient(135deg, #FFF5F0 0%, #FFF0EB 100%);
+    border: 1px solid #FDDDD2;
+    border-radius: 10px;
+    padding: 10px 12px;
+    margin-bottom: 16px;
+    font-size: 12px;
+    color: #C0392B;
+    line-height: 1.4;
+  }
+  .hov-remove-modal__tag-icon {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    fill: none;
+    stroke: #C0392B;
+    stroke-width: 1.8;
+    margin-top: 1px;
+  }
+
+  /* Action buttons */
+  .hov-remove-modal__actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 4px;
+  }
+  .hov-remove-modal__keep {
+    flex: 1;
+    height: 44px;
+    border: 1.5px solid #DDD;
+    background: #FFFFFF;
+    color: #1A2E1A;
+    font-size: 13.5px;
+    font-weight: 700;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .hov-remove-modal__keep:hover {
+    border-color: #2D5A27;
+    color: #2D5A27;
+  }
+  .hov-remove-modal__confirm {
+    flex: 1;
+    height: 44px;
+    border: none;
+    background: #C0392B;
+    color: #FFFFFF;
+    font-size: 13.5px;
+    font-weight: 700;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+  .hov-remove-modal__confirm:hover {
+    background: #A93226;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(192,57,43,0.25);
+  }
+  .hov-remove-modal__confirm[disabled] {
+    opacity: 0.6;
+    pointer-events: none;
+  }
+
+  /* Item Preview Section */
+  .hov-remove-modal__item-preview {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: #FFF9F8; /* Light warm tint to indicate deletion */
+    border: 1px solid #FFE0DA;
+    border-radius: 12px;
+    padding: 10px 12px;
+    margin-bottom: 16px;
+    text-align: left;
+  }
+  .hov-remove-modal__item-preview img {
+    width: 48px;
+    height: 48px;
+    border-radius: 8px;
+    object-fit: cover;
+    border: 1px solid #F0EBE0;
+    background: #fff;
+    flex-shrink: 0;
+  }
+  .hov-remove-modal__item-details {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    flex: 1;
+  }
+  .hov-remove-modal__item-name {
+    font-size: 13px;
+    font-weight: 700;
+    color: #1A2E1A;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .hov-remove-modal__item-price {
+    font-size: 12px;
+    color: #C0392B;
+    font-weight: 700;
+    margin-top: 2px;
+  }
+
+  /* ── Coupon-applied confirmation modal (mirrors hov-remove-modal conventions) ── */
+  /* Scoped to the mini-cart drawer's column (right-aligned, drawer width) — NOT full viewport.
+     Widths mirror the .minicart drawer breakpoints so the overlay only ever darkens the drawer. */
+  .hov-coupon-modal {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 400px;
+    z-index: 10000000; /* above the drawer's 999999, same as remove-modal */
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 14px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.25s ease;
+  }
+  @media (max-width: 1023px) { .hov-coupon-modal { width: 380px; } }
+  @media (max-width: 767px)  { .hov-coupon-modal { width: 100vw; } }
+  .hov-coupon-modal[data-state="visible"] {
+    pointer-events: auto;
+    opacity: 1;
+  }
+  .hov-coupon-modal__overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+  }
+  .hov-coupon-modal__card {
+    position: relative;
+    background: #FFFFFF;
+    border-radius: 16px;
+    box-shadow: 0 16px 44px rgba(0,0,0,0.22), 0 4px 14px rgba(0,0,0,0.10);
+    padding: 22px 16px 16px;
+    width: 100%;
+    max-width: 100%;
+    margin-top: 48px; /* clear the drawer's header / close-X */
+    text-align: center;
+    transform: scale(0.94) translateY(10px);
+    transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .hov-coupon-modal[data-state="visible"] .hov-coupon-modal__card {
+    transform: scale(1) translateY(0);
+  }
+  /* Drawer-fit scaling — compact the panel so it sits comfortably inside a 380–400px drawer */
+  .hov-coupon-modal__check-wrap { width: 64px; height: 64px; margin: 2px auto 10px; }
+  .hov-coupon-modal__check-circle { width: 58px; height: 58px; }
+  .hov-coupon-modal__check { width: 28px; height: 28px; }
+  .hov-coupon-modal__title { font-size: 19px; }
+  .hov-coupon-modal__subtitle { font-size: 12px; margin-bottom: 14px; }
+  .hov-coupon-modal__code-chip { padding: 10px 12px; margin-bottom: 12px; }
+  .hov-coupon-modal__chip-badge { width: 32px; height: 32px; font-size: 15px; }
+  .hov-coupon-modal__code { font-size: 14px; }
+  .hov-coupon-modal__code-desc { font-size: 11px; }
+  .hov-coupon-modal__applied-badge { font-size: 10px; padding: 4px 8px; }
+  .hov-coupon-modal__saved-banner { font-size: 13px; padding: 10px 12px; }
+  .hov-coupon-modal__saved-banner strong { font-size: 15px; }
+  .hov-coupon-modal__breakdown dl { padding: 2px 12px 10px; }
+  .hov-coupon-modal__breakdown dl > div { font-size: 12.5px; padding: 5px 0; }
+  .hov-coupon-modal__total dt { font-size: 13.5px; }
+  .hov-coupon-modal__total dd { font-size: 17px; }
+  .hov-coupon-modal__checkout-btn { height: 44px; font-size: 13.5px; }
+  .hov-coupon-modal__viewcart-btn { height: 42px; font-size: 13px; margin-top: 8px; }
+  .hov-coupon-modal__close {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    width: 30px;
+    height: 30px;
+    border: none;
+    background: #F5F2EC;
+    border-radius: 50%;
+    font-size: 18px;
+    line-height: 1;
+    color: #666;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s ease, color 0.15s ease;
+    z-index: 2;
+  }
+  .hov-coupon-modal__close:hover { background: #E8E3D9; color: #333; }
+
+  /* Check + confetti */
+  .hov-coupon-modal__check-wrap {
+    position: relative;
+    width: 96px;
+    height: 96px;
+    margin: 4px auto 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .hov-coupon-modal__check-circle {
+    width: 84px;
+    height: 84px;
+    border-radius: 50%;
+    background: #E8F3E4;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .hov-coupon-modal__check {
+    width: 40px;
+    height: 40px;
+    fill: none;
+    stroke: #2D5A27;
+    stroke-width: 3.2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .hov-coupon-modal__check path {
+    stroke-dasharray: 40;
+    stroke-dashoffset: 40;
+  }
+  .hov-coupon-modal[data-state="visible"] .hov-coupon-modal__check path {
+    animation: hovCouponCheck 0.5s ease forwards 0.15s;
+  }
+  @keyframes hovCouponCheck { to { stroke-dashoffset: 0; } }
+  /* Confetti container — particles are injected + animated by JS (hovLaunchConfetti). */
+  .hov-coupon-modal__confetti {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    overflow: visible;
+  }
+
+  .hov-coupon-modal__title {
+    font-size: 24px;
+    font-weight: 800;
+    color: #1A2E1A;
+    margin: 0 0 6px 0;
+  }
+  .hov-coupon-modal__subtitle {
+    font-size: 13.5px;
+    color: #666;
+    margin: 0 0 18px 0;
+    line-height: 1.45;
+  }
+
+  /* Code chip */
+  .hov-coupon-modal__code-chip {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: #F4FAF1;
+    border: 1.5px dashed #B6D6AC;
+    border-radius: 12px;
+    padding: 13px 14px;
+    margin-bottom: 14px;
+    text-align: left;
+  }
+  .hov-coupon-modal__chip-badge {
+    width: 38px;
+    height: 38px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    background: #2D5A27;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 18px;
+    font-weight: 800;
+  }
+  .hov-coupon-modal__chip-text { flex: 1; min-width: 0; }
+  .hov-coupon-modal__code {
+    display: block;
+    font-size: 16px;
+    font-weight: 800;
+    color: #1A2E1A;
+    line-height: 1.2;
+  }
+  .hov-coupon-modal__code-desc {
+    display: block;
+    font-size: 12px;
+    color: #666;
+    margin-top: 2px;
+  }
+  .hov-coupon-modal__applied-badge {
+    flex-shrink: 0;
+    background: #DBF0D2;
+    color: #2D5A27;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.4px;
+    padding: 5px 10px;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+
+  /* Breakdown */
+  .hov-coupon-modal__breakdown {
+    border: 1px solid #ECE7DD;
+    border-radius: 12px;
+    margin: 0 0 16px 0;
+    overflow: hidden;
+  }
+  .hov-coupon-modal__saved-banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #FAFAF5;
+    border-bottom: 1px solid #ECE7DD;
+    padding: 12px 14px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #1A2E1A;
+  }
+  .hov-coupon-modal__saved-banner strong { color: #2D5A27; font-size: 16px; font-weight: 800; }
+  .hov-coupon-modal__breakdown dl { margin: 0; padding: 4px 14px 12px; }
+  .hov-coupon-modal__breakdown dl > div {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    padding: 6px 0;
+    font-size: 13.5px;
+    color: #333;
+  }
+  .hov-coupon-modal__breakdown dt { margin: 0; }
+  .hov-coupon-modal__breakdown dd { margin: 0; font-weight: 600; }
+  .hov-coupon-modal__discount-line { color: #2D5A27; font-weight: 700; }
+  .hov-coupon-modal__shipping-free { color: #2D5A27; font-weight: 700; }
+  .hov-coupon-modal__total {
+    border-top: 1px dashed #DDD6C8;
+    margin-top: 4px;
+    padding-top: 10px !important;
+  }
+  .hov-coupon-modal__total dt { font-size: 15px; font-weight: 800; color: #1A2E1A; }
+  .hov-coupon-modal__total dt span { font-size: 11px; font-weight: 400; color: #888; }
+  .hov-coupon-modal__total dd { font-size: 20px; font-weight: 800; color: #1A2E1A; }
+
+  /* CTAs */
+  .hov-coupon-modal__checkout-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    height: 50px;
+    background: #234D23;
+    color: #FFFFFF;
+    font-size: 15px;
+    font-weight: 700;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background 0.15s ease, transform 0.15s ease;
+  }
+  .hov-coupon-modal__checkout-btn:hover { background: #1A3A1A; transform: translateY(-1px); }
+  .hov-coupon-modal__checkout-btn svg { width: 16px; height: 16px; fill: currentColor; }
+  .hov-coupon-modal__viewcart-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    height: 48px;
+    margin-top: 10px;
+    background: #FFFFFF;
+    color: #1A2E1A;
+    font-size: 14.5px;
+    font-weight: 700;
+    border: 1.5px solid #E2DCD0;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: border-color 0.15s ease, color 0.15s ease;
+  }
+  .hov-coupon-modal__viewcart-btn:hover { border-color: #2D5A27; color: #2D5A27; }
+  .hov-coupon-modal__viewcart-btn svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; }
+
+  /* Inline coupon error (preview row) — never the success modal */
+  .hov-cart__coupon-error {
+    display: none;
+    margin-top: 8px;
+    padding: 8px 12px;
+    background: #FFF0EB;
+    border: 1px solid #FDDDD2;
+    border-radius: 8px;
+    font-size: 12px;
+    color: #C0392B;
+    line-height: 1.4;
+  }
+  .hov-cart__coupon-error[data-visible="true"] { display: block; }
+
+  /* Mini-cart summary discount row */
+  .hov-cart-summary-discount { color: #2D5A27; }
+  .hov-cart-summary-discount[hidden] { display: none; }
+  .hov-cart-summary-discount span:last-child { font-weight: 700; }
+</style>
+
+<div class="js-minicart minicart hov-cart-drawer">
+  <div class="relative" style="height: 100%;">
+    <div class="mini-content">    
+      
+      <!-- Region A - Sticky header -->
+      <div class="hov-cart__header-region">
+        <div class="hov-cart-header">
+          <h2>Shopping Cart (<span class="cart-counter enj-cartcount">{{ cart.item_count }}</span>)</h2>
+          <a href="javascript:void(0)" class="hov-cart-close close-mini-cart">
+            <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
+          </a>
+          <svg class="hov-cart-leaf" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M15 85 C 30 75, 45 50, 85 15" stroke="#6B7D4F" stroke-width="1.5" stroke-linecap="round"/>
+            <path d="M85 15 C 83 23, 76 22, 73 17 C 70 12, 77 9, 85 15 Z" fill="#6B7D4F" fill-opacity="0.85" stroke="#6B7D4F" stroke-width="0.8"/>
+            <path d="M68 32 C 78 35, 79 27, 72 25 C 65 23, 63 30, 68 32 Z" fill="#6B7D4F" fill-opacity="0.85" stroke="#6B7D4F" stroke-width="0.8"/>
+            <path d="M57 40 C 47 43, 46 35, 53 33 C 60 31, 62 38, 57 40 Z" fill="#6B7D4F" fill-opacity="0.85" stroke="#6B7D4F" stroke-width="0.8"/>
+            <path d="M50 50 C 60 53, 61 45, 54 43 C 47 41, 45 48, 50 50 Z" fill="#6B7D4F" fill-opacity="0.85" stroke="#6B7D4F" stroke-width="0.8"/>
+            <path d="M40 58 C 30 61, 29 53, 36 51 C 43 49, 45 56, 40 58 Z" fill="#6B7D4F" fill-opacity="0.85" stroke="#6B7D4F" stroke-width="0.8"/>
+            <path d="M33 67 C 43 70, 44 62, 37 60 C 30 58, 28 65, 33 67 Z" fill="#6B7D4F" fill-opacity="0.85" stroke="#6B7D4F" stroke-width="0.8"/>
+          </svg>
+        </div>
+
+        <!-- Promo Code Strip -->
+        <div class="hov-cart__promo-strip" style="{% if settings.show_promo_strip == false or cart.item_count == 0 %}display:none;{% endif %}">
+          <span class="hov-cart__promo-strip-emoji">{{ settings.promo_strip_emoji | default: "🎉" }}</span>
+          <span class="hov-cart__promo-strip-text">
+            {{ settings.promo_strip_text | default: "Get 10% OFF — use code HOV10" }}
+          </span>
+        </div>
+
+        {% include 'hov-free-shipping-bar', surface: 'drawer' %}
+
+        <!-- Mini Trust Strip -->
+        <div class="hov-cart__mini-trust" style="{% if cart.item_count == 0 %}display: none;{% endif %}">
+          <div class="hov-cart__mini-trust-item">
+            <svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/></svg>
+            <span>{{ settings.trust_1_label | default: '100% Secure Payments' }}</span>
+          </div>
+          <div class="hov-cart__mini-trust-item">
+            <svg viewBox="0 0 24 24"><path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
+            <span>{{ settings.trust_2_label | default: 'Easy Returns & Refunds' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="mini-cart-bottom enj-minicart-ajax">
+        {% if cart.item_count > 0 %}
+          
+          <!-- Region B - Scrollable items list -->
+          <div class="hov-cart__items-region">
+            {% for item in cart.items %}
+            <div class="hov-cart-item hov-cart__item-card minicart_item" data-line="{{ forloop.index }}" data-product-id="{{ item.product.id }}" data-line-total="{{ item.final_line_price }}">
+              <img class="hov-cart-item-img hov-cart__item-image" alt="{{item.title}}" src="{{ item.image | image_url: width: 150 }}">
+              <div class="hov-cart__item-content-col">
+                <div class="hov-cart__item-row-top">
+                  <div class="hov-cart-item-info">
+                    <a href="{{item.url}}" class="hov-cart-item-title">{{item.product.title}}</a>
+                  </div>
+                  <div class="hov-cart__item-price-block">
+                    <span class="hov-cart-item-price">{{ item.final_line_price | money }}</span>
+                    {% if item.variant.compare_at_price > item.price %}
+                      <span class="hov-cart__item-price-strike">{{ item.variant.compare_at_price | times: item.quantity | money }}</span>
+                    {% elsif item.original_line_price > item.final_line_price %}
+                      <span class="hov-cart__item-price-strike">{{ item.original_line_price | money }}</span>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="hov-cart__item-row-bottom">
+                  <button class="hov-cart-item-delete remove-product" data-line="{{ forloop.index }}" aria-label="Remove item">
+                    <svg viewBox="0 0 24 24"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0l-1 14a2 2 0 01-2 2H7a2 2 0 01-2-2L4 6"/></svg>
+                  </button>
+                  <div class="hov-cart-item-qty">
+                    <button type="button" class="ajaxcart__qty-adjust ajaxcart__qty--minus" data-line="{{ forloop.index }}" data-qty="{{ item.quantity | minus: 1 }}">
+                      <svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:currentColor;"><path d="M19 13H5v-2h14v2z"/></svg>
+                    </button>
+                    <span class="ajaxcart__qty-num" data-line="{{ forloop.index }}">{{ item.quantity }}</span>
+                    <button type="button" class="ajaxcart__qty-adjust ajaxcart__qty--plus" data-line="{{ forloop.index }}" data-qty="{{ item.quantity | plus: 1 }}">
+                      <svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:currentColor;"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+            
+            <div class="hov-cart__coupon-preview" data-coupon-code="{{ settings.coupon_code | default: 'HOV10' }}" data-coupon-percent="{{ settings.coupon_percent | default: 10 }}" data-coupon-min="{{ settings.coupon_min_order | default: 1000 }}">
+              <div class="hov-cart__coupon-preview-row">
+                <div class="hov-cart__coupon-preview-left">
+                  <svg class="hov-cart__coupon-icon" viewBox="0 0 24 24" fill="none" stroke="#2D5A27" stroke-width="1.8"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg>
+                  <input type="text" class="hov-cart__coupon-input" data-coupon-input value="{{ settings.coupon_code | default: 'HOV10' }}" placeholder="Enter coupon code" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="Coupon code">
+                  <span class="hov-cart__coupon-applied" data-coupon-applied hidden>
+                    <svg class="hov-cart__coupon-icon" viewBox="0 0 24 24" fill="none" stroke="#2D5A27" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+                    <strong data-coupon-applied-code></strong> applied
+                    <button type="button" class="hov-cart__coupon-remove" data-coupon-remove aria-label="Remove coupon">×</button>
+                  </span>
+                </div>
+                <button type="button" class="hov-cart__coupon-apply-btn" data-coupon-apply>Apply</button>
+              </div>
+              <div class="hov-cart__coupon-error" data-coupon-error role="alert"></div>
+              <div class="hov-cart__coupon-preview-footer">
+                <span class="hov-cart__coupon-more-offers">
+                  <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="#2D5A27" stroke-width="2"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg>
+                  More offers
+                </span>
+                <a href="{{ settings.coupons_page_url | default: '/pages/coupons' }}" class="hov-cart__coupon-view-all">View all coupons ›</a>
+              </div>
+            </div>
+            
+          </div>
+
+          <!-- Region C - Sticky footer -->
+          <div class="hov-cart__footer-region">
+
+
+            <div class="hov-cart-summary">
+              <div class="hov-cart-summary-row">
+                <span>Subtotal</span>
+                <span class="enj-cart-subtotal" data-cart-subtotal>{{ cart.items_subtotal_price | money }}</span>
+              </div>
+              <div class="hov-cart-summary-row hov-cart-summary-discount" data-cart-discount{% unless cart.total_discount > 0 %} hidden{% endunless %}>
+                <span>Discount</span>
+                <span data-cart-discount-amount>− {{ cart.total_discount | money }}</span>
+              </div>
+              <div class="hov-cart-summary-row hov-cart-summary-shipping">
+                <span>Shipping</span>
+                <span>Calculated at checkout</span>
+              </div>
+              <div class="hov-cart-summary-divider"></div>
+              <div class="hov-cart-summary-total">
+                <span>Total</span>
+                <span class="enj-cartcost">{{ cart.items_subtotal_price | money }}</span>
+              </div>
+            </div>
+
+            <div class="hov-cart-cta">
+              <a href="/cart" class="hov-cart-btn hov-cart-btn-view">
+                <svg viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+                View Cart
+              </a>
+              <a href="/checkout" class="hov-cart-btn hov-cart-btn-checkout">
+                <svg viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+                Checkout Securely
+              </a>
+            </div>
+          </div>
+        {% else %}
+          <div class="hov-cart-empty">
+            <p>{{ 'minicart.general.empty' | t }}</p>
+            <a href="/collections/all">{{ 'minicart.general.shop_now' | t }}</a>
+          </div>
+        {% endif %}      
+      </div>    
+    <!-- Delete Confirmation Modal -->
+    <div class="hov-remove-modal" id="hov-remove-modal" data-state="hidden" role="dialog" aria-modal="true" aria-labelledby="hov-remove-modal-title">
+      <div class="hov-remove-modal__overlay" data-remove-modal-close></div>
+      <div class="hov-remove-modal__card">
+        <button class="hov-remove-modal__close" data-remove-modal-close aria-label="Close">×</button>
+        <div class="hov-remove-modal__trash-icon">
+          <svg viewBox="0 0 24 24"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0l-1 14a2 2 0 01-2 2H7a2 2 0 01-2-2L4 6"/></svg>
+        </div>
+        <h2 class="hov-remove-modal__title" id="hov-remove-modal-title">Are you sure you want to remove this item?</h2>
+        <p class="hov-remove-modal__subtitle" data-remove-subtitle>This product is a customer favorite and frequently bought together.</p>
+
+        <!-- Removing Item Preview -->
+        <div class="hov-remove-modal__item-preview">
+          <img data-remove-item-img src="" alt="Removing product image">
+          <div class="hov-remove-modal__item-details">
+            <span class="hov-remove-modal__item-name" data-remove-item-name></span>
+            <span class="hov-remove-modal__item-price" data-remove-item-price></span>
+          </div>
+        </div>
+
+        <div class="hov-remove-modal__crosssell" data-remove-crosssell hidden>
+          <img data-remove-crosssell-img src="" alt="Recommended product">
+          <div class="hov-remove-modal__crosssell-info">
+            <p class="hov-remove-modal__crosssell-title" data-remove-crosssell-headline>Complete your health journey!</p>
+            <p class="hov-remove-modal__crosssell-desc" data-remove-crosssell-desc></p>
+          </div>
+          <button class="hov-remove-modal__add-now" data-remove-crosssell-add>Add Now</button>
+        </div>
+
+        <div class="hov-remove-modal__warning" data-remove-warning hidden>
+          <svg class="hov-remove-modal__tag-icon" viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+          <span data-remove-warning-text></span>
+        </div>
+
+        <div class="hov-remove-modal__actions">
+          <button class="hov-remove-modal__keep" data-remove-modal-close>Keep It</button>
+          <button class="hov-remove-modal__confirm" data-remove-confirm>🗑 Remove Item</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+<div class="js-bg bg-minicart"></div>
+
+{%- assign hov_coupon_code = settings.coupon_code | default: 'HOV10' -%}
+{%- assign hov_coupon_percent = settings.coupon_percent | default: 10 -%}
+<div class="hov-coupon-modal" id="hov-coupon-modal" data-state="hidden" role="dialog" aria-modal="true" aria-labelledby="hov-coupon-modal-title">
+  <div class="hov-coupon-modal__overlay" data-coupon-modal-close></div>
+  <div class="hov-coupon-modal__card">
+    <button class="hov-coupon-modal__close" data-coupon-modal-close aria-label="Close">×</button>
+
+    <div class="hov-coupon-modal__check-wrap">
+      <span class="hov-coupon-modal__confetti" id="hov-confetti-wrap" aria-hidden="true"></span>
+      <span class="hov-coupon-modal__check-circle">
+        <svg class="hov-coupon-modal__check" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>
+      </span>
+    </div>
+
+    <h2 class="hov-coupon-modal__title" id="hov-coupon-modal-title">Coupon Applied!</h2>
+    <p class="hov-coupon-modal__subtitle">Great choice! You just saved on your order.</p>
+
+    <div class="hov-coupon-modal__code-chip">
+      <span class="hov-coupon-modal__chip-badge">%</span>
+      <span class="hov-coupon-modal__chip-text">
+        <span class="hov-coupon-modal__code">{{ hov_coupon_code }}</span>
+        <span class="hov-coupon-modal__code-desc" data-coupon-desc>{% if settings.coupon_min_order > 0 %}{{ hov_coupon_percent }}% OFF on orders above ₹{{ settings.coupon_min_order }}{% else %}{{ hov_coupon_percent }}% OFF on every order{% endif %}</span>
+      </span>
+      <span class="hov-coupon-modal__applied-badge">APPLIED ✓</span>
+    </div>
+
+    <div class="hov-coupon-modal__breakdown">
+      <div class="hov-coupon-modal__saved-banner">
+        <span>You Saved</span>
+        <strong data-coupon-saved-amount>₹0.00</strong>
+      </div>
+      <dl>
+        <div>
+          <dt>Subtotal (<span data-coupon-item-count>0</span> items)</dt>
+          <dd data-coupon-subtotal>₹0.00</dd>
+        </div>
+        <div>
+          <dt>Discount ({{ hov_coupon_code }})</dt>
+          <dd class="hov-coupon-modal__discount-line" data-coupon-discount>− ₹0.00</dd>
+        </div>
+        <div>
+          <dt>Shipping</dt>
+          <dd data-coupon-shipping>Calculated at checkout</dd>
+        </div>
+        <div class="hov-coupon-modal__total">
+          <dt>Total Amount<br><span>(Inclusive of all taxes)</span></dt>
+          <dd data-coupon-total>₹0.00</dd>
+        </div>
+      </dl>
+    </div>
+
+    <a href="/checkout" class="hov-coupon-modal__checkout-btn">
+      <svg viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-3.1 0H9.1V6c0-1.71 1.39-3.1 2.9-3.1s2.9 1.39 2.9 3.1v2z"/></svg>
+      Continue to Checkout
+    </a>
+    <a href="/cart" class="hov-coupon-modal__viewcart-btn">
+      <svg viewBox="0 0 24 24"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>
+      View Cart
+    </a>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  (function() {
+    const strip = document.querySelector('.hov-cart__promo-strip');
+    if (!strip) return;
+    const codeEl = strip.querySelector('.hov-cart__promo-strip-code');
+    if (!codeEl) return;
+
+    strip.style.cursor = 'pointer';
+    strip.addEventListener('click', () => {
+      navigator.clipboard.writeText(codeEl.textContent.trim()).then(() => {
+        const original = codeEl.textContent;
+        codeEl.textContent = 'Copied!';
+        setTimeout(() => { codeEl.textContent = original; }, 1200);
+      });
+    });
+  })();
+
+  (function() {
+    function formatMoney(cents) {
+      return '₹' + (cents / 100).toFixed(2);
+    }
+
+    // HOV10 minimum order (paise), sourced from the Customizer setting via data-coupon-min (rupees).
+    function getCouponMinPaise() {
+      var preview = document.querySelector('.hov-cart__coupon-preview');
+      var rupees = preview ? parseFloat(preview.getAttribute('data-coupon-min')) : NaN;
+      return isNaN(rupees) ? 100000 : Math.round(rupees * 100);
+    }
+
+    // ── Configured coupon (read from the preview element's data-attrs) ──
+    function hovCouponEl() { return document.querySelector('.hov-cart__coupon-preview'); }
+    function hovConfiguredCode() {
+      var p = hovCouponEl();
+      return ((p && p.getAttribute('data-coupon-code')) || 'HOV10').trim().toUpperCase();
+    }
+    function hovCouponPercent() {
+      var p = hovCouponEl();
+      return parseFloat(p && p.getAttribute('data-coupon-percent')) || 10;
+    }
+
+    // ── Applied-coupon state (sessionStorage) — survives cart re-renders within the session ──
+    var HOV_APPLIED_KEY = 'hov_applied_coupon';
+    function hovGetApplied() {
+      try { return JSON.parse(sessionStorage.getItem(HOV_APPLIED_KEY)) || null; } catch (e) { return null; }
+    }
+    function hovSetApplied(code, percent) {
+      try { sessionStorage.setItem(HOV_APPLIED_KEY, JSON.stringify({ code: code, percent: percent })); } catch (e) {}
+    }
+    function hovClearApplied() {
+      try { sessionStorage.removeItem(HOV_APPLIED_KEY); } catch (e) {}
+    }
+
+    // Checkout links carry the code so Shopify validates + applies it authoritatively at checkout.
+    function hovSetCheckoutDiscount(code) {
+      var links = document.querySelectorAll('.hov-cart-btn-checkout, .hov-coupon-modal__checkout-btn');
+      for (var i = 0; i < links.length; i++) {
+        links[i].setAttribute('href', code ? ('/checkout?discount=' + encodeURIComponent(code)) : '/checkout');
+      }
+    }
+
+    // ── Single source of truth for the mini-cart coupon display ──
+    // Discount codes never appear in /cart.js, so when the customer has applied one we compute the
+    // preview (Discount = percent × authoritative subtotal — exact for a storewide % code) and
+    // overlay it on the drawer. Checkout (via /checkout?discount=CODE) remains the real source of truth.
+    // Surface-agnostic: drives EVERY cart surface on the page (mini-cart drawer + full /cart page)
+    // from one computation. The discount is computed exactly once here; each surface only renders it.
+    // querySelectorAll (not querySelector) so a second surface isn't invisible to the engine — the
+    // drawer is always index 0, so single-surface pages behave identically to before.
+    function hovSyncCouponUI(cart) {
+      var previews = document.querySelectorAll('.hov-cart__coupon-preview');
+      if (!previews.length) return;
+
+      var applied = hovGetApplied();
+      var minPaise = getCouponMinPaise();
+      var subtotal = cart ? (cart.items_subtotal_price || 0) : 0;
+      var active = applied && cart && cart.item_count > 0 && subtotal >= minPaise;
+      var percent = active ? (applied.percent || hovCouponPercent()) : 0;
+      var discount = active ? Math.round(subtotal * percent / 100) : 0;
+
+      // Per-surface coupon-preview pill toggle (every preview, not just the first).
+      for (var i = 0; i < previews.length; i++) {
+        var p = previews[i];
+        var input = p.querySelector('[data-coupon-input]');
+        var pill = p.querySelector('[data-coupon-applied]');
+        var pillCode = p.querySelector('[data-coupon-applied-code]');
+        var applyBtn = p.querySelector('[data-coupon-apply]');
+        if (input) input.hidden = active;
+        if (applyBtn) applyBtn.hidden = active;
+        if (pill) pill.hidden = !active;
+        if (active && pillCode) pillCode.textContent = applied.code;
+      }
+
+      // Drawer "Discount" line (with minus sign) — every surface that has one.
+      var discountRows = document.querySelectorAll('[data-cart-discount]');
+      for (var r = 0; r < discountRows.length; r++) {
+        if (active) discountRows[r].removeAttribute('hidden');
+        else discountRows[r].setAttribute('hidden', 'hidden');
+      }
+      var discountAmts = document.querySelectorAll('[data-cart-discount-amount]');
+      for (var d = 0; d < discountAmts.length; d++) {
+        discountAmts[d].textContent = '− ' + formatMoney(discount);
+      }
+
+      // Cart-page "You saved ₹X" row (no minus sign) — driven solely by this engine.
+      var savedRows = document.querySelectorAll('[data-coupon-saved-row]');
+      for (var s = 0; s < savedRows.length; s++) { savedRows[s].hidden = !active; }
+      var savedAmts = document.querySelectorAll('[data-coupon-saved-amount]');
+      for (var a = 0; a < savedAmts.length; a++) { savedAmts[a].textContent = formatMoney(discount); }
+
+      // Coupon-adjusted Total on every surface.
+      if (cart) {
+        var totalEls = document.querySelectorAll('.enj-cartcost');
+        for (var t = 0; t < totalEls.length; t++) {
+          totalEls[t].textContent = active ? formatMoney(subtotal - discount) : formatMoney(subtotal);
+        }
+      }
+
+      hovSetCheckoutDiscount(active ? applied.code : null);
+    }
+
+    function hovSyncFromServer() {
+      fetch('/cart.js').then(function (r) { return r.json(); }).then(hovSyncCouponUI).catch(function () {});
+    }
+
+    function isFreeShipping(cart) {
+      var bar = document.querySelector('.hov-cart-shipping');
+      var rupees = bar ? parseFloat(bar.getAttribute('data-threshold')) : NaN;
+      return !isNaN(rupees) && cart.total_price >= rupees * 100;
+    }
+
+    // Populate the modal. Subtotal/item-count are authoritative (/cart.js); Discount is the code's
+    // percent × subtotal (a faithful preview for a storewide % code); checkout is the real total.
+    function populateCouponModal(cart) {
+      var modal = document.getElementById('hov-coupon-modal');
+      if (!modal) return;
+      var applied = hovGetApplied();
+      var code = (applied && applied.code) || hovConfiguredCode();
+      var percent = (applied && applied.percent) || hovCouponPercent();
+      var subtotal = cart.items_subtotal_price;
+      var discount = Math.round(subtotal * percent / 100);
+      var total = subtotal - discount;
+      var set = function (sel, val) {
+        var el = modal.querySelector(sel);
+        if (el) el.textContent = val;
+      };
+      set('[data-coupon-saved-amount]', formatMoney(discount));
+      set('[data-coupon-subtotal]', formatMoney(subtotal));
+      set('[data-coupon-item-count]', cart.item_count);
+      set('[data-coupon-discount]', '− ' + formatMoney(discount));
+      set('[data-coupon-total]', formatMoney(total));
+
+      var coBtn = modal.querySelector('.hov-coupon-modal__checkout-btn');
+      if (coBtn) coBtn.setAttribute('href', '/checkout?discount=' + encodeURIComponent(code));
+
+      var shipEl = modal.querySelector('[data-coupon-shipping]');
+      if (shipEl) {
+        if (isFreeShipping(cart)) {
+          shipEl.textContent = 'FREE';
+          shipEl.classList.add('hov-coupon-modal__shipping-free');
+        } else {
+          shipEl.textContent = 'Calculated at checkout';
+          shipEl.classList.remove('hov-coupon-modal__shipping-free');
+        }
+      }
+    }
+
+    function showCouponError(msg) {
+      var errs = document.querySelectorAll('[data-coupon-error]');
+      for (var i = 0; i < errs.length; i++) {
+        errs[i].textContent = msg;
+        errs[i].setAttribute('data-visible', 'true');
+      }
+    }
+    function hideCouponError() {
+      var errs = document.querySelectorAll('[data-coupon-error]');
+      for (var i = 0; i < errs.length; i++) { errs[i].removeAttribute('data-visible'); }
+    }
+    // Runtime-generated confetti burst — no library, no static DOM, self-removing.
+    // On-brand palette to match the mockup (greens / golds / accent).
+    function hovLaunchConfetti() {
+      var wrap = document.getElementById('hov-confetti-wrap');
+      if (!wrap) return;
+      wrap.innerHTML = '';
+      var colors = ['#2D5A27', '#6B9E5F', '#E8B92E', '#F5D77A', '#C0392B'];
+      var count = 36;
+      for (var i = 0; i < count; i++) {
+        var el = document.createElement('i');
+        var size = 5 + Math.random() * 7;
+        var isCircle = Math.random() > 0.5;
+        var angle = (2 * Math.PI * i) / count + (Math.random() - 0.5) * 0.5;
+        var dist = 90 + Math.random() * 90;
+        var dx = Math.cos(angle) * dist;
+        var dy = Math.sin(angle) * dist - 40; // slight upward bias
+        var rot = (Math.random() - 0.5) * 720;
+        var dur = 700 + Math.random() * 400;
+        var delay = Math.random() * 180;
+        el.style.cssText = 'position:absolute;top:50%;left:50%;width:' + size + 'px;height:' + size +
+          'px;background:' + colors[i % colors.length] + ';border-radius:' + (isCircle ? '50%' : '2px') +
+          ';transform:translate(-50%,-50%);opacity:1;pointer-events:none;';
+        wrap.appendChild(el);
+        (function (node, _dx, _dy, _rot, _dur, _delay) {
+          setTimeout(function () {
+            node.style.transition = 'transform ' + _dur + 'ms cubic-bezier(0.25,0.46,0.45,0.94), opacity ' +
+              (_dur * 0.7) + 'ms ease ' + (_dur * 0.4) + 'ms';
+            node.style.transform = 'translate(calc(-50% + ' + _dx + 'px), calc(-50% + ' + _dy + 'px)) rotate(' +
+              _rot + 'deg) scale(' + (0.4 + Math.random() * 0.6) + ')';
+            node.style.opacity = '0';
+          }, _delay);
+          setTimeout(function () { node.remove(); }, _dur + _delay + 120);
+        })(el, dx, dy, rot, dur, delay);
+      }
+    }
+
+    function openCouponModal() {
+      var modal = document.getElementById('hov-coupon-modal');
+      if (modal) modal.dataset.state = 'visible';
+      // Fire after the card slide-in + checkmark draw (~300ms) so the burst reads as a reward.
+      setTimeout(hovLaunchConfetti, 300);
+    }
+    function closeCouponModal() {
+      var modal = document.getElementById('hov-coupon-modal');
+      if (modal) modal.dataset.state = 'hidden';
+    }
+
+    // Initial sync + keep in sync after every cart mutation (buildCart fires cart:updated).
+    hovSyncFromServer();
+    document.addEventListener('cart:updated', hovSyncFromServer);
+
+    document.addEventListener('click', function (e) {
+      // ── Apply the typed code ──
+      if (e.target.closest('[data-coupon-apply]')) {
+        hideCouponError();
+        var preview = e.target.closest('.hov-cart__coupon-preview') || hovCouponEl();
+        var input = preview && preview.querySelector('[data-coupon-input]');
+        var entered = (input ? input.value : '').trim().toUpperCase();
+        if (!entered) { showCouponError('Enter a coupon code.'); return; }
+        fetch('/cart.js')
+          .then(function (res) { return res.json(); })
+          .then(function (cart) {
+            if (!cart || cart.item_count === 0) {
+              showCouponError('Your cart is empty — add an item first.');
+              return;
+            }
+            if (entered !== hovConfiguredCode()) {
+              showCouponError('Enter a valid code (e.g. ' + hovConfiguredCode() + ').');
+              return;
+            }
+            var minPaise = getCouponMinPaise();
+            if (cart.items_subtotal_price < minPaise) {
+              var shortfall = ((minPaise - cart.items_subtotal_price) / 100).toFixed(2);
+              showCouponError('Add ₹' + shortfall + ' more to use ' + hovConfiguredCode() + '.');
+              return;
+            }
+            hovSetApplied(entered, hovCouponPercent());
+            hovSyncCouponUI(cart);
+            populateCouponModal(cart);
+            openCouponModal();
+          })
+          .catch(function () {
+            showCouponError('Couldn’t verify the discount — please try again.');
+          });
+        return;
+      }
+      // ── Remove the applied code ──
+      if (e.target.closest('[data-coupon-remove]')) {
+        hovClearApplied();
+        hideCouponError();
+        hovSyncFromServer();
+        return;
+      }
+      if (e.target.closest('[data-coupon-modal-close]')) {
+        closeCouponModal();
+      }
+    });
+
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') {
+        var modal = document.getElementById('hov-coupon-modal');
+        if (modal && modal.dataset.state === 'visible') closeCouponModal();
+      }
+    });
+  })();
+});
+</script>

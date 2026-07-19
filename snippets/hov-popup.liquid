@@ -1,0 +1,104 @@
+
+<!-- Modal -->
+<div class="modal fade" id="popup-enquiry" tabindex="-1" aria-labelledby="popup-enquiryLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="popup-enquiryLabel">Subscribe for Latest Offers & Announcements!</h5>
+        <button type="button" class="btn-close text-dark fw-bold" onclick="triggerClose('popup-enquiry')" aria-label="Close">X</button>
+      </div>
+      <div class="modal-body">
+        <form id="EnquiryForm">
+          <h2 class="form-message p-1 hide"></h2>
+          <div class="mb-1 mt-0">
+            <input type="text" class="form-control" id="EnquiryFormName" placeholder="Your Name" name="name" value="">
+          </div>
+          <div class="mb-1">
+            <input type="email" class="form-control" placeholder="Your Email*" id="EnquiryFormEmail" name="email" autocorrect="off" autocapitalize="off" value="" >
+          </div>
+          <div class="mb-1">
+            <input type="tel" class="form-control" placeholder="Your Mobile No*" id="EnquiryFormMobile" name="phone" pattern="[0-9\-]*" value="">
+          </div>
+          
+          
+          <div class="d-grid gap-2">
+            <input type="submit" class="btn btn-success full-width" value="Subscribe">
+          </div>          
+      </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<script>
+  
+  function triggerPopup(modal_id){
+    if(modal_id == '' || modal_id == undefined)
+      return false;
+    
+    $('#'+modal_id).modal('show');
+  }
+  
+  function triggerClose(modal_id){
+    if(modal_id == '' || modal_id == undefined)
+      return false;
+    
+    $('#'+modal_id).modal('hide');
+  }
+
+  
+$(document).ready(function () {
+
+  triggerPopup('popup-enquiry');
+  
+  /* SEND REQUEST TO SERVER */
+  
+  $("#EnquiryForm").submit(function (event) {
+    var formData = {
+      name: $("#EnquiryFormName").val(),
+      email_address: $("#EnquiryFormEmail").val(),
+      mobile: $("#EnquiryFormMobile").val(),
+      message: $("#EnquiryFormMessage").val(),
+    };
+
+    $.ajax({
+      type: "POST",
+      url: "https://nbux.akestech.in.net/api/v2/b8cd56442393365598be4607e630c0240a55b153c1a7e0994f624ffe1d32a1a0",
+      data: formData,
+      dataType: "json",
+      encode: true,
+    }).done(function (data) {
+      console.log(data);
+      $(".form-message").removeClass("hide");
+      $(".form-message").addClass("show");
+      if(data.status_code == 200) {
+        $(".form-message").removeClass("invalid-feedback");
+        $(".form-message").addClass("valid-feedback");
+        $(".form-message").html(data.message);
+        $('#EnquiryForm').get(0).reset();
+      } else {
+        var error_message = "";
+        $(".form-message").removeClass("valid-feedback");
+        $(".form-message").addClass("invalid-feedback");
+        if(data.message.hasOwnProperty("name"))
+          error_message += data.message.name[0]+'<br>';
+        if(data.message.hasOwnProperty("mobile"))        
+          error_message += data.message.mobile[0]+'<br>';
+        if(data.message.hasOwnProperty("email_address"))
+          error_message += data.message.email_address[0]+'<br>';
+        if(data.message.hasOwnProperty("message"))
+          error_message += data.message.message[0];
+          
+           $(".form-message").html(error_message);
+        
+      }
+      
+      
+    });
+
+    event.preventDefault();
+  });
+});
+  
+</script>

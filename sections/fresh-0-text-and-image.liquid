@@ -1,0 +1,713 @@
+{{ 'fresh-0-text-and-image.css' | asset_url | stylesheet_tag }}
+{% assign show_message = true %}
+
+{% if template contains 'product' and product.metafields.custom.fresh_text_title_ == blank or 
+ product.metafields.custom.fresh_text_image_ == blank %}
+  {% assign show_message = false %}
+{% endif %}
+
+{% if show_message %}
+<div class="img-text {{ section.settings.class_name }}"  style=" padding-top:{{section.settings.pd_tp }}px; padding-bottom:{{section.settings.pd_bp }}px;
+    {% if section.settings.back_img %}
+      background-image: url('{{ section.settings.back_img | img_url: "master" }}');
+      background-repeat: no-repeat;
+      background-size: cover;
+    {% else %}
+      background-color: {{ section.settings.back_color }};
+    {% endif %}
+  "> 
+   {% if section.settings.back_img23 %}<div class="top-image"><img src="{{ section.settings.back_img23 | img_url: "master" }}"></div>{% endif %}
+  <div class="page-width container "> 
+        <div class="section-tittle">
+             {%- if section.settings.story67 != blank -%}
+              <h1 class="heading">{{ section.settings.story67 }}</h1>
+                {%- endif -%}
+   {%- if section.settings.story6 != blank -%}
+                  <span class="inline-richtext">{{ section.settings.story6 }}</span> 
+                {%- endif -%}
+          </div>
+    <div class="ctm-imgtxt {{ section.settings.pos_img }} {{ section.settings.design_op }} ">
+        <div class="image-container" style="text-align:{{ section.settings.img_left }}; width:{{ section.settings.width_left }}%;">
+          {% if section.settings.ctm_img  %}
+                <img  class="lazyload" data-src="{{ section.settings.ctm_img | img_url: 'master' }}" alt="{{ section.settings.ctm_img.alt }}">
+             {% endif %}
+            {% if section.settings.ctm_video %}
+                  <video class="ctm-custom-video-{{ section.id }}" poster="{{ section.settings.poter_img | img_url: 'master' }}" >
+                      {% if section.settings.ctm_video.sources %}
+                        {% for source in section.settings.ctm_video.sources %}
+                          <source src="{{ source.url }}" type="{{ source.mime_type }}">
+                        {% endfor %}
+                      {% endif %}
+                    </video>
+            {% endif %}
+        </div>
+        <div class="text-container " id="{%- if section.settings.icon_show -%} ctm-icon{%- endif -%}" style="width:{{ section.settings.width_right }}%; text-align:{{ section.settings.text_pos }}">
+          <div class="info-text  section-{{ section.id }}">
+          {% if section.settings.ctm_img12  %}
+                <img  class="lazyload" data-src="{{ section.settings.ctm_img12 | img_url: 'master' }}" alt="Custom Image" class="dektop-v">
+             {% endif %}
+          {% if section.settings.ctm_img123  %}
+                <img  class="lazyload" data-src="{{ section.settings.ctm_img123 | img_url: 'master' }}" alt="Custom Image" class="mobile-v">
+             {% endif %}
+          
+             {%- if section.settings.sub_color12 != blank -%}
+                  <span class="sub-heading" style="color: {{ section.settings.sub_color }};">{{ section.settings.sub_color12 }}</span>
+                {%- endif -%}
+              {%- if section.settings.title_1 != blank -%}
+                  <h3 class="inline-richtext" style="color: {{ section.settings.font_color }};padding-bottom:22px;">{{ section.settings.title_1 }}</h3>
+                {%- endif -%}
+              {%- if section.settings.text_1 != blank -%}
+                <div class="rte" style="color: {{ section.settings.font_color1 }};">{{ section.settings.text_1 }}</div>
+                {%- endif -%}
+            {%- if section.settings.button_label != blank -%}
+              <a
+                class="button button--primary ctm-btn"
+                {% if section.settings.button_link == blank %}
+                  role="link" aria-disabled="true"
+                {% else %}
+                  href="{{ section.settings.button_link }}"
+                {% endif %}
+              >
+                {{ section.settings.button_label | escape }}
+              </a>
+            {%- endif -%}
+        </div></div>
+    </div>
+</div> 
+  </div>
+  {% endif %}
+<style>
+  {% if section.settings.icon7 %}
+  body .ctm-imgtxt div#ctm-icon ul {
+    list-style: none;
+}
+
+/* body .ctm-imgtxt div#ctm-icon ul li:before {
+    content: '';
+    position: absolute;
+    left: -20px;
+    width: 34px;
+    height: 40px;
+    top: 6px;
+    background-size: contain;
+    background-repeat: no-repeat;
+     background-image: url('{{ section.settings.icon7 | img_url: "master" }}');
+} */
+body .ctm-imgtxt div#ctm-icon ul {
+    list-style: none;
+    position: relative;
+}
+
+body .ctm-imgtxt div#ctm-icon ul li {
+    position: relative;
+    padding-left: 24px;
+}
+body .ctm-imgtxt div#ctm-icon ul li {
+    margin-bottom: 30px !important;
+    font-family: 'Exo 2';
+    font-weight: 600;
+    font-size: 20.83px;
+    line-height: 24.21px;
+    letter-spacing: 0;
+    color: #137E42;
+}
+body .ctm-imgtxt div#ctm-icon ul li:before {
+    content: '01';
+    font-family: 'Exo 2';
+    font-weight: 600;
+    font-size: 70.32px;
+    line-height: 85.98px;
+    letter-spacing: 11px;
+    color: #D93A521F;
+    position: absolute;
+    left: -35px;
+    top: -19px;
+}
+body .ctm-imgtxt div#ctm-icon ul li:nth-of-type(2):before {
+    content: '02';
+}
+body .ctm-imgtxt div#ctm-icon ul li:nth-of-type(3):before {
+    content: '03';
+}
+body .ctm-imgtxt div#ctm-icon ul li:nth-of-type(4):before {
+    content: '04';
+}
+body .ctm-imgtxt div#ctm-icon ul li:nth-of-type(5):before {
+    content: '05';
+}
+body .ctm-imgtxt div#ctm-icon ul li:nth-of-type(6):before {
+    content: '06';
+}
+body .ctm-imgtxt div#ctm-icon ul li:nth-of-type(7):before {
+    content: '07';
+}
+body .ctm-imgtxt div#ctm-icon ul li:nth-of-type(8):before {
+    content: '08';
+}
+body .ctm-imgtxt div#ctm-icon ul li:nth-of-type(9):before {
+    content: '09';
+}
+body .ctm-imgtxt div#ctm-icon ul li:nth-of-type(10):before {
+    content: '10';
+}
+
+  @media(max-width:767px) {
+    body .ctm-imgtxt div#ctm-icon ul li {
+    font-size: 16.83px;
+    line-height: 21.21px;
+}
+body .ctm-imgtxt div#ctm-icon ul li:before {
+    font-size: 51.32px;
+    line-height: 76.98px;
+    left: -27px;
+    top: -19px;
+}
+  }  
+  {%- endif -%}
+  
+  .img-text video {
+    border-radius: 18px;
+}
+  .ctm-imgtxt img {
+    width: 100%;
+}
+  .ctm-imgtxt {
+	display: flex;
+	align-items: center;
+	.image {
+		max-width: 100%;
+		height: auto;
+		border-radius: 8px;
+	}
+	.text-container {
+		padding-left: 20px;
+		
+	}
+	
+}
+
+.img-text.Singal-video  .rte p {
+    font-family: 'Exo 2';
+}
+  
+span.sub-heading {
+    font-family: Anton;
+    font-weight: 400;
+    font-size: 64px;
+    line-height: 96.34px;
+    letter-spacing: 0;
+}
+  
+@media(max-width:767px) {
+ .ctm-imgtxt .info-text.section-{{ section.id }} h3.inline-richtext {
+    font-size:{{ section.settings.font_sizem }}px;
+}
+.ctm-imgtxt .info-text.section-{{ section.id }} .rte p {
+    font-size:{{ section.settings.font_size1m }}px;
+}
+  
+ .ctm-imgtxt .info-text.section-{{ section.id }} span.sub-heading {
+   font-size:{{ section.settings.sub_headingt }}px;
+ }
+  }
+  @media(min-width:768px) {
+  .ctm-imgtxt .info-text.section-{{ section.id }} h3.inline-richtext {
+    font-size:{{ section.settings.font_size }}px;
+    font-weight: 500;
+    line-height: 40.42px;
+  
+}
+.ctm-imgtxt .info-text.section-{{ section.id }} .rte p {
+    font-size:{{ section.settings.font_size1 }}px;
+}
+ 
+ .ctm-imgtxt .info-text.section-{{ section.id }} span.sub-heading {
+  font-size:{{ section.settings.font_size133 }}px;
+ } 
+  }
+</style>
+<script>
+
+document.addEventListener("DOMContentLoaded", function () {
+  // Select all video elements with the section-specific class
+  const ctmVideos = document.querySelectorAll(".image-container .ctm-custom-video-{{ section.id }}");
+
+  ctmVideos.forEach((ctmVideo) => {
+    console.log("Video element on page:", ctmVideo); // Debugging line
+
+    // Initially hide controls
+    ctmVideo.controls = false;
+
+    // Add click event listener to each video
+    ctmVideo.addEventListener("click", () => {
+      if (ctmVideo.paused) {
+        // Pause other videos before playing the current one
+        ctmVideos.forEach((otherVideo) => {
+          if (otherVideo !== ctmVideo && !otherVideo.paused) {
+            otherVideo.pause();
+            otherVideo.controls = false; // Hide controls for other videos
+          }
+        });
+
+        // Play the clicked video and show controls
+        ctmVideo.play().then(() => {
+          ctmVideo.controls = true;
+        }).catch((error) => {
+          console.error("Error trying to play video:", error);
+        });
+      } else {
+        // Pause the video and hide controls
+        ctmVideo.pause();
+        ctmVideo.controls = false;
+      }
+    });
+
+    // When video ends, hide controls
+    ctmVideo.addEventListener("ended", () => {
+      ctmVideo.controls = false;
+    });
+  });
+
+  if (ctmVideos.length === 0) {
+    console.log("No video elements found on this page. Skipping video functionality.");
+  }
+});
+
+// document.addEventListener("DOMContentLoaded", function () {
+//   // Select the video element inside the image container
+//   const ctmVideo = document.querySelector(".image-container .ctm-custom-video-{{ section.id }}");
+//   console.log("Video element on page:", ctmVideo); // Debugging line
+
+//   // Only proceed if the video element exists
+//   if (ctmVideo) {
+//     ctmVideo.addEventListener("click", () => {
+//       if (ctmVideo.paused) {
+//         ctmVideo.play().catch((error) => {
+//           console.error("Error trying to play video:", error);
+//         });
+//       } else {
+//         ctmVideo.pause();
+//       }
+//     });
+//   } else {
+//     console.log("No video element found on this page. Skipping video functionality.");
+//   }
+// });
+
+  //  document.addEventListener("DOMContentLoaded", () => {
+  //   const videos = document.querySelectorAll(".custom-video"); // Select all videos
+
+  //   videos.forEach((video) => {
+  //     video.addEventListener("click", () => {
+  //       // Pause and reset all other videos
+  //       videos.forEach((otherVideo) => {
+  //         if (otherVideo !== video && !otherVideo.paused) {
+  //           otherVideo.pause();
+  //           otherVideo.currentTime = 0; // Reset other video to the beginning
+  //         }
+  //       });
+
+  //       // Play the clicked video
+  //       if (video.paused) {
+  //         video.play().catch((error) => {
+  //           console.error("Error trying to play video:", error);
+  //         });
+  //       } else {
+  //         video.pause(); // Pause if the clicked video is already playing
+  //       }
+  //     });
+  //   });
+  // });  
+</script>
+{% schema %}
+  {
+    "name": "fresh-0-text-and-image",
+    "class": "section Sver-text-and-image",
+    "settings": [
+       {
+          "type": "text",
+          "id": "class_name",
+          "label": "Section Class"
+        },
+		 {
+          "type": "text",
+          "id": "story67",
+          "label": "Heading"
+        },
+             {
+          "type": "inline_richtext",
+          "id": "story6",
+          "label": "Text"
+        },
+       {
+      "type": "header",
+      "content": "Section padding"
+      },
+        {
+        "type": "range",
+        "id": "pd_tp",
+        "label": "padding top",
+        "default": 50,
+        "min": 10,
+        "max": 60,
+        "step": 1
+      },
+	  {
+        "type": "range",
+        "id": "pd_bp",
+        "label": "padding bottom",
+        "default": 50,
+        "min": 10,
+        "max": 60,
+        "step": 1
+      },
+      
+	    {
+        "type": "color",
+        "id": "back_color",
+        "label": "Background Color",
+        "default": "#fbedef"
+       },
+       {
+        "type": "image_picker",
+        "id": "back_img",
+        "label": "Background Image"
+       },
+       {
+      "type": "header",
+      "content": "Image"
+    },
+        {
+          "type": "select",
+          "id": "width_left",
+          "label": "Column Width",
+          "default": "33",
+          "options": [
+              {
+                  "value": "25",
+                  "label": "25%"
+              },
+              {
+                  "value": "33",
+                  "label": "33%"
+              },
+			   {
+                  "value": "50",
+                  "label": "50%"
+              },
+			  {
+                  "value": "66",
+                  "label": "66%"
+              },
+              {
+                  "value": "75",
+                  "label": "75%"
+              },
+              {
+                  "value": "60",
+                  "label": "60%"
+              },
+             {
+                  "value": "40",
+                  "label": "40%"
+              },
+             {
+                  "value": "45",
+                  "label": "45%"
+              },
+             {
+                  "value": "55",
+                  "label": "55%"
+              }
+          ]
+      },
+        {
+          "type": "select",
+          "id": "pos_img",
+          "label": "Image position",
+          "default": "right",
+          "options": [
+              {
+                  "value": "right",
+                  "label": "right"
+              },
+              {
+                  "value": "left",
+                  "label": "left"
+              },
+          ]
+      },
+    {
+      "type": "image_picker",
+      "id": "ctm_img",
+      "label": "Image"
+      },
+         {
+          "type": "select",
+          "id": "img_left",
+          "label": "Image style",
+          "default": "center",
+          "options": [
+              {
+                  "value": "center",
+                  "label": "center"
+              },
+              {
+                  "value": "right",
+                  "label": "right"
+              },
+              {
+                  "value": "left",
+                  "label": "left"
+              },
+          ]
+      },
+       {
+      "type": "header",
+      "content": "Video"
+    },
+        {
+          "type": "video",
+          "id": "ctm_video",
+          "label": "Video"
+       },
+        {
+          "type": "image_picker",
+          "id": "poter_img",
+          "label": "Poster Image"
+        },
+      
+        {
+      "type": "header",
+      "content": "Text Info"
+    },
+           {
+          "type": "select",
+          "id": "design_op",
+          "label": "Design Option",
+          "default": "design-1",
+          "options": [
+              {
+                  "value": "design-1",
+                  "label": "Design-1"
+              },
+              {
+                  "value": "design-2",
+                  "label": "Design-2"
+              },
+              {
+                  "value": "design-3",
+                  "label": "Design-3"
+              },
+            {
+                  "value": "design-4",
+                  "label": "Design-4"
+              },
+          ]
+      },
+        {
+          "type": "select",
+          "id": "width_right",
+          "label": "Column Width",
+          "default": "66",
+          "options": [
+              {
+                  "value": "25",
+                  "label": "25%"
+              },
+              {
+                  "value": "33",
+                  "label": "33%"
+              },
+			   {
+                  "value": "50",
+                  "label": "50%"
+              },
+			    {
+                  "value": "66",
+                  "label": "66%"
+              },
+             {
+                  "value": "75",
+                  "label": "75%"
+              },
+              {
+                  "value": "60",
+                  "label": "60%"
+              },
+             {
+                  "value": "40",
+                  "label": "40%"
+              },
+            {
+                  "value": "45",
+                  "label": "45%"
+              },
+             {
+                  "value": "55",
+                  "label": "55%"
+              }
+			  
+          ]
+      },
+       {
+          "type": "image_picker",
+          "id": "ctm_img12",
+          "label": "Desktop Image"
+       },
+       {
+          "type": "image_picker",
+          "id": "ctm_img123",
+          "label": "Mobile Image"
+       },
+      {
+        "type": "checkbox",
+        "id": "icon_show",
+        "label": "Show Icon",
+        "info": "You are add icon on text",
+        "default": false
+      },
+       {
+        "type": "image_picker",
+        "id": "icon7",
+        "label": "Icon Image"
+       },
+      {
+          "type": "inline_richtext",
+          "id": "sub_color12",
+          "label": "Tittle"
+        },
+        {
+        "type": "range",
+        "id": "font_size133",
+        "label": "Font Size",
+        "default": 33,
+        "min": 10,
+        "max": 70,
+        "step": 1
+      },
+           {
+        "type": "range",
+        "id": "sub_headingt",
+        "label": "Font Size mobile",
+        "default": 16,
+        "min": 10,
+        "max": 60,
+        "step": 1
+      },
+       {
+        "type": "color",
+        "id": "sub_color",
+        "label": "Tittle Color",
+        "default": "#A1894C"
+       },
+      {
+          "type": "inline_richtext",
+          "id": "title_1",
+          "default": "What is evcucalyptus tea tree face mist?",
+          "label": "Tittle"
+        },
+        {
+        "type": "range",
+        "id": "font_size",
+        "label": "Font Size",
+        "default": 33,
+        "min": 10,
+        "max": 50,
+        "step": 1
+      },
+           {
+        "type": "range",
+        "id": "font_sizem",
+        "label": "Font Size mobile",
+        "default": 16,
+        "min": 10,
+        "max": 60,
+        "step": 1
+      },
+       {
+        "type": "color",
+        "id": "font_color",
+        "label": "Tittle Color",
+        "default": "#A1894C"
+       },
+        {
+          "type": "richtext",
+          "id": "text_1",
+          "default": "<p>Personal care’s Amla Ginger Green Tea combines the potent benefits of Amla and Ginger, creating a refreshing tea that supports both your immune and digestive systems. </p>",
+          "label": "Text"
+        },
+          {
+        "type": "range",
+        "id": "font_size1",
+        "label": "Font Size",
+        "default": 19,
+        "min": 10,
+        "max": 50,
+        "step": 1
+      },
+      {
+        "type": "range",
+        "id": "font_size1m",
+        "label": "Font Size mobile",
+        "default": 16,
+        "min": 10,
+        "max": 60,
+        "step": 1
+      },
+       {
+        "type": "color",
+        "id": "font_color1",
+        "label": "Tittle Color",
+        "default": "#2A2A2A"
+       },
+        {
+          "type": "text",
+          "id": "button_label",
+          "label": "Button Text"
+        },
+        {
+          "type": "url",
+          "id": "button_link",
+          "label": "Button link"
+        },
+         {
+          "type": "select",
+          "id": "text_pos",
+          "label": "Image style",
+          "default": "left",
+          "options": [
+              {
+                  "value": "left",
+                  "label": "left"
+              },
+              {
+                  "value": "center",
+                  "label": "center"
+              },
+              {
+                  "value": "right",
+                  "label": "right"
+              }
+            
+          ]
+      },
+       {
+      "type": "header",
+      "content": "Decorative  Images"
+      },
+
+  {
+        "type": "image_picker",
+        "id": "back_img23",
+        "label": "Image Right"
+       },
+
+    ],
+      "presets": [
+    {
+      "name": "fresh-0-text-and-image",
+    }
+  ]
+  }
+{% endschema %}

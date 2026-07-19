@@ -1,0 +1,16 @@
+graphify-out/
+
+# Shopify CLI
+.shopify/
+*.log
+
+# OS / editor
+.DS_Store
+Thumbs.db
+
+# Node (only if any tooling is added)
+node_modules/
+
+# Secrets / env
+.env
+.env.*

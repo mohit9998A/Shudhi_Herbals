@@ -1,0 +1,204 @@
+{{ 'fresh-product-des-tab.css' | asset_url | stylesheet_tag }}
+<div class="full-secton tabs-ctm">
+  <div class="tabs-container">
+    <div class="tabs ">
+    	<div class="tab-c">
+      <div class="tab-links page-width container ">
+        {%- for block in section.blocks -%}
+         {% if block.settings.tab1 == 'Description' %}
+            <button class="tab-link" data-tab="{{ block.settings.tab1 }}" style="font-size:{{ block.settings.heading_size12 }}px; color:{{ block.settings.colo898 }};">
+           {{ block.settings.tab1 }}
+         </button>
+          {% elsif block.settings.tab1 == 'Ingredients' and product.metafields.custom.ingredients.value !=blank %}
+            <button class="tab-link" data-tab="{{ block.settings.tab1 }}" style="font-size:{{ block.settings.heading_size12 }}px; color:{{ block.settings.colo898 }};">
+           {{ block.settings.tab1 }}
+         </button>
+          {% elsif block.settings.tab1 == 'Brewing Instruction' and product.metafields.custom.brewing_instruction.value != blank or product.metafields.custom.brewing_ins_desktop != blank%}
+         <button class="tab-link" data-tab="{{ block.settings.tab1 }}" style="font-size:{{ block.settings.heading_size12 }}px; color:{{ block.settings.colo898 }};">
+           {{ block.settings.tab1 }}
+         </button>
+         {% elsif block.settings.tab1 == 'Usage Methods' and product.metafields.custom.usage_method_desk_img != blank%}
+         <button class="tab-link" data-tab="{{ block.settings.tab1 }}" style="font-size:{{ block.settings.heading_size12 }}px; color:{{ block.settings.colo898 }};">
+           {{ block.settings.tab1 }}
+         </button>
+          {% elsif block.settings.tab1 == 'How to Consume' and product.metafields.custom.how_to_consume_desk_img != blank%}
+         <button class="tab-link" data-tab="{{ block.settings.tab1 }}" style="font-size:{{ block.settings.heading_size12 }}px; color:{{ block.settings.colo898 }};">
+           {{ block.settings.tab1 }}
+         </button>
+            {% elsif block.settings.tab1 == 'Certifications' and product.metafields.custom.certifications.value != blank %}
+         <button class="tab-link" data-tab="{{ block.settings.tab1 }}" style="font-size:{{ block.settings.heading_size12 }}px; color:{{ block.settings.colo898 }};">
+           {{ block.settings.tab1 }}
+         </button>
+          {% elsif block.settings.tab1 == 'Brand Overview' and product.metafields.custom.brand_overview.value != blank%}
+         <button class="tab-link" data-tab="{{ block.settings.tab1 }}" style="font-size:{{ block.settings.heading_size12 }}px; color:{{ block.settings.colo898 }};">
+           {{ block.settings.tab1 }}
+         </button>
+           {% elsif block.settings.tab1 == 'More Information' and product.metafields.custom.more_information.value != blank%}
+         <button class="tab-link" data-tab="{{ block.settings.tab1 }}" style="font-size:{{ block.settings.heading_size12 }}px; color:{{ block.settings.colo898 }};">
+           {{ block.settings.tab1 }}
+         </button>
+            {% endif %}
+          {%- endfor -%}
+       </div>
+          <hr class="hr45">
+      </div>
+      
+     {%- for block in section.blocks -%}
+      <div class="tab-content container  page-width" id="{{ block.settings.tab1 }}">
+         {{ block.settings.custom_liquid }}
+       {%- if block.settings.text != blank -%}
+                  <div class="rte" style="font-size:{{ block.settings.heading_size1 }}px; color:{{ block.settings.colo89 }};">{{ block.settings.text }}</div>
+                {%- endif -%}
+        	<picture>
+  <!-- ?????? ???? (max-width: 767px) -->
+  {% if block.settings.mobile_image != blank %}
+    <source media="(max-width: 767px)" srcset="{{ block.settings.mobile_image | image_url }}">
+  {% endif %}
+
+  <!-- ???????? ???? (default fallback) -->
+  {% if block.settings.desktop_image != blank %}
+    <img src="{{ block.settings.desktop_image | image_url }}" alt="Product Image" loading="lazy">
+  {% endif %}
+</picture>
+      </div>
+      
+       {%- endfor -%}
+    </div>
+  </div>
+   </div>
+     <style>
+  .full-secton.tabs-ctm {
+    padding-top:{{section.settings.pd_tp }}px;
+    padding-bottom:{{section.settings.pd_bp }}px;
+    background:{{section.settings.back_color }};
+}
+   </style>
+
+   
+<script>
+	const tabLinks = document.querySelectorAll('.tab-link');
+const tabContents = document.querySelectorAll('.tab-content');
+
+tabLinks.forEach(link => {
+  link.addEventListener('click', () => {
+    // Remove active class from all links
+    tabLinks.forEach(link => link.classList.remove('active'));
+    // Add active class to clicked link
+    link.classList.add('active');
+
+    // Hide all tab contents
+    tabContents.forEach(content => content.classList.remove('active'));
+
+    // Show current tab content
+    const targetTab = document.getElementById(link.dataset.tab);
+    targetTab.classList.add('active');
+  });
+});
+ $('.tab-links button.tab-link:first-child').first().addClass('active');
+  $('.tabs .tab-content').first().addClass('active');
+</script>
+{% schema %}
+  {
+    "name": "fresh-0-product-des-tab",
+    "settings": [
+     {
+      "type": "header",
+      "content": "Section padding"
+      },
+      {
+        "type": "range",
+        "id": "pd_tp",
+        "label": "padding top",
+        "default": 50,
+        "min": 10,
+        "max": 60,
+        "step": 1
+      },
+	  {
+        "type": "range",
+        "id": "pd_bp",
+        "label": "padding bottom",
+        "default": 50,
+        "min": 10,
+        "max": 60,
+        "step": 1
+      },
+          {
+    "type": "color",
+    "id": "back_color",
+    "label": "Column background color",
+    "default": "#ffffff"
+    }
+    ],
+    "blocks": [
+    {
+      "type": "tab",
+      "name": "Tab",
+      "settings": [
+       {
+          "type": "inline_richtext",
+          "id": "tab1",
+          "default": "Tittle",
+          "label": "Tittle"
+      },
+        {
+        "type": "range",
+        "id": "heading_size12",
+        "label": "Font Size",
+        "default":12,
+        "min": 10,
+        "max": 20,
+        "step": 1
+       },
+      {
+      "type": "color",
+      "id": "colo898",
+      "label": "Text colo",
+      "default": "#000"
+       },
+      {
+          "type": "liquid",
+          "id": "custom_liquid",
+          "label": "Custom html"
+       },
+        {
+          "type": "richtext",
+          "id": "text",
+          "default": "<p>Personal care Organic Amla Ginger Green Tea. Our herbal tea boosts immunity, </p>",
+          "label": "Text"
+        },
+        {
+          "type": "range",
+          "id": "heading_size1",
+          "label": "Font Size",
+          "default":12,
+          "min": 10,
+          "max": 20,
+          "step": 1
+       },
+        {
+          "type": "color",
+          "id": "colo89",
+          "label": "Text colo",
+          "default": "#000"
+       },
+        {
+      "type": "image_picker",
+      "id": "desktop_image",
+      "label": "Desktop Image"
+    },
+    {
+      "type": "image_picker",
+      "id": "mobile_image",
+      "label": "Mobile Image"
+    }
+      ]
+    }
+  ],
+      "presets": [
+    {
+      "name": "fresh-0-product-des-tab"
+    }
+  ]
+  }
+{% endschema %}

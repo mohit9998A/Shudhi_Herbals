@@ -1,0 +1,479 @@
+<div class="hov-filter engoj-collection-sidebar engoc_sw_filter_tag">
+  <!-- Decorative leaf corner — top-left, faint -->
+  <svg class="hov-filter__deco-top" viewBox="0 0 90 90" fill="none" aria-hidden="true">
+    <path d="M5 8 C25 5 45 12 55 28 C62 40 58 55 45 60 C50 48 47 35 38 25 C28 14 14 10 5 8Z" fill="#C8DDB8" opacity="0.55"/>
+    <path d="M8 10 C24 16 40 28 46 42" stroke="#8AB87A" stroke-width="1" fill="none" opacity="0.5"/>
+    <path d="M14 12 C12 18 10 24 12 30" stroke="#8AB87A" stroke-width="0.8" fill="none" opacity="0.4"/>
+  </svg>
+
+  {%- assign sidebar_logo = settings.logo_mobile | default: settings.logo_desktop -%}
+  <div class="hov-filter__brand">
+    <div class="hov-filter__brand-logo">
+      {%- if sidebar_logo != blank -%}
+        <img src="{{ sidebar_logo | img_url: '100x' }}"
+             alt="Shudhi Herbals"
+             class="hov-filter__brand-emblem"
+             onerror="this.style.display='none'">
+      {%- else -%}
+        <img src="{{ 'logo.png' | asset_url }}"
+             alt="Shudhi Herbals"
+             class="hov-filter__brand-emblem"
+             onerror="this.style.display='none'">
+      {%- endif -%}
+    </div>
+    <div class="hov-filter__brand-text">
+      <span class="hov-filter__brand-name">SHUDHI HERBALS</span>
+      <span class="hov-filter__brand-tagline">PURIFY YOUR PRESENCE</span>
+    </div>
+
+    <!-- Decorative leaf branch, top-right of the brand block -->
+    <svg class="hov-filter__brand-deco" viewBox="0 0 100 80" fill="none" aria-hidden="true">
+      <path d="M95 5 C80 8 65 15 55 28 C48 37 45 48 48 58"
+            stroke="#7DAF6A" stroke-width="1.3" fill="none" opacity="0.6"/>
+      <path d="M88 8 C82 6 75 9 73 16 C71 22 76 27 82 25 C80 21 80 14 88 8Z" fill="#A8CC96" opacity="0.55"/>
+      <path d="M75 22 C70 21 64 24 63 31 C62 36 67 40 72 37 C70 33 70 26 75 22Z" fill="#B8D4A4" opacity="0.48"/>
+      <path d="M60 38 C56 38 52 41 52 47 C52 51 56 54 60 51 C58 48 58 42 60 38Z" fill="#C8DDB8" opacity="0.40"/>
+      <circle cx="50" cy="55" r="1.5" fill="#8AB87A" opacity="0.5"/>
+    </svg>
+  </div>
+
+  <!-- Price Filter (Section 1) -->
+  {% render 'hov-price-filter' %}
+
+  <!-- Categories Nested Accordion (Section 2) -->
+  <div class="hov-filter__section widget widget-category filter-category">
+    <div class="hov-filter__heading">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+        <path d="M12 2C6 2 2 8 2 14c0 4 2.5 7 6 8 1-3 3-5 4-6-1 1-2 3-2 5 2 0 4-1 5.5-3C17 16 18 12 18 8z"/>
+      </svg>
+      <span>CATEGORIES</span>
+    </div>
+
+    <div class="widget-content">
+      <ul class="hov-filter__list list-category-toggle toggle-tab list-none">
+
+        <!-- 1. Staple & Packaged Food (accordion) -->
+        {%- assign hov_staple_sub = 'organic-pulses-and-beans,organic-sweeteners,organic-cooking-oils,millets,salt-seasonings,organic-poha,organic-peanut' | split: ',' -%}
+        {%- assign hov_staple_open = false -%}
+        {%- for _h in hov_staple_sub -%}
+          {%- if collection.handle == _h -%}{%- assign hov_staple_open = true -%}{%- endif -%}
+        {%- endfor -%}
+        <li class="hov-filter__item hov-filter__item--accordion">
+          <div class="hov-filter__link-wrapper">
+            <a href="/collections/all" class="hov-filter__link" style="flex:1;">
+              <span class="hov-filter__icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+                  <rect x="2" y="3" width="20" height="18" rx="2"/>
+                  <path d="M2 9h20M9 3v18"/>
+                </svg>
+              </span>
+              <span class="hov-filter__label">[PLACEHOLDER — category]</span>
+            </a>
+            <button type="button" class="hov-filter__toggle-btn{% if hov_staple_open %} is-active{% endif %}" aria-expanded="{{ hov_staple_open }}">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+          </div>
+          <ul class="hov-filter__submenu" style="{% if hov_staple_open %}display:block;{% else %}display:none;{% endif %}">
+            <li class="hov-filter__submenu-item{% if collection.handle == 'organic-pulses-and-beans' %} hov-filter__submenu-item--active{% endif %}">
+              <a href="/collections/all" class="hov-filter__submenu-link">[PLACEHOLDER — category]</a>
+            </li>
+            <li class="hov-filter__submenu-item{% if collection.handle == 'organic-sweeteners' %} hov-filter__submenu-item--active{% endif %}">
+              <a href="/collections/all" class="hov-filter__submenu-link">[PLACEHOLDER — category]</a>
+            </li>
+            <li class="hov-filter__submenu-item{% if collection.handle == 'organic-cooking-oils' %} hov-filter__submenu-item--active{% endif %}">
+              <a href="/collections/all" class="hov-filter__submenu-link">[PLACEHOLDER — category]</a>
+            </li>
+            <li class="hov-filter__submenu-item{% if collection.handle == 'millets' %} hov-filter__submenu-item--active{% endif %}">
+              <a href="/collections/all" class="hov-filter__submenu-link">[PLACEHOLDER — category]</a>
+            </li>
+            <li class="hov-filter__submenu-item{% if collection.handle == 'salt-seasonings' %} hov-filter__submenu-item--active{% endif %}">
+              <a href="/collections/all" class="hov-filter__submenu-link">[PLACEHOLDER — category]</a>
+            </li>
+            <li class="hov-filter__submenu-item{% if collection.handle == 'organic-poha' %} hov-filter__submenu-item--active{% endif %}">
+              <a href="/collections/all" class="hov-filter__submenu-link">[PLACEHOLDER — category]</a>
+            </li>
+            <li class="hov-filter__submenu-item{% if collection.handle == 'organic-peanut' %} hov-filter__submenu-item--active{% endif %}">
+              <a href="/collections/all" class="hov-filter__submenu-link">[PLACEHOLDER — category]</a>
+            </li>
+          </ul>
+        </li>
+
+        <!-- 2. Teas & Infusions (flat) -->
+        <li class="hov-filter__item{% if collection.handle == 'teas' %} hov-filter__item--active{% endif %}">
+          <a href="/collections/all" class="hov-filter__link">
+            <span class="hov-filter__icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+                <path d="M3 9h14v4a5 5 0 01-5 5H8a5 5 0 01-5-5V9z"/>
+                <path d="M17 10h1.5a2 2 0 010 4H17"/>
+                <path d="M7 4c0 1 1 1.5 1 2.5S7 8 7 8M11 4c0 1 1 1.5 1 2.5S11 8 11 8"/>
+              </svg>
+            </span>
+            <span class="hov-filter__label">[PLACEHOLDER — category]</span>
+          </a>
+        </li>
+
+        <!-- 3. Organic & Sprouted Flours (flat) -->
+        <li class="hov-filter__item{% if collection.handle == 'flour' %} hov-filter__item--active{% endif %}">
+          <a href="/collections/all" class="hov-filter__link">
+            <span class="hov-filter__icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+                <ellipse cx="12" cy="12" rx="4" ry="9"/>
+                <path d="M12 3v18"/>
+              </svg>
+            </span>
+            <span class="hov-filter__label">[PLACEHOLDER — category]</span>
+          </a>
+        </li>
+
+        <!-- 4. Health Supplements (accordion) -->
+        {%- assign hov_health_open = false -%}
+        {%- if collection.handle == 'himalayan-shilajit' or collection.handle == 'health-supplements' or collection.handle == 'nutraceuticals' -%}
+          {%- assign hov_health_open = true -%}
+        {%- endif -%}
+        <li class="hov-filter__item hov-filter__item--accordion{% if collection.handle == 'health-supplements' or collection.handle == 'nutraceuticals' %} hov-filter__item--active{% endif %}">
+          <div class="hov-filter__link-wrapper">
+            <a href="/collections/all" class="hov-filter__link" style="flex:1;">
+              <span class="hov-filter__icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                </svg>
+              </span>
+              <span class="hov-filter__label">[PLACEHOLDER — category]</span>
+            </a>
+            <button type="button" class="hov-filter__toggle-btn{% if hov_health_open %} is-active{% endif %}" aria-expanded="{{ hov_health_open }}">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+          </div>
+          <ul class="hov-filter__submenu" style="{% if hov_health_open %}display:block;{% else %}display:none;{% endif %}">
+            <li class="hov-filter__submenu-item">
+              <a href="/collections/all" class="hov-filter__submenu-link">[PLACEHOLDER — category]</a>
+            </li>
+            <li class="hov-filter__submenu-item">
+              <a href="/collections/all" class="hov-filter__submenu-link">[PLACEHOLDER — category]</a>
+            </li>
+            <li class="hov-filter__submenu-item">
+              <a href="/collections/all" class="hov-filter__submenu-link">[PLACEHOLDER — category]</a>
+            </li>
+            <li class="hov-filter__submenu-item{% if collection.handle == 'himalayan-shilajit' %} hov-filter__submenu-item--active{% endif %}">
+              <a href="/collections/all" class="hov-filter__submenu-link">[PLACEHOLDER — category]</a>
+            </li>
+          </ul>
+        </li>
+
+      </ul>
+    </div>
+  </div>
+
+  <!-- Decorative leaf corner — bottom-right, faint -->
+  <svg class="hov-filter__deco-bottom" viewBox="0 0 90 90" fill="none" aria-hidden="true">
+    <path d="M85 82 C65 85 45 78 35 62 C28 50 32 35 45 30 C40 42 43 55 52 65 C62 76 76 80 85 82Z" fill="#C8DDB8" opacity="0.55"/>
+    <path d="M82 80 C66 74 50 62 44 48" stroke="#8AB87A" stroke-width="1" fill="none" opacity="0.5"/>
+  </svg>
+</div>
+
+<style>
+.filter_sidebar_general {
+  overflow: visible !important;
+  padding-left: 0 !important;
+  margin-top: 0 !important;
+}
+
+.hov-filter {
+  position: relative !important;
+  overflow: hidden !important;
+  background: #FDFBF6 !important;
+  border-radius: 20px !important;
+  padding: 26px 20px 28px !important;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.05) !important;
+  border: 1px solid #EFECE6 !important;
+}
+
+.hov-filter__deco-top {
+  position: absolute !important;
+  top: -4px !important;
+  left: -4px !important;
+  width: 60px !important;
+  height: 60px !important;
+  pointer-events: none !important;
+  z-index: 0 !important;
+}
+
+.hov-filter__deco-bottom {
+  position: absolute !important;
+  bottom: -4px !important;
+  right: -4px !important;
+  width: 70px !important;
+  height: 70px !important;
+  pointer-events: none !important;
+  z-index: 0 !important;
+}
+
+.hov-filter__section {
+  position: relative !important;
+  z-index: 1 !important;
+  margin-bottom: 24px !important;
+  border: none !important;
+  background: transparent !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+}
+.hov-filter__section:last-child {
+  margin-bottom: 0 !important;
+}
+
+.hov-filter__heading {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  font-size: 12.5px !important;
+  font-weight: 700 !important;
+  letter-spacing: 1.3px !important;
+  color: #2D5A27 !important;
+  margin-bottom: 14px !important;
+  padding-bottom: 10px !important;
+  border-bottom: 1px solid #EAE3D3 !important;
+  position: relative !important;
+  z-index: 1 !important;
+}
+.hov-filter__heading svg {
+  flex-shrink: 0 !important;
+}
+
+.hov-filter__list {
+  list-style: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 2px !important;
+}
+
+/* Clear legacy theme before/after pseudo-elements on list items */
+.hov-filter__list li::before,
+.hov-filter__list li::after {
+  display: none !important;
+  content: none !important;
+}
+
+.hov-filter__item {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.hov-filter__link {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 10px !important;
+  padding: 9px 10px !important;
+  border-radius: 10px !important;
+  color: #4A4A40 !important;
+  font-size: 14px !important;
+  text-decoration: none !important;
+  transition: background 0.2s ease, color 0.2s ease !important;
+  line-height: 1.3 !important;
+  margin: 0 !important;
+}
+.hov-filter__link:hover {
+  background: #F5F1E6 !important;
+  color: #2D5A27 !important;
+  text-decoration: none !important;
+}
+
+.hov-filter__icon {
+  width: 22px !important;
+  height: 22px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex-shrink: 0 !important;
+  color: #8B6914 !important;
+  transition: color 0.2s ease !important;
+}
+.hov-filter__icon svg {
+  width: 18px !important;
+  height: 18px !important;
+  stroke-width: 1.4 !important;
+}
+.hov-filter__link:hover .hov-filter__icon {
+  color: #2D5A27 !important;
+}
+
+.hov-filter__item--active > .hov-filter__link-wrapper > .hov-filter__link,
+.hov-filter__item--active > .hov-filter__link {
+  background: #EEF1E4 !important;
+  border-left: 3px solid #6B8E4E !important;
+  padding-left: 7px !important; /* 10px padding minus the 3px border */
+  color: #1A2E1A !important;
+  font-weight: 600 !important;
+}
+.hov-filter__item--active > .hov-filter__link-wrapper > .hov-filter__link .hov-filter__icon,
+.hov-filter__item--active > .hov-filter__link .hov-filter__icon {
+  color: #2D5A27 !important;
+}
+
+.hov-filter__label {
+  display: inline-block !important;
+}
+
+.hov-filter__item--accordion {
+  position: relative !important;
+}
+
+.hov-filter__link-wrapper {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  width: 100% !important;
+}
+
+.hov-filter__toggle-btn {
+  background: none !important;
+  border: none !important;
+  padding: 8px 12px !important;
+  cursor: pointer !important;
+  color: #8B6914 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: transform 0.2s ease, color 0.2s ease !important;
+  outline: none !important;
+}
+
+.hov-filter__toggle-btn:hover {
+  color: #2D5A27 !important;
+}
+
+.hov-filter__toggle-btn svg {
+  transition: transform 0.2s ease !important;
+}
+
+.hov-filter__toggle-btn.is-active svg,
+.hov-filter__toggle-btn[aria-expanded="true"] svg {
+  transform: rotate(180deg) !important;
+}
+
+.hov-filter__submenu {
+  list-style: none !important;
+  margin: 0 !important;
+  padding: 4px 0 8px 36px !important;
+}
+
+.hov-filter__submenu-item {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.hov-filter__submenu-link {
+  display: block !important;
+  padding: 6px 0 !important;
+  font-size: 13.5px !important;
+  color: #6A6A5E !important;
+  text-decoration: none !important;
+  transition: color 0.18s ease !important;
+}
+
+.hov-filter__submenu-link:hover {
+  color: #2D5A27 !important;
+  text-decoration: none !important;
+}
+
+.hov-filter__submenu-item--active .hov-filter__submenu-link {
+  color: #2D5A27 !important;
+  font-weight: 600 !important;
+}
+
+@media (max-width: 991px) {
+  .hov-filter {
+    padding: 22px 16px 26px !important;
+    border-radius: 16px !important;
+  }
+  .hov-filter__deco-top,
+  .hov-filter__deco-bottom {
+    width: 50px !important;
+    height: 50px !important;
+    opacity: 0.35 !important;
+  }
+  .hov-filter__link {
+    font-size: 13.5px !important;
+    padding: 8px 9px !important;
+  }
+}
+
+.hov-filter__brand {
+  position: relative !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  padding-bottom: 20px !important;
+  margin-bottom: 20px !important;
+  border-bottom: 1px solid #EAE3D3 !important;
+  overflow: hidden !important;
+  z-index: 1 !important;
+}
+.hov-filter__brand-logo {
+  flex-shrink: 0 !important;
+  width: 46px !important;
+  height: 46px !important;
+}
+.hov-filter__brand-emblem {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain !important;
+}
+.hov-filter__brand-text {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 2px !important;
+  z-index: 1 !important;
+}
+.hov-filter__brand-name {
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  color: #8B6914 !important;
+  letter-spacing: 0.8px !important;
+  line-height: 1.2 !important;
+  font-family: var(--font-heading, serif) !important;
+}
+.hov-filter__brand-tagline {
+  font-size: 9.5px !important;
+  color: #999 !important;
+  letter-spacing: 0.6px !important;
+  line-height: 1.2 !important;
+}
+.hov-filter__brand-deco {
+  position: absolute !important;
+  top: -10px !important;
+  right: -10px !important;
+  width: 90px !important;
+  pointer-events: none !important;
+  z-index: 0 !important;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  function initSidebarAccordion() {
+    $('.hov-filter__toggle-btn').off('click').on('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      const $btn = $(this);
+      const $submenu = $btn.closest('.hov-filter__item--accordion').find('.hov-filter__submenu');
+      const isExpanded = $btn.attr('aria-expanded') === 'true';
+      
+      $btn.attr('aria-expanded', !isExpanded);
+      $btn.toggleClass('is-active', !isExpanded);
+      $submenu.slideToggle(200);
+    });
+  }
+  
+  initSidebarAccordion();
+  
+  // Re-run accordion bind on AJAX load
+  $(document).ajaxComplete(function(event, xhr, settings) {
+    if (settings.url && settings.url.indexOf('/collections/') > -1) {
+      setTimeout(initSidebarAccordion, 100);
+    }
+  });
+});
+</script>

@@ -1,0 +1,48 @@
+<!-- Snippet: collection-description.liquid -->
+{% assign collection_description = collection.metafields.custom.extra_information %}
+
+{% if collection_description %}
+  <div class="collection-description">
+    <p id="collection-description" class="truncate">
+      {{ collection_description }}
+    </p>
+    <a href="#" id="read-more">Read more</a>
+  </div>
+{% endif %}
+
+<style>
+  .truncate {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: block;
+    width: 100%;
+    margin-bottom: 0px;
+  }
+
+  #collection-description.full {
+    white-space: normal;
+  }
+
+  #read-more {
+    display: inline-block;
+    cursor: pointer;
+    color: #548106;
+    margin-bottom: 10px;
+  }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('read-more').addEventListener('click', function(event) {
+      event.preventDefault();
+      var description = document.getElementById('collection-description');
+      description.classList.toggle('full');
+      if (description.classList.contains('full')) {
+        this.textContent = 'Read less';
+      } else {
+        this.textContent = 'Read more';
+      }
+    });
+  });
+</script>

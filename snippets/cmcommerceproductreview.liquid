@@ -1,0 +1,19 @@
+{% assign widgetSlug = cmcommerceproductreview %}
+
+{% unless productId %}
+  {% assign productId = product.id %}
+  {% assign didAssignId = true %}
+{% endunless %}
+
+<div class="rf-reviews" data-slug="{{ widgetSlug }}" data-product="{{ productId }}"></div>
+
+{% if didAssignId %}
+  {% assign productId = nill %}
+  {% assign didAssignId = nill %}
+{% endif %}
+
+<script>
+if (typeof window.CMCommerceData === 'undefined') {
+  window.CMCommerceData = {};
+}
+</script>

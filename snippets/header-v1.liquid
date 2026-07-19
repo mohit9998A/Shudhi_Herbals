@@ -1,0 +1,559 @@
+{%- comment -%}
+  Kapiva-style utility header. Desktop only (d-none d-xl-block).
+  Keeps existing JS hooks: .js-call-minicart, .js-number-cart, .js-call-popup-login,
+  .jsheader_sticky, .js_height_hd. Mobile header (menu_mobile) is unchanged.
+{%- endcomment -%}
+
+{%- capture hov_nav_actions -%}
+  {%- if customer -%}
+    <a href="/account" class="hov-nav__pill login">{{ customer.first_name | default: 'Account' }}</a>
+  {%- else -%}
+    <a href="/account/login" class="hov-nav__pill login js-call-popup-login" data-login-trigger>LOGIN</a>
+  {%- endif -%}
+  <a href="/pages/track-order" class="hov-nav__icon hov-nav__icon--truck" aria-label="Track Your Order">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <rect x="1" y="4" width="13" height="12" rx="1"/>
+      <path d="M14 8h4l3 3v5h-7z"/>
+      <circle cx="5" cy="18.5" r="1.8"/>
+      <circle cx="17.5" cy="18.5" r="1.8"/>
+    </svg>
+  </a>
+  <a href="{{ section.settings.url_wishlist }}" class="hov-nav__wishlist-link hov-nav__icon hov-nav__icon--wishlist" aria-label="Wishlist">
+    <svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/>
+    </svg>
+    <span class="hov-wish__nav-count" id="hov-wish-count" style="display:none">0</span>
+  </a>
+  <a href="javascript:void(0)" class="hov-nav__icon cart js-call-minicart" aria-label="Cart">
+    <svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+      <path d="M3 6h18"/>
+      <path d="M16 10a4 4 0 0 1-8 0"/>
+    </svg>
+    <span class="js-number-cart number-cart {% if cart.item_count > 0 %} active {% endif %}"></span>
+  </a>
+  <button type="button" class="hov-nav__hamburger" aria-label="Open menu">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+      <line x1="3" y1="6" x2="21" y2="6"/>
+      <line x1="3" y1="12" x2="21" y2="12"/>
+      <line x1="3" y1="18" x2="21" y2="18"/>
+    </svg>
+  </button>
+{%- endcapture -%}
+
+{%- capture hov_nav_search -%}
+{% render 'hov-search-bar' with suffix: 'desktop' %}
+{%- endcapture -%}
+
+{%- capture hov_nav_location -%}
+  <div class="hov-nav__location">
+    <span class="hov-nav__pin">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
+      </svg>
+      <span data-hov-pincode>{{ section.settings.hov_nav_pincode | default: '141120' }}</span><span data-hov-sep>, </span><span data-hov-city>{{ section.settings.hov_nav_city | default: 'Ludhiana' }}</span>
+    </span>
+    <a href="#" class="hov-nav__verify" data-pincode-modal-trigger>{{ section.settings.hov_nav_verify_text | default: 'Verify pincode for accurate delivery' }} &raquo;</a>
+  </div>
+{%- endcapture -%}
+
+
+
+{%- comment -%} ═══════ HOMEPAGE HEADER ═══════ {%- endcomment -%}
+{% if section.settings.select_hds == "header_v1" %}
+{% if template contains 'index' %}
+<header id="header" class="homepage header-v1-h1 js_height_hd jsheader_sticky d-none d-xl-block hov-nav-wrap">
+  <div class="hov-nav">
+    <div class="hov-nav__inner">
+      <div class="hov-nav__left">
+        <a href="{{ shop.url }}" class="hov-nav__logo">
+          {% if section.settings.hd_home_logo_svg != blank %}{{ section.settings.hd_home_logo_svg }}
+          {% elsif section.settings.hd_home_logo != blank %}
+          <img class="lazyload" data-src="{{ section.settings.hd_home_logo | img_url: 'master' }}" alt="{{ shop.name }}">
+          {% else %}<span class="hov-nav__logo-text">{{ shop.name }}</span>{% endif %}
+        </a>
+        {{ hov_nav_location }}
+      </div>
+      {{ hov_nav_search }}
+      <div class="hov-nav__right">{{ hov_nav_actions }}</div>
+    </div>
+  </div>
+</header>
+{% endif %}
+{% endif %}
+
+{%- comment -%} ═══════ OTHER PAGES HEADER ═══════ {%- endcomment -%}
+{% if section.settings.select_hds_all == "header_ver1" %}
+{% unless template contains 'index' %}
+<header id="header" class="otherpage header-v1-h1 js_height_hd jsheader_sticky d-none d-xl-block hov-nav-wrap">
+  <div class="hov-nav">
+    <div class="hov-nav__inner">
+      <div class="hov-nav__left">
+        <a href="{{ shop.url }}" class="hov-nav__logo">
+          {% if section.settings.hd_other_logo_svg != blank %}{{ section.settings.hd_other_logo_svg }}
+          {% elsif section.settings.hd_other_logo != blank %}
+          <img class="lazyload" data-src="{{ section.settings.hd_other_logo | img_url: 'master' }}" alt="{{ shop.name }}">
+          {% else %}<span class="hov-nav__logo-text">{{ shop.name }}</span>{% endif %}
+        </a>
+        {{ hov_nav_location }}
+      </div>
+      {{ hov_nav_search }}
+      <div class="hov-nav__right">{{ hov_nav_actions }}</div>
+    </div>
+  </div>
+</header>
+{% endunless %}
+{% endif %}
+
+
+
+{%- comment -%} Sticky toggle — keeps the existing .menu_scroll_v1 hook, no colour overrides {%- endcomment -%}
+<script>
+  jQuery(document).ready(function ($) {
+    var $nav = $('.jsheader_sticky');
+    if (!$nav.length) return;
+    $(document).on('scroll', function () {
+      $nav.toggleClass('menu_scroll_v1', $(this).scrollTop() > $nav.height());
+    });
+  });
+
+  (function() {
+    'use strict';
+    const nav = document.querySelector('.hov-nav');
+    if (!nav) return;
+
+    const SCROLL_THRESHOLD = 80;
+
+    function updateNavState() {
+      if (window.scrollY > SCROLL_THRESHOLD) {
+        nav.classList.add('hov-nav--scrolled');
+      } else {
+        nav.classList.remove('hov-nav--scrolled');
+      }
+    }
+
+    window.addEventListener('scroll', updateNavState, { passive: true });
+    updateNavState();
+  })();
+</script>
+
+
+
+<style>
+.hov-search__wrapper {
+  position: relative;
+  flex: 1;
+  max-width: 580px;
+}
+
+.hov-search__form {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 42px;
+  padding: 0 20px;
+  border: 1.5px solid #D4C5A9;
+  border-radius: 999px;
+  background: #ffffff;
+  margin: 0;
+  transition: border-color .2s, box-shadow .2s;
+  box-sizing: border-box;
+  width: 100%;
+}
+.hov-search__form:focus-within {
+  border-color: #8B6914;
+  box-shadow: 0 0 0 3px rgba(180,150,80,.15);
+}
+.hov-search__icon {
+  color: #888888;
+  flex-shrink: 0;
+}
+.hov-search__input,
+.hov-search__input:focus,
+.hov-search__input:active,
+.hov-search__input:focus-visible {
+  border: none !important;
+  outline: none !important;
+  background: transparent;
+  width: 100%;
+  height: 100%;
+  font-size: 14px;
+  font-style: italic;
+  color: #666666;
+  padding: 0;
+  box-shadow: none !important;
+  appearance: none;
+}
+.hov-search__placeholder-animated {
+  position: absolute;
+  left: 42px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-style: italic;
+  color: #999;
+  font-size: 14px;
+  pointer-events: none;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.hov-search__input::-webkit-search-decoration,
+.hov-search__input::-webkit-search-cancel-button,
+.hov-search__input::-webkit-search-results-button {
+  display: none;
+  appearance: none;
+}
+.hov-search__input::placeholder {
+  color: #999999;
+  font-style: italic;
+}
+
+.hov-search__dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  background: #FFFFFF;
+  border-radius: 16px;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.14), 0 2px 8px rgba(0,0,0,0.08);
+  border: 1px solid #EEE;
+  z-index: 9999;
+  overflow: hidden;
+  max-height: 480px;
+  overflow-y: auto;
+  scroll-behavior: smooth;
+}
+
+.hov-search__result-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 16px;
+  text-decoration: none;
+  color: inherit;
+  border-bottom: 1px solid #F5F5F5;
+  transition: background 0.15s ease;
+  cursor: pointer;
+}
+.hov-search__result-item:last-child { border-bottom: none; }
+.hov-search__result-item:hover,
+.hov-search__result-item--selected {
+  background: #F7FBF4;
+}
+
+.hov-search__result-img {
+  width: 60px;
+  height: 60px;
+  border-radius: 10px;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: #F5F5F5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.hov-search__result-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.hov-search__result-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.hov-search__result-vendor {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: #999;
+  font-weight: 500;
+}
+.hov-search__result-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1A2E1A;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.hov-search__result-price {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 2px;
+}
+.hov-search__price {
+  font-size: 14px;
+  font-weight: 700;
+  color: #2D5A27;
+}
+.hov-search__compare-price {
+  font-size: 12px;
+  color: #999;
+  text-decoration: line-through;
+}
+.hov-search__sale-badge {
+  font-size: 10px;
+  font-weight: 700;
+  background: #E8F5E9;
+  color: #2D5A27;
+  padding: 2px 6px;
+  border-radius: 4px;
+  letter-spacing: 0.5px;
+}
+.hov-search__highlight {
+  background: none;
+  color: #2D5A27;
+  font-weight: 700;
+}
+.hov-search__no-results {
+  padding: 32px 20px;
+  text-align: center;
+  color: #999;
+  font-size: 14px;
+}
+.hov-search__no-results svg { margin-bottom: 12px; }
+
+.hov-search__view-all {
+  padding: 12px 16px;
+  background: #F9F9F9;
+  border-top: 1px solid #EEE;
+}
+.hov-search__view-all-link {
+  font-size: 13px;
+  font-weight: 600;
+  color: #2D5A27;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+.hov-search__view-all-link:hover { text-decoration: underline; }
+
+.hov-search__result-arrow { flex-shrink: 0; opacity: 0; transition: opacity 0.15s; }
+.hov-search__result-item:hover .hov-search__result-arrow,
+.hov-search__result-item--selected .hov-search__result-arrow { opacity: 1; }
+
+/* Scrollbar styling */
+.hov-search__dropdown::-webkit-scrollbar { width: 4px; }
+.hov-search__dropdown::-webkit-scrollbar-track { background: transparent; }
+.hov-search__dropdown::-webkit-scrollbar-thumb { background: #DDD; border-radius: 4px; }
+
+/* Mobile */
+@media (max-width: 768px) {
+  .hov-search__dropdown {
+    position: fixed;
+    top: 120px;
+    left: 12px;
+    right: 12px;
+    max-height: 60vh;
+    border-radius: 12px;
+  }
+}
+</style>
+
+<script>
+(function() {
+  'use strict';
+
+  // ── Shared config (one definition for every .hov-search__wrapper instance) ──
+  var phrases = [
+    'Search for "Organic Tea"',
+    'Search for "A2 Desi Ghee"',
+    'Search for "Shilajit"',
+    'Search for "Pulses"',
+    'Search for "Fat Burn Tea"'
+  ];
+  var TYPE_SPEED = 80, DELETE_SPEED = 40, HOLD = 2000, NEXT = 300;
+  var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // ── Shared helpers ──
+  function formatMoney(value) {
+    if (!value) return '';
+    var num = parseFloat(value);
+    if (isNaN(num)) return '';
+    return '₹' + num.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  }
+  function escapeHtml(str) {
+    return String(str).replace(/[&<>"']/g, function(m){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]; });
+  }
+  function escapeRegex(str) {
+    return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  }
+  function highlightMatch(text, query) {
+    var escaped = escapeHtml(text);
+    var regex = new RegExp('(' + escapeRegex(query) + ')', 'gi');
+    return escaped.replace(regex, '<mark class="hov-search__highlight">$1</mark>');
+  }
+
+  // ── Predictive search, scoped to one wrapper ──
+  function initPredictive(wrapper) {
+    var input = wrapper.querySelector('.hov-search__input');
+    var dropdown = wrapper.querySelector('.hov-search__dropdown');
+    if (!input || !dropdown) return;
+    var resultsInner = dropdown.querySelector('.hov-search__results-inner');
+    var viewAllLink = dropdown.querySelector('.hov-search__view-all');
+    var viewAllAnchor = dropdown.querySelector('.hov-search__view-all-link');
+    var queryText = dropdown.querySelector('.hov-search__query-text');
+
+    var debounceTimer = null;
+    var currentQuery = '';
+    var selectedIndex = -1;
+
+    function fetchResults(query) {
+      currentQuery = query;
+      var url = '/search/suggest.json?q=' + encodeURIComponent(query) + '&resources[type]=product&resources[limit]=6&resources[options][unavailable_products]=last&resources[options][fields]=title,product_type,variants.title,vendor';
+      fetch(url)
+        .then(function(r){ return r.json(); })
+        .then(function(data){
+          if (currentQuery !== query) return; // stale response guard
+          var products = (data && data.resources && data.resources.results && data.resources.results.products) || [];
+          renderResults(products, query);
+        })
+        .catch(function(){ hideDropdown(); });
+    }
+
+    function renderResults(products, query) {
+      if (products.length === 0) {
+        resultsInner.innerHTML =
+          '<div class="hov-search__no-results">' +
+          '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#CCC" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>' +
+          '<p>No products found for "<strong>' + escapeHtml(query) + '</strong>"</p>' +
+          '</div>';
+        viewAllLink.style.display = 'none';
+        showDropdown();
+        return;
+      }
+      resultsInner.innerHTML = products.map(function(p, i){
+        var priceVal = parseFloat(p.price);
+        var compareVal = p.compare_at_price_min ? parseFloat(p.compare_at_price_min) : 0;
+        var price = p.price ? formatMoney(p.price) : '';
+        var comparePrice = (compareVal > priceVal) ? '<span class="hov-search__compare-price">' + formatMoney(p.compare_at_price_min) + '</span>' : '';
+        var badge = (compareVal > priceVal) ? '<span class="hov-search__sale-badge">SALE</span>' : '';
+        var image = (p.featured_image && p.featured_image.url)
+          ? '<img src="' + p.featured_image.url + '&width=80" alt="' + escapeHtml(p.title) + '" width="60" height="60" loading="lazy">'
+          : '<div class="hov-search__no-img"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#CCC" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg></div>';
+        return '<a href="' + p.url + '" class="hov-search__result-item" role="option" data-index="' + i + '">' +
+          '<div class="hov-search__result-img">' + image + '</div>' +
+          '<div class="hov-search__result-info">' +
+          '<span class="hov-search__result-vendor">' + escapeHtml(p.vendor || '') + '</span>' +
+          '<span class="hov-search__result-title">' + highlightMatch(p.title, query) + '</span>' +
+          '<div class="hov-search__result-price"><span class="hov-search__price">' + price + '</span>' + comparePrice + badge + '</div>' +
+          '</div>' +
+          '<svg class="hov-search__result-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#CCC" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>' +
+          '</a>';
+      }).join('');
+      viewAllAnchor.href = '/search?type=product&q=' + encodeURIComponent(query);
+      queryText.textContent = query;
+      viewAllLink.style.display = 'block';
+      showDropdown();
+      selectedIndex = -1;
+    }
+
+    function updateSelected(items) {
+      items.forEach(function(item, i){
+        item.classList.toggle('hov-search__result-item--selected', i === selectedIndex);
+        if (i === selectedIndex) item.scrollIntoView({ block: 'nearest' });
+      });
+    }
+    function showDropdown() {
+      dropdown.style.display = 'block';
+      wrapper.setAttribute('aria-expanded', 'true');
+    }
+    function hideDropdown() {
+      dropdown.style.display = 'none';
+      wrapper.setAttribute('aria-expanded', 'false');
+      selectedIndex = -1;
+    }
+
+    input.addEventListener('keydown', function(e){
+      var items = dropdown.querySelectorAll('.hov-search__result-item');
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        selectedIndex = Math.min(selectedIndex + 1, items.length - 1);
+        updateSelected(items);
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        selectedIndex = Math.max(selectedIndex - 1, -1);
+        updateSelected(items);
+      } else if (e.key === 'Enter' && selectedIndex >= 0) {
+        e.preventDefault();
+        if (items[selectedIndex]) items[selectedIndex].click();
+      } else if (e.key === 'Escape') {
+        hideDropdown();
+        input.blur();
+      }
+    });
+    input.addEventListener('input', function(){
+      var q = input.value.trim();
+      if (q.length < 2) { hideDropdown(); return; }
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(function(){ fetchResults(q); }, 200);
+    });
+    input.addEventListener('focus', function(){
+      if (input.value.trim().length >= 2) fetchResults(input.value.trim());
+    });
+    document.addEventListener('click', function(e){
+      if (!wrapper.contains(e.target)) hideDropdown();
+    });
+  }
+
+  // ── Typewriter placeholder, scoped to one wrapper ──
+  function initTypewriter(wrapper) {
+    var placeholderEl = wrapper.querySelector('.hov-search__placeholder-animated');
+    var realInput = wrapper.querySelector('.hov-search__input');
+    if (!placeholderEl || !realInput) return;
+    if (reduceMotion) { placeholderEl.textContent = phrases[0]; return; }
+
+    var phraseIndex = 0, charIndex = 0, isDeleting = false;
+    function renderFrame() {
+      if (realInput.value.length > 0) return;
+      var currentPhrase = phrases[phraseIndex];
+      var visibleText = isDeleting
+        ? currentPhrase.substring(0, charIndex - 1)
+        : currentPhrase.substring(0, charIndex + 1);
+      placeholderEl.textContent = visibleText;
+      charIndex = isDeleting ? charIndex - 1 : charIndex + 1;
+      var delay = isDeleting ? DELETE_SPEED : TYPE_SPEED;
+      if (!isDeleting && charIndex === currentPhrase.length) {
+        delay = HOLD;
+        isDeleting = true;
+      } else if (isDeleting && charIndex === 0) {
+        isDeleting = false;
+        phraseIndex = (phraseIndex + 1) % phrases.length;
+        delay = NEXT;
+      }
+      setTimeout(renderFrame, delay);
+    }
+    renderFrame();
+
+    realInput.addEventListener('input', function(){
+      if (realInput.value.length > 0) {
+        placeholderEl.style.display = 'none';
+      } else if (placeholderEl.style.display === 'none') {
+        placeholderEl.style.display = '';
+        renderFrame(); // resume safely
+      }
+    });
+  }
+
+  function initAll() {
+    var wrappers = document.querySelectorAll('.hov-search__wrapper');
+    for (var i = 0; i < wrappers.length; i++) {
+      initPredictive(wrappers[i]);
+      initTypewriter(wrappers[i]);
+    }
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initAll);
+  } else {
+    initAll();
+  }
+})();
+</script>

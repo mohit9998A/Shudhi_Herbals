@@ -1,0 +1,50 @@
+{%- comment -%}
+  Reusable search bar. Pass a unique `suffix` per instance so element ids stay unique:
+    {% render 'hov-search-bar' with suffix: 'desktop' %}
+    {% render 'hov-search-bar' with suffix: 'mobile' %}
+  The search JS (in header-v1.liquid) wires every .hov-search__wrapper on the page,
+  scoping its lookups to each wrapper — no id coupling.
+{%- endcomment -%}
+{%- assign sfx = suffix | default: 'desktop' -%}
+<div class="hov-search__wrapper" role="combobox" aria-expanded="false" aria-haspopup="listbox">
+  <form action="/search" method="get" class="hov-search__form" role="search">
+    <input type="hidden" name="type" value="product">
+    <svg class="hov-search__icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>
+    </svg>
+    <input
+      type="search"
+      name="q"
+      id="hov-search-input-{{ sfx }}"
+      class="hov-search__input"
+      placeholder=""
+      autocomplete="off"
+      autocorrect="off"
+      spellcheck="false"
+      aria-label="Search products"
+      aria-autocomplete="list"
+      aria-controls="hov-search-results-{{ sfx }}"
+      readonly
+      data-hov-overlay-trigger
+    >
+    <span class="hov-search__placeholder-animated" id="hov-nav-search-placeholder-{{ sfx }}" aria-hidden="true">
+      Search for "Organic Tea"
+    </span>
+  </form>
+
+  <!-- Dropdown results panel -->
+  <div
+    id="hov-search-results-{{ sfx }}"
+    class="hov-search__dropdown"
+    role="listbox"
+    aria-label="Search results"
+    style="display:none"
+  >
+    <div class="hov-search__results-inner"></div>
+    <div class="hov-search__view-all" style="display:none">
+      <a href="/search?type=product&q=" class="hov-search__view-all-link">
+        View all results for "<span class="hov-search__query-text"></span>" →
+      </a>
+    </div>
+  </div>
+</div>

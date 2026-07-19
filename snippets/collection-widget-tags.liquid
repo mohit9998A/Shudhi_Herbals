@@ -1,0 +1,20 @@
+<div class="hov-filter__section widget widget-tags filter-tag">
+  <div class="hov-filter__heading">
+    <!-- Tag Icon -->
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+      <path d="M20.59 13.41L11 4H4v7l9.59 9.59a2 2 0 002.82 0l4.18-4.18a2 2 0 000-2.82z"/>
+      <circle cx="7.5" cy="7.5" r="1.5" fill="currentColor"/>
+    </svg>
+    <span>{{ settings.shop_by_tag_title | upcase }}</span>
+  </div>
+
+  <ul class="hov-filter__tags wg-list-tags list-tag list-none">
+    {% for tag in collection.all_tags %}
+      {% assign tag_value = tag | handleize %}
+      <li class="hov-filter__tag-wrapper">
+        <input type="checkbox" value="{{ tag_value | split: '|' | first }}" {% if current_tags contains tag %}checked{% endif %} style="display:none;"/>
+        <a href="javascript:void(0)" title="{{tag}}" class="hov-filter__tag {% if current_tags contains tag %}active{% endif %}">{{tag}}</a>
+      </li>
+    {% endfor %}
+  </ul>
+</div>

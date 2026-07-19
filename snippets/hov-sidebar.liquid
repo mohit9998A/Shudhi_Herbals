@@ -1,0 +1,353 @@
+{%- assign sidebar_logo = settings.logo_mobile | default: settings.logo_desktop -%}
+{%- assign menu_handle = settings.main_menu_store | default: 'header' -%}
+{%- if linklists[menu_handle].links == blank -%}
+  {%- assign menu_handle = 'header' -%}
+{%- endif -%}
+{%- if linklists[menu_handle].links == blank -%}
+  {%- assign menu_handle = 'main-menu' -%}
+{%- endif -%}
+
+<div id="hov-sidebar" class="hov-sb" aria-hidden="true"
+     role="navigation" aria-label="Site navigation">
+
+  <!-- TOP: Logo + close + leaf deco -->
+  <div class="hov-sb__head">
+    <div class="hov-sb__logo-wrap">
+      {%- if sidebar_logo != blank -%}
+        <img src="{{ sidebar_logo | img_url: '240x' }}"
+             alt="Shudhi Herbals"
+             class="hov-sb__logo-img">
+      {%- else -%}
+        <img src="{{ 'logo.png' | asset_url }}"
+             alt="Shudhi Herbals"
+             class="hov-sb__logo-img"
+             onerror="this.style.display='none'">
+      {%- endif -%}
+      <div class="hov-sb__logo-text">
+        <span class="hov-sb__logo-brand">SHUDHI HERBALS</span>
+        <span class="hov-sb__logo-tag">
+          Purify your skin. Cleanse your aura.
+        </span>
+      </div>
+    </div>
+    <button class="hov-sb__close" id="hov-sb-close"
+            aria-label="Close navigation">
+      <svg width="20" height="20" viewBox="0 0 24 24"
+           fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="18" y1="6" x2="6" y2="18"/>
+        <line x1="6" y1="6" x2="18" y2="18"/>
+      </svg>
+    </button>
+    <!-- Leaf decoration top-right -->
+    <div class="hov-sb__deco" aria-hidden="true">
+      <svg viewBox="0 0 140 180" width="130" fill="none">
+        <path d="M130 5 C155 30 160 85 138 125 C116 162 75 175 50 155 C25 135 22 88 42 55 C62 22 92 0 120 3 Z"
+              fill="#C8DDB8" opacity="0.22"/>
+        <path d="M108 165 C96 130 85 95 80 58 C75 22 80 5 92 0"
+              stroke="#8AB87A" stroke-width="1.8"
+              fill="none" opacity="0.45"
+              stroke-linecap="round"/>
+        <path d="M92 120 C72 110 58 88 66 70 C74 52 92 56 102 74 C110 88 106 112 92 120Z"
+              fill="#A8CC96" opacity="0.40"/>
+        <path d="M105 98 C122 86 138 66 132 48 C126 30 110 32 102 50 C96 64 98 86 105 98Z"
+              fill="#B8D4A4" opacity="0.38"/>
+        <path d="M88 62 C74 52 65 34 74 20 C83 6 100 10 104 26 C107 38 100 54 88 62Z"
+              fill="#C8DDB8" opacity="0.35"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- DIVIDER -->
+  <hr class="hov-sb__divider">
+
+  <!-- NAV LINKS -->
+  <nav class="hov-sb__nav">
+    <ul class="hov-sb__list">
+
+      <!-- Home -->
+      <li class="hov-sb__item">
+        <a href="/" class="hov-sb__link">
+          <span class="hov-sb__icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+              <polyline points="9 22 9 12 15 12 15 22"/>
+            </svg>
+          </span>
+          <span class="hov-sb__label">Home</span>
+        </a>
+      </li>
+
+      <!-- About Us -->
+      <li class="hov-sb__item">
+        <a href="/pages/about-us" class="hov-sb__link">
+          <span class="hov-sb__icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M12 2C6 2 2 8 2 14c0 4 2.5 7 6 8 1-3 3-5 4-6-1 1-2 3-2 5 2 0 4-1 5.5-3C17 16 18 12 18 8z"/>
+            </svg>
+          </span>
+          <span class="hov-sb__label">About Us</span>
+        </a>
+      </li>
+
+      <!-- Shop accordion with sub-items matching image 2 exactly -->
+      <li class="hov-sb__item hov-sb__item--accordion">
+        <button class="hov-sb__link hov-sb__accordion-btn"
+                id="hov-sb-shop-toggle"
+                aria-expanded="false"
+                aria-controls="hov-sb-shop-sub">
+          <span class="hov-sb__icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M6 2L3 6v14a2 2 0 002 2h14 a2 2 0 002-2V6l-3-4z"/>
+              <line x1="3" y1="6" x2="21" y2="6"/>
+              <path d="M16 10a4 4 0 01-8 0"/>
+            </svg>
+          </span>
+          <span class="hov-sb__label">Shop</span>
+          <span class="hov-sb__chevron">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="6 9 12 15 18 9"/>
+            </svg>
+          </span>
+        </button>
+        <ul class="hov-sb__sub" id="hov-sb-shop-sub" aria-hidden="true">
+          <!-- Level 1: Staple & Packaged Food (with sub-items) -->
+          <li>
+            <button class="hov-sb__sub-link hov-sb__sub-accordion"
+                    data-sub="staple">
+              <span class="hov-sb__sub-icon">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                  <rect x="3" y="3" width="18" height="18" rx="2"/>
+                  <path d="M3 9h18M9 3v18"/>
+                </svg>
+              </span>
+              [PLACEHOLDER — category]
+              <span class="hov-sb__sub-chevron">›</span>
+            </button>
+            <ul class="hov-sb__sub-sub" id="hov-sb-staple-sub">
+              <li><a href="/collections/all"
+                     class="hov-sb__deep-link">
+                [PLACEHOLDER — category]</a></li>
+              <li><a href="/collections/all"
+                     class="hov-sb__deep-link">
+                [PLACEHOLDER — category]</a></li>
+              <li><a href="/collections/all"
+                     class="hov-sb__deep-link">
+                [PLACEHOLDER — category]</a></li>
+              <li><a href="/collections/all"
+                     class="hov-sb__deep-link">
+                [PLACEHOLDER — category]</a></li>
+              <li><a href="/collections/all"
+                     class="hov-sb__deep-link">
+                [PLACEHOLDER — category]</a></li>
+              <li><a href="/collections/all"
+                     class="hov-sb__deep-link">
+                [PLACEHOLDER — category]</a></li>
+              <li><a href="/collections/all"
+                     class="hov-sb__deep-link">
+                [PLACEHOLDER — category]</a></li>
+            </ul>
+          </li>
+          <!-- Direct sub-items (no nested sub-menu) -->
+          <li><a href="/collections/all"
+                 class="hov-sb__sub-link">
+            <span class="hov-sb__sub-icon">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <path d="M18 8h1a4 4 0 010 8h-1"/>
+                <path d="M2 8h16v9a4 4 0 01-4 4H6 a4 4 0 01-4-4V8z"/>
+                <line x1="6" y1="1" x2="6" y2="4"/>
+                <line x1="10" y1="1" x2="10" y2="4"/>
+                <line x1="14" y1="1" x2="14" y2="4"/>
+              </svg>
+            </span>
+            [PLACEHOLDER — category]</a></li>
+          <li><a href="/collections/all"
+                 class="hov-sb__sub-link">
+            <span class="hov-sb__sub-icon">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <path d="M21 16V8a2 2 0 00-1-1.73 l-7-4a2 2 0 00-2 0l-7 4 A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4 A2 2 0 0021 16z"/>
+              </svg>
+            </span>
+            Combo Pack</a></li>
+          <li><a href="/collections/all"
+                 class="hov-sb__sub-link">
+            <span class="hov-sb__sub-icon">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <path d="M12 2a10 10 0 100 20 A10 10 0 0012 2z"/>
+                <path d="M12 8v8M8 12h8"/>
+              </svg>
+            </span>
+            [PLACEHOLDER — category]</a></li>
+          <li>
+            <button class="hov-sb__sub-link hov-sb__sub-accordion"
+                    data-sub="health">
+              <span class="hov-sb__sub-icon">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                  <path d="M12 22s8-4 8-10V5l-8-3 -8 3v7c0 6 8 10 8 10z"/>
+                </svg>
+              </span>
+              [PLACEHOLDER — category]
+              <span class="hov-sb__sub-chevron">›</span>
+            </button>
+            <ul class="hov-sb__sub-sub" id="hov-sb-health-sub">
+              <li><a href="/collections/all"
+                     class="hov-sb__deep-link">[PLACEHOLDER — category]</a></li>
+              <li><a href="/collections/all"
+                     class="hov-sb__deep-link">[PLACEHOLDER — category]</a></li>
+              <li><a href="/collections/all"
+                     class="hov-sb__deep-link">[PLACEHOLDER — category]</a></li>
+              <li><a href="/collections/all"
+                     class="hov-sb__deep-link">[PLACEHOLDER — category]</a></li>
+              <li><a href="/collections/all"
+                     class="hov-sb__deep-link">[PLACEHOLDER — category]</a></li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+
+      <!-- Contact Us -->
+      <li class="hov-sb__item">
+        <a href="/pages/contact" class="hov-sb__link">
+          <span class="hov-sb__icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M22 16.92v3a2 2 0 01-2.18 2 A19.79 19.79 0 013.09 5.18 2 2 0 015.09 3h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81 a2 2 0 01-.45 2.11L9.09 10.91 a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 17.92z"/>
+            </svg>
+          </span>
+          <span class="hov-sb__label">Contact Us</span>
+        </a>
+      </li>
+
+      <!-- Blogs -->
+      <li class="hov-sb__item">
+        <a href="/blogs/news" class="hov-sb__link">
+          <span class="hov-sb__icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M14 2H6a2 2 0 00-2 2v16 a2 2 0 002-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <line x1="16" y1="13" x2="8" y2="13"/>
+              <line x1="16" y1="17" x2="8" y2="17"/>
+              <polyline points="10 9 9 9 8 9"/>
+            </svg>
+          </span>
+          <span class="hov-sb__label">Blogs</span>
+        </a>
+      </li>
+
+      <!-- Login / Register -->
+      <li class="hov-sb__item hov-sb__item--login">
+        <a href="{% if customer %}/account{% else %}/account/login{% endif %}"
+           class="hov-sb__link hov-sb__link--login"
+           {% unless customer %}data-login-trigger{% endunless %}>
+          <span class="hov-sb__icon">
+            <svg width="20" height="20" viewBox="0 0 24 24"
+                 fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M20 21v-2a4 4 0 00-4-4H8
+                       a4 4 0 00-4 4v2"/>
+              <circle cx="12" cy="7" r="4"/>
+            </svg>
+          </span>
+          <div class="hov-sb__login-text">
+            <span class="hov-sb__label">
+              {%- if customer -%}
+                {{ customer.first_name | default: 'My Account' }}
+              {%- else -%}
+                Login / Register
+              {%- endif -%}
+            </span>
+            <span class="hov-sb__login-sub">
+              {%- if customer -%}
+                View account profile
+              {%- else -%}
+                Access your account
+              {%- endif -%}
+            </span>
+          </div>
+          <span class="hov-sb__arrow">›</span>
+        </a>
+      </li>
+
+    </ul>
+  </nav>
+
+  <!-- BOTTOM QUICK ACTIONS STRIP -->
+  <div class="hov-sb__quick">
+    <a href="/pages/track-order" class="hov-sb__quick-item">
+      <div class="hov-sb__quick-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24"
+             fill="none" stroke="currentColor" stroke-width="1.8">
+          <rect x="1" y="3" width="15" height="13" rx="1"/>
+          <path d="M16 8h4l3 5v3h-7V8z"/>
+          <circle cx="5.5" cy="18.5" r="2.5"/>
+          <circle cx="18.5" cy="18.5" r="2.5"/>
+        </svg>
+      </div>
+      <span class="hov-sb__quick-label">Track Order</span>
+      <span class="hov-sb__quick-sub">Real-time updates</span>
+    </a>
+
+    <a href="{{ settings.url_wishlist | default: '/pages/wishlist' }}" class="hov-sb__quick-item">
+      <div class="hov-sb__quick-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24"
+             fill="none" stroke="currentColor" stroke-width="1.8">
+          <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0 L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23 l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>
+        </svg>
+        <span class="hov-sb__quick-badge"
+              id="hov-sb-wish-count">0</span>
+      </div>
+      <span class="hov-sb__quick-label">Wishlist</span>
+      <span class="hov-sb__quick-sub">Saved with love</span>
+    </a>
+
+    <a href="/cart" class="hov-sb__quick-item">
+      <div class="hov-sb__quick-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24"
+             fill="none" stroke="currentColor" stroke-width="1.8">
+          <path d="M6 2L3 6v14a2 2 0 002 2h14 a2 2 0 002-2V6l-3-4z"/>
+          <line x1="3" y1="6" x2="21" y2="6"/>
+          <path d="M16 10a4 4 0 01-8 0"/>
+        </svg>
+        <span class="hov-sb__quick-badge"
+              id="hov-sb-cart-count">0</span>
+      </div>
+      <span class="hov-sb__quick-label">Cart</span>
+      <span class="hov-sb__quick-sub">Your items</span>
+    </a>
+  </div>
+
+  <!-- BRANDED FOOTER STRIP -->
+  <div class="hov-sb__footer">
+    <div class="hov-sb__footer-leaf" aria-hidden="true">
+      <svg width="28" height="28" viewBox="0 0 24 24"
+           fill="none" stroke="#8AB87A" stroke-width="1.5">
+        <path d="M12 2C6 2 2 8 2 14c0 4 2.5 7 6 8 1-3 3-5 4-6-1 1-2 3-2 5 2 0 4-1 5.5-3C17 16 18 12 18 8z"/>
+      </svg>
+    </div>
+    <div class="hov-sb__footer-text">
+      <p class="hov-sb__footer-line1">
+        Purify Your Presence.
+      </p>
+      <p class="hov-sb__footer-line2">
+        Thank you for choosing purity and wellness.
+      </p>
+    </div>
+    <div class="hov-sb__footer-mortar" aria-hidden="true">
+      <svg viewBox="0 0 60 60" width="48" fill="none">
+        <ellipse cx="30" cy="52" rx="22" ry="6"
+                 fill="#D4B896" opacity="0.4"/>
+        <path d="M10 38 Q8 52 30 54 Q52 52 50 38Z"
+              fill="#D4B896" opacity="0.7"/>
+        <ellipse cx="30" cy="38" rx="20" ry="6"
+                 fill="#DEC09E" opacity="0.85"/>
+        <rect x="26" y="10" width="8" height="30"
+              rx="4" fill="#C4A882" opacity="0.8"
+              transform="rotate(-15 30 25)"/>
+        <path d="M22 16 C24 18 25 22 24 26"
+              stroke="rgba(255,255,255,0.4)"
+              stroke-width="1.5" stroke-linecap="round"
+              fill="none"/>
+        <path d="M8 34 C5 28 4 20 10 15 C16 10 22 16 20 24Z"
+              fill="#8AB87A" opacity="0.55"/>
+      </svg>
+    </div>
+  </div>
+
+</div>

@@ -1,0 +1,20 @@
+.tab-links button.tab-link {
+    background: transparent;
+    border: unset;
+}
+.tab-content {
+    display: none;
+}
+body .tab-content.active {
+    display: block;
+}
+hr.hr45 {
+    margin: 2rem 0 3rem;
+    background: #232F3E;
+}
+.tab-links button.tab-link.active {
+    color: #B49C60 !important;
+}
+.tab-links button.tab-link {
+    margin-right: 20px;
+}

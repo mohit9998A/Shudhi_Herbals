@@ -1,0 +1,174 @@
+<div class=" tab-pd-details">
+  <div class="bd-tab">
+    <div class="container container-v2">
+      <ul class="nav nav-tabs tab_prod">
+        {% if settings.enable_description_tab %}
+        <li>
+          <a class="underline_scale"  data-toggle="tab" href="#des"  >{{settings.destab_title}}</a>
+        </li>
+        {% endif %}
+        {% if settings.enable_addition_tab %}
+        <li>
+          <a class="underline_scale"  data-toggle="tab" href="#add"  >{{settings.addtab_title}}</a>
+        </li>
+        {% endif %}
+        {% if settings.enable_review_tab %}
+        <li>
+          <a class="underline_scale active" data-toggle="tab" href="#review" >{{settings.reviewtab_title}}</a>
+        </li>
+        {% endif %}
+        <li>
+          <a class="underline_scale"  data-toggle="tab" href="#moreinfo"  >More Information</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+  <div class="tab-content container container-v4" >
+    {% if settings.enable_description_tab %}
+    <div class="tab-pane fade" id="des">
+      <div class="desc product-desc">
+      {{ product.description}}
+      </div>      
+    </div>
+    {% endif %}
+    {% if settings.enable_addition_tab %}
+    <div class="tab-pane fade tab-addition" id="add">
+      {% if settings.addtab_content != blank %}
+      {{settings.addtab_content}}
+      {% else %}
+      <div class="">
+        <div class="row justify-content-center">
+          <div class="col-lg-8 col-md-6">
+            <div class="title_content">
+              <p class="more_info">More Infomation To You</p>
+              <h3 class="">Things you need to know</h3>
+            </div>
+            <div class="row">
+              <div class="col-lg-6 content1">
+                <p class="info_1">We use industry standard SSL encryption to protect your details. Potentially sensitive information such as your name, address and card details are encoded so they can only be read on the secure server.</p>
+                <ul class="px-0 list-unstyled">
+                  <li>Safe Payments</li>
+                  <li>Accept Credit Cart</li>
+                  <li>Different Payment Method</li>
+                  <li>Price Include VAT</li>
+                  <li>Easy To Order</li>
+                </ul>
+              </div>
+              <div class="col-lg-6 content2">
+                <div class="info2">
+                  <h3>Express Delivery</h3>
+                  <ul class="px-0 list-unstyled">
+                    <li>Europe & USA within 2-4 days</li>
+                    <li>Rest of the world within 3-7 days</li>
+                    <li>Selected locations</li>
+                  </ul>
+                </div>
+                <div class="info2">
+                  <h3>Need more information</h3>
+                  <ul class="px-0 list-unstyled">
+                    <li><a href="">Orders & Shipping</a></li>
+                    <li><a href="">Returns & Refunds</a></li>
+                    <li><a href="">Payments</a></li>
+                    <li><a href="">Your Orders</a></li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-4 col-md-6">
+            <img data-src="{{ product | img_url : 'master' }}" class="lazyload" alt>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+    {% endif %}
+    {% if settings.enable_review_tab %}
+    <div class="tab-pane fade mt-4 show active" id="review">
+      <div id="shopify-product-reviews" data-id="{{product.id}}">
+      <!-- Start of Judge.me code --> 
+      <div style='clear:both'></div> 
+        <div id='judgeme_product_reviews' class='jdgm-widget jdgm-review-widget' data-id='{{ product.id }}'> 
+          {{ product.metafields.judgeme.widget }} 
+        </div> 
+      <!-- End of Judge.me code --> 
+      </div>
+    </div>
+    {% endif %}
+    <div class="tab-pane fade mt-4" id="moreinfo">
+          {% if product.metafields.custom.brand %}
+          <div>
+            <strong>Brand :</strong>
+            <span class="text-muted">{{ product.metafields.custom.brand }}</span>
+          </div>
+          {% endif %}
+      
+          <div>
+            <strong>Country of Origin :</strong>
+            <span class="text-muted">India</span>
+          </div>
+      
+          <div>
+            <strong>Marketed by :</strong>
+            <span class="text-muted">Shudhi Herbals</span>
+          </div>
+      
+          {% if product.metafields.custom.net_weight %}
+          <div>
+            <strong>Net Weight :</strong>
+            <span class="text-muted">{{ product.metafields.custom.net_weight }}</span>
+          </div>
+          {% endif %}
+          
+          {% if product.metafields.custom.unit_price %}
+          <div>
+            <strong>Unit Price :</strong>
+            <span class="text-muted">{{ product.metafields.custom.unit_price }}</span>
+          </div>
+          {% endif %}  
+
+          {% if product.metafields.custom.pack_type %}
+          <div>
+            <strong>Pack Type :</strong>
+            <span class="text-muted">{{ product.metafields.custom.pack_type }}</span>
+          </div>
+          {% endif %}
+          
+          {% if product.metafields.custom.manufacturer %}
+            <div>
+              <strong>Manufacturer :</strong>
+              <span class="text-muted">{{ product.metafields.custom.manufacturer }}</span>
+            </div>
+          {% endif %}
+      
+          {% if product.metafields.custom.manufacturer_address %}
+            <div>
+              <strong>Manufacturer Address 1:</strong>
+              <span class="text-muted">{{ product.metafields.custom.manufacturer_address }}</span>
+            </div>
+          {% endif %}
+          
+          {% if product.metafields.custom.manufacturer_address1 %}
+            <div>
+              <strong>Manufacturer Address 2:</strong>
+              <span class="text-muted">{{ product.metafields.custom.manufacturer_address1 }}</span>
+            </div>
+          {% endif %}
+
+          {% if product.metafields.custom.shelf_life %}
+            <div>
+              <strong>Shelf Life :</strong>
+              <span class="text-muted">{{ product.metafields.custom.shelf_life }}</span>
+            </div>
+          {% endif %}
+          
+          {% if product.metafields.custom.product_dimension %}
+            <div>
+              <strong>Product Dimension :</strong>
+              <span class="text-muted">{{ product.metafields.custom.product_dimension }}</span>
+            </div>
+          {% endif %}
+      
+    </div>
+  </div>
+</div>  

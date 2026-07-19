@@ -1,0 +1,423 @@
+{%- if template == 'index' or template.name == 'index' -%}
+<div class="hov-reelpop" id="hov-reelpop" data-minimized="false" data-muted="true">
+  <!-- Top Right Actions -->
+  <div class="hov-reelpop__actions">
+    <!-- Minimize Button -->
+    <button class="hov-reelpop__action-btn" id="hov-reelpop-minimize" aria-label="Minimize video">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="6 9 12 15 18 9"></polyline>
+      </svg>
+    </button>
+    <!-- Close Button -->
+    <button class="hov-reelpop__action-btn" id="hov-reelpop-close" aria-label="Close video">
+      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="18" y1="6" x2="6" y2="18"/>
+        <line x1="6" y1="6" x2="18" y2="18"/>
+      </svg>
+    </button>
+  </div>
+
+  <!-- Video Wrap -->
+  <div class="hov-reelpop__video-wrap" id="hov-reelpop-video-wrap">
+    <!-- Maximize Overlay (Visible on hover when minimized) -->
+    <div class="hov-reelpop__maximize-overlay" id="hov-reelpop-maximize" aria-label="Maximize video" role="button" tabindex="0">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="15 3 21 3 21 9"></polyline>
+        <polyline points="9 21 3 21 3 15"></polyline>
+        <line x1="21" y1="3" x2="14" y2="10"></line>
+        <line x1="3" y1="21" x2="10" y2="14"></line>
+      </svg>
+    </div>
+
+    <!-- Play Overlay for Autoplay Blocked Fallback -->
+    <div class="hov-reelpop__play-overlay">
+      <div class="hov-reelpop__play-icon">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+          <polygon points="5 3 19 12 5 21 5 3"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Self-hosted MP4 Video -->
+    <video
+      id="hov-reelpop-video"
+      class="hov-reelpop__video"
+      src="/cdn/shop/videos/c/vp/319df235659e41f9ab0b750d289108f2/319df235659e41f9ab0b750d289108f2.HD-1080p-2.5Mbps-80218320.mp4?v=0"
+      muted
+      autoplay
+      loop
+      playsinline
+      preload="metadata">
+    </video>
+  </div>
+
+  <!-- Unmute Button / Label -->
+  <button class="hov-reelpop__unmute" id="hov-reelpop-unmute" aria-label="Toggle mute">
+    <!-- Muted SVG -->
+    <svg class="hov-reelpop__icon-muted" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+      <line x1="23" y1="9" x2="17" y2="15"/>
+      <line x1="17" y1="9" x2="23" y2="15"/>
+    </svg>
+    <!-- Unmuted SVG -->
+    <svg class="hov-reelpop__icon-unmuted" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display: none;">
+      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+      <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+      <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+    </svg>
+    <span>Tap to unmute</span>
+  </button>
+</div>
+
+<style>
+/* --- Floating Video Pop-up Styles --- */
+.hov-reelpop {
+  position: fixed;
+  bottom: 96px; /* Positioned perfectly above the bottom-right chat widget (bottom: 24px + 56px height + 16px gap) */
+  right: 24px;
+  z-index: 9000; /* Stays above general content but below primary header/navigation overlays */
+  width: 115px;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.28);
+  background: #000;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: width 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), border-radius 0.4s ease, transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease, opacity 0.3s ease;
+}
+
+.hov-reelpop[data-dismissed="true"] {
+  transform: translateY(30px) scale(0.8);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.hov-reelpop[data-minimized="true"] {
+  width: 64px;
+  border-radius: 50%;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+}
+
+.hov-reelpop:hover {
+  transform: scale(1.04);
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.35);
+}
+
+.hov-reelpop[data-minimized="true"]:hover {
+  transform: scale(1.1);
+}
+
+.hov-reelpop__video-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 9 / 16;
+  overflow: hidden;
+  background: #000;
+  transition: aspect-ratio 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.hov-reelpop[data-minimized="true"] .hov-reelpop__video-wrap {
+  aspect-ratio: 1 / 1;
+}
+
+.hov-reelpop__video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Top Right Actions styling */
+.hov-reelpop__actions {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 10;
+  display: flex;
+  gap: 6px;
+  transition: opacity 0.3s ease;
+}
+
+.hov-reelpop__action-btn {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #FFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+  padding: 0;
+}
+
+.hov-reelpop__action-btn:hover {
+  background: rgba(0, 0, 0, 0.85);
+  transform: scale(1.1);
+}
+
+.hov-reelpop[data-minimized="true"] .hov-reelpop__actions {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Unmute Button styling */
+.hov-reelpop__unmute {
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #FFF;
+  font-family: 'SofiaPro', sans-serif;
+  font-size: 8.5px;
+  font-weight: 500;
+  letter-spacing: 0.2px;
+  padding: 4.5px 8px;
+  border-radius: 20px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.2s, transform 0.2s, opacity 0.3s ease;
+}
+
+.hov-reelpop[data-minimized="true"] .hov-reelpop__unmute {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.hov-reelpop__unmute:hover {
+  background: rgba(0, 0, 0, 0.8);
+  transform: scale(1.05);
+}
+
+/* Speaker Icons Toggle */
+.hov-reelpop[data-muted="true"] .hov-reelpop__icon-muted { display: inline-block !important; }
+.hov-reelpop[data-muted="true"] .hov-reelpop__icon-unmuted { display: none !important; }
+
+.hov-reelpop[data-muted="false"] .hov-reelpop__icon-muted { display: none !important; }
+.hov-reelpop[data-muted="false"] .hov-reelpop__icon-unmuted { display: inline-block !important; }
+
+/* Play Overlay (For Autoplay Blocked Fallback) */
+.hov-reelpop__play-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 5;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.hov-reelpop[data-minimized="true"] .hov-reelpop__play-overlay {
+  display: none !important;
+}
+
+/* Maximize Overlay */
+.hov-reelpop__maximize-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 20;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease, background 0.2s ease;
+  cursor: pointer;
+}
+
+.hov-reelpop[data-minimized="true"] .hov-reelpop__maximize-overlay {
+  pointer-events: auto;
+}
+
+.hov-reelpop[data-minimized="true"]:hover .hov-reelpop__maximize-overlay {
+  opacity: 1;
+}
+
+.hov-reelpop--needs-tap .hov-reelpop__play-overlay {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.hov-reelpop__play-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: #2D5A27;
+  color: #FFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  transform: scale(0.9);
+  transition: transform 0.2s ease, background-color 0.2s;
+}
+
+.hov-reelpop__play-overlay:hover .hov-reelpop__play-icon {
+  transform: scale(1);
+  background: #23471e;
+}
+
+/* --- Responsive Media Queries --- */
+@media (max-width: 575.98px) {
+  .hov-reelpop {
+    width: 66.5px; /* 95 × 0.7 — 30% narrower */
+    bottom: calc(var(--hov-bottomnav-height, 50px) + 78px); /* 128px — sits above the lifted chat bubble (bar + chat 62 + toggle 50 + 16 gap) */
+    right: 16px;
+    border-radius: 12px;
+  }
+  .hov-reelpop[data-minimized="true"] {
+    width: 56px;
+  }
+  .hov-reelpop__minimize {
+    width: 22px;
+    height: 22px;
+    top: 6px;
+    right: 6px;
+  }
+  .hov-reelpop__unmute {
+    bottom: 6px;
+    left: 6px;
+    font-size: 8px;
+    padding: 3.5px 6.5px;
+  }
+  .hov-reelpop__play-icon {
+    width: 28px;
+    height: 28px;
+  }
+}
+</style>
+
+<script>
+(function() {
+  'use strict';
+
+  // Only run on the homepage
+  if (window.location.pathname !== '/' && window.location.pathname !== '/index.html') return;
+
+  const popup = document.getElementById('hov-reelpop');
+  const minimizeBtn = document.getElementById('hov-reelpop-minimize');
+  const closeBtn = document.getElementById('hov-reelpop-close');
+  const maximizeBtn = document.getElementById('hov-reelpop-maximize');
+  const unmuteBtn = document.getElementById('hov-reelpop-unmute');
+  const video = document.getElementById('hov-reelpop-video');
+  if (!popup || !video) return;
+
+  // Respect prior dismissal within this browser session
+  const DISMISS_KEY = 'hov_reelpop_dismissed';
+  if (sessionStorage.getItem(DISMISS_KEY) === 'true') {
+    popup.remove();
+    return;
+  }
+
+  // Respect prior minimized state within this browser session
+  const MINIMIZE_KEY = 'hov_reelpop_minimized';
+  let isMinimized = sessionStorage.getItem(MINIMIZE_KEY) === 'true';
+  
+  if (isMinimized) {
+    popup.setAttribute('data-minimized', 'true');
+    video.muted = true; // ensure it plays silently in bubble
+  }
+
+  // Autoplay safeguard — retry play() and show play overlay if blocked by browser
+  function attemptAutoplay() {
+    // If it's not minimized, we try to play. If it is minimized, we also play but silently.
+    if (isMinimized) {
+      video.muted = true;
+    }
+    const playPromise = video.play();
+    if (playPromise !== undefined) {
+      playPromise.catch(() => {
+        // Autoplay blocked — show play icon overlay (only visible if not minimized)
+        if (!isMinimized) {
+          popup.classList.add('hov-reelpop--needs-tap');
+        }
+      });
+    }
+  }
+
+  // Trigger autoplay attempt
+  attemptAutoplay();
+
+  // Close button functionality
+  closeBtn?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    popup.setAttribute('data-dismissed', 'true');
+    sessionStorage.setItem(DISMISS_KEY, 'true');
+    video.pause();
+    setTimeout(() => popup.remove(), 320);
+  });
+
+  // Minimize button functionality
+  minimizeBtn?.addEventListener('click', (e) => {
+    e.stopPropagation(); // Prevent trigger unmute/play on click
+    isMinimized = true;
+    popup.setAttribute('data-minimized', 'true');
+    sessionStorage.setItem(MINIMIZE_KEY, 'true');
+    video.muted = true; // Mute video when minimized
+    popup.setAttribute('data-muted', 'true');
+    unmuteBtn.querySelector('span').textContent = 'Tap to unmute';
+    popup.classList.remove('hov-reelpop--needs-tap'); // Hide play overlay if it was there
+  });
+
+  // Maximize button functionality (clicking the minimized bubble)
+  maximizeBtn?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    isMinimized = false;
+    popup.setAttribute('data-minimized', 'false');
+    sessionStorage.setItem(MINIMIZE_KEY, 'false');
+    // Ensure video is playing when maximized
+    if (video.paused) {
+      attemptAutoplay();
+    }
+  });
+
+  // Helper to toggle mute state
+  function toggleMute() {
+    video.muted = !video.muted;
+    popup.setAttribute('data-muted', video.muted ? 'true' : 'false');
+    unmuteBtn.querySelector('span').textContent = video.muted ? 'Tap to unmute' : 'Tap to mute';
+  }
+
+  // Unmute button click handler
+  unmuteBtn?.addEventListener('click', (e) => {
+    e.stopPropagation(); // Prevent double trigger on bubble click
+    toggleMute();
+  });
+
+  // Tap-to-play fallback / Body click to unmute (only when maximized)
+  popup.addEventListener('click', (e) => {
+    if (isMinimized) return; // Don't handle body clicks when minimized
+    if (e.target.closest('.hov-reelpop__actions, .hov-reelpop__unmute, .hov-reelpop__maximize-overlay')) return;
+    
+    if (video.paused) {
+      video.play().then(() => {
+        popup.classList.remove('hov-reelpop--needs-tap');
+      }).catch(() => {});
+    } else {
+      toggleMute();
+    }
+  });
+
+})();
+</script>
+{%- endif -%}

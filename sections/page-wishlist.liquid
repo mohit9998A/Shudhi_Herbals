@@ -1,0 +1,1257 @@
+<style>
+/* ── BODY LAYOUT ── */
+.hov-wl__body {
+  max-width: 1200px;
+  margin: 48px auto;
+  padding: 0 24px;
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 32px;
+  align-items: start;
+}
+
+/* Override to single column when sidebar hidden */
+.hov-wl__body:has(#hov-wl-sidebar[style*="display:none"]),
+.hov-wl__body:has(#hov-wl-sidebar:not([style])) {
+  grid-template-columns: 1fr;
+}
+
+/* Fallback for browsers without :has() */
+.hov-wl__body--empty {
+  grid-template-columns: 1fr !important;
+}
+
+/* ── HERO BANNER ── */
+.hov-wl__hero {
+  background: #FAF6EE;
+  min-height: 0;
+  height: 100px;           /* slim fixed height */
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  border-bottom: 1px solid #EEE8DC;
+  box-sizing: border-box;
+}
+
+.hov-wl__hero-left-deco {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 80px;   /* was 180px */
+  height: 100%;
+  display: flex;
+  align-items: flex-end;
+}
+.hov-wl__hero-left-deco svg {
+  width: 80px;
+  height: auto;
+  opacity: 0.5;
+}
+
+.hov-wl__hero-right-deco {
+  position: absolute;
+  right: 32px;
+  bottom: 0;
+  width: 70px;   /* was 160px */
+  height: 100%;
+  display: flex;
+  align-items: flex-end;
+}
+.hov-wl__hero-right-deco svg {
+  width: 70px;
+  height: auto;
+  opacity: 0.65;
+}
+
+.hov-wl__hero-title {
+  font-size: 26px;    /* was clamp(32px,5vw,52px) */
+  font-weight: 700;
+  color: #1A2E1A;
+  margin: 0 0 4px;
+  line-height: 1.1;
+  font-family: var(--font-heading, serif);
+}
+.hov-wl__hero-sub {
+  font-size: 13px;    /* was 16px */
+  color: #888;
+  margin: 0 0 6px;
+}
+.hov-wl__breadcrumb {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  gap: 6px;
+  color: #999;
+}
+.hov-wl__breadcrumb a {
+  color: #666;
+  text-decoration: none;
+}
+.hov-wl__breadcrumb a:hover { color: #2D5A27; }
+
+.hov-wl__hero-text {
+  text-align: center;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .hov-wl__hero { height: 80px; }
+  .hov-wl__hero-title { font-size: 20px; }
+  .hov-wl__hero-sub { display: none; }
+  .hov-wl__hero-left-deco,
+  .hov-wl__hero-right-deco { display: none; }
+}
+
+@media (max-width: 480px) {
+  .hov-wl__hero { height: 60px; }
+  .hov-wl__hero-title { font-size: 18px; }
+  .hov-wl__breadcrumb { display: none; }
+}
+
+/* ── TOOLBAR ── */
+.hov-wl__toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #EEE;
+}
+.hov-wl__count {
+  font-size: 15px;
+  font-weight: 600;
+  color: #333;
+}
+.hov-wl__toolbar-actions { display: flex; gap: 12px; }
+.hov-wl__toolbar-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #555;
+  background: none;
+  border: 1px solid #DDD;
+  border-radius: 8px;
+  padding: 8px 14px;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+.hov-wl__toolbar-btn:hover {
+  border-color: #2D5A27;
+  color: #2D5A27;
+}
+.hov-wl__toolbar-btn--danger:hover {
+  border-color: #E53E3E;
+  color: #E53E3E;
+}
+
+/* ── SKELETON LOADING ── */
+.hov-wl__skel-item {
+  height: 120px;
+  background: linear-gradient(90deg,
+    #F0F0F0 25%, #E0E0E0 50%, #F0F0F0 75%);
+  background-size: 200% 100%;
+  animation: hov-shimmer 1.4s infinite;
+  border-radius: 16px;
+  margin-bottom: 16px;
+}
+@keyframes hov-shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ── EMPTY STATE ── */
+.hov-wl__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 80px 24px 100px;
+  width: 100%;
+  min-height: 40vh;
+  /* Critical: remove any left margin/grid offset */
+  grid-column: 1 / -1; /* spans full grid width if inside .hov-wl__body grid */
+  margin: 0 auto;
+}
+.hov-wl__empty svg {
+  width: 64px;
+  height: 64px;
+  stroke: #DDD;
+  stroke-width: 1.2;
+  display: block;
+  margin: 0 auto 20px;
+}
+.hov-wl__empty h3 {
+  font-size: 22px;
+  font-weight: 700;
+  color: #1A2E1A;
+  margin: 0 0 10px;
+}
+.hov-wl__empty p {
+  font-size: 14px;
+  color: #999;
+  margin: 0;
+  line-height: 1.6;
+}
+.hov-wl__empty-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #2D5A27;
+  color: #FFF;
+  border-radius: 999px;
+  padding: 14px 32px;
+  font-size: 15px;
+  font-weight: 700;
+  text-decoration: none;
+  margin-top: 24px;
+  transition: 0.25s ease;
+  white-space: nowrap;
+}
+.hov-wl__empty-cta:hover {
+  background: #1A3D1A;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(45,90,39,0.25);
+}
+@media (max-width: 480px) {
+  .hov-wl__empty-cta {
+    width: calc(100% - 48px);
+    justify-content: center;
+    max-width: 280px;
+  }
+}
+
+/* ── PRODUCT ITEMS ── */
+.hov-wl__item {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  background: #FFFFFF;
+  border: 1px solid #F0EBE0;
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 16px;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+.hov-wl__item:hover {
+  box-shadow: 0 4px 24px rgba(0,0,0,0.07);
+  transform: translateY(-2px);
+}
+@keyframes hov-wl-slide-in {
+  from {
+    opacity: 0;
+    transform: translateY(-16px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+@keyframes hov-wl-fade-out {
+  to {
+    opacity: 0;
+    transform: translateX(-20px);
+    max-height: 0;
+    padding: 0;
+    margin: 0;
+    overflow: hidden;
+  }
+}
+
+.hov-wl__item-img-wrap {
+  width: 120px;
+  height: 120px;
+  border-radius: 12px;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: #FAF6EE;
+  border: 1px solid #EEE;
+}
+.hov-wl__item-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.hov-wl__item-info { flex: 1; min-width: 0; }
+.hov-wl__item-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1A2E1A;
+  margin: 0 0 6px;
+}
+.hov-wl__item-title a {
+  color: inherit;
+  text-decoration: none;
+}
+.hov-wl__item-title a:hover { color: #2D5A27; }
+.hov-wl__item-desc {
+  font-size: 13px;
+  color: #888;
+  margin: 0 0 8px;
+  line-height: 1.4;
+}
+.hov-wl__item-tag {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  color: #2D5A27;
+  background: #EAF3E8;
+  border: 1px solid #C3DEBD;
+  border-radius: 999px;
+  padding: 3px 10px;
+  margin-bottom: 10px;
+}
+.hov-wl__item-price {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.hov-wl__price {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1A2E1A;
+}
+.hov-wl__compare {
+  font-size: 14px;
+  color: #BBB;
+  text-decoration: line-through;
+}
+.hov-wl__saved {
+  font-size: 12px;
+  font-weight: 600;
+  color: #1E7A3E;
+  background: #EAF3E8;
+  border-radius: 4px;
+  padding: 2px 8px;
+}
+
+.hov-wl__item-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+  flex-shrink: 0;
+}
+.hov-wl__item-remove {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 1px solid #EEE;
+  background: #FAFAFA;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: 0.2s ease;
+  color: #BBB;
+  flex-shrink: 0;
+  /* No absolute positioning — sits naturally in flex flow */
+  position: static;
+}
+.hov-wl__item-remove:hover {
+  background: #FFF0F0;
+  color: #E53E3E;
+  border-color: #FCA5A5;
+  transform: scale(1.08);
+}
+
+.hov-wl__item-atc {
+  background: #1A3D1A;
+  color: #FFF;
+  border: none;
+  border-radius: 10px;
+  padding: 11px 20px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: 0.2s ease;
+}
+.hov-wl__item-atc:hover {
+  background: #2D5A27;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(45,90,39,0.25);
+}
+
+/* ── SIDEBAR ── */
+.hov-wl__summary-card {
+  background: #FFFFFF;
+  border: 1px solid #F0EBE0;
+  border-radius: 20px;
+  padding: 28px 24px;
+  position: sticky;
+  top: 100px;
+}
+.hov-wl__summary-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1A2E1A;
+  margin: 0 0 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #EEE;
+}
+.hov-wl__summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+  color: #555;
+  margin-bottom: 12px;
+}
+.hov-wl__summary-saving { color: #1E7A3E; font-weight: 600; }
+.hov-wl__saving-val { font-weight: 700; }
+
+.hov-wl__add-all-btn {
+  width: 100%;
+  background: #1A3D1A;
+  color: #FFF;
+  border: none;
+  border-radius: 12px;
+  padding: 16px;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  cursor: pointer;
+  margin: 20px 0 24px;
+  transition: 0.2s ease;
+}
+.hov-wl__add-all-btn:hover {
+  background: #2D5A27;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(45,90,39,0.25);
+}
+
+.hov-wl__trust-items {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  border-top: 1px solid #EEE;
+  padding-top: 20px;
+}
+.hov-wl__trust-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.hov-wl__trust-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #EAF3E8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.hov-wl__trust-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #1A2E1A;
+  margin: 0 0 2px;
+}
+.hov-wl__trust-sub {
+  font-size: 12px;
+  color: #999;
+  margin: 0;
+}
+
+/* ── RESPONSIVE ── */
+/* Tablet */
+@media (max-width: 900px) {
+  .hov-wl__body {
+    grid-template-columns: 1fr;
+    margin: 32px auto;
+    padding: 0 20px;
+  }
+  .hov-wl__sidebar { order: -1; }
+  .hov-wl__summary-card { position: static; }
+}
+
+/* Mobile */
+@media (max-width: 600px) {
+  .hov-wl__body { padding: 0 16px; margin: 24px auto; }
+  .hov-wl__item {
+    flex-wrap: wrap;
+    gap: 14px;
+    padding: 16px;
+  }
+  .hov-wl__item-img-wrap {
+    width: 90px;
+    height: 90px;
+  }
+  .hov-wl__item-actions {
+    flex-direction: row;
+    width: 100%;
+    justify-content: flex-end;
+    align-items: center;
+  }
+  .hov-wl__item-atc { flex: 1; text-align: center; }
+  .hov-wl__toolbar {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .hov-wl__toolbar-actions {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .hov-wl__empty { padding: 60px 16px 80px; }
+}
+
+/* Small mobile */
+@media (max-width: 380px) {
+  .hov-wl__item-img-wrap { width: 70px; height: 70px; }
+  .hov-wl__price { font-size: 15px; }
+  .hov-wl__empty h3 { font-size: 18px; }
+}
+
+/* Add to wishlist page section CSS — scoped to wishlist page only */
+body[class*="page-wishlist"] .hov-wish__btn,
+body[class*="template-page"] .hov-wl__item .hov-wish__btn,
+body[class*="template-page"] .hov-wl__item .hov-wl__item-heart,
+.hov-wl__items .hov-wish__btn,
+.hov-wl__items .hov-wl__item-heart {
+  display: none !important;
+}
+
+/* Prevent golden ring shimmer from firing on wishlist page */
+.hov-wl__items .hov-wish__btn::before,
+.hov-wl__items .hov-wish__btn::after {
+  display: none !important;
+  animation: none !important;
+}
+</style>
+
+<div class="hov-wl__hero">
+  <!-- Left botanical leaf SVG -->
+  <div class="hov-wl__hero-left-deco">
+    <svg viewBox="0 0 200 300" width="180" fill="none"
+         xmlns="http://www.w3.org/2000/svg" opacity="0.55">
+      <path d="M100 280 C60 200 20 150 40 80 C60 20 120 10 160 60
+               C190 100 180 160 140 200 C120 220 100 250 100 280Z"
+            fill="#C8DDB8" opacity="0.6"/>
+      <path d="M80 260 C50 190 30 140 50 90"
+            stroke="#8AB87A" stroke-width="2" fill="none"/>
+      <path d="M100 280 L80 200 M100 280 L120 210 M100 280 L90 230"
+            stroke="#8AB87A" stroke-width="1.5" fill="none"/>
+    </svg>
+  </div>
+
+  <!-- Center text -->
+  <div class="hov-wl__hero-text">
+    <h1 class="hov-wl__hero-title">Wishlist</h1>
+    <p class="hov-wl__hero-sub">Your saved Ayurvedic favorites</p>
+    <nav class="hov-wl__breadcrumb" aria-label="Breadcrumb">
+      <a href="/">Home</a>
+      <span>›</span>
+      <span>Wishlist</span>
+    </nav>
+  </div>
+
+  <!-- Right mortar & pestle illustration (use existing asset or SVG) -->
+  <div class="hov-wl__hero-right-deco">
+    <svg viewBox="0 0 200 220" width="160" fill="none"
+         xmlns="http://www.w3.org/2000/svg" opacity="0.70">
+      <!-- Mortar bowl -->
+      <ellipse cx="100" cy="160" rx="65" ry="20" fill="#D4B896"/>
+      <path d="M40 140 Q35 185 100 190 Q165 185 160 140Z"
+            fill="#C4A882"/>
+      <!-- Pestle -->
+      <rect x="88" y="60" width="24" height="90" rx="12"
+            fill="#B89870" transform="rotate(-15,100,105)"/>
+      <ellipse cx="108" cy="62" rx="14" ry="10"
+               fill="#C4A882" transform="rotate(-15,108,62)"/>
+      <!-- Leaves -->
+      <path d="M150 100 C170 80 185 100 165 115 C155 122 140 110 150 100Z"
+            fill="#8AB87A" opacity="0.7"/>
+      <path d="M155 120 C175 105 182 125 165 130"
+            stroke="#6A9860" stroke-width="1.5" fill="none"/>
+    </svg>
+  </div>
+</div>
+
+<div class="hov-wl__body">
+  <!-- LEFT: Product list -->
+  <div class="hov-wl__list-col">
+
+    <!-- Toolbar -->
+    <div class="hov-wl__toolbar" id="hov-wl-toolbar" style="display:none">
+      <span class="hov-wl__count" id="hov-wl-count">0 Items</span>
+      <div class="hov-wl__toolbar-actions">
+        <button class="hov-wl__toolbar-btn" id="hov-wl-move-all">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="1.8">
+            <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/>
+            <line x1="3" y1="6" x2="21" y2="6"/>
+            <path d="M16 10a4 4 0 01-8 0"/>
+          </svg>
+          Move all to bag
+        </button>
+        <button class="hov-wl__toolbar-btn hov-wl__toolbar-btn--danger"
+                id="hov-wl-clear">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="1.8">
+            <polyline points="3 6 5 6 21 6"/>
+            <path d="M19 6l-1 14H6L5 6"/>
+            <path d="M10 11v6M14 11v6"/>
+            <path d="M9 6V4h6v2"/>
+          </svg>
+          Clear Wishlist
+        </button>
+      </div>
+    </div>
+
+    <!-- Loading state -->
+    <div class="hov-wl__loading" id="hov-wl-loading">
+      <div class="hov-wl__skeleton" aria-hidden="true">
+        <div class="hov-wl__skel-item"></div>
+        <div class="hov-wl__skel-item"></div>
+        <div class="hov-wl__skel-item"></div>
+      </div>
+    </div>
+
+    <!-- Empty state -->
+    <div class="hov-wl__empty" id="hov-wl-empty" style="display:none">
+      <svg width="64" height="64" viewBox="0 0 24 24" fill="none"
+           stroke="#DDD" stroke-width="1.2">
+        <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06
+                 a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78
+                 1.06-1.06a5.5 5.5 0 000-7.78z"/>
+      </svg>
+      <h3>Your wishlist is empty</h3>
+      <p>Save items you love and find them here</p>
+      <a href="/collections/all" class="hov-wl__empty-cta">
+        Explore Products →
+      </a>
+    </div>
+
+    <!-- Product list -->
+    <div class="hov-wl__items" id="hov-wl-items"></div>
+
+  </div>
+
+  <!-- RIGHT: Summary sidebar -->
+  <div class="hov-wl__sidebar" id="hov-wl-sidebar" style="display:none">
+    <div class="hov-wl__summary-card">
+      <h2 class="hov-wl__summary-title">Wishlist Summary</h2>
+
+      <div class="hov-wl__summary-row">
+        <span id="hov-wl-summary-count">0 Items</span>
+        <span id="hov-wl-summary-total">₹0</span>
+      </div>
+      <div class="hov-wl__summary-row hov-wl__summary-saving">
+        <span>Total Saving</span>
+        <span id="hov-wl-summary-saving" class="hov-wl__saving-val">₹0</span>
+      </div>
+
+      <button class="hov-wl__add-all-btn" id="hov-wl-add-all">
+        ADD ALL TO BAG
+      </button>
+
+      <div class="hov-wl__trust-items">
+        <div class="hov-wl__trust-item">
+          <div class="hov-wl__trust-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
+                 stroke="#2D5A27" stroke-width="1.8">
+              <path d="M12 2C6 2 2 8 2 14c0 4 2.5 7 6 8
+                       1-3 3-5 4-6-1 1-2 3-2 5 2 0 4-1
+                       5.5-3C17 16 18 12 18 8c0-1 0-2-.5-3
+                       C16 8 14 10 12 12c2-2 3-5 3-8z"/>
+            </svg>
+          </div>
+          <div>
+            <p class="hov-wl__trust-title">100% Natural</p>
+            <p class="hov-wl__trust-sub">Pure Ayurvedic ingredients</p>
+          </div>
+        </div>
+        <div class="hov-wl__trust-item">
+          <div class="hov-wl__trust-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
+                 stroke="#2D5A27" stroke-width="1.8">
+              <path d="M12 2L3 7v5c0 5 4 9 9 10 5-1 9-5 9-10V7l-9-5z"/>
+              <path d="M9 12l2 2 4-4"/>
+            </svg>
+          </div>
+          <div>
+            <p class="hov-wl__trust-title">Secure Payments</p>
+            <p class="hov-wl__trust-sub">Safe & trusted checkout</p>
+          </div>
+        </div>
+        <div class="hov-wl__trust-item">
+          <div class="hov-wl__trust-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
+                 stroke="#2D5A27" stroke-width="1.8">
+              <rect x="1" y="3" width="15" height="13" rx="1"/>
+              <path d="M16 8h4l3 5v3h-7V8z"/>
+              <circle cx="5.5" cy="18.5" r="2.5"/>
+              <circle cx="18.5" cy="18.5" r="2.5"/>
+            </svg>
+          </div>
+          <div>
+            <p class="hov-wl__trust-title">Fast Delivery</p>
+            <p class="hov-wl__trust-sub">Quick delivery at your door</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  const cid = document.documentElement.dataset.customerId;
+  const STORAGE_KEY = cid ? `hov_wishlist_${cid}` : 'hov_wishlist';
+
+  function getIds() {
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
+    catch { return []; }
+  }
+  function removeId(id) {
+    const list = getIds().filter(i => i !== String(id));
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+  }
+  function clearAll() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify([]));
+  }
+  function formatMoney(cents) {
+    return '₹' + Math.round(cents / 100).toLocaleString('en-IN');
+  }
+
+  // ── FETCH PRODUCTS ─────────────────────────────────────
+  async function fetchProduct(id) {
+    try {
+      // Use Shopify Suggest API to find product by ID
+      const res = await fetch(
+        `/search/suggest.json?q=${id}&resources[type]=product&resources[limit]=1`
+      );
+      const data = await res.json();
+      let found = data?.resources?.results?.products?.[0];
+      
+      // Fallback 1: search.json.liquid (using view=json)
+      if (!found) {
+        const fallbackRes = await fetch(`/search?view=json&q=id:${id}`);
+        if (fallbackRes.ok) {
+          const fallbackData = await fallbackRes.json();
+          found = fallbackData?.[0];
+        }
+      }
+
+      // Fallback 2: general search
+      if (!found) {
+        const fallbackRes2 = await fetch(`/search?view=json&q=${id}`);
+        if (fallbackRes2.ok) {
+          const fallbackData2 = await fallbackRes2.json();
+          found = fallbackData2?.find(p => String(p.id) === String(id));
+        }
+      }
+
+      if (!found || !found.handle) return null;
+
+      // Fetch full product details
+      const r2 = await fetch(`/products/${found.handle}.js`);
+      return r2.ok ? r2.json() : null;
+    } catch (e) {
+      console.error('Error fetching product details for ID: ' + id, e);
+      return null;
+    }
+  }
+
+  // ── RENDER CARD ────────────────────────────────────────
+  function renderProductItem(product) {
+    const variant = product.variants?.[0];
+    const price = variant?.price
+      ? '₹' + (variant.price / 100).toFixed(0)
+      : '₹' + product.price;
+    const comparePrice = variant?.compare_at_price
+      ? '₹' + (variant.compare_at_price / 100).toFixed(0) : '';
+    const saving = variant?.compare_at_price && variant?.price
+      ? Math.round((variant.compare_at_price - variant.price) / 100)
+      : 0;
+    const img = product.images?.[0] || product.featured_image || '';
+    const tag = product.tags?.[0] || '';
+    const descWords = (product.body_html || '')
+      .replace(/<[^>]+>/g,'').split(' ').slice(0,8).join(' ');
+
+    return `
+      <div class="hov-wl__item" data-product-id="${product.id}"
+           data-variant-id="${variant?.id || ''}">
+        <div class="hov-wl__item-img-wrap">
+          <img src="${img}" alt="${product.title}"
+               class="hov-wl__item-img" loading="lazy"
+               width="120" height="120">
+        </div>
+        <div class="hov-wl__item-info">
+          <h3 class="hov-wl__item-title">
+            <a href="/products/${product.handle}">${product.title}</a>
+          </h3>
+          ${descWords ? `<p class="hov-wl__item-desc">${descWords}…</p>` : ''}
+          ${tag ? `<span class="hov-wl__item-tag">${tag}</span>` : ''}
+          <div class="hov-wl__item-price">
+            <span class="hov-wl__price">${price}</span>
+            ${comparePrice
+              ? `<span class="hov-wl__compare">${comparePrice}</span>` : ''}
+            ${saving > 0
+              ? `<span class="hov-wl__saved">Save ₹${saving}</span>` : ''}
+          </div>
+        </div>
+        <div class="hov-wl__item-actions">
+          <button class="hov-wl__item-remove"
+                  data-product-id="${product.id}"
+                  aria-label="Remove from wishlist">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="1.8">
+              <polyline points="3 6 5 6 21 6"/>
+              <path d="M19 6l-1 14H6L5 6"/>
+              <path d="M10 11v6M14 11v6"/>
+              <path d="M9 6V4h6v2"/>
+            </svg>
+          </button>
+          <button class="hov-wl__item-atc"
+                  data-variant-id="${variant?.id || ''}"
+                  data-product-title="${product.title}">
+            ADD TO BAG
+          </button>
+        </div>
+      </div>`;
+  }
+
+  // ── SUMMARY ────────────────────────────────────────────
+  function updateSummary(products) {
+    let total = 0, saving = 0;
+    products.forEach(p => {
+      const v = p.variants?.[0];
+      if (v?.price) total += v.price;
+      if (v?.compare_at_price > v?.price)
+        saving += v.compare_at_price - v.price;
+    });
+    const n = products.length;
+    document.getElementById('hov-wl-count').textContent =
+      `${n} Item${n !== 1 ? 's' : ''}`;
+    document.getElementById('hov-wl-summary-count').textContent =
+      `${n} Item${n !== 1 ? 's' : ''}`;
+    document.getElementById('hov-wl-summary-total').textContent =
+      formatMoney(total);
+    document.getElementById('hov-wl-summary-saving').textContent =
+      formatMoney(saving);
+  }
+
+  // ── ADD TO CART ────────────────────────────────────────
+  async function addToCart(variantId, btn) {
+    if (!variantId) return;
+    btn.textContent = 'Adding…';
+    btn.disabled = true;
+    try {
+      const res = await fetch('/cart/add.js', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: variantId, quantity: 1 })
+      });
+      if (res.ok) {
+        btn.textContent = '✓ Added!';
+        btn.style.background = '#1E7A3E';
+        
+        // Trigger Shopify's AJAX cart drawer update
+        if (window.ajaxCart && typeof window.ajaxCart.load === 'function') {
+          window.ajaxCart.load();
+        } else {
+          document.dispatchEvent(new CustomEvent('cart:updated'));
+        }
+        
+        setTimeout(() => {
+          btn.textContent = 'ADD TO BAG';
+          btn.style.background = '';
+          btn.disabled = false;
+        }, 2000);
+      }
+    } catch (e) {
+      btn.textContent = 'ADD TO BAG';
+      btn.disabled = false;
+    }
+  }
+
+  // ── ADD ALL ─────────────────────────────────────────────
+  async function addAllToCart() {
+    const btns = document.querySelectorAll('.hov-wl__item-atc');
+    for (const btn of btns) {
+      await addToCart(btn.dataset.variantId, btn);
+      await new Promise(r => setTimeout(r, 300));
+    }
+  }
+
+  // ── REMOVE ITEM ─────────────────────────────────────────
+  function removeItem(productId) {
+    removeId(productId);
+    const el = document.querySelector(
+      `.hov-wl__item[data-product-id="${productId}"]`
+    );
+    if (el) {
+      el.style.animation = 'hov-wl-fade-out 0.3s ease forwards';
+      setTimeout(() => {
+        el.remove();
+        recount();
+        recalcSummary?.();
+      }, 320);
+    }
+
+    // sync ALL heart buttons with this product ID on the page
+    window.hovSyncHeartButtons?.(productId, false);
+
+    // dispatch event so other listeners update too
+    document.dispatchEvent(new CustomEvent('hov:wishlist:changed', {
+      detail: {
+        productId: String(productId),
+        added: false,
+        list: getIds()
+      }
+    }));
+    
+    // Update global navbar count badge
+    document.querySelectorAll('.hov-wish__nav-count').forEach(badge => {
+      const n = getIds().length;
+      badge.textContent = n > 99 ? '99+' : n;
+      badge.style.display = n ? 'flex' : 'none';
+    });
+  }
+
+  function recount() {
+    const items = document.querySelectorAll('.hov-wl__item');
+    const n = items.length;
+    document.getElementById('hov-wl-count').textContent =
+      `${n} Item${n !== 1 ? 's' : ''}`;
+    if (n === 0) {
+      document.getElementById('hov-wl-empty').style.display = 'flex';
+      document.getElementById('hov-wl-toolbar').style.display = 'none';
+      document.getElementById('hov-wl-sidebar').style.display = 'none';
+      document.querySelector('.hov-wl__body')
+        ?.classList.add('hov-wl__body--empty');
+    } else {
+      document.querySelector('.hov-wl__body')
+        ?.classList.remove('hov-wl__body--empty');
+    }
+  }
+
+  // ── MAIN RENDER ─────────────────────────────────────────
+  async function renderWishlist() {
+    const ids = getIds();
+    const loading = document.getElementById('hov-wl-loading');
+    const empty   = document.getElementById('hov-wl-empty');
+    const itemsEl = document.getElementById('hov-wl-items');
+    const toolbar = document.getElementById('hov-wl-toolbar');
+    const sidebar = document.getElementById('hov-wl-sidebar');
+
+    if (ids.length === 0) {
+      loading.style.display = 'none';
+      empty.style.display = 'flex';
+      document.querySelector('.hov-wl__body')
+        ?.classList.add('hov-wl__body--empty');
+      return;
+    }
+
+    // Fetch all products in parallel
+    const products = (await Promise.all(ids.map(fetchProduct)))
+      .filter(Boolean);
+
+    loading.style.display = 'none';
+
+    if (products.length === 0) {
+      empty.style.display = 'flex';
+      document.querySelector('.hov-wl__body')
+        ?.classList.add('hov-wl__body--empty');
+      return;
+    }
+
+    // Render items
+    itemsEl.innerHTML = products.map(p => renderProductItem(p)).join('');
+    toolbar.style.display = 'flex';
+    sidebar.style.display = 'block';
+    document.querySelector('.hov-wl__body')
+      ?.classList.remove('hov-wl__body--empty');
+    updateSummary(products);
+
+    // Wire events
+    itemsEl.querySelectorAll('.hov-wl__item-remove').forEach(btn => {
+      btn.addEventListener('click', () =>
+        removeItem(btn.dataset.productId));
+    });
+    itemsEl.querySelectorAll('.hov-wl__item-atc').forEach(btn => {
+      btn.addEventListener('click', () =>
+        addToCart(btn.dataset.variantId, btn));
+    });
+    document.getElementById('hov-wl-add-all')
+      ?.addEventListener('click', addAllToCart);
+    document.getElementById('hov-wl-move-all')
+      ?.addEventListener('click', addAllToCart);
+    document.getElementById('hov-wl-clear')
+      ?.addEventListener('click', () => {
+        clearAll();
+        itemsEl.innerHTML = '';
+        toolbar.style.display = 'none';
+        sidebar.style.display = 'none';
+        empty.style.display = 'flex';
+        document.querySelector('.hov-wl__body')
+          ?.classList.add('hov-wl__body--empty');
+        
+        // Update global navbar count badge
+        document.querySelectorAll('.hov-wish__nav-count').forEach(badge => {
+          badge.style.display = 'none';
+        });
+      });
+  }
+
+  document.addEventListener('DOMContentLoaded', renderWishlist);
+
+  // ── Only run on wishlist page ──
+  if (window.location.pathname.includes('/pages/wishlist')) {
+
+    // ── HANDLER: re-render or patch DOM instantly ──
+    async function handleWishlistChange(detail) {
+      const { productId, added, product, list } = detail;
+      const itemsEl = document.getElementById('hov-wl-items');
+      const emptyEl  = document.getElementById('hov-wl-empty');
+      const toolbar  = document.getElementById('hov-wl-toolbar');
+      const sidebar  = document.getElementById('hov-wl-sidebar');
+      const body     = document.querySelector('.hov-wl__body');
+
+      if (added) {
+        // ── ADD: fetch product and prepend to list ──
+        emptyEl.style.display = 'none';
+        toolbar.style.display = 'flex';
+        sidebar.style.display = 'block';
+        body?.classList.remove('hov-wl__body--empty');
+
+        // Show skeleton placeholder immediately
+        const placeholder = document.createElement('div');
+        placeholder.className = 'hov-wl__skel-item';
+        placeholder.id = `hov-wl-skel-${productId}`;
+        itemsEl.prepend(placeholder);
+
+        // Fetch full product data
+        let fullProduct = null;
+        try {
+          if (product?.handle) {
+            const r = await fetch(`/products/${product.handle}.js`);
+            if (r.ok) fullProduct = await r.json();
+          }
+          if (!fullProduct) {
+            // Fallback: search by ID
+            const r2 = await fetch(
+              `/search/suggest.json?q=${productId}` +
+              `&resources[type]=product&resources[limit]=1`
+            );
+            const d = await r2.json();
+            const found = d?.resources?.results?.products?.[0];
+            if (found) {
+              const r3 = await fetch(`/products/${found.handle}.js`);
+              if (r3.ok) fullProduct = await r3.json();
+            }
+          }
+        } catch(e) {}
+
+        // Replace skeleton with real card
+        placeholder.remove();
+        if (fullProduct) {
+          const tempDiv = document.createElement('div');
+          tempDiv.innerHTML = renderProductItem(fullProduct);
+          const newItem = tempDiv.firstElementChild;
+          newItem.style.animation = 'hov-wl-slide-in 0.4s ease forwards';
+          itemsEl.prepend(newItem);
+
+          // Wire events on new item
+          newItem.querySelector('.hov-wl__item-remove')
+            ?.addEventListener('click', () =>
+              removeItem(fullProduct.id));
+          newItem.querySelector('.hov-wl__item-atc')
+            ?.addEventListener('click', function() {
+              addToCart(this.dataset.variantId, this);
+            });
+        }
+
+      } else {
+        // ── REMOVE: animate out and remove from DOM ──
+        const existingItem = document.querySelector(
+          `.hov-wl__item[data-product-id="${productId}"]`
+        );
+        if (existingItem) {
+          existingItem.style.animation =
+            'hov-wl-fade-out 0.35s ease forwards';
+          setTimeout(() => {
+            existingItem.remove();
+            recount();
+            recalcSummary();
+          }, 380);
+        }
+      }
+
+      // Always update counts and summary
+      setTimeout(recalcSummary, 400);
+      updateNavCount();
+    }
+
+    // ── Recalculate summary from current DOM ──
+    function recalcSummary() {
+      const items = document.querySelectorAll('.hov-wl__item');
+      const n = items.length;
+      document.getElementById('hov-wl-count').textContent =
+        `${n} Item${n !== 1 ? 's' : ''}`;
+      document.getElementById('hov-wl-summary-count').textContent =
+        `${n} Item${n !== 1 ? 's' : ''}`;
+
+      // Recalculate totals from price elements
+      let total = 0, saving = 0;
+      items.forEach(item => {
+        const priceEl = item.querySelector('.hov-wl__price');
+        const compareEl = item.querySelector('.hov-wl__compare');
+        if (priceEl) {
+          const p = parseInt(
+            priceEl.textContent.replace(/[^0-9]/g, '')
+          );
+          if (!isNaN(p)) total += p;
+        }
+        if (compareEl) {
+          const c = parseInt(
+            compareEl.textContent.replace(/[^0-9]/g, '')
+          );
+          const pr = parseInt(
+            item.querySelector('.hov-wl__price')
+              ?.textContent.replace(/[^0-9]/g, '') || '0'
+          );
+          if (!isNaN(c) && !isNaN(pr) && c > pr)
+            saving += c - pr;
+        }
+      });
+      document.getElementById('hov-wl-summary-total').textContent =
+        '₹' + total.toLocaleString('en-IN');
+      document.getElementById('hov-wl-summary-saving').textContent =
+        '₹' + saving.toLocaleString('en-IN');
+
+      if (n === 0) {
+        document.getElementById('hov-wl-empty').style.display = 'flex';
+        document.getElementById('hov-wl-toolbar').style.display = 'none';
+        document.getElementById('hov-wl-sidebar').style.display = 'none';
+        document.querySelector('.hov-wl__body')
+          ?.classList.add('hov-wl__body--empty');
+      }
+    }
+
+    // ── LISTENER 1: Same-page CustomEvent ──
+    document.addEventListener('hov:wishlist:changed', (e) => {
+      handleWishlistChange(e.detail);
+    });
+
+    // ── LISTENER 2: BroadcastChannel (other tabs) ──
+    try {
+      const bc = new BroadcastChannel('hov_wishlist_channel');
+      bc.onmessage = (e) => {
+        if (e.data?.type === 'wishlist:changed') {
+          handleWishlistChange(e.data);
+        }
+      };
+    } catch(e) {}
+
+    // ── LISTENER 3: localStorage storage event (other tabs fallback) ──
+    window.addEventListener('storage', (e) => {
+      if (e.key !== STORAGE_KEY) return;
+      const oldList = e.oldValue
+        ? JSON.parse(e.oldValue) : [];
+      const newList = e.newValue
+        ? JSON.parse(e.newValue) : [];
+
+      // Find what changed
+      const added = newList.filter(id => !oldList.includes(id));
+      const removed = oldList.filter(id => !newList.includes(id));
+
+      added.forEach(id => handleWishlistChange({
+        productId: id, added: true, list: newList
+      }));
+      removed.forEach(id => handleWishlistChange({
+        productId: id, added: false, list: newList
+      }));
+    });
+
+    // Sync all heart buttons on page to match localStorage state
+    function syncAllHeartStates() {
+      const list = getIds();
+      document.querySelectorAll('.hov-wish__btn').forEach(btn => {
+        const id = String(btn.dataset.productId || '');
+        if (!id) return;
+        window.hovSyncHeartButtons?.(id, list.includes(id));
+      });
+    }
+
+    // Call after DOM is ready and after recommendations load
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', () => {
+        setTimeout(syncAllHeartStates, 800); // wait for recommendation grid to render
+      });
+    } else {
+      setTimeout(syncAllHeartStates, 800);
+    }
+
+    // Also call whenever wishlist changes
+    document.addEventListener('hov:wishlist:changed', () => {
+      setTimeout(syncAllHeartStates, 100);
+    });
+
+    // Hook recommendation grid hearts via MutationObserver
+    if (window.MutationObserver) {
+      let syncTimer = null;
+      new MutationObserver((mutations) => {
+        const hasNewButtons = mutations.some(m =>
+          [...m.addedNodes].some(n =>
+            n.nodeType === 1 && (
+              n.classList?.contains('hov-wish__btn') ||
+              n.querySelector?.('.hov-wish__btn')
+            )
+          )
+        );
+        if (hasNewButtons) {
+          clearTimeout(syncTimer);
+          syncTimer = setTimeout(syncAllHeartStates, 150);
+        }
+      }).observe(document.body, { childList: true, subtree: true });
+    }
+
+    // Tab category buttons in recommendation grid re-sync
+    document.querySelectorAll(
+      '.hov-wl__rec-tab, [class*="rec-tab"], [data-category-tab]'
+    ).forEach(tab => {
+      tab.addEventListener('click', () => {
+        setTimeout(syncAllHeartStates, 300);
+      });
+    });
+  }
+})();
+</script>
+
+{% schema %}
+{
+  "name": "WishList",
+  "settings": [
+    {
+      "type": "image_picker",
+      "id": "bg_breadcrumb",
+      "label": "Background Image BreadCrumb",
+      "info": "1920x510px recommended"
+    }
+  ]
+}
+{% endschema %}
+
+{% stylesheet %}
+{% endstylesheet %}
+
+{% javascript %}
+{% endjavascript %}

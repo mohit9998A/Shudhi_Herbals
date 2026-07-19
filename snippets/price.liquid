@@ -1,0 +1,15 @@
+{%- liquid
+  assign variant = product.selected_or_first_available_variant
+  assign price = variant.price
+  assign compare_at_price = variant.compare_at_price
+-%}
+
+
+
+<div class="product-price ">                      
+{%- if compare_at_price > price -%}<del class="enj-product-price-compare">{{ compare_at_price | money }}</del>{% endif %}
+<ins class="enj-product-price engoj_price_main">{{ price | money }}</ins>
+{%- if shop.taxes_included -%}
+<span class="spr-badge-caption pl-1"> (Inc of all taxes.)</span>
+  {% endif %}
+</div>

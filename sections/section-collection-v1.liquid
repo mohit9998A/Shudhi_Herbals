@@ -1,0 +1,707 @@
+<div data-section-id="{{ section.id }}" data-section-type="section-collection-v1" style="{% if section.settings.margin_top != blank %}margin-top: {{section.settings.margin_top}}px;{%endif%} {% if section.settings.margin_bottom != blank %}margin-bottom: {{section.settings.margin_bottom}}px;{% endif %}">
+  <div class="hov-col-section">
+    <!-- Corner/Background Decorations -->
+    <!-- Top-Left Leaf Cluster -->
+    <svg class="hov-col-dec hov-col-dec--top-left" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M-10,-10 C20,30 50,70 100,90" stroke="#2D5A27" stroke-width="3" stroke-linecap="round"/>
+      <path d="M10,15 C30,10 60,20 65,40 C50,55 25,40 10,15 Z" fill="#2D5A27" fill-opacity="0.75"/>
+      <path d="M35,40 C60,30 90,45 95,65 C75,80 50,65 35,40 Z" fill="#2D5A27" fill-opacity="0.8"/>
+      <path d="M60,65 C90,60 120,80 125,100 C100,115 80,100 60,65 Z" fill="#2D5A27" fill-opacity="0.75"/>
+      <path d="M15,35 C5,55 15,85 35,90 C50,75 35,50 15,35 Z" fill="#2D5A27" fill-opacity="0.75"/>
+      <path d="M40,65 C30,85 40,115 60,120 C75,105 60,80 40,65 Z" fill="#2D5A27" fill-opacity="0.7"/>
+    </svg>
+    <!-- Top-Right Single Leaf -->
+    <svg class="hov-col-dec hov-col-dec--top-right" viewBox="0 0 150 150" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M160,-10 C120,30 70,50 10,70 C50,90 100,90 160,-10 Z" fill="#2D5A27" fill-opacity="0.6"/>
+    </svg>
+    <!-- Bottom-Left Soft Watercolor Blob -->
+    <svg class="hov-col-dec hov-col-dec--blob-left" viewBox="0 0 300 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M-50,150 C0,50 150,100 200,200 C250,300 100,350 -50,300 Z" fill="#2D5A27"/>
+    </svg>
+    <!-- Bottom-Right Soft Watercolor Blob -->
+    <svg class="hov-col-dec hov-col-dec--blob-right" viewBox="0 0 300 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M350,150 C300,50 150,100 100,200 C50,300 200,350 350,300 Z" fill="#2D5A27"/>
+    </svg>
+
+    <div class="hov-col-container">
+      <!-- Section Heading Block -->
+      <div class="hov-col-heading-block">
+        <div class="hov-col-eyebrow">
+          <span class="hov-col-line"></span>
+          <span class="hov-col-eyebrow-text">{{ section.settings.eyebrow_text }}</span>
+          <span class="hov-col-line"></span>
+        </div>
+        
+        <h2 class="hov-col-title">
+          {{ section.settings.heading_plain }} 
+          <span class="hov-col-cursive">{{ section.settings.heading_cursive }}</span>
+          <span class="hov-col-leaf-glyph">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2D5A27" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; vertical-align: middle;">
+              <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+              <path d="M12 2v20"/>
+              <path d="M12 6c3 1.5 3 5.5 0 7"/>
+              <path d="M12 12c-3 1.5-3 5.5 0 7"/>
+            </svg>
+          </span>
+        </h2>
+        
+        {% if section.settings.subtitle != blank %}
+          <p class="hov-col-subtitle">{{ section.settings.subtitle }}</p>
+        {% endif %}
+      </div>
+
+      <!-- 4 Category Cards -->
+      <div class="hov-col-grid">
+        {% if section.blocks.size > 0 %}
+          {% for block in section.blocks %}
+            {% if block.type == 'colection' %}
+              {% if forloop.index <= 4 %}
+                {%- assign index_0 = forloop.index0 -%}
+                {%- assign mod_4 = index_0 | modulo: 4 -%}
+
+                {%- comment -%} Parse settings with defaults for maximum safety and visual stability {%- endcomment -%}
+                {%- assign category_name = block.settings.category_name | default: block.settings.title_collection -%}
+                {%- if category_name == blank -%}
+                  {%- if mod_4 == 0 -%}{%- assign category_name = "[PLACEHOLDER — category]" -%}
+                  {%- elsif mod_4 == 1 -%}{%- assign category_name = "[PLACEHOLDER — category]" -%}
+                  {%- elsif mod_4 == 2 -%}{%- assign category_name = "[PLACEHOLDER — category]" -%}
+                  {%- elsif mod_4 == 3 -%}{%- assign category_name = "[PLACEHOLDER — category]" -%}
+                  {%- endif -%}
+                {%- endif -%}
+
+                {%- assign tagline = block.settings.tagline -%}
+                {%- if tagline == blank -%}
+                  {%- if mod_4 == 0 -%}{%- assign tagline = "Calming blends. Pure goodness. Naturally soothing." -%}
+                  {%- elsif mod_4 == 1 -%}{%- assign tagline = "Fuel your body with plant power. Protein rich. Naturally grown." -%}
+                  {%- elsif mod_4 == 2 -%}{%- assign tagline = "Cold-pressed. Unrefined. Real oils. Real nutrition." -%}
+                  {%- elsif mod_4 == 3 -%}{%- assign tagline = "Naturally sweet. No chemicals. Better choice. Better you." -%}
+                  {%- endif -%}
+                {%- endif -%}
+
+                {%- assign accent_color = block.settings.accent_color -%}
+                {%- if accent_color == blank -%}
+                  {%- if mod_4 == 0 -%}{%- assign accent_color = "#C8DDB8" -%}
+                  {%- elsif mod_4 == 1 -%}{%- assign accent_color = "#F0C87A" -%}
+                  {%- elsif mod_4 == 2 -%}{%- assign accent_color = "#E8D48A" -%}
+                  {%- elsif mod_4 == 3 -%}{%- assign accent_color = "#F2C4C4" -%}
+                  {%- endif -%}
+                {%- endif -%}
+
+                {%- assign explore_url = block.settings.explore_link | default: block.settings.brand_url | default: block.settings.collection.url -%}
+                {%- if explore_url == blank -%}
+                  {%- if mod_4 == 0 -%}{%- assign explore_url = "/collections/all" -%}
+                  {%- elsif mod_4 == 1 -%}{%- assign explore_url = "/collections/all" -%}
+                  {%- elsif mod_4 == 2 -%}{%- assign explore_url = "/collections/all" -%}
+                  {%- elsif mod_4 == 3 -%}{%- assign explore_url = "/collections/all" -%}
+                  {%- endif -%}
+                {%- endif -%}
+
+                {%- assign card_image = block.settings.collection_image | default: block.settings.brand_img | default: block.settings.collection.image -%}
+                {%- if card_image == blank -%}
+                  {%- if mod_4 == 0 -%}{%- assign fallback_img = 'tea-transparent.png' | asset_url -%}
+                  {%- elsif mod_4 == 1 -%}{%- assign fallback_img = 'pulse-transparent.png' | asset_url -%}
+                  {%- elsif mod_4 == 2 -%}{%- assign fallback_img = 'oil-transparent.png' | asset_url -%}
+                  {%- elsif mod_4 == 3 -%}{%- assign fallback_img = 'sweetner-transparent.png' | asset_url -%}
+                  {%- endif -%}
+                {%- endif -%}
+
+                <a href="{{ explore_url }}" class="hov-col-card btn-{{ block.id }}">
+                  <!-- Card Background Watercolor Blob -->
+                  <svg class="hov-col-card-blob-svg" viewBox="0 0 100 100" preserveAspectRatio="none">
+                    {%- if mod_4 == 0 -%}
+                      <path d="M0,0 L100,0 L100,70 Q75,90 50,75 T0,80 Z" fill="{{ accent_color }}" fill-opacity="0.9"/>
+                    {%- elsif mod_4 == 1 -%}
+                      <path d="M0,0 L100,0 L100,75 Q80,60 55,75 T0,70 Z" fill="{{ accent_color }}" fill-opacity="0.9"/>
+                    {%- elsif mod_4 == 2 -%}
+                      <path d="M0,0 L100,0 L100,80 Q70,95 45,75 T0,85 Z" fill="{{ accent_color }}" fill-opacity="0.9"/>
+                    {%- elsif mod_4 == 3 -%}
+                      <path d="M0,0 L100,0 L100,65 Q85,85 50,70 T0,75 Z" fill="{{ accent_color }}" fill-opacity="0.9"/>
+                    {%- endif -%}
+                  </svg>
+
+                  <!-- Product Image Wrapper -->
+                  <div class="hov-col-img-wrapper">
+                    {%- if card_image != blank -%}
+                      <img src="{{ card_image | image_url: width: 600 }}" alt="{{ category_name | escape }}" class="hov-col-card-img" loading="lazy">
+                    {%- else -%}
+                      <img src="{{ fallback_img }}" alt="{{ category_name | escape }}" class="hov-col-card-img" loading="lazy">
+                    {%- endif -%}
+                  </div>
+
+                  <!-- Category Badge -->
+                  <div class="hov-col-badge" style="background-color: {{ accent_color }};">
+                    {%- if mod_4 == 0 -%}
+                      <!-- Cup icon -->
+                      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M18 8h1a4 4 0 0 1 0 8h-1"/>
+                        <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/>
+                        <line x1="6" y1="2" x2="6" y2="4"/>
+                        <line x1="10" y1="2" x2="10" y2="4"/>
+                        <line x1="14" y1="2" x2="14" y2="4"/>
+                      </svg>
+                    {%- elsif mod_4 == 1 -%}
+                      <!-- Plant/Leaf icon -->
+                      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M2 22c1.25-6.7 5.85-11.3 12.55-12.55"/>
+                        <path d="M14.55 9.45c4.7 1.25 7.45 5.55 7.45 10.55-5 0-9.3-2.75-10.55-7.45z"/>
+                        <path d="M12.5 12.5c-3.12-1.25-4.88-3.75-4.88-7.5 3.75 0 6.25 1.76 7.5 4.88z"/>
+                      </svg>
+                    {%- elsif mod_4 == 2 -%}
+                      <!-- Oil droplet icon -->
+                      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 22a7 7 0 0 0 7-7c0-4.3-7-13-7-13s-7 8.7-7 13a7 7 0 0 0 7 7z"/>
+                      </svg>
+                    {%- elsif mod_4 == 3 -%}
+                      <!-- Leaf circle icon -->
+                      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"/>
+                        <path d="M12 6c2.5 0 4.5 2 4.5 4.5S14.5 15 12 15s-4.5-2-4.5-4.5S9.5 6 12 6z"/>
+                        <path d="M12 10.5v4.5"/>
+                      </svg>
+                    {%- endif -%}
+                  </div>
+
+                  <!-- Bottom Details Area -->
+                  <div class="hov-col-info">
+                    <h3 class="hov-col-card-name">{{ category_name }}</h3>
+                    <p class="hov-col-card-tagline">{{ tagline }}</p>
+                    <span class="hov-col-explore" style="color: {{ accent_color }};">
+                      <span class="hov-col-explore-underline">EXPLORE NOW</span> &rarr;
+                    </span>
+                  </div>
+                </a>
+              {% endif %}
+            {% endif %}
+          {% endfor %}
+        {% endif %}
+      </div>
+
+      <!-- VIEW ALL PRODUCTS CTA -->
+      <div class="hov-col-cta-wrapper">
+        <a href="{{ section.settings.cta_link }}" class="hov-col-cta-btn">
+          <span>{{ section.settings.cta_text }}</span>
+        </a>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ================= STYLING ================= -->
+{% style %}
+  .hov-col-section {
+    background-color: #FAF6EE;
+    padding: 80px 40px 60px;
+    position: relative;
+    overflow: hidden;
+    font-family: 'Sofia Pro', -apple-system, sans-serif;
+  }
+
+  .hov-col-dec {
+    position: absolute;
+    pointer-events: none;
+    z-index: 0;
+    transition: transform 0.3s ease;
+  }
+
+  .hov-col-dec--top-left {
+    top: -25px;
+    left: -25px;
+    width: 200px;
+    height: 200px;
+  }
+
+  .hov-col-dec--top-right {
+    top: 0;
+    right: 0;
+    width: 150px;
+    height: 150px;
+  }
+
+  .hov-col-dec--blob-left {
+    bottom: -80px;
+    left: -80px;
+    width: 300px;
+    height: 300px;
+    opacity: 0.04;
+    fill: #2D5A27;
+  }
+
+  .hov-col-dec--blob-right {
+    bottom: -80px;
+    right: -80px;
+    width: 300px;
+    height: 300px;
+    opacity: 0.04;
+    fill: #2D5A27;
+  }
+
+  .hov-col-container {
+    position: relative;
+    z-index: 1;
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 40px;
+  }
+
+  /* Heading Block */
+  .hov-col-heading-block {
+    text-align: center;
+    margin-bottom: 48px;
+  }
+
+  .hov-col-eyebrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+
+  .hov-col-line {
+    width: 40px;
+    height: 1.5px;
+    background-color: #2D5A27;
+    display: inline-block;
+    opacity: 0.4;
+  }
+
+  .hov-col-eyebrow-text {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    color: #2D5A27;
+    font-weight: 600;
+  }
+
+  .hov-col-title {
+    font-size: clamp(28px, 4.5vw, 44px);
+    color: #1A2E1A;
+    font-weight: 700;
+    margin: 12px 0;
+    line-height: 1.25;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .hov-col-cursive {
+    font-family: inherit;
+    font-style: italic;
+    color: #2D5A27;
+    font-weight: 600;
+  }
+
+  .hov-col-leaf-glyph {
+    display: inline-flex;
+    align-items: center;
+    margin-left: 2px;
+    transform: rotate(15deg);
+  }
+
+  .hov-col-subtitle {
+    font-size: 16px;
+    color: #666666;
+    max-width: 600px;
+    margin: 12px auto 0;
+    line-height: 1.5;
+  }
+
+  .hov-col-bold-green {
+    color: #2D5A27;
+    font-weight: 700;
+  }
+
+  /* Grid Layout */
+  .hov-col-grid {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    gap: 24px;
+    justify-content: center;
+    align-items: stretch;
+  }
+
+  /* Cards */
+  .hov-col-card {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: 0;
+    max-width: 280px;
+    height: 440px;
+    position: relative;
+    background: #FFFFFF;
+    border-radius: 20px;
+    overflow: visible;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), box-shadow 0.3s ease;
+    text-decoration: none !important;
+  }
+
+  .hov-col-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.09);
+  }
+
+  .hov-col-card-blob-svg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 58%;
+    z-index: 0;
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+    pointer-events: none;
+  }
+
+  .hov-col-img-wrapper {
+    position: relative;
+    z-index: 0;
+    width: 100%;
+    height: 58%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 16px 0;
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+    overflow: hidden;
+  }
+
+  .hov-col-card-img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+
+  .hov-col-card:hover .hov-col-card-img {
+    transform: scale(1.05);
+  }
+
+  /* Badge */
+  .hov-col-badge {
+    position: absolute;
+    bottom: calc(42% - 28px);
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 3;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    border: 3px solid #FFFFFF;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+
+  .hov-col-card:hover .hov-col-badge {
+    transform: translateX(-50%) scale(1.08);
+  }
+
+  /* Card bottom info area */
+  .hov-col-info {
+    height: 42%;
+    background: #FFFFFF;
+    padding: 48px 20px 28px;
+    border-radius: 0 0 20px 20px;
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    flex-grow: 1;
+    box-sizing: border-box;
+  }
+
+  .hov-col-card-name {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1A2E1A;
+    margin: 0 0 8px;
+    line-height: 1.3;
+  }
+
+  .hov-col-card-tagline {
+    font-size: 13px;
+    color: #777777;
+    margin: 0 0 16px;
+    line-height: 1.5;
+  }
+
+  .hov-col-explore {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: auto;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    transition: gap 0.2s ease;
+  }
+
+  .hov-col-card:hover .hov-col-explore {
+    gap: 10px;
+  }
+
+  .hov-col-explore-underline {
+    position: relative;
+  }
+
+  .hov-col-explore-underline::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 100%;
+    height: 1.5px;
+    background-color: currentColor;
+    transform: scaleX(0);
+    transform-origin: bottom right;
+    transition: transform 0.25s ease-out;
+  }
+
+  .hov-col-card:hover .hov-col-explore-underline::after {
+    transform: scaleX(1);
+    transform-origin: bottom left;
+  }
+
+  /* View All CTA */
+  .hov-col-cta-wrapper {
+    margin-top: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+  }
+
+  .hov-col-cta-btn {
+    background: #2D5A27;
+    color: #FFFFFF !important;
+    border-radius: 999px;
+    padding: 14px 36px;
+    font-size: 15px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    text-decoration: none !important;
+    box-shadow: 0 4px 12px rgba(45, 90, 39, 0.15);
+  }
+
+  .hov-col-cta-btn:hover {
+    background: #1E3D1A;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(45, 90, 39, 0.25);
+  }
+
+  .hov-col-cta-squiggle {
+    width: 60px;
+    height: 24px;
+    opacity: 0.4;
+    transition: transform 0.3s ease;
+  }
+
+  .hov-col-cta-wrapper:hover .hov-col-cta-squiggle--left {
+    transform: translateX(-4px);
+  }
+
+  .hov-col-cta-wrapper:hover .hov-col-cta-squiggle--right {
+    transform: translateX(4px);
+  }
+
+  /* Responsiveness */
+  @media (max-width: 1024px) {
+    .hov-col-grid {
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+    .hov-col-card {
+      min-width: calc(50% - 12px);
+      max-width: calc(50% - 12px);
+    }
+  }
+
+  @media (max-width: 768px) {
+    .hov-col-section {
+      padding: 60px 20px 50px;
+    }
+    .hov-col-cta-squiggle {
+      display: none;
+    }
+    .hov-col-dec--top-left {
+      width: 120px;
+      height: 120px;
+      top: -15px;
+      left: -15px;
+    }
+    .hov-col-dec--top-right {
+      width: 90px;
+      height: 90px;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .hov-col-card {
+      min-width: 100%;
+      max-width: 100%;
+      height: 420px;
+    }
+    .hov-col-card-blob-svg {
+      height: 58%;
+    }
+    .hov-col-badge {
+      bottom: calc(42% - 28px);
+    }
+    .hov-col-title {
+      font-size: 28px;
+    }
+  }
+{% endstyle %}
+
+<!-- ================= SCHEMA ================= -->
+{% schema %}
+{
+  "name": "Organic Collection",
+  "class": "index-section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "eyebrow_text",
+      "label": "Eyebrow Text",
+      "default": "PURE BY NATURE"
+    },
+    {
+      "type": "text",
+      "id": "heading_plain",
+      "label": "Heading Plain",
+      "default": "Explore Our"
+    },
+    {
+      "type": "text",
+      "id": "heading_cursive",
+      "label": "Heading Cursive/Italic",
+      "default": "Organic Collection"
+    },
+    {
+      "type": "textarea",
+      "id": "subtitle",
+      "label": "Subtitle",
+      "default": "Handpicked organic essentials for a <span class=\"hov-col-bold-green\">healthier you</span> & a <span class=\"hov-col-bold-green\">better planet.</span>"
+    },
+    {
+      "type": "text",
+      "id": "cta_text",
+      "label": "CTA Button Text",
+      "default": "VIEW ALL PRODUCTS"
+    },
+    {
+      "type": "url",
+      "id": "cta_link",
+      "label": "CTA Link",
+      "default": "/collections/all"
+    },
+    {
+      "type": "text",
+      "id": "margin_top",
+      "label": "Margin Top",
+      "info": "Defined in pixels. Do not add the 'px' unit."
+    },
+    {
+      "type": "text",
+      "id": "margin_bottom",
+      "label": "Margin Bottom",
+      "info": "Defined in pixels. Do not add the 'px' unit."
+    }
+  ],
+  "blocks": [
+    {
+      "type": "colection",
+      "name": "Category Card",
+      "settings": [
+        {
+          "type": "collection",
+          "id": "collection",
+          "label": "Collection"
+        },
+        {
+          "type": "image_picker",
+          "id": "collection_image",
+          "label": "Collection Image (Fallback)"
+        },
+        {
+          "type": "text",
+          "id": "category_name",
+          "label": "Category Name"
+        },
+        {
+          "type": "textarea",
+          "id": "tagline",
+          "label": "Tagline"
+        },
+        {
+          "type": "url",
+          "id": "explore_link",
+          "label": "Explore Link"
+        },
+        {
+          "type": "color",
+          "id": "accent_color",
+          "label": "Accent Color"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Organic Collection Redesign",
+      "category": "HOME",
+      "blocks": [
+        {
+          "type": "colection",
+          "settings": {
+            "category_name": "Organic Teas & Infusions",
+            "tagline": "Calming blends. Pure goodness. Naturally soothing.",
+            "accent_color": "#C8DDB8"
+          }
+        },
+        {
+          "type": "colection",
+          "settings": {
+            "category_name": "Organic Pulses & Beans",
+            "tagline": "Fuel your body with plant power. Protein rich. Naturally grown.",
+            "accent_color": "#F0C87A"
+          }
+        },
+        {
+          "type": "colection",
+          "settings": {
+            "category_name": "Organic Cooking Oils",
+            "tagline": "Cold-pressed. Unrefined. Real oils. Real nutrition.",
+            "accent_color": "#E8D48A"
+          }
+        },
+        {
+          "type": "colection",
+          "settings": {
+            "category_name": "Organic Sweeteners",
+            "tagline": "Naturally sweet. No chemicals. Better choice. Better you.",
+            "accent_color": "#F2C4C4"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

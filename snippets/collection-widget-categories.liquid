@@ -1,0 +1,140 @@
+<div class="hov-filter__section widget widget-category filter-category">
+  <div class="hov-filter__heading">
+    <!-- Leaf Outline Icon -->
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+      <path d="M12 2C6 2 2 8 2 14c0 4 2.5 7 6 8 1-3 3-5 4-6-1 1-2 3-2 5 2 0 4-1 5.5-3C17 16 18 12 18 8z"/>
+    </svg>
+    <span>{{ settings.widget_cate_title | upcase }}</span>
+  </div>
+  
+  <div class="widget-content">
+    <ul class="hov-filter__list list-category-toggle toggle-tab list-none">
+      {% assign n = 1 %}
+      {% for link in linklists[settings.widget_cate_menu].links %}
+        {% assign link_title = link.title | split: '[' | first | strip %}
+        {% assign link_handle = link.title | handleize %}
+        
+        {%- assign is_active = false -%}
+        {%- if link.active -%}
+          {%- assign is_active = true -%}
+        {%- elsif collection.url == link.url -%}
+          {%- assign is_active = true -%}
+        {%- elsif template.name == 'collection' and collection.handle == 'all' and link.url == '/collections/all' -%}
+          {%- assign is_active = true -%}
+        {%- elsif collection.handle == link_handle -%}
+          {%- assign is_active = true -%}
+        {%- endif -%}
+
+        {% assign child_list_handle = link.title | handleize %}
+        {% if linklists[child_list_handle].links != blank %}
+          <li class="hov-filter__item{% if is_active %} hov-filter__item--active{% endif %} item-toggle-tab" style="position: relative;">
+            <a href="{{ link.url }}" class="hov-filter__link">
+              <span class="hov-filter__icon">
+                {% if link_handle contains 'pulse' or link_handle contains 'bean' %}
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+                    <circle cx="9" cy="8" r="3.2"/>
+                    <circle cx="14.5" cy="7.5" r="2.8"/>
+                    <circle cx="8" cy="14" r="3"/>
+                    <circle cx="14" cy="14.5" r="3.2"/>
+                    <circle cx="11" cy="18.5" r="2.5"/>
+                  </svg>
+                {% elsif link_handle contains 'sweetener' or link_handle contains 'sugar' or link_handle contains 'jaggery' or link_handle contains 'honey' %}
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+                    <path d="M9 3c1 1.5 1 3-.5 4.5C7 9 5.5 9.5 5 11
+                             c-.5 1.5 0 3 1.5 3.5 1.5.5 3-.3 3.5-1.8"/>
+                    <path d="M9.5 4.5c.8 1 .8 2.3-.3 3.3-1 1-2.2 1-3-.2"/>
+                    <path d="M11.5 17c0 1.8-1.3 3.2-2.5 3.2S6.5 18.8 6.5 17
+                             c0-1.5 1.5-3 2.5-4 1 1 2.5 2.5 2.5 4z"/>
+                  </svg>
+                {% elsif link_handle contains 'oil' or link_handle contains 'ghee' %}
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+                    <rect x="10" y="2" width="4" height="2.5" rx="0.5"/>
+                    <path d="M10.5 4.5h3v3.5l1.5 2.5v9a2 2 0 01-2 2h-2a2 2 0 01-2-2v-9l1.5-2.5z"/>
+                    <line x1="9" y1="13" x2="15" y2="13"/>
+                  </svg>
+                {% elsif link_handle contains 'tea' or link_handle contains 'infusion' %}
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+                    <path d="M3 9h14v4a5 5 0 01-5 5H8a5 5 0 01-5-5V9z"/>
+                    <path d="M17 10h1.5a2 2 0 010 4H17"/>
+                    <path d="M7 4c0 1 1 1.5 1 2.5S7 8 7 8M11 4c0 1 1 1.5 1 2.5S11 8 11 8"/>
+                  </svg>
+                {% elsif link_handle contains 'flour' or link_handle contains 'sprout' or link_handle contains 'millet' or link_handle contains 'grain' %}
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+                    <ellipse cx="12" cy="12" rx="4" ry="9"/>
+                    <path d="M12 3v18"/>
+                  </svg>
+                {% else %}
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+                    <path d="M12 2C8.5 2 6 4.5 6 8c0 3.8 3.5 7.7 6 10.5 2.5-2.8 6-6.7 6-10.5 0-3.5-2.5-6-6-6z"/>
+                  </svg>
+                {% endif %}
+              </span>
+              <span class="hov-filter__label">{{ link.title | split: '[' | first }}</span>
+            </a>
+            <a href="#c{{n}}" class="toggle-menumobile {% if settings.enable_rtl_mode %} left {% else %}right {% endif %} collapsed js_check_ic_cate" data-toggle="collapse" aria-expanded="false" style="position: absolute; right: 10px; top: 12px; z-index: 10; color: #8B6914;">
+              <i class="fa fa-angle-down" aria-hidden="true"></i>
+            </a>
+          </li>
+          <div id="c{{n}}" class="collapse">
+            <ul class="menu_lv2" style="padding-left: 36px; list-style: none; margin-bottom: 8px;">
+              {% for childlink in linklists[child_list_handle].links %}
+                <li class="item_menu_lv2" style="margin-bottom: 4px;">
+                  <a href="{{childlink.url}}" style="font-size: 13px; color: #6A6A5E; text-decoration: none; display: block; padding: 4px 0;">
+                    {{ childlink.title | split: '[' | first }}
+                  </a>
+                </li>            
+              {% endfor %}
+            </ul>
+          </div>
+          {% assign n = n | plus :1 %}
+        {% else %}
+          <li class="hov-filter__item{% if is_active %} hov-filter__item--active{% endif %} item-toggle-tab">
+            <a href="{{ link.url }}" class="hov-filter__link">
+              <span class="hov-filter__icon">
+                {% if link_handle contains 'pulse' or link_handle contains 'bean' %}
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+                    <circle cx="9" cy="8" r="3.2"/>
+                    <circle cx="14.5" cy="7.5" r="2.8"/>
+                    <circle cx="8" cy="14" r="3"/>
+                    <circle cx="14" cy="14.5" r="3.2"/>
+                    <circle cx="11" cy="18.5" r="2.5"/>
+                  </svg>
+                {% elsif link_handle contains 'sweetener' or link_handle contains 'sugar' or link_handle contains 'jaggery' or link_handle contains 'honey' %}
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+                    <path d="M9 3c1 1.5 1 3-.5 4.5C7 9 5.5 9.5 5 11
+                             c-.5 1.5 0 3 1.5 3.5 1.5.5 3-.3 3.5-1.8"/>
+                    <path d="M9.5 4.5c.8 1 .8 2.3-.3 3.3-1 1-2.2 1-3-.2"/>
+                    <path d="M11.5 17c0 1.8-1.3 3.2-2.5 3.2S6.5 18.8 6.5 17
+                             c0-1.5 1.5-3 2.5-4 1 1 2.5 2.5 2.5 4z"/>
+                  </svg>
+                {% elsif link_handle contains 'oil' or link_handle contains 'ghee' %}
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+                    <rect x="10" y="2" width="4" height="2.5" rx="0.5"/>
+                    <path d="M10.5 4.5h3v3.5l1.5 2.5v9a2 2 0 01-2 2h-2a2 2 0 01-2-2v-9l1.5-2.5z"/>
+                    <line x1="9" y1="13" x2="15" y2="13"/>
+                  </svg>
+                {% elsif link_handle contains 'tea' or link_handle contains 'infusion' %}
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+                    <path d="M3 9h14v4a5 5 0 01-5 5H8a5 5 0 01-5-5V9z"/>
+                    <path d="M17 10h1.5a2 2 0 010 4H17"/>
+                    <path d="M7 4c0 1 1 1.5 1 2.5S7 8 7 8M11 4c0 1 1 1.5 1 2.5S11 8 11 8"/>
+                  </svg>
+                {% elsif link_handle contains 'flour' or link_handle contains 'sprout' or link_handle contains 'millet' or link_handle contains 'grain' %}
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+                    <ellipse cx="12" cy="12" rx="4" ry="9"/>
+                    <path d="M12 3v18"/>
+                  </svg>
+                {% else %}
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+                    <path d="M12 2C8.5 2 6 4.5 6 8c0 3.8 3.5 7.7 6 10.5 2.5-2.8 6-6.7 6-10.5 0-3.5-2.5-6-6-6z"/>
+                  </svg>
+                {% endif %}
+              </span>
+              <span class="hov-filter__label">{{ link.title | split: '[' | first }}</span>
+            </a>
+          </li>
+        {% endif %}
+      {% endfor %}
+    </ul>
+  </div>
+</div>

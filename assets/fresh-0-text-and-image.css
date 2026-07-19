@@ -1,0 +1,202 @@
+
+.ctm-imgtxt {
+	&.right {
+		.image-container {
+			order: 2;
+		}
+		.text-container {
+			order: 1;
+		}
+	}
+}
+.img-text {
+    position: relative;
+}
+
+.top-image {
+    position: absolute;
+    right: 0;
+    top: 0;
+    left: auto;
+    text-align: right;
+}
+.top-image img{
+  width: 27%;
+}
+.img-text video {
+    width: 100%;
+}
+.design-2 .text-container h3.inline-richtext {
+    font-family: Work Sans;
+    font-size: 40px;
+    font-weight: 600;
+}
+.design-2 .text-container .rte p {
+  font-family: Work Sans;
+    font-weight: 300;
+    line-height: 22.4px;
+}
+.design-2 .text-container h3.inline-richtext {
+    margin-bottom: 14px;
+}
+/* Responsive styles */
+@media (max-width: 767px) {
+  
+  img.mobile-c {
+    width: 100%;
+}
+  .text-container, .image-container {
+    width: 100% !important;
+}
+  .ctm-imgtxt {
+	.image-container {
+		width: 100%;
+	}
+	.text-container {
+		width: 100%;
+	}
+	&.right {
+		.text-container {
+			margin-bottom: 40px;
+		}
+	}
+}
+
+    .ctm-imgtxt {
+        flex-direction: column; /* Stack items vertically on small screens */
+    }
+
+   .ctm-imgtxt .text-container {
+        padding-left: 0; /* Remove padding on small screens */
+        padding-top: 20px; /* Add space above text */
+    }
+}
+
+.img-text.Singal-video h3.inline-richtext {
+    text-transform: uppercase;
+}
+.ctm-imgtxt.design-4 h3.inline-richtext {
+    font-family: Work Sans;
+    font-size: 40px;
+    line-height: 56px;
+    text-align: center;
+    text-underline-position: from-font;
+    text-decoration-skip-ink: none;
+    color: var(--Daishik-TXT-Primary, #2C2322);
+}
+.ctm-imgtxt.design-4 .rte p {
+    font-family: Inter;
+    font-size: 16px;
+    font-weight: 300;
+    line-height: 22.4px;
+    text-align: center;
+    text-underline-position: from-font;
+    text-decoration-skip-ink: none;
+}
+.ctm-imgtxt.design-4 h3.inline-richtext {
+    margin: 0 0 8px 0;
+}
+.ctm-imgtxt.left.design-4 .text-container {
+    padding-left: 30px;
+    padding-right: 0;
+}
+@media (max-width: 799px) {
+img.dektop-v {
+    display: none;
+}
+  
+}
+
+@media (min-width: 800px) {
+
+  img.mobile-v {
+    display: none;
+}
+}
+
+
+.ctm-imgtxt.right .image-container video {
+    width: 100%;
+}
+
+
+
+@media screen and (min-width: 768px) and (max-width: 800px) { 
+  .image-banner.cat-banners .ctm-imgtxt.design-1 {
+    align-items: end;
+    display: grid;
+}
+.ctm-imgtxt.left.design-3 {
+    display: block;
+}
+.ctm-imgtxt.left.design-3 .image-container {
+    width: 100% !important;
+}
+.ctm-imgtxt.left.design-3 .image-container, .ctm-imgtxt.left.design-3 .text-container {
+    width: 100% !important;
+}
+.ctm-imgtxt.left.design-3 .text-container .info-text {
+    width: 100%;
+}
+
+
+.ctm-imgtxt.right.design-3 {
+    display: block;
+}
+.ctm-imgtxt.right.design-3 .image-container {
+    width: 100% !important;
+}
+.ctm-imgtxt.right.design-3 .image-container, .ctm-imgtxt.left.design-3 .text-container {
+    width: 100% !important;
+}
+.ctm-imgtxt.right.design-3 .text-container .info-text {
+    width: 100%;
+}
+  .ctm-imgtxt.right.design-3 .text-container {
+    width: 100% !important;
+}
+}
+
+@media screen and (min-width: 801px) and (max-width:1023px) {
+  .image-banner.cat-banners .ctm-imgtxt.design-1 {
+    align-items: end;
+    display: grid;
+}
+.ctm-imgtxt.left.design-3 {
+    display: block;
+}
+.ctm-imgtxt.left.design-3 .image-container {
+    width: 100% !important;
+}
+.ctm-imgtxt.left.design-3 .image-container, .ctm-imgtxt.left.design-3 .text-container {
+    width: 100% !important;
+}
+.ctm-imgtxt.left.design-3 .text-container .info-text {
+    width: 100%;
+}
+
+
+.ctm-imgtxt.right.design-3 {
+    display: block;
+}
+.ctm-imgtxt.right.design-3 .image-container {
+    width: 100% !important;
+}
+.ctm-imgtxt.right.design-3 .image-container, .ctm-imgtxt.left.design-3 .text-container {
+    width: 100% !important;
+}
+.ctm-imgtxt.right.design-3 .text-container .info-text {
+    width: 100%;
+}
+  .ctm-imgtxt.right.design-3 .text-container {
+    width: 100% !important;
+}
+}
+
+
+@media screen and (min-width: 1024px) and (max-width:1200px) {
+  .ctm-imgtxt.design-3 .info-text {
+    padding: 30px;
+    width: 86%;
+}
+}

@@ -1,0 +1,111 @@
+<div class="free-ship">
+  <div class="part-1">
+    <ul>
+       {% if block.settings.ctm_img  %}
+      <li>
+        <div class="delivery"> 
+                <img class="lazyload" data-src="{{ block.settings.ctm_img | img_url: 'master' }}" alt="Custom Image">
+          <div class="text-info">
+              {%- if block.settings.title_1 != blank -%}
+                  <h3 class="inline-richtext">{{ block.settings.title_1 }}</h3>
+                {%- endif -%}
+              {%- if block.settings.text_1 != blank -%}
+                  <div class="rte">{{ block.settings.text_1 }}</div>
+                {%- endif -%}
+          </div>
+        </div>
+      </li>
+                  {% endif %}
+         {% if block.settings.ctm_img1  %}
+           <li>
+        <div class="delivery"> 
+                <img  class="lazyload" data-src="{{ block.settings.ctm_img1 | img_url: 'master' }}" alt="Custom Image">
+      
+          <div class="text-info">
+              {%- if block.settings.title_11 != blank -%}
+                  <h3 class="inline-richtext">{{ block.settings.title_11 }}</h3>
+                {%- endif -%}
+              {%- if block.settings.text_11 != blank -%}
+                  <div class="rte">{{ block.settings.text_11 }}</div>
+                {%- endif -%}
+          </div>
+        </div>
+      </li>
+                  {% endif %}
+            
+        {% if block.settings.ctm_img3  %}<li>
+        <div class="delivery"> 
+                <img  class="lazyload" data-src="{{ block.settings.ctm_img3 | img_url: 'master' }}" alt="Custom Image">
+          <div class="text-info">
+              {%- if block.settings.title_13 != blank -%}
+                  <h3 class="inline-richtext">{{ block.settings.title_13 }}</h3>
+                {%- endif -%}
+              {%- if block.settings.text_13 != blank -%}
+                  <div class="rte">{{ block.settings.text_13 }}</div>
+                {%- endif -%}
+          </div>
+        </div>
+      </li>
+           {% endif %}
+      {% if block.settings.ctm_img4  %}
+              <li>
+        <div class="delivery"> 
+                <img  class="lazyload" data-src="{{ block.settings.ctm_img4 | img_url: 'master' }}" alt="Custom Image">
+           
+          <div class="text-info">
+              {%- if block.settings.title_14 != blank -%}
+                  <h3 class="inline-richtext">{{ block.settings.title_14 }}</h3>
+                {%- endif -%}
+              {%- if block.settings.text_14 != blank -%}
+                  <div class="rte">{{ block.settings.text_14 }}</div>
+                {%- endif -%}
+          </div>
+        </div>
+      </li>
+          {% endif %}
+
+       {% if block.settings.ctm_img5  %}
+              <li>
+        <div class="delivery"> 
+                <img  class="lazyload" data-src="{{ block.settings.ctm_img5 | img_url: 'master' }}" alt="Custom Image">
+           
+          <div class="text-info">
+              {%- if block.settings.title_15 != blank -%}
+                  <h3 class="inline-richtext">{{ block.settings.title_15 }}</h3>
+                {%- endif -%}
+              {%- if block.settings.text_15 != blank -%}
+                  <div class="rte">{{ block.settings.text_15 }}</div>
+                {%- endif -%}
+          </div>
+        </div>
+      </li>
+          {% endif %}
+    </ul>
+     
+  </div>
+    {% if block.settings.ctm_img  %}
+  <div class="part-2">
+
+                <img  class="lazyload" data-src="{{ block.settings.ctm_img235 | img_url: 'master' }}" alt="Custom Image">
+            
+  </div>
+ {% endif %}
+ {% if product.metafields.custom.warranty_text.value %}
+  <div class="part3">
+    {% if product.metafields.custom.warranty_text.value.warranty_image_  %}
+      <div class="grnty">
+        <div class="image"><img  class="lazyload" data-src="{{ product.metafields.custom.warranty_text.value.warranty_image_ | img_url: 'master' }}" alt="Custom Image"></div>
+      </div>
+      {% endif %}
+     <div class="grnty-text">
+        {%- if product.metafields.custom.warranty_text.value.warranty_heading != blank -%}
+                  <h3 class="inline-richtext">{{ product.metafields.custom.warranty_text.value.warranty_heading }}</h3>
+                {%- endif -%}
+              {%- if product.metafields.custom.warranty_text.value.warranty_description != blank -%}
+                  <div class="rte"><p>{{ product.metafields.custom.warranty_text.value.warranty_description }}</p></div>
+                {%- endif -%}
+     </div>
+  </div>
+    {% endif %}
+</div>
+  

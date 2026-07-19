@@ -1,0 +1,355 @@
+<div class="brand-logo">
+ <div class="page-width container ">
+        <div class="logos-container">
+            {% if section.settings.title != blank %}
+            <h1 class="heading section-{{ section.id }}">{{ section.settings.title }}</h1>
+            {% endif %}
+              <div class="{{ section.settings.pos_img }} dektop-{{ section.settings.columns_desktop }} mobile-cm-{{ section.settings.Mobile_Colmuns }}">
+              {% for block in section.blocks %}
+                <div class="logo-img">
+                      <img  class="lazyload" data-src="{{ block.settings.ctm_img | img_url:'master'}}" alt="{{ block.settings.ctm_img.alt }}" class="ctm-logo">
+                </div>
+              {% endfor %}
+         </div>
+      </div> 
+</div>
+ </div>     
+
+
+<style>
+    @media(max-width:767px) {
+ h1.heading.section-{{ section.id }} {
+    font-size:{{ section.settings.heading_sizem }}px;
+       color: {{ section.settings.color4 }};
+ }
+        .mobile-cm-1  {
+	display: flex;
+	flex-wrap: wrap;
+	.logo-img {
+		width: 100%;
+	}
+}
+.mobile-cm-2  {
+	display: flex;
+	flex-wrap: wrap;
+	.logo-img {
+		width: 50%;
+	}
+}
+  }
+  @media(min-width:768px) {
+    h1.heading.section-{{ section.id }} {
+    font-size:{{ section.settings.heading_size }}px;
+    color: {{ section.settings.color4 }};
+}
+.logos-container .grid {
+	&.dektop-3 {
+		display: flex;
+		flex-wrap: wrap;
+        gap: 0;
+		.logo-img {
+			width: 33%;
+		}
+	}
+	&.dektop-2 {
+		display: flex;
+		flex-wrap: wrap;
+        gap: 0;
+		.logo-img {
+			width: 50%;
+		}
+	}
+	&.dektop-1 {
+		display: flex;
+		flex-wrap: wrap;
+       gap: 0;
+		.logo-img {
+			width: 100%;
+		}
+	}
+	&.dektop-4 {
+		display: flex;
+		flex-wrap: wrap;
+       gap: 0;
+		.logo-img {
+			width: 25%;
+		}
+	}
+	&.dektop-5 {
+		display: flex;
+		flex-wrap: wrap;
+       gap: 0;
+		.logo-img {
+			width: 20%;
+		}
+	}
+  &.dektop-6 {
+		display: flex;
+		flex-wrap: wrap;
+       gap: 0;
+		.logo-img {
+			width: 16%;
+		}
+	}
+}
+    .logos-container .grid {
+    display: flex;
+    justify-content: center;
+}
+     .logos-container .grid.dektop-4 {
+    display: flex;
+    justify-content: center;
+}
+  }
+
+  
+</style>
+<!-- Initialize Slick Slider -->
+<script>
+  $(document).ready(function () {
+    $('.cus-slider').slick({
+      slidesToShow: 5, // Number of logos to show at a time
+      slidesToScroll: 1, // Number of logos to scroll at a time
+      autoplay: true, // Enable auto-scrolling
+      autoplaySpeed: 3000, // Speed in milliseconds
+      arrows: false, // Show navigation arrows
+      dots: false, // Show navigation dots
+      responsive: [
+        {
+          breakpoint: 1024, // Adjust settings for tablets
+          settings: {
+            slidesToShow: 3,
+          },
+        },
+        {
+          breakpoint: 768, // Adjust settings for mobile devices
+          settings: {
+            slidesToShow: 2,
+          },
+        },
+        {
+          breakpoint: 480, // Adjust settings for smaller devices
+          settings: {
+            slidesToShow: 2,
+          },
+        },
+      ],
+    });
+  });
+</script>
+
+    <style>
+     .logos-container h1.heading {
+    margin-bottom: 40px;
+}
+      .cus-slider .slick-track {
+    display: flex;
+    align-items: center;
+}
+  .brand-logo {
+    padding-top:{{section.settings.pd_tp }}px;
+    padding-bottom:{{section.settings.pd_bp }}px;
+    background:{{section.settings.back_color }};
+}
+.logos-container {
+    width: 100%;
+    text-align: center;
+    margin: 0 auto;
+    padding: 0px 0;
+}
+
+/* Title Styling */
+.logos-container h2 {
+    font-size: 36px;
+    font-weight: bold;
+    color: #333333;
+    margin-bottom: 30px;
+    line-height: 1.5;
+}
+
+/* Slider Container */
+.cus-slider {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0 auto;
+}
+
+/* Individual Logo Styling */
+.logo-img {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: {{ section.settings.img_wdh }}px;
+    padding: 3px 20px;
+}
+.logo-img img {
+    max-width: 100%; /* Ensure logos fit within their boxes */
+    height: auto;
+    display: block;
+}
+
+/* Slick Slider Arrows */
+.slick-prev,
+.slick-next {
+    background: #ccc;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex !important;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.slick-prev:before,
+.slick-next:before {
+    color: #333;
+    font-size: 18px;
+}
+
+/* Dots Styling */
+.slick-dots li button:before {
+    color: #333;
+}
+    </style>
+{% schema %}
+  {
+    "name": "fresh-0-certification",
+     "class": "section YoucanFindIt",
+    "settings": [
+      {
+          "type": "text",
+          "id": "title",
+           "label": "Heading"
+        },
+       {
+        "type": "range",
+        "id": "heading_size",
+        "label": "Font Size",
+        "default": 50,
+        "min": 10,
+        "max": 60,
+        "step": 1
+      },
+             {
+        "type": "range",
+        "id": "heading_sizem",
+        "label": "Font Size mobile",
+        "default": 28,
+        "min": 10,
+        "max": 60,
+        "step": 1
+      },
+       {
+      "type": "color",
+      "id": "color4",
+      "label": "Color",
+      "default": "#ffffff"
+      },
+        {
+      "type": "select",
+      "id": "pos_img",
+      "label": "Column layout",
+      "default": "grid",
+      "options": [
+          {
+              "value": "grid",
+              "label": "grid"
+          },
+          {
+              "value": "cus-slider",
+              "label": "Slider"
+          },
+      ]
+      },
+      {
+      "type": "range",
+      "id": "columns_desktop",
+      "min": 1,
+      "max": 6,
+      "step": 1,
+      "default": 3,
+      "label": "Desktop Colmuns"
+    },
+ {
+          "type": "select",
+          "id": "Mobile_Colmuns",
+          "label": "Mobile Colmuns",
+          "default": "1",
+          "options": [
+              {
+                  "value": "1",
+                  "label": "1"
+              },
+              {
+                  "value": "2",
+                  "label": "2"
+              },
+          ]
+      },
+        {
+          "type": "header",
+          "content": "Section padding"
+        },
+      {
+        "type": "range",
+        "id": "pd_tp",
+        "label": "padding top",
+        "default": 50,
+        "min": 10,
+        "max": 60,
+        "step": 1
+      },
+	  {
+        "type": "range",
+        "id": "pd_bp",
+        "label": "padding bottom",
+        "default": 50,
+        "min": 10,
+        "max": 60,
+        "step": 1
+      },
+         {
+        "type": "color",
+        "id": "back_color",
+        "label": "Column background color",
+        "default": "#fff"
+      },
+        {
+        "type": "range",
+        "id": "img_wdh",
+        "label": "Image Width",
+        "default": 220,
+        "min": 150, 
+        "max": 250,
+        "step": 1
+      }
+   
+    ],
+  
+      "blocks": [
+    {
+      "type": "image_picker",
+      "name": "Image Picker",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "ctm_img",
+          "label": "Image"
+        }
+      ]
+    }
+  ],
+      "presets": [
+    {
+      "name": "fresh-0-certification",
+      "blocks": [
+        {
+          "type": "image_picker"
+        }
+      ]
+    }
+  ]
+  }
+{% endschema %}

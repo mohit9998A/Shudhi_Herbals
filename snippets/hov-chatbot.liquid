@@ -1,0 +1,541 @@
+<!-- Shudhi Herbals Chatbot Widget -->
+<div id="hov-chat-widget">
+
+  <!-- Toggle Button -->
+  <button id="hov-chat-toggle" aria-label="Open chat">
+    <span class="hov-chat-icon hov-icon-open">
+      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M20 2H4C2.9 2 2 2.9 2 4V22L6 18H20C21.1 18 22 17.1 22 16V4C22 2.9 21.1 2 20 2Z" fill="currentColor"/>
+        <circle cx="8" cy="10" r="1.2" fill="white"/>
+        <circle cx="12" cy="10" r="1.2" fill="white"/>
+        <circle cx="16" cy="10" r="1.2" fill="white"/>
+      </svg>
+    </span>
+    <span class="hov-chat-icon hov-icon-close">
+      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+      </svg>
+    </span>
+    <span class="hov-chat-badge" id="hov-chat-badge">1</span>
+  </button>
+
+  <!-- Chat Window -->
+  <div id="hov-chat-window" role="dialog" aria-label="Shudhi Herbals Chat">
+
+    <!-- Header -->
+    <div class="hov-chat-header">
+      <div class="hov-chat-avatar">
+        <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="20" cy="20" r="20" fill="rgba(255,255,255,0.2)"/>
+          <path d="M20 8C15 8 11 12 11 17C11 19.5 12 21.7 13.7 23.3L12 30L18.5 27.5C19 27.7 19.5 27.8 20 27.8C25 27.8 29 23.8 29 18.8C29 13 25 8 20 8Z" fill="white"/>
+        </svg>
+      </div>
+      <div class="hov-chat-header-info">
+        <div class="hov-chat-name">Shudhi Assistant</div>
+        <div class="hov-chat-status">
+          <span class="hov-status-dot"></span> Online
+        </div>
+      </div>
+      <button class="hov-chat-close-btn" id="hov-chat-close" aria-label="Close chat">
+        <svg viewBox="0 0 24 24" fill="none">
+          <path d="M18 6L6 18M6 6L18 18" stroke="white" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Messages -->
+    <div class="hov-chat-messages" id="hov-chat-messages">
+      <!-- Messages injected by JS -->
+    </div>
+
+    <!-- Quick Replies -->
+    <div class="hov-quick-replies" id="hov-quick-replies">
+      <!-- Injected by JS -->
+    </div>
+
+    <!-- Input -->
+    <div class="hov-chat-input-bar">
+      <input
+        type="text"
+        id="hov-chat-input"
+        placeholder="Type a message..."
+        autocomplete="off"
+        maxlength="200"
+      />
+      <button id="hov-chat-send" aria-label="Send">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M22 2L11 13M22 2L15 22L11 13M22 2L2 9L11 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ========================================================
+     DATA — all Q&A content for Shudhi Herbals
+  ======================================================== */
+  var BOT_NAME = 'Shudhi Assistant';
+
+  var FLOWS = {
+    main: {
+      message: "Namaste 🌿 Welcome to **Shudhi Herbals**.\nI'm here to help you discover our Negativity Removal Cleansing Bar — *Purify your skin. Cleanse your aura.*\n\nWhat can I help you with today?",
+      replies: [
+        { label: '🌿 About the Bar', flow: 'products' },
+        { label: '🚚 Shipping & Delivery', flow: 'shipping' },
+        { label: '🔄 Returns & Refunds', flow: 'returns' },
+        { label: '🎁 Offers & Gifting', flow: 'offers' },
+        { label: '📞 Contact Us', flow: 'contact' }
+      ]
+    },
+
+    products: {
+      message: "Our signature **Negativity Removal Cleansing Bar** is a premium herbal cleansing ritual. What would you like to know?",
+      replies: [
+        { label: 'About the Cleansing Bar', flow: 'organic_cert' },
+        { label: 'Pack sizes & options', flow: 'product_list' },
+        { label: 'How do I use it?', flow: 'ayurvedic' },
+        { label: 'Ingredients & skin type', flow: 'ingredients' },
+        { label: '← Back to menu', flow: 'main' }
+      ]
+    },
+
+    organic_cert: {
+      message: "🌿 **Negativity Removal Cleansing Bar**\n\nA handcrafted herbal bar, made in small batches for a calming, grounding cleanse — *Purify your skin. Cleanse your aura.*\n\n• Gently cleanses and refreshes your skin\n• A mindful, everyday self-care ritual\n• Thoughtfully crafted with a herbal blend\n\nExplore it on our [Shop](/collections/all).\n\n_Weight, batch details & pricing:_ [PLACEHOLDER — product details]",
+      replies: [
+        { label: 'Pack sizes & options', flow: 'product_list' },
+        { label: '← Back to products', flow: 'products' },
+        { label: '🏠 Main Menu', flow: 'main' }
+      ]
+    },
+
+    product_list: {
+      message: "📦 **Pack Sizes:**\n\nThe Cleansing Bar is available in two options:\n\n• **Single Bar – 100g**\n• **Pack of 3**\n\nChoose your size on the [product page](/collections/all).\n\n_Current price for each option:_ [PLACEHOLDER — variant pricing]",
+      replies: [
+        { label: 'About the Cleansing Bar', flow: 'organic_cert' },
+        { label: 'How do I use it?', flow: 'ayurvedic' },
+        { label: '← Back to products', flow: 'products' },
+        { label: '🏠 Main Menu', flow: 'main' }
+      ]
+    },
+
+    ayurvedic: {
+      message: "🧖 **Your Cleansing Ritual:**\n\n1️⃣ Wet the bar and work it into a gentle lather\n2️⃣ Massage over your skin in slow, mindful circles\n3️⃣ Rinse with water and take a calm breath\n4️⃣ Let the bar dry between uses so it lasts longer\n\nA quiet moment of self-care, morning or night.\n\n_Detailed usage & ritual guidance:_ [PLACEHOLDER — usage / ritual details]",
+      replies: [
+        { label: 'Ingredients & skin type', flow: 'ingredients' },
+        { label: '← Back to products', flow: 'products' },
+        { label: '🏠 Main Menu', flow: 'main' }
+      ]
+    },
+
+    ingredients: {
+      message: "🌱 **Ingredients & Skin Type:**\n\n• Crafted with a herbal blend and essential oils\n• Made in small batches, thoughtfully sourced\n• The full ingredient list is printed on every pack and shown on the product page\n\n_Complete ingredient list & allergen info:_ [PLACEHOLDER — ingredients & allergens]\n_Suitable skin types:_ [PLACEHOLDER — skin-type guidance]\n\nFor specific queries, email us at [PLACEHOLDER — Shudhi support email].",
+      replies: [
+        { label: '← Back to products', flow: 'products' },
+        { label: '🏠 Main Menu', flow: 'main' }
+      ]
+    },
+
+    shipping: {
+      message: "🚚 What would you like to know about shipping?",
+      replies: [
+        { label: 'When will my order arrive?', flow: 'delivery_time' },
+        { label: 'Free shipping conditions?', flow: 'free_shipping' },
+        { label: 'Where do you ship?', flow: 'shipping_area' },
+        { label: 'Is COD available?', flow: 'cod' },
+        { label: '← Back to menu', flow: 'main' }
+      ]
+    },
+
+    delivery_time: {
+      message: "📦 **Delivery Timelines:**\n\nOnce your order ships, you'll receive a tracking link via SMS & email.\n\n_Estimated delivery times & dispatch cut-off:_ [PLACEHOLDER — delivery timelines]",
+      replies: [
+        { label: 'Free shipping conditions?', flow: 'free_shipping' },
+        { label: '← Back to shipping', flow: 'shipping' },
+        { label: '🏠 Main Menu', flow: 'main' }
+      ]
+    },
+
+    free_shipping: {
+      message: "🎉 **Shipping Charges:**\n\nAny free-shipping threshold and delivery charges are shown at checkout.\n\n_Free shipping threshold & delivery charges:_ [PLACEHOLDER — free shipping policy]",
+      replies: [
+        { label: 'When will my order arrive?', flow: 'delivery_time' },
+        { label: '← Back to shipping', flow: 'shipping' },
+        { label: '🏠 Main Menu', flow: 'main' }
+      ]
+    },
+
+    shipping_area: {
+      message: "📍 **Where We Ship:**\n\nEnter your pincode at checkout to confirm delivery availability for your area.\n\n_Serviceable regions & pin codes:_ [PLACEHOLDER — shipping coverage]",
+      replies: [
+        { label: 'Is COD available?', flow: 'cod' },
+        { label: '← Back to shipping', flow: 'shipping' },
+        { label: '🏠 Main Menu', flow: 'main' }
+      ]
+    },
+
+    cod: {
+      message: "💵 **Cash on Delivery (COD):**\n\nAvailable payment options — including COD eligibility — are shown at checkout.\n\n_COD availability & order limits:_ [PLACEHOLDER — COD policy]",
+      replies: [
+        { label: 'Free shipping conditions?', flow: 'free_shipping' },
+        { label: '← Back to shipping', flow: 'shipping' },
+        { label: '🏠 Main Menu', flow: 'main' }
+      ]
+    },
+
+    returns: {
+      message: "🔄 What would you like to know about returns?",
+      replies: [
+        { label: 'What is the return policy?', flow: 'return_policy' },
+        { label: 'How to initiate a return?', flow: 'how_to_return' },
+        { label: 'When will I get my refund?', flow: 'refund_time' },
+        { label: 'Damaged / wrong item received', flow: 'damaged' },
+        { label: '← Back to menu', flow: 'main' }
+      ]
+    },
+
+    return_policy: {
+      message: "📋 **Return Policy:**\n\nAs a personal-care item, the Cleansing Bar may have specific return conditions for hygiene and safety reasons.\n\n_Full return policy & eligibility window:_ [PLACEHOLDER — return policy]",
+      replies: [
+        { label: 'How to initiate a return?', flow: 'how_to_return' },
+        { label: 'Damaged item received', flow: 'damaged' },
+        { label: '← Back to returns', flow: 'returns' },
+        { label: '🏠 Main Menu', flow: 'main' }
+      ]
+    },
+
+    how_to_return: {
+      message: "📦 **How to Return an Order:**\n\n1️⃣ Email us with your order number\n2️⃣ Share photos of the product & packaging\n3️⃣ Our team will review and guide you through the next steps\n\n_Support email & phone:_ [PLACEHOLDER — Shudhi support email] · [PLACEHOLDER — Shudhi support phone]\n_Return processing time:_ [PLACEHOLDER — return processing time]",
+      replies: [
+        { label: 'When will I get my refund?', flow: 'refund_time' },
+        { label: '← Back to returns', flow: 'returns' },
+        { label: '🏠 Main Menu', flow: 'main' }
+      ]
+    },
+
+    refund_time: {
+      message: "💳 **Refund Timeline:**\n\nOnce your return is approved, refunds are issued to your original payment method.\n\n_Refund processing times by payment method:_ [PLACEHOLDER — refund timelines]",
+      replies: [
+        { label: 'How to initiate a return?', flow: 'how_to_return' },
+        { label: '← Back to returns', flow: 'returns' },
+        { label: '🏠 Main Menu', flow: 'main' }
+      ]
+    },
+
+    damaged: {
+      message: "😟 **Received a damaged or wrong item?**\n\nWe're so sorry about that — we'll make it right.\n\n1️⃣ Email us with photos of the item & packaging\n2️⃣ We'll arrange a replacement or refund\n\n_Reporting window & support contact:_ [PLACEHOLDER — damaged-item policy & contact]",
+      replies: [
+        { label: 'When will I get my refund?', flow: 'refund_time' },
+        { label: '📞 Contact Us', flow: 'contact' },
+        { label: '🏠 Main Menu', flow: 'main' }
+      ]
+    },
+
+    offers: {
+      message: "🎁 What offer info do you need?",
+      replies: [
+        { label: 'Current deals & discounts', flow: 'current_offers' },
+        { label: 'How to use coupon codes?', flow: 'coupon_how' },
+        { label: 'Gifting & bulk orders', flow: 'bulk_orders' },
+        { label: 'Loyalty & referral program', flow: 'loyalty' },
+        { label: '← Back to menu', flow: 'main' }
+      ]
+    },
+
+    current_offers: {
+      message: "🛍️ **Current Offers at Shudhi Herbals:**\n\nSubscribe to our newsletter for early access to launches and offers.\n\n_Live deals, discounts & coupon codes:_ [PLACEHOLDER — current offers & coupon codes]",
+      replies: [
+        { label: 'How to use coupon codes?', flow: 'coupon_how' },
+        { label: 'Gifting & bulk orders', flow: 'bulk_orders' },
+        { label: '← Back to offers', flow: 'offers' },
+        { label: '🏠 Main Menu', flow: 'main' }
+      ]
+    },
+
+    coupon_how: {
+      message: "🏷️ **How to Apply a Coupon Code:**\n\n1️⃣ Add the Cleansing Bar to your cart\n2️⃣ Click **Checkout**\n3️⃣ Enter your code in the **\"Discount code\"** field\n4️⃣ Click **Apply** — your discount updates instantly ✅\n\n💡 Only one coupon can be applied per order.",
+      replies: [
+        { label: 'Current deals?', flow: 'current_offers' },
+        { label: '← Back to offers', flow: 'offers' },
+        { label: '🏠 Main Menu', flow: 'main' }
+      ]
+    },
+
+    bulk_orders: {
+      message: "🎁 **Gifting & Bulk Orders:**\n\nThe Cleansing Bar makes a thoughtful, premium gift. For gifting sets or larger orders, our team is happy to help.\n\n_Bulk & gifting pricing and contact:_ [PLACEHOLDER — bulk & gifting details]",
+      replies: [
+        { label: 'Current deals?', flow: 'current_offers' },
+        { label: '← Back to offers', flow: 'offers' },
+        { label: '🏠 Main Menu', flow: 'main' }
+      ]
+    },
+
+    loyalty: {
+      message: "⭐ **Loyalty & Referral:**\n\nLog in to your account to view any available rewards.\n\n_Loyalty & referral program details:_ [PLACEHOLDER — loyalty / referral program]",
+      replies: [
+        { label: 'Current deals?', flow: 'current_offers' },
+        { label: '← Back to offers', flow: 'offers' },
+        { label: '🏠 Main Menu', flow: 'main' }
+      ]
+    },
+
+    contact: {
+      message: "📞 **Get in Touch with Shudhi Herbals:**\n\n📧 **Email:** [PLACEHOLDER — Shudhi support email]\n☎️ **Phone:** [PLACEHOLDER — Shudhi support phone]\n⏰ **Hours:** [PLACEHOLDER — support hours]\n\n🏢 **Address:**\n[PLACEHOLDER — Shudhi business address]\n\n📱 **Social:**\n• Instagram: [PLACEHOLDER — Shudhi Instagram URL]\n• Facebook: [PLACEHOLDER — Shudhi Facebook URL]\n\nWe usually respond within [PLACEHOLDER — response time]. 🙏",
+      replies: [
+        { label: '🏠 Back to Main Menu', flow: 'main' }
+      ]
+    }
+  };
+
+  /* ========================================================
+     STATE
+  ======================================================== */
+  var isOpen = false;
+  var badgeShown = true;
+  var typingTimer = null;
+
+  /* ========================================================
+     DOM REFS
+  ======================================================== */
+  var toggle   = document.getElementById('hov-chat-toggle');
+  var window_  = document.getElementById('hov-chat-window');
+  var messages = document.getElementById('hov-chat-messages');
+  var qrBar    = document.getElementById('hov-quick-replies');
+  var input    = document.getElementById('hov-chat-input');
+  var sendBtn  = document.getElementById('hov-chat-send');
+  var closeBtn = document.getElementById('hov-chat-close');
+  var badge    = document.getElementById('hov-chat-badge');
+
+  /* ========================================================
+     HELPERS
+  ======================================================== */
+  function escapeHtml(text) {
+    var div = document.createElement('div');
+    div.appendChild(document.createTextNode(text));
+    return div.innerHTML;
+  }
+
+  function formatMessage(text) {
+    return text
+      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>')
+      .replace(/\n/g, '<br>');
+  }
+
+  function scrollToBottom() {
+    messages.scrollTop = messages.scrollHeight;
+  }
+
+  /* ========================================================
+     RENDER MESSAGES
+  ======================================================== */
+  function addMessage(text, sender) {
+    var div = document.createElement('div');
+    div.className = 'hov-msg hov-msg--' + sender;
+
+    var bubble = document.createElement('div');
+    bubble.className = 'hov-bubble';
+    bubble.innerHTML = formatMessage(text);
+
+    div.appendChild(bubble);
+    messages.appendChild(div);
+    scrollToBottom();
+    return div;
+  }
+
+  function showTyping() {
+    var div = document.createElement('div');
+    div.className = 'hov-msg hov-msg--bot hov-typing-row';
+    div.id = 'hov-typing';
+    div.innerHTML = '<div class="hov-bubble hov-typing"><span></span><span></span><span></span></div>';
+    messages.appendChild(div);
+    scrollToBottom();
+  }
+
+  function removeTyping() {
+    var t = document.getElementById('hov-typing');
+    if (t) t.parentNode.removeChild(t);
+  }
+
+  /* ========================================================
+     RENDER QUICK REPLIES
+  ======================================================== */
+  function renderReplies(replies) {
+    qrBar.innerHTML = '';
+    if (!replies || replies.length === 0) return;
+
+    replies.forEach(function (r) {
+      var btn = document.createElement('button');
+      btn.className = 'hov-qr-btn';
+      btn.textContent = r.label;
+      btn.addEventListener('click', function () {
+        handleReply(r.label, r.flow);
+      });
+      qrBar.appendChild(btn);
+    });
+  }
+
+  /* ========================================================
+     FLOW ENGINE
+  ======================================================== */
+  function goToFlow(flowKey) {
+    var flow = FLOWS[flowKey];
+    if (!flow) return;
+
+    renderReplies([]);   // clear while typing
+    showTyping();
+
+    var delay = 600 + Math.min(flow.message.length * 2, 800);
+    typingTimer = setTimeout(function () {
+      removeTyping();
+      addMessage(flow.message, 'bot');
+      renderReplies(flow.replies);
+    }, delay);
+  }
+
+  function handleReply(label, flowKey) {
+    addMessage(label, 'user');
+    goToFlow(flowKey);
+  }
+
+  /* ========================================================
+     USER TEXT INPUT — simple keyword matching
+  ======================================================== */
+  var KEYWORDS = [
+    { words: ['product','item','bar','soap','cleans','cleansing','skin','aura','ingredient','allergen','herbal','fragrance','scent','how to use','pack','100g','size'], flow: 'products' },
+    { words: ['ship','deliver','cod','cash on delivery','arrival','arrive','track','dispatch','pincode','free ship'], flow: 'shipping' },
+    { words: ['return','refund','replace','damaged','wrong item','exchange','broken'], flow: 'returns' },
+    { words: ['offer','discount','coupon','code','deal','sale','promo','bulk','gift','gifting','loyalty','referral'], flow: 'offers' },
+    { words: ['contact','email','phone','call','address','office','help','support'], flow: 'contact' },
+    { words: ['hello','hi','hey','helo','namaste','start','menu'], flow: 'main' }
+  ];
+
+  function matchKeyword(text) {
+    var lower = text.toLowerCase();
+    for (var i = 0; i < KEYWORDS.length; i++) {
+      var group = KEYWORDS[i];
+      for (var j = 0; j < group.words.length; j++) {
+        if (lower.indexOf(group.words[j]) !== -1) {
+          return group.flow;
+        }
+      }
+    }
+    return null;
+  }
+
+  function handleUserInput() {
+    var text = input.value.trim();
+    if (!text) return;
+    input.value = '';
+
+    addMessage(text, 'user');
+
+    var flow = matchKeyword(text);
+    if (flow) {
+      goToFlow(flow);
+    } else {
+      showTyping();
+      setTimeout(function () {
+        removeTyping();
+        addMessage(
+          "I'm not sure about that, but I'm happy to help! 😊\nPlease choose a topic below or email us at [PLACEHOLDER — Shudhi support email]",
+          'bot'
+        );
+        renderReplies(FLOWS.main.replies);
+      }, 800);
+    }
+  }
+
+  /* ========================================================
+     OPEN / CLOSE
+  ======================================================== */
+  function openChat() {
+    isOpen = true;
+    window_.classList.add('hov-chat-open');
+    toggle.classList.add('hov-toggle-open');
+    badge.style.display = 'none';
+    badgeShown = false;
+    input.focus();
+  }
+
+  function closeChat() {
+    isOpen = false;
+    window_.classList.remove('hov-chat-open');
+    toggle.classList.remove('hov-toggle-open');
+  }
+
+  /* ========================================================
+     EVENTS
+  ======================================================== */
+  toggle.addEventListener('click', function () {
+    isOpen ? closeChat() : openChat();
+  });
+
+  closeBtn.addEventListener('click', closeChat);
+
+  sendBtn.addEventListener('click', handleUserInput);
+
+  input.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') handleUserInput();
+  });
+
+  /* ========================================================
+     WATCH FOR OPEN MENUS/DRAWERS TO HIDE CHATBOT
+  ======================================================== */
+  function updateChatbotVisibility() {
+    var minicartActive = document.querySelector('.js-minicart.active') || document.querySelector('.bg-minicart.active');
+    var mobileMenuActive = document.body.classList.contains('activemenu_mobile') || document.body.classList.contains('activemenu_mobile_right') || document.querySelector('.box_contentmenu.active');
+    var searchActive = document.querySelector('.bg_search_box.active');
+
+    if (minicartActive || mobileMenuActive || searchActive) {
+      toggle.style.opacity = '0';
+      toggle.style.visibility = 'hidden';
+      toggle.style.pointerEvents = 'none';
+      if (isOpen) {
+        closeChat();
+      }
+    } else {
+      toggle.style.opacity = '';
+      toggle.style.visibility = '';
+      toggle.style.pointerEvents = '';
+    }
+  }
+
+  if (window.MutationObserver) {
+    var observer = new MutationObserver(function() {
+      updateChatbotVisibility();
+    });
+    observer.observe(document.body, {
+      attributes: true,
+      attributeFilter: ['class'],
+      subtree: true
+    });
+  }
+  
+  document.addEventListener('click', function() {
+    setTimeout(updateChatbotVisibility, 100);
+    setTimeout(updateChatbotVisibility, 350);
+  });
+
+  updateChatbotVisibility();
+
+  /* ========================================================
+     INIT — show greeting after 1.5s
+  ======================================================== */
+  setTimeout(function () {
+    goToFlow('main');
+  }, 300);
+
+  /* Show badge notification after 4s if not opened */
+  setTimeout(function () {
+    if (!isOpen && badgeShown) {
+      badge.style.display = 'flex';
+    }
+  }, 4000);
+
+})();
+</script>

@@ -1,0 +1,317 @@
+.text-info h2.title.inline-richtext {
+    margin-top: 0;
+}
+.text-info h2 {
+
+font-weight: 400;
+line-height: 36px;
+text-align: center;
+
+
+}
+
+.Home-icon h2.title.inline-richtext {
+    font-size: 40px;
+    font-weight: 300;
+    line-height: 56px;
+    text-align: center;
+    text-underline-position: from-font;
+    text-decoration-skip-ink: none;
+}
+/*imge column*/
+.Home-icon h3.inline-richtext {
+    font-weight: 300;
+    line-height: 32.2px;
+    text-underline-position: from-font;
+    text-decoration-skip-ink: none;
+}
+.Home-icon .rte {
+ 
+    font-weight: 400;
+    line-height: normal;
+}
+
+.Home-icon a.button.button--primary.ctm-btn-2 {
+    text-align: center;
+    margin: auto;
+    display: flex;
+    width: max-content;
+    margin-top: 50px;
+}
+
+
+.Home-icon a.button.button--primary.ctm-btn-2 {
+    background: transparent;
+    border: 1px solid #A48E57;
+    color: #A48E57;
+}
+.Home-icon .box0-ctm .image img {
+    width: 120px;
+    display: block;
+}
+
+/*Image-left*/
+
+.info-cr .sl-content.Image-left .box0-ctm {
+    display: flex;
+}
+.info-cr .sl-content.Image-left .box0-ctm .image {
+    width: 20%;
+}
+.info-cr .sl-content.Image-left .box0-ctm .image img {
+    width: 32px;
+}
+.info-cr .sl-content.Image-left .box0-ctm .text0 h3.inline-richtext {
+    font-size: 19px;
+    font-weight: 400;
+    line-height: 26.6px;
+    text-align: left;
+    text-underline-position: from-font;
+    text-decoration-skip-ink: none;
+    margin: 0;
+}
+.info-cr .sl-content.Image-left .box0-ctm .text0 .rte p {
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 22.4px;
+    text-align: left;
+    text-underline-position: from-font;
+    text-decoration-skip-ink: none;
+}
+.info-cr .sl-content.Image-left .box0-ctm {
+    display: flex;
+    gap: 20px;
+}
+.info-cr .sl-content.Image-left .box0-ctm {
+    padding: 0;
+}
+
+@media(max-width:767px) {
+.full-secton.pro-video.grid-videos {
+    padding-bottom: 80px !important;
+}
+  .Home-icon h3.inline-richtext {
+    margin-top: -20px;
+    margin-bottom: 10px;
+}
+.full-secton.Home-icon .box0-ctm {
+    padding-bottom: 0;
+}
+.full-secton.Home-icon {
+    background-position: bottom left;
+}
+  .carosel {
+	button {
+		&.slick-arrow {
+			bottom: -50px;
+			display: block !important;
+			top: auto !important;
+		}
+		
+	}
+}
+    .carosel button.slick-next.slick-arrow {
+    right: 33%;
+}
+.carosel button.slick-prev.slick-arrow {
+    left: 38%;
+}
+.Daishik-video-columns {
+	.full-secton {
+		padding-bottom: 96px;
+	}
+}
+
+  
+  .mobile-cm-1 {
+	display: flex;
+	flex-wrap: wrap;
+	.sl-content {
+		width: 100%;
+	}
+}
+.mobile-cm-2 {
+	display: flex;
+	flex-wrap: wrap;
+	.sl-content {
+		width: 50%;
+	}
+}
+
+}
+.info-cr button.slick-arrow {
+    cursor: pointer;
+}
+.box0-ctm video {
+    width: 100%;
+}
+.full-secton.design-2 h2.title.inline-richtext {
+    font-size: 40px;
+    font-weight: 300;
+    line-height: 56px;
+    text-align: center;
+    text-underline-position: from-font;
+    text-decoration-skip-ink: none;
+}
+.full-secton.design-2  .rte {
+    font-size: 14px;
+    font-weight: 300;
+    line-height: 19.6px;
+    text-align: center;
+    text-underline-position: from-font;
+    text-decoration-skip-ink: none;
+    color: var(--Daishik-Daishik-TXT-secondary, #3F302B);
+}
+.box0-ctm .image img {
+    width: 100%;
+}
+.full-secton.design-1 h3.inline-richtext {
+    font-family: Cantata One;
+    font-weight: 400;
+    line-height: 35px;
+    text-align: left;
+    text-underline-position: from-font;
+    text-decoration-skip-ink: none;
+    margin: 0 0 5px;
+}
+.full-secton.design-1 .image img {
+    margin-bottom: 10px;
+}
+.full-secton.design-1 .rte p {
+    font-family: Roboto;
+    font-weight: 300;
+    line-height: 22.4px;
+    text-align: left;
+    text-underline-position: from-font;
+    text-decoration-skip-ink: none;
+}
+
+.Daishik-video-columns .slide-1.info p {
+    font-size: 16px;
+    font-weight: 300;
+    line-height: 22.4px;
+    text-underline-position: from-font;
+    text-decoration-skip-ink: none;
+    /* color: #5F5858; */
+}
+.Daishik-video-columns .slide-1.info h2.title.inline-richtext {
+    font-size: 28px;
+    font-weight: 300;
+    line-height: 36px;
+    text-align: center;
+    text-underline-position: from-font;
+    text-decoration-skip-ink: none;
+}
+.carosel button.slick-arrow:before {
+    content: unset;
+}
+.Daishik-video-columns .slide-1.info h2.title.inline-richtext {
+    text-transform: capitalize;
+    margin-bottom: 33px;
+}
+
+@media(min-width:768px) {
+  .carosel button.slick-prev.slick-arrow {
+    right: 60px;
+    left: auto;
+}
+  .full-secton.Design-2 .text-info {
+    text-align: center;
+    width: 70%;
+    margin: auto;
+}
+  .full-secton.design-1 .text-info h2.title.inline-richtext {
+    font-size: 28px;
+    font-weight: 300;
+    line-height: 36px; 
+    text-align: center;
+    text-underline-position: from-font;
+    text-decoration-skip-ink: none;
+}
+  .full-secton.design-2  .text-info {
+    width: 70%;
+    margin: auto;
+}
+   
+.info-cr {
+	&.grid.dektop-3 {
+		display: flex;
+		flex-wrap: wrap;
+       gap: 0;
+		.sl-content {
+			width: 33%;
+		}
+	}
+	&.grid.dektop-2 {
+		display: flex;
+		flex-wrap: wrap;
+        gap: 0;
+		.sl-content {
+			width: 50%;
+		}
+	}
+	&.grid.dektop-1 {
+		display: flex;
+		flex-wrap: wrap;
+       gap: 0;
+		.sl-content {
+			width: 100%;
+		}
+	}
+	&.grid.dektop-4 {
+		display: flex;
+		flex-wrap: wrap;
+       gap: 0;
+		.sl-content {
+			width: 25%;
+		}
+	}
+	&.grid.dektop-5 {
+		display: flex;
+		flex-wrap: wrap;
+       gap: 0;
+		.sl-content {
+			width: 20%;
+		}
+	}
+  &.grid.dektop-6 {
+		display: flex;
+		flex-wrap: wrap;
+       gap: 0;
+		.sl-content {
+			width: 16%;
+		}
+	}
+}
+}
+
+
+@media screen and (min-width: 768px) and (max-width: 800px) { 
+.full-secton.brand-logo .info-cr.grid.dektop-6 .sl-content {
+    width: 25%;
+}
+.full-secton.brand-logo .info-cr.grid .sl-content .box0-ctm {
+    padding: 0;
+    margin: 0;
+}
+}
+
+@media screen and (min-width: 801px) and (max-width:1023px) { 
+.full-secton.brand-logo .info-cr.grid.dektop-6 .sl-content {
+    width: 25%;
+}
+.full-secton.brand-logo .info-cr.grid .sl-content .box0-ctm {
+    padding: 0;
+    margin: 0;
+}
+}
+
+
+button.play-button {
+    border: unset;
+    background: transparent;
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 100%;
+}

@@ -1,0 +1,433 @@
+{{ 'fresh-faq.css' | asset_url | stylesheet_tag }}
+{% assign show_message = false %}
+
+{% if template contains 'product' and product.metafields.custom.product_q_a.value != blank %}
+  {% assign show_message = true %}
+{% endif %}
+
+{% if show_message %}
+<div class="accord-ctm" style="padding-top:{{section.settings.pd_tp }}px; padding-bottom:{{section.settings.pd_bp }}px;
+    {% if section.settings.back_img %}
+      background-image: url('{{ section.settings.back_img | img_url: "master" }}');
+      background-repeat: no-repeat;
+      background-size: cover;
+    {% else %}
+      background-color: {{ section.settings.back_color }};
+    {% endif %}">
+<div class="page-width container">
+  <div class="faq-tittle">
+    <div class="text-info" style="text-align:{{ section.settings.text_postion }};"> 
+       {%- if section.settings.title1 != blank -%} <h2 class="title inline-richtext" style="font-size:{{ section.settings.heading_size113 }}px; color:{{ section.settings.colo8913 }};">
+          {{ section.settings.title1 }}
+        </h2>  {%- endif -%}
+       {%- if section.settings.text1 != blank -%}
+      <div class="rte" style="font-size:{{ section.settings.heading_size11 }}px; color:{{ section.settings.colo891 }};">{{ section.settings.text1 }}</div>
+    {%- endif -%}
+        </div>
+  </div>
+  <div class="accordion">
+       {% assign qa_array = product.metafields.custom.product_q_a.value %}
+              {% if qa_array %}
+                {% for qa in qa_array %}
+        <div class="accordion-item">
+          <button id="accordion-button-1" aria-expanded="false" style="font-size:{{ section.settings.heading_size12 }}px; color:{{ section.settings.colo898 }};">
+            <span class="accordion-title">{{ qa.question }}</span>
+            <span class="icon" aria-hidden="true"></span>
+          </button>
+          <div class="accordion-content">
+            
+                  <div class="rte" style="font-size:{{ section.settings.heading_size1 }}px; color:{{ section.settings.colo89 }};">{{ qa.answer | strip_html | escape }}</div>
+              
+          </div>
+        </div>
+        {%- endfor -%}
+          {%- endif -%}
+     </div>
+    
+  <div class="btn-bottm">
+     {%- if section.settings.link_label != blank -%}
+                  <a
+                    class="link animate-arrow"
+                    {% if section.settings.link == blank %}
+                      role="link" aria-disabled="true"
+                    {% else %}
+                      href="{{ section.settings.link }}"
+                    {% endif %}
+                  >
+                    {{- section.settings.link_label | escape -}}
+                 <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48" fill="none">
+<rect width="48" height="48" rx="24" fill="#cf4834" style="fill:#cf4834;fill:#987b50;fill-opacity:1;"/>
+<path d="M19 29L29 19M29 19H19M29 19V29" stroke="#FBFBFB" style="stroke:#FBFBFB;stroke:color(display-p3 0.9843 0.9843 0.9843);stroke-opacity:1;" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+</a>
+{%- endif -%}
+  </div>
+  </div>  
+</div>
+ {% else %}
+ 
+<div class="accord-ctm" style="padding-top:{{section.settings.pd_tp }}px; padding-bottom:{{section.settings.pd_bp }}px;
+    {% if section.settings.back_img %}
+      background-image: url('{{ section.settings.back_img | img_url: "master" }}');
+      background-repeat: no-repeat;
+      background-size: cover;
+    {% else %}
+      background-color: {{ section.settings.back_color }};
+    {% endif %}">
+<div class="page-width">
+  {% if show_message %}
+  <div class="faq-tittle">
+    <div class="text-info" style="text-align:{{ section.settings.text_postion }};"> 
+       {%- if section.settings.title1 != blank -%} <h2 class="title inline-richtext" style="font-size:{{ section.settings.heading_size113 }}px; color:{{ section.settings.colo8913 }};">
+          {{ section.settings.title1 }}
+        </h2>  {%- endif -%}
+       {%- if section.settings.text1 != blank -%}
+      <div class="rte" style="font-size:{{ section.settings.heading_size11 }}px; color:{{ section.settings.colo891 }};">{{ section.settings.text1 }}</div>
+    {%- endif -%}
+        </div>
+  </div>
+    {% endif %}
+   <div class="accordion">
+      {%- for block in section.blocks -%} 
+        {%- if block.settings.title != blank -%}
+        <div class="accordion-item">
+          <button id="accordion-button-1" aria-expanded="false" style="font-size:{{ block.settings.heading_size12 }}px; color:{{ block.settings.colo898 }};">
+            <span class="accordion-title">{{ block.settings.title }}</span>
+            <span class="icon" aria-hidden="true"></span>
+          </button>
+          <div class="accordion-content">
+            {%- if block.settings.text != blank -%}
+                  <div class="rte" style="font-size:{{ block.settings.heading_size1 }}px; color:{{ block.settings.colo89 }};">{{ block.settings.text }}</div>
+                {%- endif -%}
+          </div>
+        </div>
+          {%- endif -%}
+        {%- endfor -%}
+     </div>
+    
+  <div class="btn-bottm">
+     {%- if section.settings.link_label != blank -%}
+                  <a
+                    class="link animate-arrow"
+                    {% if section.settings.link == blank %}
+                      role="link" aria-disabled="true"
+                    {% else %}
+                      href="{{ section.settings.link }}"
+                    {% endif %}
+                  >
+                    {{- section.settings.link_label | escape -}}
+                 <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48" fill="none">
+<rect width="48" height="48" rx="24" fill="#B49C60" style="fill:#B49C60;fill:color(display-p3 0.7059 0.6118 0.3765);fill-opacity:1;"/>
+<path d="M19 29L29 19M29 19H19M29 19V29" stroke="#FBFBFB" style="stroke:#FBFBFB;stroke:color(display-p3 0.9843 0.9843 0.9843);stroke-opacity:1;" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+</a>
+{%- endif -%}
+  </div>
+  </div>  
+</div>
+    {% endif %}
+  <style>
+
+    .accord-ctm {
+    padding-top:{{section.settings.pd_tp }}px;
+    padding-bottom:{{section.settings.pd_bp }}px;
+    /* background:{{section.settings.back_color }}; */
+}
+    .accordion-item {
+    border: 1px solid #CAAA7D;
+    padding: 20px 25px;
+    background: #FBFBFB;
+    margin-bottom: 15px;
+    border-radius: 12px;
+}
+    button.slick-arrow {
+    cursor: pointer;
+}
+    .FaqAC .hidden{
+      display:none !important;
+    }
+  </style>
+<script>
+
+  document.addEventListener("DOMContentLoaded", () => {
+    const cus_items = document.querySelectorAll(".accordion button");
+    const cus_accordionItems = document.querySelectorAll(".accordion-item");
+    const cus_moreBtn = document.querySelector(".btn-bottm .link"); 
+    let cus_lessBtn;
+
+
+    if (cus_items.length > 0) {
+      cus_items[0].setAttribute("aria-expanded", "true");
+      cus_items[0].nextElementSibling.style.display = "block"; 
+    }
+
+    {% assign set_limit = section.settings.set_limit %}
+    cus_accordionItems.forEach((cus_item, index) => {
+      if (index >= {{ set_limit }}) {
+        cus_item.classList.add("hidden-item");
+        cus_item.style.display = "none";
+      }
+    });
+
+  if (cus_accordionItems.length > {{ set_limit }}) {
+    cus_lessBtn = document.createElement("a");
+    cus_lessBtn.classList.add("link", "animate-arrow", "hidden");
+    cus_lessBtn.textContent = "Less";
+    cus_lessBtn.style.cursor = "pointer";
+    cus_moreBtn.parentNode.appendChild(cus_lessBtn);
+
+   
+    cus_moreBtn.addEventListener("click", (event) => {
+      event.preventDefault();
+      document.querySelectorAll(".hidden-item").forEach((cus_item) => {
+        cus_item.style.display = "block";
+      });
+      cus_moreBtn.style.display = "none";
+      cus_lessBtn.classList.remove("hidden");
+    });
+
+  
+    cus_lessBtn.addEventListener("click", (event) => {
+      event.preventDefault();
+      document.querySelectorAll(".hidden-item").forEach((cus_item) => {
+        cus_item.style.display = "none";
+      });
+      cus_lessBtn.classList.add("hidden");
+      cus_moreBtn.style.display = "flex";
+    });
+} else {
+      cus_moreBtn.style.display = "none";
+    }
+
+    function toggleAccordion() {
+      const cus_isExpanded = this.getAttribute("aria-expanded") === "true";
+  
+      cus_items.forEach((cus_item) => {
+        cus_item.setAttribute("aria-expanded", "false");
+        cus_item.nextElementSibling.style.display = "none";
+      });
+
+      if (!cus_isExpanded) {
+        this.setAttribute("aria-expanded", "true");
+        this.nextElementSibling.style.display = "block";
+      }
+    }
+    cus_items.forEach((item) => item.addEventListener("click", toggleAccordion));
+  });
+
+
+</script>
+
+{% schema %}
+  {
+    "name": "fresh-0-faq",
+    "class": "section FaqAC",
+    "settings": [
+         {
+      "type": "header",
+      "content": "Section padding"
+      },
+      {
+        "type": "range",
+        "id": "set_limit",
+        "label": "Limit Display Faq",
+        "default": 5,
+        "min": 1,
+        "max": 10
+      },
+      {
+        "type": "range",
+        "id": "pd_tp",
+        "label": "padding top",
+        "default": 50,
+        "min": 10,
+        "max": 60,
+        "step": 1
+      },
+	  {
+        "type": "range",
+        "id": "pd_bp",
+        "label": "padding bottom",
+        "default": 50,
+        "min": 10,
+        "max": 60,
+        "step": 1
+      },
+       {
+        "type": "color",
+        "id": "back_color",
+        "label": "Background Color",
+        "default": "#fbedef"
+       },
+       {
+        "type": "image_picker",
+        "id": "back_img",
+        "label": "Background Image"
+       },
+            {
+      "type": "select",
+      "id": "text_postion",
+      "label": "Alignment",
+      "default": "center",
+      "options": [
+          {
+              "value": "right",
+              "label": "right"
+          },
+             {
+              "value": "center",
+              "label": "center"
+          },
+          {
+              "value": "left",
+              "label": "left"
+          },
+      ]
+  },
+       {
+          "type": "inline_richtext",
+          "id": "title1",
+          "default": "Frequently asked questions",
+          "label": "Tittle"
+        },
+           {
+        "type": "range",
+        "id": "heading_size113",
+        "label": "Font Size",
+        "default":12,
+        "min": 10,
+        "max": 40,
+        "step": 1
+       },
+      {
+      "type": "color",
+      "id": "colo8913",
+      "label": "Text colo",
+      "default": "#000"
+       },
+        {
+          "type": "richtext",
+          "id": "text1",
+          "default": "<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>",
+          "label": "Text"
+        },
+        
+           {
+        "type": "range",
+        "id": "heading_size11",
+        "label": "Font Size",
+        "default":12,
+        "min": 10,
+        "max": 20,
+        "step": 1
+      },
+        {
+      "type": "color",
+      "id": "colo891",
+      "label": "Text colo",
+      "default": "#000"
+       },
+       {
+          "type": "text",
+          "id": "link_label",
+          "label": "Button Text"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Button link"
+        },
+       {
+        "type": "range",
+        "id": "heading_size12",
+        "label": "Accordion question Font Size",
+        "default":12,
+        "min": 10,
+        "max": 20,
+        "step": 1
+       },
+       {
+      "type": "color",
+      "id": "colo898",
+      "label": "Accordion question Text color",
+      "default": "#000"
+       },
+          {
+        "type": "range",
+        "id": "heading_size1",
+        "label": "Accordion Answer Font Size",
+        "default":12,
+        "min": 10,
+        "max": 20,
+        "step": 1
+      },
+       {
+      "type": "color",
+      "id": "colo89",
+      "label": "Accordion Answer Text color",
+      "default": "#000"
+       }
+    ],
+        "blocks": [
+    {
+      "type": "tab",
+      "name": "tab",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "ctm_img",
+          "label": "Image"
+        },
+         {
+          "type": "inline_richtext",
+          "id": "title",
+          "default": "colmun",
+          "label": "Tittle"
+        },
+           {
+        "type": "range",
+        "id": "heading_size12",
+        "label": "Font Size",
+        "default":12,
+        "min": 10,
+        "max": 20,
+        "step": 1
+       },
+      {
+      "type": "color",
+      "id": "colo898",
+      "label": "Text colo",
+      "default": "#000"
+       },
+        {
+          "type": "richtext",
+          "id": "text",
+          "default": "<p>Personal care Organic Amla Ginger Green Tea. Our herbal tea boosts immunity, </p>",
+          "label": "Text"
+        },
+        
+           {
+        "type": "range",
+        "id": "heading_size1",
+        "label": "Font Size",
+        "default":12,
+        "min": 10,
+        "max": 20,
+        "step": 1
+      },
+        {
+      "type": "color",
+      "id": "colo89",
+      "label": "Text colo",
+      "default": "#000"
+       }
+      ]
+    }
+  ],
+       "presets": [
+    {
+      "name": "fresh-0-faq",
+    }
+  ]
+  }
+{% endschema %}

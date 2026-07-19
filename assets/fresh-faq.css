@@ -1,0 +1,157 @@
+.accord-ctm h2.title.inline-richtext {
+    font-weight: 500;
+    line-height: 36px;
+    text-align: center;
+    text-underline-position: from-font;
+    text-decoration-skip-ink: none;
+}
+.accord-ctm {
+    background-position: bottom;
+}
+.accordion button {
+  position: relative;
+  display: block;
+  text-align: left;
+  width: 100%;
+  padding: 1em 0;
+  color: #7288a2;
+  font-size: 1.15rem;
+  font-weight: 400;
+  border: none;
+  background: none;
+  outline: none;
+}
+
+.accordion button:hover,
+.accordion button:focus {
+  cursor: pointer;
+  color: #03b5d2;
+}
+
+.accordion button:hover::after,
+.accordion button:focus::after {
+  cursor: pointer;
+  color: #03b5d2;
+  border: 1px solid #03b5d2;
+}
+
+.accordion button .accordion-title {
+  padding: 1em 1.5em 1em 0;
+}
+
+.accordion button .icon {
+  display: inline-block;
+  position: absolute;
+  top: 18px;
+  right: 0;
+  width: 22px;
+  height: 22px;
+}
+
+.accordion button .icon:before {
+    display: block;
+    position: absolute;
+    content: "";
+    top: 9px;
+    left: 5px;
+    width: 20px;
+    height: 3px;
+    background: #CAAA7D;
+}
+.accordion button .icon:after {
+    display: block;
+    position: absolute;
+    content: "";
+    top: 1px;
+    left: 14px;
+    width: 3px;
+    height: 18px;
+    background: #CAAA7D;
+}
+.accordion button span.accordion-title {
+    color: var(--Daishik-Daishik-TXT-Primary, #2C2322);
+}
+
+.accordion button[aria-expanded='true'] {
+  color: #03b5d2;
+}
+.accordion button[aria-expanded='true'] .icon::after {
+  width: 0;
+}
+.accordion button[aria-expanded='true'] + .accordion-content {
+  opacity: 1;
+  max-height: 9em;
+  transition: all 200ms linear;
+  will-change: opacity, max-height;
+}
+.accordion .accordion-content {
+  opacity: 0;
+  max-height: 0;
+  overflow: hidden;
+  transition: opacity 200ms linear, max-height 200ms linear;
+  will-change: opacity, max-height;
+}
+
+.accordion button:focus {
+    box-shadow: none;
+}
+.accordion button .accordion-title {
+    font-weight: 500;
+    line-height: 26.6px;
+    text-align: left;
+    text-underline-position: from-font;
+    text-decoration-skip-ink: none;
+}
+.text-info .rte p {
+    font-weight: 400;
+    line-height: 26.6px;
+    text-align: center;
+    text-underline-position: from-font;
+    text-decoration-skip-ink: none;
+}
+.accord-ctm .accordion {
+    border: unset;
+}
+.btn-bottm a.link.animate-arrow {
+    display: flex;
+    align-items: center;
+    gap: 17px;
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 22.4px;
+    text-align: left;
+    text-underline-position: from-font;
+    text-decoration-skip-ink: none;
+    color: #987B50;
+    text-decoration: unset;
+    border: 1px solid #987B50;
+    justify-content: center;
+    width: 186px;
+    padding: 12px 0 12px 8px;
+    margin: auto;
+    border-radius: 50px;
+}
+.btn-bottm a.link.animate-arrow:hover {
+    background: #987B50;
+    color: #fff;
+}
+
+@media(max-width:767px) {
+.accordion button .accordion-title {
+    padding-top: 0;
+    padding-bottom: 0;
+}
+.accordion button {
+    padding-top: 0;
+    padding-bottom: 0;
+}
+.accordion .accordion-content {
+    padding-top: 20px;
+}
+.accordion-item {
+    padding-left: 15px;
+}
+}
+
+
+

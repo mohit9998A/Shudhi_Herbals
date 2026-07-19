@@ -1,0 +1,79 @@
+{{ 'HOV-what-makes.css' | asset_url | stylesheet_tag }}
+{% assign items = product.metafields.custom.what_makes_item.value  %}
+{% if items != blank %}
+<div class="top-icon" style="  
+  {% if section.settings.back_img %}
+    background-image: url('{{ section.settings.back_img | img_url: 'master' }}');
+    background-repeat: no-repeat;
+    background-size: cover;
+  {% else %}
+    background-color: {{ section.settings.back_color }};
+  {% endif %}
+">
+  
+
+<div class="what-m container">
+  <h4>{{ section.settings.main_heading }}</h4>
+  {% if product.metafields.custom.whats_make_short_description %}
+  <div class="short-description">
+    {{ product.metafields.custom.whats_make_short_description | metafield_tag }}
+  </div>
+{% endif %}
+  <div class="top-box-ctm">
+
+    {% for item in items %}
+      <div class="text-with-icons">
+      {% if item.icon_image %}
+        <div class="ctm-icons">
+          <img class="lazyload" data-src="{{ item.icon_image | img_url: 'master' }}" alt="{{ item.title | escape }}">
+        </div>
+        {% endif %}
+        <div class="cont-0s">
+          {% if item.title %}
+            <h5>{{ item.title }}</h5>
+          {% endif %}
+      {% if item.description %}
+          <p>{{ item.description }}</p>
+      {% endif %}
+        </div>
+      </div>
+    {% endfor %}
+
+  </div>
+</div>
+</div>
+{% endif %}
+{% schema %}
+{
+  "name": "HOV-what-makes",
+  "settings": [
+      {
+      "type": "color",
+      "id": "back_color",
+      "label": "Background Color",
+      "default": "#FDF9F4"
+    },
+    {
+      "type": "image_picker",
+      "id": "back_img",
+      "label": "Background Image"
+    },
+    {
+      "type": "text",
+      "id": "heading_text",
+      "label": "Heading Text"
+    },
+    {
+      "type": "text",
+      "id": "main_heading",
+      "label": "Main Heading",
+      "default": "What Makes Shudhi Herbals Special?"
+    }
+  ],
+  "presets": [
+    {
+      "name": "HOV-what-makes"
+    }
+  ]
+}
+{% endschema %}

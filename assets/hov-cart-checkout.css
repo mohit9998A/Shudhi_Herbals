@@ -1,0 +1,331 @@
+/* Scoped Cart Button Styles */
+.hov-cart__btn {
+  position: relative;
+  overflow: hidden;
+  min-width: 180px;
+  height: 52px;
+  background: #1A3D1A;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: background 0.3s ease, transform 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.hov-cart__btn:hover:not([data-state]) {
+  background: #2D5A27;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(45,90,39,0.30);
+}
+
+/* Three spans — only one visible at a time */
+.hov-cart__btn-default,
+.hov-cart__btn-loading,
+.hov-cart__btn-success {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  white-space: nowrap;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+  width: 100%;
+  height: 100%;
+}
+.hov-cart__btn-loading,
+.hov-cart__btn-success {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* LOADING state */
+.hov-cart__btn[data-state="loading"] {
+  background: #2D5A27;
+  pointer-events: none;
+}
+.hov-cart__btn[data-state="loading"] .hov-cart__btn-default {
+  opacity: 0;
+  transform: translate(-50%, -150%);
+}
+.hov-cart__btn[data-state="loading"] .hov-cart__btn-loading {
+  opacity: 1;
+  transform: translate(-50%, -50%);
+}
+
+/* SUCCESS state */
+.hov-cart__btn[data-state="success"] {
+  background: #1E7A3E;
+  pointer-events: none;
+}
+.hov-cart__btn[data-state="success"] .hov-cart__btn-default {
+  opacity: 0;
+  transform: translate(-50%, -150%);
+}
+.hov-cart__btn[data-state="success"] .hov-cart__btn-success {
+  opacity: 1;
+  transform: translate(-50%, -50%);
+}
+.hov-cart__btn[data-state="success"] {
+  animation: hov-btn-success-pulse 0.4s ease;
+}
+@keyframes hov-btn-success-pulse {
+  0%   { transform: scale(1); }
+  50%  { transform: scale(1.04); }
+  100% { transform: scale(1); }
+}
+
+/* Loading dots */
+.hov-cart__dots {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+  justify-content: center;
+}
+.hov-cart__dots span {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.9);
+  animation: hov-dot-bounce 0.8s ease-in-out infinite;
+}
+.hov-cart__dots span:nth-child(2) { animation-delay: 0.15s; }
+.hov-cart__dots span:nth-child(3) { animation-delay: 0.30s; }
+@keyframes hov-dot-bounce {
+  0%, 100% { transform: translateY(0); opacity: 0.5; }
+  50%      { transform: translateY(-5px); opacity: 1; }
+}
+
+/* Ripple on click */
+.hov-cart__ripple {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.25);
+  transform: scale(0);
+  animation: hov-ripple 0.6s linear;
+  pointer-events: none;
+}
+@keyframes hov-ripple {
+  to { transform: scale(4); opacity: 0; }
+}
+
+
+/* ── CHECKOUT PRELOADER OVERLAY ── */
+.hov-pre {
+  position: fixed;
+  inset: 0;
+  z-index: 999999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+}
+.hov-pre.active {
+  opacity: 1;
+  pointer-events: all;
+}
+.hov-pre__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(10,20,10,0.65);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+/* ── CENTRE CARD ── */
+.hov-pre__card-wrap {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  background: #FFFFFF;
+  border-radius: 24px;
+  padding: 40px 48px 36px;
+  box-shadow: 0 24px 80px rgba(0,0,0,0.30);
+  min-width: 300px;
+  transform: translateY(20px) scale(0.95);
+  transition: transform 0.4s cubic-bezier(0.175,0.885,0.32,1.275);
+}
+.hov-pre.active .hov-pre__card-wrap {
+  transform: translateY(0) scale(1);
+}
+
+/* ── POS TERMINAL ── */
+.hov-pre__terminal {
+  width: 90px;
+  background: #E8E8E8;
+  border-radius: 10px;
+  padding: 0 0 12px;
+  position: relative;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+}
+.hov-pre__terminal-head {
+  width: 90px;
+  height: 28px;
+  background: #5DE2A3;
+  border-radius: 10px 10px 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.hov-pre__terminal-slot {
+  width: 50px;
+  height: 6px;
+  background: rgba(0,0,0,0.2);
+  border-radius: 3px;
+}
+.hov-pre__terminal-screen {
+  width: 64px;
+  height: 30px;
+  background: #FFFFFF;
+  border-radius: 4px;
+  margin: 10px auto 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: inset 0 1px 4px rgba(0,0,0,0.10);
+}
+.hov-pre__terminal-amount {
+  font-size: 11px;
+  font-weight: 700;
+  color: #2D5A27;
+  font-family: monospace;
+  opacity: 0;
+  transition: opacity 0.4s ease 1.2s;
+}
+.hov-pre.active .hov-pre__terminal-amount { opacity: 1; }
+
+.hov-pre__terminal-keys {
+  display: grid;
+  grid-template-columns: repeat(3,1fr);
+  gap: 5px;
+  padding: 0 12px;
+}
+.hov-pre__terminal-keys span {
+  height: 10px;
+  background: #C0C0C0;
+  border-radius: 2px;
+}
+
+/* ── CREDIT CARD ── */
+.hov-pre__credit-card {
+  width: 70px;
+  height: 46px;
+  background: linear-gradient(135deg, #C7FFBC, #5DE2A3);
+  border-radius: 6px;
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%) translateY(0px) rotate(0deg);
+  box-shadow: 0 6px 18px rgba(77,200,143,0.50);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 6px;
+  z-index: 10;
+}
+.hov-pre.active .hov-pre__credit-card {
+  animation: hov-card-swipe 1.4s cubic-bezier(0.645,0.045,0.355,1) 0.3s both;
+}
+@keyframes hov-card-swipe {
+  0%   { transform: translateX(-50%) translateY(0px)   rotate(0deg);   opacity:1; }
+  40%  { transform: translateX(-50%) translateY(-60px) rotate(90deg);  opacity:1; }
+  60%  { transform: translateX(-50%) translateY(-60px) rotate(90deg);  opacity:1; }
+  100% { transform: translateX(-50%) translateY(-6px)  rotate(90deg);  opacity:1; }
+}
+
+.hov-pre__card-strip {
+  width: 58px; height: 12px;
+  background: #80EA69;
+  border-radius: 2px;
+}
+.hov-pre__card-dots {
+  display: flex; gap: 6px;
+  margin-top: 8px;
+}
+.hov-pre__card-dots span {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: #379E1F;
+  box-shadow: 0 -9px 0 #26850E, 0 9px 0 #56BE3E;
+}
+.hov-pre__card-logo {
+  font-size: 9px;
+  font-weight: 700;
+  color: #1A5C0A;
+  letter-spacing: 1px;
+  margin-top: 6px;
+}
+
+/* ── TEXT ── */
+.hov-pre__text { text-align: center; }
+.hov-pre__title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1A2E1A;
+  margin: 0 0 6px;
+  letter-spacing: -0.3px;
+}
+.hov-pre__sub {
+  font-size: 13px;
+  color: #999;
+  margin: 0;
+}
+
+/* ── PROGRESS BAR ── */
+.hov-pre__progress {
+  width: 200px;
+  height: 4px;
+  background: #F0F0F0;
+  border-radius: 999px;
+  overflow: hidden;
+}
+.hov-pre__progress-bar {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #5DE2A3, #2D5A27);
+  border-radius: 999px;
+  transition: width 0.3s ease;
+}
+.hov-pre.active .hov-pre__progress-bar {
+  animation: hov-progress-fill 2.2s ease-in-out 0.2s forwards;
+}
+@keyframes hov-progress-fill {
+  0%   { width: 0%; }
+  30%  { width: 45%; }
+  60%  { width: 72%; }
+  85%  { width: 88%; }
+  100% { width: 98%; }
+}
+
+/* ── SUCCESS CHECKMARK (shown after card swipe) ── */
+.hov-pre__check {
+  width: 48px; height: 48px;
+  border-radius: 50%;
+  background: #1E7A3E;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transform: scale(0);
+  position: absolute;
+  top: 50%; left: 50%;
+  margin: -24px 0 0 -24px;
+  transition: opacity 0.3s ease 1.8s, transform 0.4s cubic-bezier(0.175,0.885,0.32,1.275) 1.8s;
+  z-index: 20;
+}
+.hov-pre.active .hov-pre__check {
+  opacity: 1;
+  transform: scale(1);
+}
+.hov-pre__check svg { stroke: white; }

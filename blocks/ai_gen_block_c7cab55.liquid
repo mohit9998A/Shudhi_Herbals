@@ -1,0 +1,74 @@
+{% doc %}
+  @prompt
+    Fix the Blog V2 section images that are currently displaying in a round/circular frame and appearing cut off. Override the existing CSS so that blog post featured images display as clean rectangles with a 16:9 aspect ratio, fully visible without any circular cropping or border-radius. Images should be properly contained, well-proportioned, and look professional on the blog listing page. Target the blog card image elements in the section with ID "template--27247421555000__eeb765be-f1a2-4c54-9462-c9e205b6677f".
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-blog-image-fix-{{ ai_gen_id }} {
+    display: block;
+    width: 100%;
+  }
+
+  #shopify-section-template--27247421555000__eeb765be-f1a2-4c54-9462-c9e205b6677f .blog-card__image-wrapper,
+  #shopify-section-template--27247421555000__eeb765be-f1a2-4c54-9462-c9e205b6677f .blog-card__image,
+  #shopify-section-template--27247421555000__eeb765be-f1a2-4c54-9462-c9e205b6677f .card__media,
+  #shopify-section-template--27247421555000__eeb765be-f1a2-4c54-9462-c9e205b6677f .card__image,
+  #shopify-section-template--27247421555000__eeb765be-f1a2-4c54-9462-c9e205b6677f .media,
+  #shopify-section-template--27247421555000__eeb765be-f1a2-4c54-9462-c9e205b6677f .article-card__image-wrapper,
+  #shopify-section-template--27247421555000__eeb765be-f1a2-4c54-9462-c9e205b6677f .article-card__image {
+    border-radius: 0 !important;
+    overflow: hidden !important;
+    aspect-ratio: 16 / 9 !important;
+    width: 100% !important;
+  }
+
+  #shopify-section-template--27247421555000__eeb765be-f1a2-4c54-9462-c9e205b6677f .blog-card__image-wrapper img,
+  #shopify-section-template--27247421555000__eeb765be-f1a2-4c54-9462-c9e205b6677f .blog-card__image img,
+  #shopify-section-template--27247421555000__eeb765be-f1a2-4c54-9462-c9e205b6677f .card__media img,
+  #shopify-section-template--27247421555000__eeb765be-f1a2-4c54-9462-c9e205b6677f .card__image img,
+  #shopify-section-template--27247421555000__eeb765be-f1a2-4c54-9462-c9e205b6677f .media img,
+  #shopify-section-template--27247421555000__eeb765be-f1a2-4c54-9462-c9e205b6677f .article-card__image-wrapper img,
+  #shopify-section-template--27247421555000__eeb765be-f1a2-4c54-9462-c9e205b6677f .article-card__image img {
+    border-radius: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    object-position: center !important;
+  }
+
+  #shopify-section-template--27247421555000__eeb765be-f1a2-4c54-9462-c9e205b6677f .card,
+  #shopify-section-template--27247421555000__eeb765be-f1a2-4c54-9462-c9e205b6677f .blog-card,
+  #shopify-section-template--27247421555000__eeb765be-f1a2-4c54-9462-c9e205b6677f .article-card {
+    border-radius: {{ block.settings.card_border_radius }}px !important;
+  }
+{% endstyle %}
+
+<div class="ai-blog-image-fix-{{ ai_gen_id }}" {{ block.shopify_attributes }}></div>
+
+{% schema %}
+{
+  "name": "Blog image fix",
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "This block overrides circular blog images in section template--27247421555000__eeb765be-f1a2-4c54-9462-c9e205b6677f and displays them as 16:9 rectangles."
+    },
+    {
+      "type": "range",
+      "id": "card_border_radius",
+      "label": "Card border radius",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "default": 0
+    }
+  ],
+  "presets": [
+    {
+      "name": "Blog image fix"
+    }
+  ]
+}
+{% endschema %}

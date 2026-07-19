@@ -1,0 +1,196 @@
+{{ 'ctm--gallery-text.css' | asset_url | stylesheet_tag }}
+{% assign gallery_blocks = product.metafields.custom.gallery_blocks.value %}
+{% if gallery_blocks %}
+<div class="ctm--gallery-text" style="  
+  {% if section.settings.back_img %}
+    background-image: url('{{ section.settings.back_img | img_url: 'master' }}');
+    background-repeat: no-repeat;
+    background-size: cover;
+  {% else %}
+    background-color: {{ section.settings.back_color }};
+  {% endif %}
+">
+  <div class=" page-width container">
+  {% if product.metafields.custom.gallery_block_heading !=blank %}
+  <h1>{{ product.metafields.custom.gallery_block_heading }}</h1>
+    {% endif %}
+  <div class="content">
+    {% for meta_block in gallery_blocks %}
+       {% if meta_block.block_type == 'Left Block' %}
+          <div class="left-column">
+            <div class="card">
+                 {% if meta_block.image %}
+              <img class="lazyload" data-src="{{ meta_block.image | img_url: 'master' }}" alt="{{ meta_block.title }}">
+                {% endif %}
+         <div class="card-text">
+              <h3>{{ meta_block.title }}</h3>
+              <p>{{ meta_block.description }}</p>
+           </div>
+            </div>
+            <div class="card">
+               {% if meta_block.image_2 %}
+              <img class="lazyload" data-src="{{ meta_block.image_2 | img_url: 'master' }}" alt="{{ meta_block.title_2 }}">
+                {% endif %}
+            <div class="card-text">
+              <h3>{{ meta_block.title_2 }}</h3>
+              <p>{{ meta_block.description_2 }}</p>
+               </div>
+            </div>
+          </div>
+    {% elsif meta_block.block_type == 'Right Block' %}
+           <div class="right-column">
+            <div class="card">
+                {% if meta_block.image %}
+              <img class="lazyload" data-src="{{ meta_block.image | img_url: 'master' }}" alt="{{ meta_block.title }}">
+                {% endif %}
+          <div class="card-text">
+              <h3>{{ meta_block.title }}</h3>
+              <p>{{ meta_block.description }}</p>
+            </div>
+            </div>
+            <div class="card">
+                {% if meta_block.image_2 %}
+              <img class="lazyload" data-src="{{ meta_block.image_2 | img_url: 'master' }}" alt="{{ meta_block.title_2 }}">
+                {% endif %}
+           <div class="card-text">
+              <h3>{{ meta_block.title_2 }}</h3>
+              <p>{{ meta_block.description_2 }}</p>
+            </div>
+            </div>
+          </div>
+    {% elsif meta_block.block_type == 'Center Block' %}
+          <div class="center-image">
+         {% if meta_block.image %}
+            <img class="lazyload" data-src="{{ meta_block.image | img_url: 'master' }}" alt="{{ meta_block.title }}">
+            {% endif %}
+            
+            <p>{{ meta_block.title }}</p>
+          </div>
+    {% endif %}
+ {% endfor %}
+  </div>
+</div></div>
+{% endif %}
+{% schema %}
+{
+  "name": "ctm-gallery-text",
+  "settings": [
+    {
+      "type": "color",
+      "id": "back_color",
+      "label": "Background Color",
+      "default": "#fbedef"
+    },
+    {
+      "type": "image_picker",
+      "id": "back_img",
+      "label": "Background Image"
+    },
+    {
+      "type": "text",
+      "id": "heading_text",
+      "label": "Heading Text"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "left_block",
+      "name": "Left Block",
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title"
+        },
+        {
+          "type": "textarea",
+          "id": "description",
+          "label": "Description"
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image"
+        },
+         {
+          "type": "text",
+          "id": "title2",
+          "label": "Title 2"
+        },
+        {
+          "type": "textarea",
+          "id": "description2",
+          "label": "Description 2"
+        },
+        {
+          "type": "image_picker",
+          "id": "image2",
+          "label": "Image 2"
+        }
+      ]
+    },
+    {
+      "type": "center_block",
+      "name": "Center Block",
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title"
+        },
+        {
+          "type": "textarea",
+          "id": "description",
+          "label": "Description"
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image"
+        }
+      ]
+    },
+    {
+      "type": "right_block",
+      "name": "Right Block",
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title"
+        },
+        {
+          "type": "textarea",
+          "id": "description",
+          "label": "Description"
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image"
+        },
+         {
+          "type": "text",
+          "id": "title2",
+          "label": "Title 2"
+        },
+        {
+          "type": "textarea",
+          "id": "description2",
+          "label": "Description 2"
+        },
+        {
+          "type": "image_picker",
+          "id": "image2",
+          "label": "Image 2"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "ctm-gallery-text"
+    }
+  ]
+}
+{% endschema %}

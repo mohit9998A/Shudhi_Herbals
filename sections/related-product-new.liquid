@@ -1,0 +1,75 @@
+{% if section.settings.enable_related_product %}
+  
+<div class="related-product container container-v2">
+  
+  {% assign products_limit = section.settings.related_product_limit | plus: 1%}
+  {% if collection == null or collection.handle == 'frontpage' or collection.handle == 'all' %}
+  {% assign found_a_collection = false %}
+  {% for c in product.collections %}
+  {% if found_a_collection == false and c.handle != 'frontpage' and c.handle != 'all' and c.all_products_count > 1 %}
+  {% assign found_a_collection = true %}
+  {% assign collection = c %}
+  {% endif %}
+  {% endfor %}
+  {% endif %}
+{% if collection and collection.products_count > 1 %}
+  <div class="text-center">
+    <div class="title_heading" >{{section.settings.related_product_title}}</div>
+  </div>
+  <div class="related-tabs pt-4 pt-lg-5">
+    <div class="row js_product_related">
+      
+      {% assign current_product = product %}
+      {% assign current_product_found = false %}
+      {% for product in collection.products limit: products_limit %}
+      {% if product.handle == current_product.handle %}
+      {% assign current_product_found = true %}
+      {% else %}
+      {% unless current_product_found == false and forloop.last %}
+
+      <div class="col-12">
+        {% include 'product-item-v1' %}  
+      </div>
+      {% endunless %}
+      {% endif %}
+      {% endfor %}
+
+     
+    </div>
+  </div>
+   {% endif %}
+</div>
+{% endif %}
+{% schema %}
+  {
+    "name": "Section name",
+    "settings": [
+      {
+        "type": "checkbox",
+        "id": "enable_related_product",
+        "label": "Show Relate Product",
+        "default": true
+      },
+      {
+        "type": "text",
+        "id": "related_product_title",
+        "label": "Heading",
+        "default": "Related products"
+      },
+      {
+        "type": "range",
+        "id": "related_product_limit",
+        "label": "Limit products",
+        "min": 2,
+        "max": 50,
+        "step": 1,
+        "default": 8
+      }
+    ],
+    "presets": [
+      {
+      "name": "related-product-new"
+    }
+    ]
+  }
+{% endschema %}

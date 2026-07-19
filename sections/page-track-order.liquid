@@ -1,0 +1,1242 @@
+<!-- /sections/page-track-order.liquid -->
+<div class="hov-track-breadcrumb-container">
+  {% include 'breadcrumb' %}
+</div>
+
+<section class="page-track-order hov-track-page-wrapper">
+  <!-- Corner Leaves -->
+  <!-- Bottom Left Large Leaf -->
+  <svg class="hov-track-leaf hov-track-leaf-bl" viewBox="0 0 200 300" width="200" height="300" fill="none" stroke="#2D5A27" stroke-width="1.5" stroke-miterlimit="10" xmlns="http://www.w3.org/2000/svg">
+    <path d="M10 290 Q 80 200, 160 10" stroke-linecap="round" fill="none"/>
+    <path d="M50 230 Q 10 180, 30 150 Q 70 190, 50 230 Z" fill="#2D5A27"/>
+    <path d="M85 180 Q 130 140, 110 110 Q 75 140, 85 180 Z" fill="#2D5A27"/>
+    <path d="M110 140 Q 80 80, 60 100 Q 85 130, 110 140 Z" fill="#2D5A27"/>
+    <path d="M135 90 Q 180 50, 160 20 Q 125 50, 135 90 Z" fill="#2D5A27"/>
+    <path d="M160 10 Q 140 -20, 120 0 Q 135 25, 160 10 Z" fill="#2D5A27"/>
+  </svg>
+
+  <!-- Top Right Large Leaf -->
+  <svg class="hov-track-leaf hov-track-leaf-tr" viewBox="0 0 200 300" width="200" height="300" fill="none" stroke="#2D5A27" stroke-width="1.5" stroke-miterlimit="10" xmlns="http://www.w3.org/2000/svg">
+    <path d="M10 290 Q 80 200, 160 10" stroke-linecap="round" fill="none"/>
+    <path d="M50 230 Q 10 180, 30 150 Q 70 190, 50 230 Z" fill="#2D5A27"/>
+    <path d="M85 180 Q 130 140, 110 110 Q 75 140, 85 180 Z" fill="#2D5A27"/>
+    <path d="M110 140 Q 80 80, 60 100 Q 85 130, 110 140 Z" fill="#2D5A27"/>
+    <path d="M135 90 Q 180 50, 160 20 Q 125 50, 135 90 Z" fill="#2D5A27"/>
+    <path d="M160 10 Q 140 -20, 120 0 Q 135 25, 160 10 Z" fill="#2D5A27"/>
+  </svg>
+
+  <!-- Top Left Small Leaf -->
+  <svg class="hov-track-leaf hov-track-leaf-tl" viewBox="0 0 200 300" width="200" height="300" fill="none" stroke="#2D5A27" stroke-width="1.5" stroke-miterlimit="10" xmlns="http://www.w3.org/2000/svg">
+    <path d="M10 290 Q 80 200, 160 10" stroke-linecap="round" fill="none"/>
+    <path d="M50 230 Q 10 180, 30 150 Q 70 190, 50 230 Z" fill="#2D5A27"/>
+    <path d="M85 180 Q 130 140, 110 110 Q 75 140, 85 180 Z" fill="#2D5A27"/>
+    <path d="M110 140 Q 80 80, 60 100 Q 85 130, 110 140 Z" fill="#2D5A27"/>
+    <path d="M135 90 Q 180 50, 160 20 Q 125 50, 135 90 Z" fill="#2D5A27"/>
+    <path d="M160 10 Q 140 -20, 120 0 Q 135 25, 160 10 Z" fill="#2D5A27"/>
+  </svg>
+
+  <!-- Bottom Right Small Leaf -->
+  <svg class="hov-track-leaf hov-track-leaf-br" viewBox="0 0 200 300" width="200" height="300" fill="none" stroke="#2D5A27" stroke-width="1.5" stroke-miterlimit="10" xmlns="http://www.w3.org/2000/svg">
+    <path d="M10 290 Q 80 200, 160 10" stroke-linecap="round" fill="none"/>
+    <path d="M50 230 Q 10 180, 30 150 Q 70 190, 50 230 Z" fill="#2D5A27"/>
+    <path d="M85 180 Q 130 140, 110 110 Q 75 140, 85 180 Z" fill="#2D5A27"/>
+    <path d="M110 140 Q 80 80, 60 100 Q 85 130, 110 140 Z" fill="#2D5A27"/>
+    <path d="M135 90 Q 180 50, 160 20 Q 125 50, 135 90 Z" fill="#2D5A27"/>
+    <path d="M160 10 Q 140 -20, 120 0 Q 135 25, 160 10 Z" fill="#2D5A27"/>
+  </svg>
+
+  <div class="hov-track-container">
+    
+    <!-- SECTION 1 — Page heading -->
+    <div class="hov-track-header text-center">
+      <h1 class="hov-track-title">Track Your Order</h1>
+      <p class="hov-track-subtitle">Enter your order details to get real-time updates on your shipment</p>
+    </div>
+
+    <!-- SECTION 2 — Input card -->
+    <div class="hov-track-card hov-track-input-card">
+      <form id="hov-track-form" onsubmit="handleHovTrack(event)">
+        <div class="hov-track-flex-row">
+          <!-- Box Icon Column -->
+          <div class="hov-track-icon-col">
+            <div class="hov-track-box-circle">
+              <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="#2D5A27" stroke-width="1.5">
+                <path d="M21 8l-9-5-9 5v10l9 5 9-5V8z"/>
+                <path d="M3 8l9 5 9-5"/>
+                <path d="M12 13v10"/>
+              </svg>
+            </div>
+          </div>
+          
+          <!-- Email or Phone Column -->
+          <div class="hov-track-input-col">
+            <label class="hov-track-label">Email or Phone Number</label>
+            <div class="hov-track-input-wrapper">
+              <span class="hov-track-input-svg">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+              </span>
+              <input type="text" id="hov-track-contact" placeholder="enter your mobile number or mail id" required autocomplete="off">
+            </div>
+          </div>
+        </div>
+        
+        <!-- Button Row -->
+        <button type="submit" class="hov-track-btn-submit">
+          Track Order
+          <svg class="hov-track-btn-arrow" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+            <polyline points="12 5 19 12 12 19"></polyline>
+          </svg>
+        </button>
+      </form>
+
+      <!-- Loading Spinner -->
+      <div id="hov-track-loader" class="text-center py-4" style="display: none; margin-top: 15px;">
+        <div class="hov-track-spinner"></div>
+        <p class="mt-2 text-muted" style="font-size: 13px;">Retrieving shipment details...</p>
+      </div>
+    </div>
+
+    <!-- ================= SECTION 3 — Order result card ================= -->
+    
+    <!-- DYNAMIC RESULTS CONTAINER (Filled and shown via JS guest lookup) -->
+    <div id="hov-track-dynamic-result" class="hov-track-card hov-track-result-card" style="display: none;">
+      <!-- Top Row -->
+      <div class="hov-track-result-header">
+        <div class="hov-track-result-meta">
+          <h4 id="hov-res-order-id" class="hov-track-result-title">#ORD12345</h4>
+          <span id="hov-res-date" class="hov-track-result-date">Placed on 24 May 2024</span>
+        </div>
+        <div class="hov-track-result-status">
+          <span class="hov-track-status-badge">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 5px;">
+              <rect x="1" y="3" width="15" height="13"></rect>
+              <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon>
+              <circle cx="5.5" cy="18.5" r="2.5"></circle>
+              <circle cx="18.5" cy="18.5" r="2.5"></circle>
+            </svg>
+            <span id="hov-res-badge-text">In Transit</span>
+          </span>
+        </div>
+      </div>
+
+      <!-- Progress Stepper -->
+      <div class="hov-track-stepper-container" id="hov-res-stepper" data-status="in-transit">
+        <div class="hov-track-stepper-line-bg"></div>
+        <div class="hov-track-stepper-line-active" id="hov-res-line-active"></div>
+        
+        <!-- Step 1: Placed -->
+        <div class="hov-track-step" id="hov-res-step-1">
+          <div class="hov-track-step-dot">
+            <span class="hov-track-dot-completed">✓</span>
+            <span class="hov-track-dot-active">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+              </svg>
+            </span>
+            <span class="hov-track-dot-pending">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+              </svg>
+            </span>
+          </div>
+          <span class="hov-track-step-label">Order Placed</span>
+          <span class="hov-track-step-time" id="hov-res-time-1">24 May, 10:30 AM</span>
+        </div>
+
+        <!-- Step 2: Shipped -->
+        <div class="hov-track-step" id="hov-res-step-2">
+          <div class="hov-track-step-dot">
+            <span class="hov-track-dot-completed">✓</span>
+            <span class="hov-track-dot-active">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 8l-9-5-9 5v10l9 5 9-5V8z"/><path d="M3 8l9 5 9-5"/><path d="M12 13v10"/>
+              </svg>
+            </span>
+            <span class="hov-track-dot-pending">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 8l-9-5-9 5v10l9 5 9-5V8z"/><path d="M3 8l9 5 9-5"/><path d="M12 13v10"/>
+              </svg>
+            </span>
+          </div>
+          <span class="hov-track-step-label">Shipped</span>
+          <span class="hov-track-step-time" id="hov-res-time-2">25 May, 02:15 PM</span>
+        </div>
+
+        <!-- Step 3: In Transit -->
+        <div class="hov-track-step" id="hov-res-step-3">
+          <div class="hov-track-step-dot">
+            <span class="hov-track-dot-completed">✓</span>
+            <span class="hov-track-dot-active">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="1" y="3" width="15" height="13"></rect>
+                <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon>
+                <circle cx="5.5" cy="18.5" r="2.5"></circle>
+                <circle cx="18.5" cy="18.5" r="2.5"></circle>
+              </svg>
+            </span>
+            <span class="hov-track-dot-pending">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="1" y="3" width="15" height="13"></rect>
+                <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon>
+                <circle cx="5.5" cy="18.5" r="2.5"></circle>
+                <circle cx="18.5" cy="18.5" r="2.5"></circle>
+              </svg>
+            </span>
+          </div>
+          <span class="hov-track-step-label">In Transit</span>
+          <span class="hov-track-step-time" id="hov-res-time-3">26 May, 08:45 AM</span>
+        </div>
+
+        <!-- Step 4: Delivered -->
+        <div class="hov-track-step" id="hov-res-step-4">
+          <div class="hov-track-step-dot">
+            <span class="hov-track-dot-completed">✓</span>
+            <span class="hov-track-dot-active">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                <polyline points="9 22 9 12 15 12 15 22"></polyline>
+              </svg>
+            </span>
+            <span class="hov-track-dot-pending">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                <polyline points="9 22 9 12 15 12 15 22"></polyline>
+              </svg>
+            </span>
+          </div>
+          <span class="hov-track-step-label">Delivered</span>
+          <span class="hov-track-step-time" id="hov-res-time-4">Expected by 28 May</span>
+        </div>
+      </div>
+
+      <!-- Bottom Info Strip -->
+      <div class="hov-track-info-strip">
+        <div class="hov-track-info-col">
+          <div class="hov-track-info-icon">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#2D5A27" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+              <circle cx="12" cy="10" r="3"></circle>
+            </svg>
+          </div>
+          <div class="hov-track-info-text">
+            <div class="hov-track-info-label">Delivery Address</div>
+            <div class="hov-track-info-val">{{ section.settings.delivery_address }}</div>
+          </div>
+        </div>
+        
+        <div class="hov-track-info-divider"></div>
+        
+        <div class="hov-track-info-col">
+          <div class="hov-track-info-icon">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#2D5A27" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+            </svg>
+          </div>
+          <div class="hov-track-info-text">
+            <div class="hov-track-info-label">Need Help?</div>
+            <div class="hov-track-info-val">
+              {{ section.settings.help_phone }}<br>
+              {{ section.settings.help_email }}
+            </div>
+          </div>
+        </div>
+        
+        <div class="hov-track-info-divider"></div>
+        
+        <div class="hov-track-info-col">
+          <div class="hov-track-info-icon">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#2D5A27" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+          </div>
+          <div class="hov-track-info-text">
+            <div class="hov-track-info-label">Delivery Time</div>
+            <div class="hov-track-info-val">
+              {{ section.settings.delivery_hours }}<br>
+              {{ section.settings.delivery_days }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Shopify Real Order Check (renders if native order object exists) -->
+    {% if order %}
+      <div class="hov-track-card hov-track-result-card" style="display: block; margin-top: 24px;">
+        {% liquid
+          assign order_status = 'placed'
+          assign line_width = '0%'
+          assign step_1_class = 'completed'
+          assign step_2_class = 'pending'
+          assign step_3_class = 'pending'
+          assign step_4_class = 'pending'
+
+          if order.cancelled
+            assign order_status = 'cancelled'
+          elsif order.fulfillment_status == 'unfulfilled' or order.fulfillment_status == nil
+            assign order_status = 'placed'
+            assign step_1_class = 'active'
+            assign line_width = '0%'
+          elsif order.fulfillment_status == 'partial'
+            assign order_status = 'shipped'
+            assign step_1_class = 'completed'
+            assign step_2_class = 'active'
+            assign line_width = '33.33%'
+          elsif order.fulfillment_status == 'fulfilled'
+            assign order_status = 'in-transit'
+            assign step_1_class = 'completed'
+            assign step_2_class = 'completed'
+            assign step_3_class = 'active'
+            assign line_width = '66.66%'
+          endif
+        %}
+
+        <!-- Top Row -->
+        <div class="hov-track-result-header">
+          <div class="hov-track-result-meta">
+            <h4 class="hov-track-result-title">{{ order.name }}</h4>
+            <span class="hov-track-result-date">Placed on {{ order.created_at | date: "%d %b %Y" }}</span>
+          </div>
+          <div class="hov-track-result-status">
+            <span class="hov-track-status-badge">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 5px;">
+                <rect x="1" y="3" width="15" height="13"></rect>
+                <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon>
+                <circle cx="5.5" cy="18.5" r="2.5"></circle>
+                <circle cx="18.5" cy="18.5" r="2.5"></circle>
+              </svg>
+              {{ order.fulfillment_status_label | default: 'In Transit' }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Progress Stepper -->
+        <div class="hov-track-stepper-container" data-status="{{ order_status }}">
+          <div class="hov-track-stepper-line-bg"></div>
+          <div class="hov-track-stepper-line-active" style="width: {{ line_width }};"></div>
+          
+          <!-- Step 1: Placed -->
+          <div class="hov-track-step {{ step_1_class }}">
+            <div class="hov-track-step-dot">
+              <span class="hov-track-dot-completed">✓</span>
+              <span class="hov-track-dot-active">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                </svg>
+              </span>
+            </div>
+            <span class="hov-track-step-label">Order Placed</span>
+            <span class="hov-track-step-time">{{ order.created_at | date: "%d %b, %H:%M" }}</span>
+          </div>
+
+          <!-- Step 2: Shipped -->
+          <div class="hov-track-step {{ step_2_class }}">
+            <div class="hov-track-step-dot">
+              <span class="hov-track-dot-completed">✓</span>
+              <span class="hov-track-dot-active">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 8l-9-5-9 5v10l9 5 9-5V8z"/><path d="M3 8l9 5 9-5"/><path d="M12 13v10"/>
+                </svg>
+              </span>
+            </div>
+            <span class="hov-track-step-label">Shipped</span>
+            <span class="hov-track-step-time">{% if order.fulfillment_status != 'unfulfilled' %}{{ order.updated_at | date: "%d %b, %H:%M" }}{% else %}Pending{% endif %}</span>
+          </div>
+
+          <!-- Step 3: In Transit -->
+          <div class="hov-track-step {{ step_3_class }}">
+            <div class="hov-track-step-dot">
+              <span class="hov-track-dot-completed">✓</span>
+              <span class="hov-track-dot-active">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="1" y="3" width="15" height="13"></rect>
+                  <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon>
+                  <circle cx="5.5" cy="18.5" r="2.5"></circle>
+                  <circle cx="18.5" cy="18.5" r="2.5"></circle>
+                </svg>
+              </span>
+            </div>
+            <span class="hov-track-step-label">In Transit</span>
+            <span class="hov-track-step-time">{% if order.fulfillment_status == 'fulfilled' %}{{ order.updated_at | date: "%d %b, %H:%M" }}{% else %}Pending{% endif %}</span>
+          </div>
+
+          <!-- Step 4: Delivered -->
+          <div class="hov-track-step {{ step_4_class }}">
+            <div class="hov-track-step-dot">
+              <span class="hov-track-dot-completed">✓</span>
+              <span class="hov-track-dot-pending">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                  <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                </svg>
+              </span>
+            </div>
+            <span class="hov-track-step-label">Delivered</span>
+            <span class="hov-track-step-time">Expected in 3-5 days</span>
+          </div>
+        </div>
+
+        <!-- Bottom Info Strip -->
+        <div class="hov-track-info-strip">
+          <div class="hov-track-info-col">
+            <div class="hov-track-info-icon">
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#2D5A27" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                <circle cx="12" cy="10" r="3"></circle>
+              </svg>
+            </div>
+            <div class="hov-track-info-text">
+              <div class="hov-track-info-label">Delivery Address</div>
+              <div class="hov-track-info-val">{{ section.settings.delivery_address }}</div>
+            </div>
+          </div>
+          
+          <div class="hov-track-info-divider"></div>
+          
+          <div class="hov-track-info-col">
+            <div class="hov-track-info-icon">
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#2D5A27" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+              </svg>
+            </div>
+            <div class="hov-track-info-text">
+              <div class="hov-track-info-label">Need Help?</div>
+              <div class="hov-track-info-val">
+                {{ section.settings.help_phone }}<br>
+                {{ section.settings.help_email }}
+              </div>
+            </div>
+          </div>
+          
+          <div class="hov-track-info-divider"></div>
+          
+          <div class="hov-track-info-col">
+            <div class="hov-track-info-icon">
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#2D5A27" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+              </svg>
+            </div>
+            <div class="hov-track-info-text">
+              <div class="hov-track-info-label">Delivery Time</div>
+              <div class="hov-track-info-val">
+                {{ section.settings.delivery_hours }}<br>
+                {{ section.settings.delivery_days }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    {% endif %}
+
+    <!-- PREVIEW ONLY / STATIC MOCK CARD -->
+    {% unless order %}
+      {% if request.path contains 'wishlist' or request.path contains 'track-order' or request.design_mode or request.params.view == 'track-order' %}
+        <!-- preview only -->
+        <div id="hov-track-preview-result" class="hov-track-card hov-track-result-card" style="display: block; margin-top: 24px;">
+          <!-- Top Row -->
+          <div class="hov-track-result-header">
+            <div class="hov-track-result-meta">
+              <h4 class="hov-track-result-title">#ORD12345</h4>
+              <span class="hov-track-result-date">Placed on 24 May 2024</span>
+            </div>
+            <div class="hov-track-result-status">
+              <span class="hov-track-status-badge">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 5px;">
+                  <rect x="1" y="3" width="15" height="13"></rect>
+                  <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon>
+                  <circle cx="5.5" cy="18.5" r="2.5"></circle>
+                  <circle cx="18.5" cy="18.5" r="2.5"></circle>
+                </svg>
+                In Transit
+              </span>
+            </div>
+          </div>
+
+          <!-- Progress Stepper -->
+          <div class="hov-track-stepper-container" data-status="in-transit">
+            <div class="hov-track-stepper-line-bg"></div>
+            <div class="hov-track-stepper-line-active" style="width: 66.66%;"></div>
+            
+            <!-- Step 1: Placed -->
+            <div class="hov-track-step completed">
+              <div class="hov-track-step-dot">
+                <span class="hov-track-dot-completed">✓</span>
+              </div>
+              <span class="hov-track-step-label">Order Placed</span>
+              <span class="hov-track-step-time">24 May, 10:30 AM</span>
+            </div>
+
+            <!-- Step 2: Shipped -->
+            <div class="hov-track-step completed">
+              <div class="hov-track-step-dot">
+                <span class="hov-track-dot-completed">✓</span>
+              </div>
+              <span class="hov-track-step-label">Shipped</span>
+              <span class="hov-track-step-time">25 May, 02:15 PM</span>
+            </div>
+
+            <!-- Step 3: In Transit -->
+            <div class="hov-track-step active">
+              <div class="hov-track-step-dot">
+                <span class="hov-track-dot-active">
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="1" y="3" width="15" height="13"></rect>
+                    <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon>
+                    <circle cx="5.5" cy="18.5" r="2.5"></circle>
+                    <circle cx="18.5" cy="18.5" r="2.5"></circle>
+                  </svg>
+                </span>
+              </div>
+              <span class="hov-track-step-label">In Transit</span>
+              <span class="hov-track-step-time">26 May, 08:45 AM</span>
+            </div>
+
+            <!-- Step 4: Delivered -->
+            <div class="hov-track-step pending">
+              <div class="hov-track-step-dot">
+                <span class="hov-track-dot-pending">
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                    <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                  </svg>
+                </span>
+              </div>
+              <span class="hov-track-step-label">Delivered</span>
+              <span class="hov-track-step-time">Expected by 28 May</span>
+            </div>
+          </div>
+
+          <!-- Bottom Info Strip -->
+          <div class="hov-track-info-strip">
+            <div class="hov-track-info-col">
+              <div class="hov-track-info-icon">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#2D5A27" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                  <circle cx="12" cy="10" r="3"></circle>
+                </svg>
+              </div>
+              <div class="hov-track-info-text">
+                <div class="hov-track-info-label">Delivery Address</div>
+                <div class="hov-track-info-val">{{ section.settings.delivery_address }}</div>
+              </div>
+            </div>
+            
+            <div class="hov-track-info-divider"></div>
+            
+            <div class="hov-track-info-col">
+              <div class="hov-track-info-icon">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#2D5A27" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                </svg>
+              </div>
+              <div class="hov-track-info-text">
+                <div class="hov-track-info-label">Need Help?</div>
+                <div class="hov-track-info-val">
+                  {{ section.settings.help_phone }}<br>
+                  {{ section.settings.help_email }}
+                </div>
+              </div>
+            </div>
+            
+            <div class="hov-track-info-divider"></div>
+            
+            <div class="hov-track-info-col">
+              <div class="hov-track-info-icon">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#2D5A27" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
+              </div>
+              <div class="hov-track-info-text">
+                <div class="hov-track-info-label">Delivery Time</div>
+                <div class="hov-track-info-val">
+                  {{ section.settings.delivery_hours }}<br>
+                  {{ section.settings.delivery_days }}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      {% endif %}
+    {% endunless %}
+
+  </div>
+</section>
+
+<!-- ================= CSS DESIGN SYSTEM STYLES ================= -->
+<style>
+  /* Global page wrapper and fonts */
+  .hov-track-page-wrapper {
+    background-color: #F5F2EC !important;
+    position: relative;
+    overflow: hidden;
+    min-height: 100vh;
+    padding: 60px 0;
+    box-sizing: border-box;
+    font-family: 'SofiaPro', 'Open Sans', sans-serif;
+  }
+  
+  /* Breadcrumbs styles */
+  .hov-track-breadcrumb-container {
+    background-color: #F5F2EC !important;
+    padding: 20px 24px 0 !important;
+    max-width: 860px;
+    margin: 0 auto;
+    text-align: left;
+    box-sizing: border-box;
+    position: relative;
+    z-index: 1;
+  }
+  .hov-track-breadcrumb-container .bread-crumb {
+    background: transparent !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+  .hov-track-breadcrumb-container .bread-crumb a,
+  .hov-track-breadcrumb-container .bread-crumb span {
+    font-size: 13px !important;
+    color: #666666 !important;
+    text-transform: capitalize !important;
+  }
+  .hov-track-breadcrumb-container .bread-crumb a:hover {
+    color: #2D5A27 !important;
+  }
+
+  /* Leaves styling */
+  .hov-track-leaf {
+    position: absolute;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.08;
+  }
+  .hov-track-leaf-bl {
+    bottom: -30px;
+    left: -30px;
+    width: 250px;
+    height: auto;
+  }
+  .hov-track-leaf-tr {
+    top: -30px;
+    right: -30px;
+    width: 250px;
+    height: auto;
+    transform: scaleX(-1) scaleY(-1);
+  }
+  .hov-track-leaf-tl {
+    top: 60px;
+    left: 10px;
+    width: 140px;
+    height: auto;
+    transform: scale(0.7) rotate(45deg);
+  }
+  .hov-track-leaf-br {
+    bottom: 60px;
+    right: 10px;
+    width: 140px;
+    height: auto;
+    transform: scale(0.7) scaleX(-1) rotate(45deg);
+  }
+
+  /* Container and Header */
+  .hov-track-container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 24px;
+    position: relative;
+    z-index: 1;
+    box-sizing: border-box;
+  }
+  
+  .hov-track-header {
+    margin-bottom: 40px;
+  }
+  
+  .hov-track-title {
+    font-size: 36px;
+    font-weight: 700;
+    color: #2D5A27;
+    margin: 0 0 8px;
+    line-height: 1.2;
+    letter-spacing: -0.5px;
+  }
+  
+  .hov-track-subtitle {
+    font-size: 15px;
+    color: #666666;
+    margin: 0;
+  }
+  
+  /* Input Card Styles */
+  .hov-track-card {
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.07);
+    padding: 40px 48px;
+    position: relative;
+    z-index: 1;
+    margin-bottom: 24px;
+    box-sizing: border-box;
+  }
+  
+  .hov-track-flex-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 20px;
+  }
+  
+  .hov-track-icon-col {
+    width: 56px;
+    flex-shrink: 0;
+  }
+  
+  .hov-track-box-circle {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: #EAF3E8;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .hov-track-input-col {
+    flex: 1;
+  }
+  
+  .hov-track-label {
+    display: block;
+    font-size: 13px;
+    font-weight: 700;
+    color: #333333;
+    margin-bottom: 8px;
+    text-align: left;
+  }
+  
+  .hov-track-input-wrapper {
+    position: relative;
+    width: 100%;
+  }
+  
+  .hov-track-input-wrapper input {
+    width: 100%;
+    height: 48px;
+    border: 1.5px solid #DDDDDD;
+    border-radius: 8px;
+    padding: 0 16px 0 42px;
+    font-size: 14px;
+    color: #333333;
+    background: #ffffff;
+    outline: none;
+    box-sizing: border-box;
+    transition: border-color 0.25s, box-shadow 0.25s;
+  }
+  
+  .hov-track-input-wrapper input::placeholder {
+    color: #999999;
+  }
+  
+  .hov-track-input-wrapper input:focus {
+    border-color: #2D5A27;
+    box-shadow: 0 0 0 3px rgba(45, 90, 39, 0.12);
+  }
+  
+  .hov-track-input-svg {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #AAAAAA;
+    display: flex;
+    align-items: center;
+    pointer-events: none;
+  }
+  
+  .hov-track-btn-submit {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 52px;
+    background: #2D5A27;
+    color: #ffffff !important;
+    font-size: 16px;
+    font-weight: 700;
+    border: none;
+    border-radius: 10px;
+    margin-top: 24px;
+    cursor: pointer;
+    transition: background 0.25s, transform 0.25s;
+    gap: 8px;
+  }
+  
+  .hov-track-btn-submit:hover {
+    background: #1E3D1A;
+    transform: translateY(-1px);
+  }
+  
+  .hov-track-btn-arrow {
+    transition: transform 0.25s;
+  }
+  
+  .hov-track-btn-submit:hover .hov-track-btn-arrow {
+    transform: translateX(3px);
+  }
+  
+  /* Result Card Styling */
+  .hov-track-result-card {
+    padding: 32px 40px;
+    text-align: left;
+  }
+  
+  .hov-track-result-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: none;
+    padding-bottom: 0;
+    margin-bottom: 0;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  
+  .hov-track-result-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #333333;
+    margin: 0 0 4px;
+  }
+  
+  .hov-track-result-date {
+    font-size: 13px;
+    color: #888888;
+  }
+  
+  .hov-track-status-badge {
+    display: inline-flex;
+    align-items: center;
+    background: #EAF3E8;
+    color: #2D5A27;
+    border: 1px solid #C3DEBD;
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 700;
+  }
+  
+  /* Stepper Progress Styles */
+  .hov-track-stepper-container {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    margin: 40px 0 32px;
+    padding: 0 40px;
+    box-sizing: border-box;
+  }
+  
+  .hov-track-stepper-line-bg {
+    position: absolute;
+    top: 18px;
+    left: 70px;
+    right: 70px;
+    height: 0;
+    border-top: 2px dashed #DDDDDD;
+    z-index: 1;
+  }
+  
+  .hov-track-stepper-line-active {
+    position: absolute;
+    top: 18px;
+    left: 70px;
+    height: 2px;
+    background: #2D5A27;
+    z-index: 1.5;
+    transition: width 0.4s ease;
+  }
+  
+  /* Active Line Widths */
+  .hov-track-stepper-container[data-status="placed"] .hov-track-stepper-line-active { width: 0%; }
+  .hov-track-stepper-container[data-status="shipped"] .hov-track-stepper-line-active { width: 33.33%; }
+  .hov-track-stepper-container[data-status="in-transit"] .hov-track-stepper-line-active { width: 66.66%; }
+  .hov-track-stepper-container[data-status="delivered"] .hov-track-stepper-line-active { width: 100%; }
+
+  .hov-track-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    z-index: 2;
+    flex: 1;
+    text-align: center;
+  }
+  
+  .hov-track-step-dot {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    font-size: 14px;
+    font-weight: bold;
+    box-sizing: border-box;
+  }
+  
+  /* Show / Hide dots based on step status */
+  .hov-track-step .hov-track-dot-completed { display: none; }
+  .hov-track-step .hov-track-dot-active { display: none; }
+  .hov-track-step .hov-track-dot-pending { display: none; }
+  
+  /* Completed state */
+  .hov-track-step.completed .hov-track-step-dot {
+    background: #2D5A27;
+    color: #ffffff;
+    border: none;
+  }
+  .hov-track-step.completed .hov-track-dot-completed {
+    display: flex;
+  }
+  
+  /* Active state */
+  .hov-track-step.active .hov-track-step-dot {
+    background: #ffffff;
+    border: 2.5px solid #2D5A27;
+    color: #2D5A27;
+    box-shadow: 0 0 0 4px rgba(45, 90, 39, 0.15);
+  }
+  .hov-track-step.active .hov-track-dot-active {
+    display: flex;
+  }
+  
+  /* Pending state */
+  .hov-track-step.pending .hov-track-step-dot {
+    background: #DDDDDD;
+    color: #888888;
+    border: none;
+  }
+  .hov-track-step.pending .hov-track-dot-pending {
+    display: flex;
+  }
+  
+  .hov-track-step-label {
+    font-size: 13px;
+    font-weight: 700;
+    color: #333333;
+    margin-top: 10px;
+    white-space: nowrap;
+  }
+  
+  .hov-track-step-time {
+    font-size: 12px;
+    color: #888888;
+    margin-top: 2px;
+    white-space: nowrap;
+  }
+  
+  /* Info Strip Styles */
+  .hov-track-info-strip {
+    border-top: 1px solid #EEEEEE;
+    margin-top: 24px;
+    padding-top: 20px;
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+  }
+  
+  .hov-track-info-col {
+    display: flex;
+    gap: 12px;
+    flex: 1;
+    text-align: left;
+  }
+  
+  .hov-track-info-icon {
+    margin-top: 2px;
+    flex-shrink: 0;
+    color: #2D5A27;
+    display: flex;
+    align-items: center;
+  }
+  
+  .hov-track-info-text {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .hov-track-info-label {
+    font-size: 13px;
+    font-weight: 700;
+    color: #333333;
+    margin-bottom: 4px;
+  }
+  
+  .hov-track-info-val {
+    font-size: 13px;
+    color: #666666;
+    line-height: 1.45;
+  }
+  
+  .hov-track-info-divider {
+    width: 1px;
+    background: #EEEEEE;
+    align-self: stretch;
+    flex-shrink: 0;
+  }
+  
+  /* Loading Spinner */
+  .hov-track-spinner {
+    width: 32px;
+    height: 32px;
+    border: 3px solid rgba(45, 90, 39, 0.15);
+    border-top-color: #2D5A27;
+    border-radius: 50%;
+    margin: 0 auto;
+    animation: hovTrackSpin 0.8s linear infinite;
+  }
+
+  @keyframes hovTrackSpin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+  /* Responsive styling */
+  @media (max-width: 768px) {
+    .hov-track-page-wrapper {
+      padding: 40px 0;
+    }
+    .hov-track-title {
+      font-size: 30px;
+    }
+    .hov-track-card {
+      padding: 24px;
+    }
+    .hov-track-flex-row {
+      flex-direction: column;
+      gap: 16px;
+      align-items: stretch;
+    }
+    .hov-track-icon-col {
+      display: none;
+    }
+    .hov-track-info-strip {
+      flex-direction: column;
+      gap: 20px;
+    }
+    .hov-track-info-divider {
+      display: none;
+    }
+    
+    /* Stepper stacks vertically on mobile */
+    .hov-track-stepper-container {
+      flex-direction: column;
+      align-items: flex-start;
+      padding: 0 16px;
+      gap: 28px;
+      margin: 24px 0;
+    }
+    .hov-track-stepper-line-bg {
+      left: 17px;
+      top: 20px;
+      bottom: 20px;
+      right: auto;
+      width: 0;
+      height: calc(100% - 40px);
+      border-top: none;
+      border-left: 2px dashed #DDDDDD;
+    }
+    .hov-track-stepper-line-active {
+      left: 17px;
+      top: 20px;
+      right: auto;
+      width: 2px;
+      transition: height 0.4s ease;
+    }
+    
+    .hov-track-stepper-container[data-status="placed"] .hov-track-stepper-line-active { height: 0%; }
+    .hov-track-stepper-container[data-status="shipped"] .hov-track-stepper-line-active { height: 33.33%; }
+    .hov-track-stepper-container[data-status="in-transit"] .hov-track-stepper-line-active { height: 66.66%; }
+    .hov-track-stepper-container[data-status="delivered"] .hov-track-stepper-line-active { height: 100%; }
+
+    .hov-track-step {
+      flex-direction: row;
+      gap: 16px;
+      width: 100%;
+      align-items: center;
+      text-align: left;
+    }
+    .hov-track-step-label {
+      margin-top: 0;
+    }
+    .hov-track-step-time {
+      margin-top: 2px;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .hov-track-leaf {
+      display: none !important;
+    }
+  }
+</style>
+
+<!-- ================= JAVASCRIPT LOGIC ================= -->
+<script>
+  function handleHovTrack(e) {
+    e.preventDefault();
+    
+    var contact = document.getElementById('hov-track-contact').value.trim();
+    if (!contact) return;
+    
+    // Hide static preview card and previous lookup result
+    var previewCard = document.getElementById('hov-track-preview-result');
+    if (previewCard) previewCard.style.display = 'none';
+    
+    var dynamicCard = document.getElementById('hov-track-dynamic-result');
+    if (dynamicCard) dynamicCard.style.display = 'none';
+    
+    // Show spinner loader
+    var loader = document.getElementById('hov-track-loader');
+    if (loader) loader.style.display = 'block';
+    
+    // Generate deterministic values based on Contact hash
+    var hash = 0;
+    for (var i = 0; i < contact.length; i++) {
+      hash += contact.charCodeAt(i);
+    }
+    
+    // Generate a mock order number based on hash
+    var mockOrderNum = "#ORD" + (10000 + (hash % 90000));
+    
+    // Determine status (1=placed, 2=shipped, 3=in-transit, 4=delivered)
+    var step = (hash % 3) + 2; // Returns 2, 3, or 4
+    if (contact.toLowerCase().indexOf('del') > -1) step = 4;
+    if (contact.toLowerCase().indexOf('new') > -1) step = 1;
+    
+    var statusText = "In Transit";
+    var statusAttr = "in-transit";
+    if (step === 1) { statusText = "Order Placed"; statusAttr = "placed"; }
+    else if (step === 2) { statusText = "Shipped"; statusAttr = "shipped"; }
+    else if (step === 3) { statusText = "In Transit"; statusAttr = "in-transit"; }
+    else if (step === 4) { statusText = "Delivered"; statusAttr = "delivered"; }
+    
+    // Calculate dates
+    var options = { month: 'short', day: 'numeric', year: 'numeric' };
+    var orderDate = new Date();
+    orderDate.setDate(orderDate.getDate() - 3);
+    var orderDateStr = orderDate.toLocaleDateString("en-US", options);
+    
+    var shipDate = new Date();
+    shipDate.setDate(shipDate.getDate() - 2);
+    var shipDateStr = shipDate.toLocaleDateString("en-US", options);
+    
+    var transitDate = new Date();
+    transitDate.setDate(transitDate.getDate() - 1);
+    var transitDateStr = transitDate.toLocaleDateString("en-US", options);
+    
+    var deliveryDate = new Date();
+    deliveryDate.setDate(deliveryDate.getDate() + 2);
+    var deliveryDateStr = deliveryDate.toLocaleDateString("en-US", options);
+    
+    setTimeout(function() {
+      if (loader) loader.style.display = 'none';
+      
+      // Update dynamic card contents
+      document.getElementById('hov-res-order-id').innerText = mockOrderNum;
+      document.getElementById('hov-res-date').innerText = "Placed on " + orderDateStr;
+      document.getElementById('hov-res-badge-text').innerText = statusText;
+      
+      // Update stepper data-status
+      var stepper = document.getElementById('hov-res-stepper');
+      stepper.setAttribute('data-status', statusAttr);
+      
+      // Update line position (mobile and desktop widths/heights)
+      var activeLine = document.getElementById('hov-res-line-active');
+      var widthVal = "0%";
+      var heightVal = "0%";
+      if (statusAttr === "shipped") { widthVal = "33.33%"; heightVal = "33.33%"; }
+      else if (statusAttr === "in-transit") { widthVal = "66.66%"; heightVal = "66.66%"; }
+      else if (statusAttr === "delivered") { widthVal = "100%"; heightVal = "100%"; }
+      
+      if (window.innerWidth <= 768) {
+        activeLine.style.width = '2px';
+        activeLine.style.height = heightVal;
+      } else {
+        activeLine.style.width = widthVal;
+        activeLine.style.height = '2px';
+      }
+      
+      // Update step status classes
+      for (var s = 1; s <= 4; s++) {
+        var stepNode = document.getElementById('hov-res-step-' + s);
+        stepNode.className = "hov-track-step";
+        if (s < step) {
+          stepNode.classList.add('completed');
+        } else if (s === step) {
+          if (step === 4) {
+            stepNode.classList.add('completed');
+          } else {
+            stepNode.classList.add('active');
+          }
+        } else {
+          stepNode.classList.add('pending');
+        }
+      }
+      
+      // Update timestamps
+      document.getElementById('hov-res-time-1').innerText = orderDateStr + ", 10:30 AM";
+      document.getElementById('hov-res-time-2').innerText = shipDateStr + ", 02:15 PM";
+      document.getElementById('hov-res-time-3').innerText = transitDateStr + ", 08:45 AM";
+      if (step === 4) {
+        document.getElementById('hov-res-time-4').innerText = "Delivered on " + transitDateStr;
+      } else {
+        document.getElementById('hov-res-time-4').innerText = "Expected by " + deliveryDateStr;
+      }
+      
+      if (dynamicCard) dynamicCard.style.display = 'block';
+    }, 1000);
+  }
+</script>
+
+{% schema %}
+{
+  "name": "Track Order Page",
+  "settings": [
+    {
+      "type": "text",
+      "id": "delivery_address",
+      "label": "Delivery Address",
+      "default": "123, Green Street, Eco City, Bangalore – 560001"
+    },
+    {
+      "type": "text",
+      "id": "help_phone",
+      "label": "Help Phone Number",
+      "default": "+91 98765 43210"
+    },
+    {
+      "type": "text",
+      "id": "help_email",
+      "label": "Help Email Address",
+      "default": "[PLACEHOLDER — support email]"
+    },
+    {
+      "type": "text",
+      "id": "delivery_hours",
+      "label": "Delivery Hours",
+      "default": "9:00 AM – 9:00 PM"
+    },
+    {
+      "type": "text",
+      "id": "delivery_days",
+      "label": "Delivery Days",
+      "default": "Monday to Sunday"
+    }
+  ]
+}
+{% endschema %}

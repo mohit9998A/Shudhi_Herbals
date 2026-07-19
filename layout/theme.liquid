@@ -1,0 +1,1394 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en"> <![endif]-->
+<!--[if IE 9 ]><html class="ie9 no-js"> <![endif]-->
+<!--[if (gt IE 9)|!(IE)]><!--> <html class="no-js p-0" {% if settings.enable_rtl_mode %} dir="rtl"{% endif %} data-customer-logged-in="{% if customer %}true{% else %}false{% endif %}" data-customer-id="{{ customer.id | default: '' }}"> <!--<![endif]-->
+<head>
+  {%- comment -%} [PLACEHOLDER] Add Shudhi Herbals google-site-verification meta here if needed. {%- endcomment -%}
+
+  {%- comment -%}
+    [PLACEHOLDER] Add Shudhi Herbals' own Google Tag Manager container snippet here,
+    and add its matching <noscript> just after the opening <body> tag.
+    (Previous store's GTM containers were removed.)
+  {%- endcomment -%}
+	<!-- Added by AVADA SEO Suite -->
+	{% include 'avada-seo' %}
+	<!-- /Added by AVADA SEO Suite -->
+
+  <!-- Basic page needs ================================================== -->
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+  <!-- Title and description ================================================== -->
+  <title>
+    {{ page_title }}{% if current_tags %}{% assign meta_tags = current_tags | join: ', ' %} &ndash; {{ 'general.meta.tags' | t: tags: meta_tags }}{% endif %}{% if current_page != 1 %} &ndash; {{ 'general.meta.page' | t: page: current_page }}{% endif %}{% unless page_title contains shop.name %} &ndash; {{ shop.name }}{% endunless %}
+  </title>
+  
+{%- comment -%} [PLACEHOLDER] Add Shudhi Herbals' own Meta Pixel init here if wanted. (Previous store's pixel removed.) {%- endcomment -%}
+  
+{% if request.page_type == 'product' %}  
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org/", 
+  "@type": "Product", 
+  "name": "{{ product.title | escape }}",
+  "image": "https:{{ product | img_url }}",
+  "description": "{{ product.description }}",
+  "brand": {
+    "@type": "Brand",
+    "name": "Shudhi Herbals"
+  },
+  "sku": "{{ product.selected_or_first_available_variant.sku }}",
+  "offers": {
+    "@type": "Offer",
+    "url": "{{ canonical_url }}",
+    "priceCurrency": "INR",
+    "price": "{{ product.price | money_without_currency }}",
+    "availability": "https://schema.org/InStock"
+  }
+}
+</script>
+{% endif %}
+  
+{%- comment -%} [PLACEHOLDER] A hardcoded Purchase event containing real hashed customer data was removed here. Do not re-add real customer data to theme code. {%- endcomment -%}
+  
+{%- comment -%} [PLACEHOLDER] Meta Pixel <noscript> removed. Add Shudhi Herbals' own if you add a pixel. {%- endcomment -%}
+  
+<!-- Avada Boost Sales Script -->
+{% include 'avada-boost-sales' %}
+<!-- /Avada Boost Sales Script -->
+
+
+
+  {% if page_description %}
+  <meta name="description" content="{{ page_description | escape }}">
+  {% endif %}
+{% if template contains 'collection' and canonical_url contains '?page=' %}
+  <meta name="robots" content="noindex" />
+{% endif %}
+  <!-- Helpers ================================================== -->
+  {% include 'social-meta-tags' %}
+  <link rel="canonical" href="{{ canonical_url }}">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="{{ settings.m_primary_color }}">
+  <link rel="icon" href="{{'favicon.png'| asset_url}}" type="image/png" sizes="16x16">
+
+
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+ 
+ 
+  {% include 'engo-header-fonts' %}
+  <!-- CSS ================================================== -->
+  {% if settings.po_style == "po_swatchs" %}
+  {{ 'timber.scss.css' | asset_url | stylesheet_tag }}
+  {% endif %}
+  {% if settings.po_style == "po_dropdown" %}
+  {{ 'timber_2.scss.css' | asset_url | stylesheet_tag }}
+  {% endif %}
+
+ {{ 'bootstrap.min.css' | asset_url | stylesheet_tag }} 
+ 
+
+  {% comment %} {{ 'slick.css' | asset_url | stylesheet_tag }} {% endcomment %}
+   <link rel="stylesheet" href="{{ 'slick.css' | asset_url }}" media="print" onload="this.media='all'">
+   <noscript>
+  <link rel="stylesheet" href="{{ 'slick.css' | asset_url }}">
+</noscript>
+
+  {% comment %} {{ 'slick-theme.css' | asset_url | stylesheet_tag }} {% endcomment %}
+  {% comment %} <link rel="stylesheet" href="{{ 'slick-theme.css' | asset_url }}" media="print" onload="this.media='all'">
+   <noscript>
+  <link rel="stylesheet" href="{{ 'slick-theme.css' | asset_url }}">
+</noscript> {% endcomment %}
+{{ 'slick-theme.min.css' | asset_url | stylesheet_tag }} 
+   {% comment %} <link rel="stylesheet" href="{{ 'slick-theme.min.css' | asset_url }}" media="print" onload="this.media='all'">
+   <noscript>
+  <link rel="stylesheet" href="{{ 'slick-theme.min.css' | asset_url }}">
+</noscript> {% endcomment %}
+
+  <link rel="stylesheet" href="{{ 'jquery.fancybox.min.css' | asset_url }}" media="nope!" onload="this.media='all'">
+
+  {{ 'style-main.scss.css' | asset_url | stylesheet_tag }}
+  {{ 'engo-customizes.css' | asset_url | stylesheet_tag }}
+  {{ 'houseofveda-modern.css' | asset_url | stylesheet_tag }}
+  {{ 'hov-wishlist.css' | asset_url | stylesheet_tag }}
+  {{ 'hov-cart-checkout.css' | asset_url | stylesheet_tag }}
+  {{ 'hov-auth.css' | asset_url | stylesheet_tag }}
+  {{ 'hov-testimonials.css' | asset_url | stylesheet_tag }}
+  {% comment %} {{ 'animate.min.css'| asset_url | stylesheet_tag }} {% endcomment %}
+<link rel="stylesheet" href="{{ 'animate.min.css' | asset_url }}" media="print" onload="this.media='all'">
+<noscript>
+  <link rel="stylesheet" href="{{ 'animate.min.css' | asset_url }}">
+</noscript>
+
+  {% comment %} {{ 'base.css' | asset_url | stylesheet_tag }} {% endcomment %}
+ <link rel="stylesheet" href="{{ 'base.css' | asset_url }}" media="print" onload="this.media='all'">
+<noscript>
+  <link rel="stylesheet" href="{{ 'base.css' | asset_url }}">
+</noscript>
+  {% comment %} {{ 'Complementary_product.css' | asset_url | stylesheet_tag }} {% endcomment %}
+   <link rel="stylesheet" href="{{ 'Complementary_product.css' | asset_url }}" media="print" onload="this.media='all'">
+<noscript>
+  <link rel="stylesheet" href="{{ 'Complementary_product.css' | asset_url }}">
+</noscript>
+  {% comment %} {{ 'font-awesome.min.css' | asset_url | stylesheet_tag }} {% endcomment %}
+   {% if template contains 'index' %}
+   {% else %}
+   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+   {% endif %}
+
+   {%- comment -%} Unified typography — loaded LAST so it is the final word on font-family. {%- endcomment -%}
+   {{ 'hov-typography.css' | asset_url | stylesheet_tag }}
+
+
+  <!-- Header hook for plugins ================================================== -->
+  {{ content_for_header }}
+  {% include 'oldIE-js' %}
+  
+
+  {% liquid
+      assign defer = ''
+      if template == 'index'
+        assign defer = 'defer'
+      endif
+    %}
+
+    <script src="{{ 'jquery.min.js' | asset_url }}" ></script>
+    <script src="{{ 'slick.min.js' | asset_url }}"></script>
+     {{ 'api.jquery.js' | shopify_asset_url | script_tag }}
+
+    
+    {{ 'modernizr-2.8.3.min.js' | asset_url | script_tag }}
+    {{ 'option_selection.js' | shopify_asset_url | script_tag }}
+    {{ 'lazysizes.min.js' | asset_url | script_tag }}
+
+
+
+  <script>
+    window.ajax_cart = true;
+    window.money_format = '{{shop.money_with_currency_format}}';
+    window.shop_currency = '{{ shop.currency }}';
+    window.show_multiple_currencies = true;
+    window.loading_url = "{{ 'loader.gif' | asset_url}}";
+    window.use_color_swatch = true;
+    window.product_image_resize = true;
+    window.enable_sidebar_multiple_choice = true;
+
+    window.file_url = "{{''|file_url}}";
+    window.asset_url = "{{''|asset_url}}";
+    window.images_size = {
+      is_crop: true,
+      ratio_width : 1,
+      ratio_height : 1,
+    };
+    window.inventory_text = {
+      in_stock: "{{ 'products.product.in_stock' | t }}",
+      many_in_stock: "{{ 'products.product.many_in_stock' | t }}",
+      out_of_stock: "{{ 'products.product.out_of_stock' | t }}",
+      add_to_cart: "{{ 'products.product.add_to_cart' | t }}",
+      sold_out: "{{ 'products.product.sold_out' | t }}",
+      unavailable: "{{ 'products.product.unavailable' | t }}"
+    };
+
+    window.sidebar_toggle = {
+      show_sidebar_toggle: "{{ 'general.sidebar_toggle.show_sidebar_toggle' | t }}",
+      hide_sidebar_toggle: "{{ 'general.sidebar_toggle.hide_sidebar_toggle' | t }}"
+    };
+
+  </script>
+
+  {%- comment -%} Product data for the search overlay's "recently viewed" tracker {%- endcomment -%}
+  {%- if request.page_type == 'product' -%}
+  <script>
+    window.__hovProductData = {
+      handle: {{ product.handle | json }},
+      title:  {{ product.title | json }},
+      price:  {{ product.price | divided_by: 100.0 | json }},
+      img:    {{ product.featured_image | image_url: width: 200 | json }}
+    };
+  </script>
+  {%- endif -%}
+
+  {% comment %}
+  If you store has customer accounts disabled, you can remove the following JS file
+  {% endcomment %}
+  {% if template contains 'customers' %}
+  {{ 'shopify_common.js' | shopify_asset_url | script_tag }}
+  {% endif %}
+
+  {% include 'social-meta-tags' %}
+
+  {% render 'weglot_hreftags' %}
+  {% render 'weglot_switcher' %}
+
+{%- comment -%} [PLACEHOLDER] Add Shudhi Herbals' own Google Ads / GA4 gtag here if wanted. (Previous store's tag removed.) {%- endcomment -%}
+
+
+{%- comment -%} [PLACEHOLDER] Add Shudhi Herbals' own facebook-domain-verification meta here if needed. {%- endcomment -%}
+
+{%- comment -%} [PLACEHOLDER] Howuku analytics removed. Add Shudhi Herbals' own if wanted. {%- endcomment -%}
+  {%- comment -%} [PLACEHOLDER] Add a second Shudhi Herbals google-site-verification meta here if needed. {%- endcomment -%}
+
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "OnlineStore",
+  "name": "Shudhi Herbals",
+  "image": "[PLACEHOLDER — Shudhi Herbals logo URL]",
+"description": "Shudhi Herbals is a premium herbal wellness brand crafting small-batch, handmade cleansing bars rooted in Ayurvedic tradition. Purify your skin. Cleanse your aura.",
+  "email": "[PLACEHOLDER — email]",
+  "url": "[PLACEHOLDER — https://shudhiherbals.com/]",
+  "telephone": "[PLACEHOLDER — phone]",
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "[PLACEHOLDER — street address]",
+    "addressLocality": "[PLACEHOLDER — city, state]",
+    "postalCode": "[PLACEHOLDER — postal code]",
+    "addressCountry": "IN"
+  },
+  "sameAs": [
+    "[PLACEHOLDER — Facebook URL]",
+    "[PLACEHOLDER — Instagram URL]"
+  ]
+}
+</script>
+
+{{ article.metafields.custom.schema }}
+
+{% if request.page_type == 'collection' %}  
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org/",
+  "@type": "ItemList",
+  "itemListElement": [
+  {% for product in collection.products %}
+  {
+    "@type": "ListItem",
+    "position": {{forloop.index0}},
+    "name": "{{ product.title | escape }}",
+    "url": "{{ shop.url }}{{ product.url }}"
+    {% if forloop.last %}
+  }
+  {% else %}
+},
+{% endif %}
+  {% endfor %}
+  ]
+}
+</script>
+{% endif %}
+  {%- comment -%} [PLACEHOLDER] Microsoft Clarity removed. Add Shudhi Herbals' own Clarity project id here if wanted. {%- endcomment -%}
+</head>
+{% comment %}
+Add the page template as a class for easy page or template specific styling.
+{% endcomment %}
+<body class="template-{{ template.name }} {% if template.name != 'index' %}hov-has-fixed-nav-offset{% endif %} {% if settings.enable_rtl_mode %}rtl{% endif %} preload push_filter_left js_overhidden relative" {% if settings.bg_color_body != blank %}style="background: {{settings.bg_color_body}};"{% endif %}>
+
+  {%- comment -%} [PLACEHOLDER] Add Shudhi Herbals' GTM <noscript> here if you add a GTM container. {%- endcomment -%}
+
+  {% render 'hov-sidebar' %}
+  <div class="hov-sb__overlay" id="hov-sb-overlay"></div>
+
+  <div class="wrap">
+    <div class="contentbody">
+      {% if settings.enable_promo_topbar %}
+      {% include 'promo-topbar' %}
+      {% endif %}
+      {% section 'header' %}
+
+      <!-- HEADING HIDDEN SEO -->
+      {% if template contains 'index' %}
+      <h1 class="sr-only">{{shop.name}}</h1>
+      {% endif %}
+
+      {% include 'search' %}
+      {% include 'minicart' %}
+      {% include 'menu_mobile' %}
+      <main id="MainContent" class="main-content" role="main">
+        {{ content_for_layout }}
+      </main>
+
+      {% section 'footer' %}
+      {% section 'latest-footer' %}
+    </div>
+  </div>
+
+  {% comment %}
+  {{ 'fastclick.js' | asset_url | script_tag }}
+  {% endcomment %}
+  {% include 'currencies' %}
+  {{ 'timber.js' | asset_url | script_tag }}
+
+  {% comment %}
+  Template-specific js
+  {% endcomment %}
+  <script>
+    {% if resetPassword %}
+    $(function() {
+      timber.resetPasswordSuccess();
+    });
+    {% endif %}
+  </script>
+
+  <script>
+    jQuery(function() {
+      jQuery('.swatch :radio').change(function() {
+        var optionIndex = jQuery(this).closest('.swatch').attr('data-option-index');
+        var optionValue = jQuery(this).val();
+        jQuery(this)
+        .closest('form')
+        .find('.single-option-selector')
+        .eq(optionIndex)
+        .val(optionValue)
+        .trigger('change');
+      });
+    });
+  </script>
+
+  {% if settings.ajax_cart_method == "drawer" %}
+  {{ 'handlebars.min.js' | asset_url | script_tag }}
+  {% include 'ajax-cart-template' %}
+  {{ 'ajax-cart.js' | asset_url | script_tag }}
+  <script>
+    var ajaxCartConfig = {
+      cartContainer: '.enj-minicart-ajax',
+      addToCartSelector: '.enj-add-to-cart-btn',
+      cartCountSelector: '.enj-cartcount',
+      cartCostSelector: '.enj-cartcost',
+      moneyFormat: {{ shop.money_format | json }}
+    };
+      jQuery(function($) {
+      ajaxCart.init(ajaxCartConfig);
+    });
+
+    jQuery('body').on('ajaxCart.afterCartLoad', function(evt, cart) {
+      // Bind to 'ajaxCart.afterCartLoad' to run any javascript after the cart has loaded in the DOM
+      /*   timber.RightDrawer.open(); */
+    });
+  </script>
+  {% endif %}
+
+  {% if template contains 'contact' %}
+  {{ 'gmaps.min.js' | asset_url | script_tag }}
+  {% endif %}
+
+  {{ 'bootstrap.bundle.min.js' | asset_url | script_tag }}
+  {{ 'instafeed.min.js' | asset_url | script_tag }}
+  {{ 'jquery.fancybox.min.js' | asset_url | script_tag }}
+  {{ 'engo-plugins.js' | asset_url | script_tag }}
+  {{ 'quickview.js' | asset_url | script_tag }}
+  {% comment %}
+  {{ 'wish-list.js' | asset_url | script_tag }}
+  {% endcomment %}
+  {{ 'collection.js' | asset_url | script_tag }}
+  {{ 'engo-scripts.js' | asset_url | script_tag }}
+  {{ 'masonry.pkgd.min.js' | asset_url | script_tag }}
+
+
+
+  {% include 'product-quick-view' %}
+  {% include 'template-popup' %}
+  {% include 'template-popup-ajax-addtocart' %}
+
+  {% include 'linked-options' %}
+  {% include 'remove-sold-out' %}
+  {% if settings.ena_popup_cookie %}
+  {% include 'popup-cookie' %}
+  {% endif %}
+
+  {% include 'popup-product-random' %}
+
+  {% if settings.ena_popup_recently_view %}
+  {% include 'recently-sticky-cart' %}
+  {% endif %}
+
+  {% if settings.show_menu_toolbar %}
+  {% include 'menu-toolbar' %}
+  {% endif %}
+
+  {% if settings.ena_popup_news %}
+  {% if template contains 'index' %}
+  {% include 'popup-newletter' %}
+  {% endif%}
+  {% endif %}
+
+  {% if template contains 'product' %}
+    {% render 'custom-js' %}
+  {% endif %}
+
+  {% unless template contains 'product' %}
+  <script>
+    jQuery(document).ready(function($) {
+      if($(window).width() < 577){
+
+        if($('.popup-cookie').length){
+          $('.popup_random_prod').css('bottom','208px');
+        }
+        else{
+          $('.popup_random_prod').css('bottom','0px');
+        }
+        $('.got_it').on('click', function() {
+          $('.popup_random_prod').css('bottom','0px');
+
+        }); 
+
+
+        $(window).scroll(function(){
+
+          if ($(window).scrollTop() >= 300) {
+            $('.menu_toolbar').addClass('active'); 
+            $('.popup_random_prod').css('bottom','260px');
+            $('.popup-cookie').css('bottom','50px');
+            $('.got_it').on('click', function() {
+              $('.popup_random_prod').css('bottom','50px');
+            });
+
+            if($('.popup-cookie').length){
+              $('.popup_random_prod').css('bottom','258px');
+            }
+            else{
+              $('.popup_random_prod').css('bottom','50px');
+            }
+
+            if($('.popup-cookie').hasClass('d-none')){
+              $('.popup_random_prod').css('bottom','50px');
+            }
+          }
+          else {
+
+            if($('.popup-cookie').length){
+              $('.popup_random_prod').css('bottom','208px');
+            }
+            else{
+              $('.popup_random_prod').css('bottom','0px');
+            }
+            if($('.popup-cookie').hasClass('d-none')){
+              $('.popup_random_prod').css('bottom','0px');
+            }
+            $('.menu_toolbar').removeClass('active');
+            $('.popup-cookie').css('bottom','0px');
+
+          }
+        });
+      }
+    });
+  </script>
+  {% endunless %}
+
+
+
+ {% include 'smile-initializer' %}
+
+  <div class="whatsapp-icon">
+  <a href="https://wa.me/[PLACEHOLDER-whatsapp-number]?text=Hi" target="_blank">
+    <img src="https://cdn.shopify.com/s/files/1/0674/1550/7256/files/whatsapp-icon.png?v=1691402509" alt="WhatsApp">
+  </a>
+</div>
+
+
+<style>
+  /* In the whatsapp-icon  */
+  .whatsapp-icon {
+    position: fixed;
+    bottom: 5%;
+    left: 20px;
+    z-index: 9999;
+    cursor: pointer;
+  }
+  
+  .whatsapp-icon img {
+    width: 60px;
+    height: auto;
+  }
+</style>
+  {% comment %}
+{% render 'add-to-cart-sticky' %}
+{% endcomment %}
+
+  {% include 'hov-chatbot' %}
+
+  <!-- Premium Wishlist Toast Notification -->
+  <div id="hov-wish-toast" class="hov-wish__toast" role="alert" aria-live="polite" aria-atomic="true">
+    <div class="hov-wish__toast-img-wrap">
+      <img id="hov-wish-toast-img" src="" alt="" width="48" height="48">
+    </div>
+    <div class="hov-wish__toast-body">
+      <p class="hov-wish__toast-title" id="hov-wish-toast-title"></p>
+      <p class="hov-wish__toast-sub" id="hov-wish-toast-sub"></p>
+    </div>
+    <button class="hov-wish__toast-close" id="hov-wish-toast-close" aria-label="Close">✕</button>
+    <div class="hov-wish__toast-bar"></div>
+  </div>
+
+  <script>
+    window.hovCustomer = {
+      id: '{{ customer.id | default: "" }}',
+      isLoggedIn: {% if customer %}true{% else %}false{% endif %}
+    };
+  </script>
+  <script src="{{ 'hov-wishlist.js' | asset_url }}" defer></script>
+
+  <!-- Premium Checkout Preloader -->
+  <div id="hov-checkout-preloader" class="hov-pre" aria-hidden="true">
+    <div class="hov-pre__backdrop"></div>
+    <div class="hov-pre__card-wrap">
+
+      <!-- POS Terminal -->
+      <div class="hov-pre__terminal">
+        <div class="hov-pre__terminal-head">
+          <div class="hov-pre__terminal-slot"></div>
+        </div>
+        <div class="hov-pre__terminal-screen">
+          <div class="hov-pre__terminal-amount" id="hov-pre-amount">₹0.00</div>
+        </div>
+        <div class="hov-pre__terminal-keys">
+          <span></span><span></span><span></span>
+          <span></span><span></span><span></span>
+        </div>
+      </div>
+
+      <!-- Credit Card that swipes into terminal -->
+      <div class="hov-pre__credit-card">
+        <div class="hov-pre__card-strip"></div>
+        <div class="hov-pre__card-dots">
+          <span></span><span></span><span></span>
+        </div>
+        <div class="hov-pre__card-logo">HOV</div>
+      </div>
+
+      <!-- Success Checkmark -->
+      <div class="hov-pre__check">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+      </div>
+
+      <!-- Text below animation -->
+      <div class="hov-pre__text">
+        <p class="hov-pre__title">Securing Your Order</p>
+        <p class="hov-pre__sub">Please don't close this page</p>
+      </div>
+
+      <!-- Progress bar -->
+      <div class="hov-pre__progress">
+        <div class="hov-pre__progress-bar"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Modal backdrop -->
+  <div id="hov-login-modal" class="hov-auth__overlay" role="dialog"
+       aria-modal="true" aria-labelledby="hov-auth-title"
+       style="display:none">
+    <div class="hov-auth__backdrop" id="hov-auth-backdrop"></div>
+
+    <div class="hov-auth__modal">
+
+      <!-- Close button -->
+      <button class="hov-auth__close" id="hov-auth-close"
+              aria-label="Close login modal">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"/>
+          <line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+
+      <!-- Top-right botanical leaf decoration -->
+      <div class="hov-auth__deco-top" aria-hidden="true">
+        <svg viewBox="0 0 180 200" width="160" fill="none"
+             xmlns="http://www.w3.org/2000/svg">
+          <!-- Large background leaf -->
+          <path d="M160 10 C185 35 195 90 170 135
+                   C148 175 105 190 75 168
+                   C45 146 42 100 62 65
+                   C82 30 110 5 140 8 Z"
+                fill="#C8DDB8" opacity="0.28"/>
+
+          <!-- Main stem -->
+          <path d="M130 180 C118 150 105 115 95 80
+                   C85 45 88 20 100 5"
+                stroke="#7DAF6A" stroke-width="1.8"
+                fill="none" opacity="0.55"
+                stroke-linecap="round"/>
+
+          <!-- Left leaf pair 1 (bottom) -->
+          <path d="M108 155 C90 145 75 125 82 108
+                   C89 91 108 95 118 112
+                   C125 124 122 148 108 155 Z"
+                fill="#A8CC96" opacity="0.50"/>
+          <path d="M108 155 C108 135 110 115 118 108"
+                stroke="#7DAF6A" stroke-width="1"
+                fill="none" opacity="0.4"/>
+
+          <!-- Right leaf pair 1 -->
+          <path d="M118 140 C135 128 152 110 148 93
+                   C144 76 128 75 118 90
+                   C110 103 110 128 118 140 Z"
+                fill="#B8D4A4" opacity="0.45"/>
+          <path d="M118 140 C120 118 125 98 148 93"
+                stroke="#7DAF6A" stroke-width="1"
+                fill="none" opacity="0.4"/>
+
+          <!-- Left leaf pair 2 (middle) -->
+          <path d="M100 105 C80 98 65 78 72 60
+                   C79 42 98 45 108 62
+                   C116 76 112 98 100 105 Z"
+                fill="#C8DDB8" opacity="0.42"/>
+          <path d="M100 105 C100 82 104 62 108 60"
+                stroke="#7DAF6A" stroke-width="1"
+                fill="none" opacity="0.35"/>
+
+          <!-- Right leaf pair 2 -->
+          <path d="M110 88 C128 78 146 60 140 42
+                   C134 24 116 24 108 42
+                   C102 56 104 76 110 88 Z"
+                fill="#9DC88A" opacity="0.38"/>
+
+          <!-- Top small leaves -->
+          <path d="M96 52 C82 44 72 28 80 15
+                   C88 2 104 5 108 20
+                   C111 32 104 46 96 52 Z"
+                fill="#B8D4A4" opacity="0.40"/>
+          <path d="M108 42 C118 30 132 18 128 5
+                   C122 -5 110 2 108 18
+                   C107 28 107 36 108 42 Z"
+                fill="#C8DDB8" opacity="0.35"/>
+        </svg>
+      </div>
+
+      <!-- Bottom-left mortar & pestle with herbs -->
+      <div class="hov-auth__deco-bottom" aria-hidden="true">
+        <svg viewBox="0 0 160 160" width="150" fill="none"
+             xmlns="http://www.w3.org/2000/svg">
+
+          <!-- Ground shadow -->
+          <ellipse cx="75" cy="148" rx="55" ry="8"
+                   fill="#C4A882" opacity="0.20"/>
+
+          <!-- Mortar bowl body -->
+          <path d="M28 105 Q24 148 75 152 Q126 148 122 105 Z"
+                fill="#D4B896" opacity="0.85"/>
+
+          <!-- Mortar bowl inner shadow -->
+          <path d="M35 108 Q32 142 75 146 Q118 142 115 108 Z"
+                fill="#C4A07A" opacity="0.40"/>
+
+          <!-- Mortar rim top -->
+          <ellipse cx="75" cy="105" rx="47" ry="12"
+                   fill="#DEC09E" opacity="0.90"/>
+          <ellipse cx="75" cy="105" rx="38" ry="8"
+                   fill="#C8A882" opacity="0.60"/>
+
+          <!-- Herb powder inside bowl -->
+          <ellipse cx="75" cy="108" rx="32" ry="6"
+                   fill="#8B6914" opacity="0.18"/>
+          <ellipse cx="68" cy="107" rx="12" ry="3"
+                   fill="#A07820" opacity="0.22"/>
+
+          <!-- Pestle handle (angled ~-20deg) -->
+          <rect x="62" y="28" width="20" height="72" rx="10"
+                fill="#C4A882" opacity="0.90"
+                transform="rotate(-18 72 64)"/>
+
+          <!-- Pestle head (rounded bottom) -->
+          <ellipse cx="55" cy="84" rx="14" ry="11"
+                   fill="#D4B896" opacity="0.95"
+                   transform="rotate(-18 55 84)"/>
+
+          <!-- Pestle highlight -->
+          <path d="M68 32 C72 35 74 42 73 50"
+                stroke="rgba(255,255,255,0.45)" stroke-width="3"
+                stroke-linecap="round" fill="none"/>
+
+          <!-- Herb leaves spilling left -->
+          <path d="M18 98 C10 88 5 72 15 62
+                   C25 52 38 60 38 75
+                   C38 86 28 96 18 98 Z"
+                fill="#8AB87A" opacity="0.65"/>
+          <path d="M18 98 C22 82 30 68 38 65"
+                stroke="#6A9860" stroke-width="1.2"
+                fill="none" opacity="0.5"/>
+
+          <!-- Small herb leaf left -->
+          <path d="M10 80 C4 72 3 60 12 56
+                   C21 52 26 62 22 72
+                   C19 78 14 82 10 80 Z"
+                fill="#9DC88A" opacity="0.55"/>
+
+          <!-- Herb leaves right -->
+          <path d="M115 92 C124 82 132 68 124 56
+                   C116 44 104 52 104 66
+                   C104 78 110 88 115 92 Z"
+                fill="#8AB87A" opacity="0.60"/>
+          <path d="M115 92 C112 76 106 62 104 58"
+                stroke="#6A9860" stroke-width="1.2"
+                fill="none" opacity="0.45"/>
+
+          <!-- Small dots (herb powder scatter) -->
+          <circle cx="22" cy="108" r="2.5"
+                  fill="#8B6914" opacity="0.30"/>
+          <circle cx="30" cy="112" r="1.8"
+                  fill="#8B6914" opacity="0.25"/>
+          <circle cx="120" cy="110" r="2"
+                  fill="#8B6914" opacity="0.28"/>
+          <circle cx="112" cy="115" r="1.5"
+                  fill="#8B6914" opacity="0.22"/>
+          <circle cx="75" cy="118" r="1.5"
+                  fill="#8B6914" opacity="0.20"/>
+
+          <!-- Tiny herb sprigs near bowl -->
+          <path d="M40 100 C35 92 32 82 38 76"
+                stroke="#8AB87A" stroke-width="1.5"
+                fill="none" stroke-linecap="round" opacity="0.6"/>
+          <path d="M38 82 C32 78 28 70 34 66"
+                stroke="#8AB87A" stroke-width="1"
+                fill="none" stroke-linecap="round" opacity="0.45"/>
+
+          <!-- Particle/dust puff above pestle -->
+          <circle cx="72" cy="52" r="3"
+                  fill="#C8DDB8" opacity="0.35"/>
+          <circle cx="64" cy="45" r="2"
+                  fill="#C8DDB8" opacity="0.28"/>
+          <circle cx="80" cy="42" r="2.5"
+                  fill="#C8DDB8" opacity="0.25"/>
+        </svg>
+      </div>
+
+      <!-- Header: Logo + tagline -->
+      <div class="hov-auth__header">
+        <div class="hov-auth__logo-wrap">
+          <!-- Circular emblem icon (left) -->
+          {% if settings.pouplogin_logo != blank %}
+            <img
+              src="{{ settings.pouplogin_logo | img_url: 'master' }}"
+              alt="Shudhi Herbals emblem"
+              class="hov-auth__logo-emblem">
+          {% else %}
+            <img
+              src="{{ 'logo.png' | asset_url }}"
+              alt="Shudhi Herbals emblem"
+              class="hov-auth__logo-emblem"
+              onerror="this.style.display='none'">
+          {% endif %}
+          <!-- Tagline -->
+          <span class="hov-auth__logo-tagline">
+            Ancient Wisdom. Modern Wellness.
+          </span>
+        </div>
+      </div>
+
+      <hr class="hov-auth__divider">
+
+      <!-- TAB SWITCHER: Login / Register -->
+      <div class="hov-auth__tabs" role="tablist">
+        <button class="hov-auth__tab hov-auth__tab--active"
+                id="hov-tab-login"
+                role="tab" aria-selected="true"
+                aria-controls="hov-panel-login"
+                data-tab="login">Login</button>
+        <button class="hov-auth__tab"
+                id="hov-tab-register"
+                role="tab" aria-selected="false"
+                aria-controls="hov-panel-register"
+                data-tab="register">Register</button>
+      </div>
+
+      <!-- ── LOGIN PANEL ── -->
+      <div id="hov-panel-login" class="hov-auth__panel"
+           role="tabpanel" aria-labelledby="hov-tab-login">
+
+        <div class="hov-auth__titles">
+          <h2 id="hov-auth-title" class="hov-auth__title">
+            Welcome back!
+          </h2>
+          <p class="hov-auth__subtitle">
+            Login to continue your Ayurvedic journey
+          </p>
+        </div>
+
+        <form method="post"
+              action="/account/login"
+              id="hov-login-form"
+              class="hov-auth__form"
+              accept-charset="UTF-8"
+              novalidate>
+          {{ form.errors | default_errors }}
+          <input type="hidden" name="form_type" value="customer_login">
+          <input type="hidden" name="utf8" value="✓">
+          <input type="hidden" id="hov-login-return-to" name="return_to" value="">
+
+          <!-- Email field -->
+          <div class="hov-auth__field">
+            <div class="hov-auth__input-wrap">
+              <span class="hov-auth__input-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24"
+                     fill="none" stroke="#AAA" stroke-width="1.8">
+                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9
+                           2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                  <polyline points="22,6 12,13 2,6"/>
+                </svg>
+              </span>
+              <input type="email"
+                     id="hov-login-email"
+                     name="customer[email]"
+                     class="hov-auth__input"
+                     placeholder="Email address"
+                     autocomplete="email"
+                     required
+                     aria-label="Email address">
+            </div>
+            <span class="hov-auth__field-error"
+                  id="hov-login-email-error"></span>
+          </div>
+
+          <!-- Password field -->
+          <div class="hov-auth__field">
+            <div class="hov-auth__input-wrap">
+              <span class="hov-auth__input-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24"
+                     fill="none" stroke="#AAA" stroke-width="1.8">
+                  <rect x="3" y="11" width="18" height="11"
+                        rx="2" ry="2"/>
+                  <path d="M7 11V7a5 5 0 0110 0v4"/>
+                </svg>
+              </span>
+              <input type="password"
+                     id="hov-login-password"
+                     name="customer[password]"
+                     class="hov-auth__input"
+                     placeholder="Password"
+                     autocomplete="current-password"
+                     required
+                     aria-label="Password">
+              <button type="button"
+                      class="hov-auth__pw-toggle"
+                      data-target="hov-login-password"
+                      aria-label="Toggle password visibility">
+                <svg class="hov-auth__eye hov-auth__eye--show"
+                     width="18" height="18" viewBox="0 0 24 24"
+                     fill="none" stroke="#AAA" stroke-width="1.8">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11
+                           8-11-8-11-8z"/>
+                  <circle cx="12" cy="12" r="3"/>
+                </svg>
+                <svg class="hov-auth__eye hov-auth__eye--hide"
+                     width="18" height="18" viewBox="0 0 24 24"
+                     fill="none" stroke="#AAA" stroke-width="1.8"
+                     style="display:none">
+                  <path d="M17.94 17.94A10.07 10.07 0 0112 20
+                           c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94
+                           M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11
+                           8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3
+                           0 11-4.24-4.24"/>
+                  <line x1="1" y1="1" x2="23" y2="23"/>
+                </svg>
+              </button>
+            </div>
+            <span class="hov-auth__field-error"
+                  id="hov-login-pw-error"></span>
+          </div>
+
+          <!-- Forgot password -->
+          <div class="hov-auth__forgot">
+            <a href="/account/login#recover"
+               class="hov-auth__forgot-link"
+               id="hov-forgot-link">
+              Forgot your password?
+            </a>
+          </div>
+
+          <!-- Submit -->
+          <button type="submit"
+                  class="hov-auth__submit"
+                  id="hov-login-submit">
+            <span class="hov-auth__submit-text">LOGIN</span>
+            <span class="hov-auth__submit-arrow">
+              <svg width="18" height="18" viewBox="0 0 24 24"
+                   fill="none" stroke="currentColor" stroke-width="2.5">
+                <line x1="5" y1="12" x2="19" y2="12"/>
+                <polyline points="12 5 19 12 12 19"/>
+              </svg>
+            </span>
+            <span class="hov-auth__submit-loading"
+                  style="display:none">
+              <span class="hov-auth__dots">
+                <span></span><span></span><span></span>
+              </span>
+            </span>
+          </button>
+        </form>
+
+        <!-- Recover password form (hidden by default) -->
+        <div id="hov-recover-form-wrap" style="display:none">
+          <h3 class="hov-auth__recover-title">Reset Password</h3>
+          <p class="hov-auth__recover-sub">
+            Enter your email and we'll send you a reset link
+          </p>
+          <form method="post" action="/account/recover"
+                accept-charset="UTF-8">
+            <input type="hidden" name="form_type"
+                   value="recover_customer_password">
+            <input type="hidden" name="utf8" value="✓">
+            <div class="hov-auth__field">
+              <div class="hov-auth__input-wrap">
+                <span class="hov-auth__input-icon">
+                  <svg width="18" height="18" viewBox="0 0 24 24"
+                       fill="none" stroke="#AAA" stroke-width="1.8">
+                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9
+                             2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                    <polyline points="22,6 12,13 2,6"/>
+                  </svg>
+                </span>
+                <input type="email" name="email"
+                       class="hov-auth__input"
+                       placeholder="Email address" required>
+              </div>
+            </div>
+            <button type="submit" class="hov-auth__submit">
+              <span class="hov-auth__submit-text">SEND RESET LINK</span>
+            </button>
+          </form>
+          <button class="hov-auth__back-link"
+                  id="hov-back-to-login">
+            ← Back to Login
+          </button>
+        </div>
+
+        <!-- Social login divider -->
+        <div class="hov-auth__social-divider">
+          <span>or continue with</span>
+        </div>
+
+        <!-- Social buttons -->
+        <div class="hov-auth__social-btns">
+          <a href="#" class="hov-auth__social-btn"
+             id="hov-google-btn" data-social-login="google" aria-label="Continue with Google">
+            <svg width="20" height="20" viewBox="0 0 24 24">
+              <path fill="#4285F4"
+                d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92
+                   c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57
+                   c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+              <path fill="#34A853"
+                d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77
+                   c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93
+                   -6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+              <path fill="#FBBC05"
+                d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43
+                   .35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45
+                   1.18 4.93l2.85-2.22.81-.62z"/>
+              <path fill="#EA4335"
+                d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15
+                   C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18
+                   7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+            </svg>
+            Google
+          </a>
+          <a href="#" class="hov-auth__social-btn"
+             data-social-login="apple" aria-label="Continue with Apple">
+            <svg width="20" height="20" viewBox="0 0 24 24"
+                 fill="currentColor">
+              <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05
+                       2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2
+                       .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53
+                       C4.25 17 2.94 12.45 4.7 9.39c.87-1.52
+                       2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87
+                       .78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64
+                       1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02
+                       2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38
+                       2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13
+                       1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51
+                       -2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
+            </svg>
+            Apple
+          </a>
+        </div>
+
+        <!-- Register link -->
+        <p class="hov-auth__switch">
+          Don't have an account?
+          <button class="hov-auth__switch-btn"
+                  data-switch="register">Register now</button>
+        </p>
+
+        <!-- Trust badge -->
+        <div class="hov-auth__trust">
+          <svg width="14" height="14" viewBox="0 0 24 24"
+               fill="none" stroke="#2D5A27" stroke-width="2">
+            <path d="M12 2L3 7v5c0 5 4 9 9 10 5-1 9-5 9-10V7l-9-5z"/>
+            <path d="M9 12l2 2 4-4"/>
+          </svg>
+          <span>Your data is safe with us. We never share your information.</span>
+        </div>
+      </div>
+
+      <!-- ── REGISTER PANEL ── -->
+      <div id="hov-panel-register" class="hov-auth__panel"
+           role="tabpanel" aria-labelledby="hov-tab-register"
+           style="display:none">
+
+        <div class="hov-auth__titles">
+          <h2 class="hov-auth__title">Create Account</h2>
+          <p class="hov-auth__subtitle">
+            Join the Shudhi Herbals family
+          </p>
+        </div>
+
+        <form method="post" action="/account"
+              id="hov-register-form"
+              class="hov-auth__form"
+              accept-charset="UTF-8" novalidate>
+          {{ form.errors | default_errors }}
+          <input type="hidden" name="form_type"
+                 value="create_customer">
+          <input type="hidden" name="utf8" value="✓">
+
+          <!-- First name + Last name row -->
+          <div class="hov-auth__field-row">
+            <div class="hov-auth__field">
+              <div class="hov-auth__input-wrap">
+                <span class="hov-auth__input-icon">
+                  <svg width="18" height="18" viewBox="0 0 24 24"
+                       fill="none" stroke="#AAA" stroke-width="1.8">
+                    <path d="M20 21v-2a4 4 0 00-4-4H8a4 4
+                             0 00-4 4v2"/>
+                    <circle cx="12" cy="7" r="4"/>
+                  </svg>
+                </span>
+                <input type="text"
+                       name="customer[first_name]"
+                       class="hov-auth__input"
+                       placeholder="First name"
+                       autocomplete="given-name"
+                       required>
+              </div>
+            </div>
+            <div class="hov-auth__field">
+              <div class="hov-auth__input-wrap">
+                <span class="hov-auth__input-icon">
+                  <svg width="18" height="18" viewBox="0 0 24 24"
+                       fill="none" stroke="#AAA" stroke-width="1.8">
+                    <path d="M20 21v-2a4 4 0 00-4-4H8a4 4
+                             0 00-4 4v2"/>
+                    <circle cx="12" cy="7" r="4"/>
+                  </svg>
+                </span>
+                <input type="text"
+                       name="customer[last_name]"
+                       class="hov-auth__input"
+                       placeholder="Last name"
+                       autocomplete="family-name"
+                       required>
+              </div>
+            </div>
+          </div>
+
+          <!-- Email -->
+          <div class="hov-auth__field">
+            <div class="hov-auth__input-wrap">
+              <span class="hov-auth__input-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24"
+                     fill="none" stroke="#AAA" stroke-width="1.8">
+                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9
+                           2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                  <polyline points="22,6 12,13 2,6"/>
+                </svg>
+              </span>
+              <input type="email"
+                     name="customer[email]"
+                     class="hov-auth__input"
+                     placeholder="Email address"
+                     autocomplete="email"
+                     required>
+            </div>
+          </div>
+
+          <!-- Password -->
+          <div class="hov-auth__field">
+            <div class="hov-auth__input-wrap">
+              <span class="hov-auth__input-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24"
+                     fill="none" stroke="#AAA" stroke-width="1.8">
+                  <rect x="3" y="11" width="18" height="11"
+                        rx="2" ry="2"/>
+                  <path d="M7 11V7a5 5 0 0110 0v4"/>
+                </svg>
+              </span>
+              <input type="password"
+                     id="hov-reg-password"
+                     name="customer[password]"
+                     class="hov-auth__input"
+                     placeholder="Password (min 8 chars)"
+                     autocomplete="new-password"
+                     minlength="8"
+                     required>
+              <button type="button"
+                      class="hov-auth__pw-toggle"
+                      data-target="hov-reg-password"
+                      aria-label="Toggle password visibility">
+                <svg class="hov-auth__eye hov-auth__eye--show"
+                     width="18" height="18" viewBox="0 0 24 24"
+                     fill="none" stroke="#AAA" stroke-width="1.8">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11
+                           8-11-8-11-8z"/>
+                  <circle cx="12" cy="12" r="3"/>
+                </svg>
+                <svg class="hov-auth__eye hov-auth__eye--hide"
+                     width="18" height="18" viewBox="0 0 24 24"
+                     fill="none" stroke="#AAA" stroke-width="1.8"
+                     style="display:none">
+                  <path d="M17.94 17.94A10.07 10.07 0 0112 20
+                           c-7 0-11-8-11-8a18.45 18.45 0
+                           015.06-5.94M9.9 4.24A9.12 9.12 0
+                           0112 4c7 0 11 8 11 8a18.5 18.5 0
+                           01-2.16 3.19m-6.72-1.07a3 3 0
+                           11-4.24-4.24"/>
+                  <line x1="1" y1="1" x2="23" y2="23"/>
+                </svg>
+              </button>
+            </div>
+            <!-- Password strength bar -->
+            <div class="hov-auth__pw-strength">
+              <div class="hov-auth__pw-strength-bar">
+                <div class="hov-auth__pw-strength-fill"
+                     id="hov-pw-strength-fill"></div>
+              </div>
+              <span class="hov-auth__pw-strength-label"
+                    id="hov-pw-strength-label"></span>
+            </div>
+          </div>
+
+          <button type="submit" class="hov-auth__submit"
+                  id="hov-register-submit">
+            <span class="hov-auth__submit-text">CREATE ACCOUNT</span>
+            <span class="hov-auth__submit-arrow">
+              <svg width="18" height="18" viewBox="0 0 24 24"
+                   fill="none" stroke="currentColor" stroke-width="2.5">
+                <line x1="5" y1="12" x2="19" y2="12"/>
+                <polyline points="12 5 19 12 12 19"/>
+              </svg>
+            </span>
+          </button>
+        </form>
+
+        <!-- Social login divider -->
+        <div class="hov-auth__social-divider">
+          <span>or continue with</span>
+        </div>
+
+        <!-- Social buttons -->
+        <div class="hov-auth__social-btns">
+          <button type="button" class="hov-auth__social-btn" data-social-login="google" aria-label="Continue with Google">
+            <svg width="20" height="20" viewBox="0 0 24 24">
+              <path fill="#4285F4"
+                d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92
+                   c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57
+                   c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+              <path fill="#34A853"
+                d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77
+                   c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93
+                   -6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+              <path fill="#FBBC05"
+                d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43
+                   .35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45
+                   1.18 4.93l2.85-2.22.81-.62z"/>
+              <path fill="#EA4335"
+                d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15
+                   C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18
+                   7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+            </svg>
+            Google
+          </button>
+          <button type="button" class="hov-auth__social-btn" data-social-login="apple" aria-label="Continue with Apple">
+            <svg width="20" height="20" viewBox="0 0 24 24"
+                 fill="currentColor">
+              <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05
+                       2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2
+                       .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53
+                       C4.25 17 2.94 12.45 4.7 9.39c.87-1.52
+                       2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87
+                       .78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64
+                       1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02
+                       2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38
+                       2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13
+                       1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51
+                       -2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
+            </svg>
+            Apple
+          </button>
+        </div>
+
+        <p class="hov-auth__switch">
+          Already have an account?
+          <button class="hov-auth__switch-btn"
+                  data-switch="login">Login here</button>
+        </p>
+
+        <div class="hov-auth__trust">
+          <svg width="14" height="14" viewBox="0 0 24 24"
+               fill="none" stroke="#2D5A27" stroke-width="2">
+            <path d="M12 2L3 7v5c0 5 4 9 9 10 5-1 9-5 9-10V7l-9-5z"/>
+            <path d="M9 12l2 2 4-4"/>
+          </svg>
+          <span>Your data is safe with us. We never share your information.</span>
+        </div>
+      </div>
+
+    </div><!-- /.hov-auth__modal -->
+  </div><!-- /.hov-auth__overlay -->
+
+  <!-- HOV pincode / delivery-location modal (wired by assets/hov-location.js) -->
+  <div class="hov-pincode-modal" id="hov-pincode-modal" data-state="hidden" role="dialog" aria-modal="true" aria-labelledby="hov-pincode-title">
+    <div class="hov-pincode-modal__overlay" data-pincode-modal-close></div>
+    <div class="hov-pincode-modal__card">
+      <button type="button" class="hov-pincode-modal__close" data-pincode-modal-close aria-label="Close">&times;</button>
+      <h2 class="hov-pincode-modal__title" id="hov-pincode-title">Check delivery to your area</h2>
+      <p class="hov-pincode-modal__subtitle">Enter your pincode for accurate delivery estimates.</p>
+      <input type="text" inputmode="numeric" maxlength="6" pattern="[0-9]{6}" class="hov-pincode-modal__input" data-pincode-input placeholder="e.g. 141001">
+      <p class="hov-pincode-modal__error" data-pincode-error hidden></p>
+      <button type="button" class="hov-pincode-modal__submit" data-pincode-submit>Confirm</button>
+    </div>
+  </div>
+
+  <script src="{{ 'hov-auth.js' | asset_url }}" defer></script>
+  <script src="{{ 'hov-cart-checkout.js' | asset_url }}" defer></script>
+  <script src="{{ 'hov-location.js' | asset_url }}" defer></script>
+
+  <!-- HOV Sidebar JS -->
+  <script>
+    (function() {
+      'use strict';
+      const sidebar  = document.getElementById('hov-sidebar');
+      const closeBtn = document.getElementById('hov-sb-close');
+      const overlay  = document.getElementById('hov-sb-overlay');
+      const body     = document.body;
+      if (!sidebar) return;
+
+      function openSidebar() {
+        sidebar.classList.add('is-open');
+        body.classList.add('hov-sb-open');
+        if (window.matchMedia('(max-width: 768px)').matches) {
+          body.classList.add('activemenu_mobile');
+        }
+        sidebar.removeAttribute('aria-hidden');
+        setTimeout(() => closeBtn?.focus(), 380);
+      }
+
+      function closeSidebar() {
+        sidebar.classList.remove('is-open');
+        body.classList.remove('hov-sb-open');
+        body.classList.remove('activemenu_mobile');
+        sidebar.setAttribute('aria-hidden', 'true');
+        document.querySelector(
+          '.hov-nav__hamburger, [data-sb-trigger]'
+        )?.focus();
+      }
+
+      closeBtn?.addEventListener('click', closeSidebar);
+      overlay?.addEventListener('click', closeSidebar);
+      document.addEventListener('keydown', e => {
+        if (e.key === 'Escape') closeSidebar();
+      });
+
+      document.querySelectorAll(
+        '.hov-nav__hamburger, [data-sb-trigger]'
+      ).forEach(btn => {
+        btn.addEventListener('click', e => {
+          e.stopPropagation();
+          body.classList.contains('hov-sb-open')
+            ? closeSidebar() : openSidebar();
+        });
+      });
+
+      // Shop accordion
+      const shopBtn = document.getElementById('hov-sb-shop-toggle');
+      const shopSub = document.getElementById('hov-sb-shop-sub');
+      shopBtn?.addEventListener('click', () => {
+        const open = shopBtn.getAttribute('aria-expanded') === 'true';
+        shopBtn.setAttribute('aria-expanded', String(!open));
+        shopSub?.classList.toggle('is-open', !open);
+      });
+
+      // Wire sub-accordions (Staple, Health Supplements)
+      document.querySelectorAll('.hov-sb__sub-accordion').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const subId = 'hov-sb-' + btn.dataset.sub + '-sub';
+          const subMenu = document.getElementById(subId);
+          const isOpen = btn.classList.contains('is-open');
+          document.querySelectorAll('.hov-sb__sub-accordion.is-open')
+            .forEach(other => {
+              if (other !== btn) {
+                other.classList.remove('is-open');
+                const otherId = 'hov-sb-' + other.dataset.sub + '-sub';
+                document.getElementById(otherId)
+                  ?.classList.remove('is-open');
+              }
+            });
+          btn.classList.toggle('is-open', !isOpen);
+          subMenu?.classList.toggle('is-open', !isOpen);
+        });
+      });
+
+      // Active link
+      const path = window.location.pathname;
+      sidebar.querySelectorAll('.hov-sb__link[href]').forEach(a => {
+        const href = a.getAttribute('href');
+        const active = href === '/' ? path === '/' : path.startsWith(href);
+        if (active) a.closest('.hov-sb__item')
+          ?.classList.add('hov-sb__item--active');
+      });
+
+      // Counts
+      function updateCounts() {
+        try {
+          const wlCid = document.documentElement.dataset.customerId;
+          const wlKey = wlCid ? `hov_wishlist_${wlCid}` : 'hov_wishlist';
+          const wl = JSON.parse(
+            localStorage.getItem(wlKey) || '[]'
+          );
+          const wb = document.getElementById('hov-sb-wish-count');
+          if (wb) {
+            wb.textContent = wl.length;
+            wb.style.display = wl.length ? 'flex' : 'none';
+          }
+        } catch(e) {}
+        fetch('/cart.js').then(r => r.json()).then(cart => {
+          const cb = document.getElementById('hov-sb-cart-count');
+          if (cb) {
+            cb.textContent = cart.item_count || 0;
+            cb.style.display = cart.item_count > 0 ? 'flex' : 'none';
+          }
+        }).catch(() => {});
+      }
+      updateCounts();
+      document.addEventListener('cart:updated', updateCounts);
+      document.addEventListener('ajaxCart:updated', updateCounts);
+      document.addEventListener('hov:wishlist:changed', updateCounts);
+      document.addEventListener('click', (e) => {
+        if (e.target.closest('[class*="cart"], [class*="add-to-cart"], [class*="wishlist"]')) {
+          setTimeout(updateCounts, 800);
+        }
+      });
+
+      // Login trigger
+      sidebar.querySelector('[data-login-trigger]')
+        ?.addEventListener('click', e => {
+          if (typeof window.hovOpenLoginModal === 'function') {
+            e.preventDefault();
+            closeSidebar();
+            setTimeout(window.hovOpenLoginModal, 380);
+          }
+        });
+
+      window.addEventListener('pageshow', e => {
+        if (e.persisted) closeSidebar();
+      });
+
+      window.hovOpenSidebar  = openSidebar;
+      window.hovCloseSidebar = closeSidebar;
+    })();
+  </script>
+  {% section 'hov-search-overlay' %}
+  {% render 'hov-reel-popup' %}
+</body>
+</html>

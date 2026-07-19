@@ -1,0 +1,131 @@
+<!-- /snippets/ajax-cart-template.liquid -->
+<script id="CartTemplate" type="text/template">
+  {% raw %}
+    <form action="/cart" method="post" novalidate class="ajaxcart" style="display:flex; flex-direction:column; flex:1; overflow:hidden;">
+      
+      <!-- Region B: Scrollable Middle (AJAX version) -->
+      <div class="hov-cart__items-region">
+        {{#items}} 
+        <div class="hov-cart-item hov-cart__item-card minicart_item" data-line="{{line}}" data-product-id="{{productId}}" data-line-total="{{lineTotal}}">
+          <img class="hov-cart-item-img hov-cart__item-image" alt="{{name}}" src="{{img}}">
+          <div class="hov-cart__item-content-col">
+            <div class="hov-cart__item-row-top">
+              <div class="hov-cart-item-info">
+                <a href="{{url}}" class="hov-cart-item-title">{{name}}</a>
+              </div>
+              <div class="hov-cart__item-price-block">
+                <span class="hov-cart-item-price">{{{price}}}</span>
+                {{#if comparePrice}}
+                  <span class="hov-cart__item-price-strike">{{{comparePrice}}}</span>
+                {{/if}}
+              </div>
+            </div>
+            <div class="hov-cart__item-row-bottom">
+              <button type="button" class="hov-cart-item-delete remove-product" data-line="{{line}}" aria-label="Remove item">
+                <svg viewBox="0 0 24 24"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0l-1 14a2 2 0 01-2 2H7a2 2 0 01-2-2L4 6"/></svg>
+              </button>
+              <div class="hov-cart-item-qty">
+                <button type="button" class="ajaxcart__qty-adjust ajaxcart__qty--minus" data-line="{{line}}" data-qty="{{itemMinus}}">
+                  <svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:currentColor;"><path d="M19 13H5v-2h14v2z"/></svg>
+                </button>
+                <span class="ajaxcart__qty-num" data-line="{{line}}">{{itemQty}}</span>
+                <button type="button" class="ajaxcart__qty-adjust ajaxcart__qty--plus" data-line="{{line}}" data-qty="{{itemAdd}}">
+                  <svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:currentColor;"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        {{/items}} 
+        
+        {% endraw %}
+        <div class="hov-cart__coupon-preview" data-coupon-code="{{ settings.coupon_code | default: 'HOV10' }}" data-coupon-percent="{{ settings.coupon_percent | default: 10 }}" data-coupon-min="{{ settings.coupon_min_order | default: 1000 }}">
+          <div class="hov-cart__coupon-preview-row">
+            <div class="hov-cart__coupon-preview-left">
+              <svg class="hov-cart__coupon-icon" viewBox="0 0 24 24" fill="none" stroke="#2D5A27" stroke-width="1.8"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg>
+              <input type="text" class="hov-cart__coupon-input" data-coupon-input value="{{ settings.coupon_code | default: 'HOV10' }}" placeholder="Enter coupon code" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="Coupon code">
+              <span class="hov-cart__coupon-applied" data-coupon-applied hidden>
+                <svg class="hov-cart__coupon-icon" viewBox="0 0 24 24" fill="none" stroke="#2D5A27" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+                <strong data-coupon-applied-code></strong> applied
+                <button type="button" class="hov-cart__coupon-remove" data-coupon-remove aria-label="Remove coupon">×</button>
+              </span>
+            </div>
+            <button type="button" class="hov-cart__coupon-apply-btn" data-coupon-apply>Apply</button>
+          </div>
+          <div class="hov-cart__coupon-error" data-coupon-error role="alert"></div>
+          <div class="hov-cart__coupon-preview-footer">
+            <span class="hov-cart__coupon-more-offers">
+              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="#2D5A27" stroke-width="2"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg>
+              More offers
+            </span>
+            <a href="{{ settings.coupons_page_url | default: '/pages/coupons' }}" class="hov-cart__coupon-view-all">View all coupons ›</a>
+          </div>
+        </div>
+        {% raw %}
+      </div>
+
+      <!-- Region C: Sticky Footer (AJAX version) -->
+      <div class="hov-cart__footer-region">
+
+
+        <div class="hov-cart-summary">
+          <div class="hov-cart-summary-row">
+            <span>Subtotal</span>
+            <span class="enj-cart-subtotal" data-cart-subtotal>{{{subtotalPrice}}}</span>
+          </div>
+          <div class="hov-cart-summary-row hov-cart-summary-discount" data-cart-discount hidden>
+            <span>Discount</span>
+            <span data-cart-discount-amount></span>
+          </div>
+          <div class="hov-cart-summary-row hov-cart-summary-shipping">
+            <span>Shipping</span>
+            <span>Calculated at checkout</span>
+          </div>
+          <div class="hov-cart-summary-divider"></div>
+          <div class="hov-cart-summary-total">
+            <span>Total</span>
+            <span class="enj-cartcost">{{{totalPrice}}}</span>
+          </div>
+        </div>
+
+        <div class="hov-cart-cta">
+          <a href="/cart" class="hov-cart-btn hov-cart-btn-view">
+            <svg viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+            View Cart
+          </a>
+          <a href="/checkout" class="hov-cart-btn hov-cart-btn-checkout">
+            <svg viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+            Checkout Securely
+          </a>
+        </div>
+      </div>
+    </form> 
+  {% endraw %}
+</script>
+
+<script id="AjaxQty" type="text/template">
+  {% raw %}
+    <div class="ajaxcart__qty">
+      <button type="button" class="ajaxcart__qty-adjust ajaxcart__qty--minus icon-fallback-text" data-id="{{id}}" data-qty="{{itemMinus}}">
+        <span class="fa fa-minus" aria-hidden="true"></span>
+  </button>
+      <input type="text" class="ajaxcart__qty-num" value="{{itemQty}}" min="0" data-id="{{id}}" aria-label="quantity" pattern="[0-9]*">
+      <button type="button" class="ajaxcart__qty-adjust ajaxcart__qty--plus icon-fallback-text" data-id="{{id}}" data-qty="{{itemAdd}}">
+        <span class="fa fa-plus"></span>
+  </button>
+  </div>
+  {% endraw %}
+</script>
+<script id="JsQty" type="text/template">
+  {% raw %}
+    <div class="js-qty">
+      <button type="button" class="qty_minus js-qty__adjust js-qty__adjust--minus icon-fallback-text" data-id="{{id}}" data-qty="{{itemMinus}}">
+        <span class="fa fa-caret-down"></span>
+  </button>
+      <input type="text" class="js-qty__num" value="{{itemQty}}" min="1" data-id="{{id}}" aria-label="quantity" pattern="[0-9]*" name="{{inputName}}" id="{{inputId}}">
+      <button type="button" class="qty_plus js-qty__adjust js-qty__adjust--plus icon-fallback-text" data-id="{{id}}" data-qty="{{itemAdd}}">
+        <span class="fa fa-caret-up"></span>
+  </button>
+  </div>
+  {% endraw %}
+</script>

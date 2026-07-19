@@ -1,0 +1,542 @@
+{{ 'fresh-carousel.css' | asset_url | stylesheet_tag }}
+    <!-- <script src="https://cdn.jsdelivr.net/npm/slick-carousel/slick/slick.min.js"></script>
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/slick-carousel/slick/slick.css">
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/slick-carousel/slick/slick-theme.css"> -->
+{% assign meta_images = product.metafields.custom.multiple_images_fresh_carousel.value %}
+{% assign show_message = false %}
+
+{% if template contains 'product' and meta_images != blank %}
+  {% assign show_message = true %}
+{% endif %}
+<div class="img-text {% if show_message %} show_section{% else %}hide_section{% endif %}"  style="padding-top:{{section.settings.pd_tp }}px; padding-bottom:{{section.settings.pd_bp }}px;
+    {% if section.settings.back_img %}
+      background-image: url('{{ section.settings.back_img | img_url: "master" }}');
+      background-repeat: no-repeat;
+      background-size: cover;
+    {% else %}
+      background-color: {{ section.settings.back_color }};
+    {% endif %}
+  ">
+  <div class="ctm-container"> 
+    <div class="ctm-imgtxt {{ section.settings.pos_img }} {{ section.settings.design_op }} ">
+        <div class="image-container" style="text-align:{{ section.settings.img_left }}; width:{{ section.settings.width_left }}%;">
+         
+           <div class="infoo-cr-{{ section.id }} {{ section.settings.pos_img2 }} card-slider dektop-{{ section.settings.columns_desktop }} mobile-cm-{{ section.settings.Mobile_Colmuns }}">
+             {% if meta_images %}
+             {% for image in meta_images %}
+            <div class="Card-blocks">
+               <div class="card">
+                <img  class="lazyload" data-src="{{ image | img_url:'master' }}" class="desktop-v">
+             </div> 
+            </div>
+           {%- endfor -%}
+       
+               {% else %}
+               {% for block in section.blocks %}
+               {% if block.settings.ctm_img12  %}
+                    <img  class="lazyload" data-src="{{ block.settings.ctm_img12 | img_url: 'master' }}" alt="Custom Image" class="dektop-v">
+                 {% endif %}
+              {% if block.settings.ctm_img123  %}
+                    <img  class="lazyload" data-src="{{ block.settings.ctm_img123 | img_url: 'master' }}" alt="Custom Image" class="mobile-v">
+                 {% endif %}
+                 {% endfor %}
+             {% endif %}
+        </div> 
+        </div>
+      {% assign title = product.metafields.custom.multiple_carousel_title.value %}
+     
+        <div class="text-container " style="width:{{ section.settings.width_right }}%; text-align:{{ section.settings.text_pos }}">
+              {%- if section.settings.title_1 != blank and title != blank-%}
+                  <h3 class="inline-richtext" style=" color: {{ section.settings.font_color }};">{{ section.settings.title_1 }}</h3>
+          {% else %}
+                <h3 class="inline-richtext" style=" color: {{ section.settings.font_color }};">Natural and certified organic Ingredients</h3>
+                {%- endif -%}
+              {%- if section.settings.text_1 != blank -%}
+                <div class="rte" style=" color: {{ section.settings.font_color1 }};">{{ section.settings.text_1 }}</div>
+                {%- endif -%}
+            {%- if section.settings.button_label != blank -%}
+              <a
+                class="button button--primary"
+                {% if section.settings.button_link == blank %}
+                  role="link" aria-disabled="true"
+                {% else %}
+                  href="{{ section.settings.button_link }}"
+                {% endif %}
+              >
+                {{ section.settings.button_label | escape }}
+              </a>
+            {%- endif -%}  </div>
+    </div>
+</div> 
+  </div>
+<style>
+.show_section{
+  display:block;
+}
+  .hide_section{
+    display:none;
+  }
+    .card-slider {
+	button {
+		&.slick-prev {
+			&.slick-arrow {
+			    background: url('{{ 'arrow-left.svg' | asset_url }}');
+				right: auto;
+                width: 40px;
+                height: 40px;
+                background-repeat: no-repeat;
+                background-size: contain;
+                left: 7px;
+			}
+		}
+		&.slick-next {
+			&.slick-arrow {
+			    background: url('{{ 'arrow-right.svg' | asset_url }}');
+				width: 40px;
+				height: 40px;
+				background-repeat: no-repeat;
+				background-size: contain;
+              right: auto;
+                left: 70px;
+			}
+		}
+		&.slick-arrow {
+			position: absolute;
+			right: 0;
+			top: auto;
+			font-size: 0;
+			background-color: transparent;
+			border: unset;
+            bottom: -68px;
+		}
+	}
+}
+
+  .ctm-imgtxt h3.inline-richtext {
+    margin: 0 0 0px 0;
+    font-size:{{ section.settings.font_size }}px;
+    font-weight: 300;
+    line-height: 46.2px;
+    text-underline-position: from-font;
+    text-decoration-skip-ink: none;
+   
+}
+.ctm-imgtxt .rte p {
+    font-size:{{ section.settings.font_size1 }}px;
+    font-weight: 300;
+    line-height: 26.6px;
+    text-underline-position: from-font;
+    text-decoration-skip-ink: none;
+   
+}
+@media(max-width:767px) {
+  
+    .card-slider {
+	button {
+		&.slick-prev {
+			&.slick-arrow {
+
+                left: 21px;
+			}
+		}
+		&.slick-next {
+			&.slick-arrow {
+
+                left: 90px;
+			}
+		}
+	
+	}
+}
+}
+</style>
+
+
+   <script>
+     $('.infoo-cr-{{ section.id }}.Slider').slick({
+        slidesToShow:{{ section.settings.block_slide }},
+        slidesToScroll: 1,
+        arrows: true,
+        dots: false,
+        speed: 300,
+        infinite: false,
+        autoplaySpeed: 5000,
+        autoplay: true,
+        responsive: [
+      {
+        breakpoint: 991,
+        settings: {
+          slidesToShow:{{ section.settings.block_slide2 }},
+        }
+      },
+      {
+        breakpoint: 767,
+        settings: {
+          slidesToShow:{{ section.settings.block_slide3 }},
+        }
+      }
+    ]
+      });
+    </script>
+
+{% schema %}
+  {
+    "name": "fresh-carousel",
+    "class": "section Daishik-carousel",
+    "settings": [
+       
+       {
+      "type": "header",
+      "content": "Section padding"
+      },
+        {
+        "type": "range",
+        "id": "pd_tp",
+        "label": "padding top",
+        "default": 50,
+        "min": 10,
+        "max": 100,
+        "step": 1
+      },
+	  {
+        "type": "range",
+        "id": "pd_bp",
+        "label": "padding bottom",
+        "default": 50,
+        "min": 10,
+        "max": 100,
+        "step": 1
+      },
+      
+	    {
+        "type": "color",
+        "id": "back_color",
+        "label": "Background Color",
+        "default": "#fbedef"
+       },
+       {
+        "type": "image_picker",
+        "id": "back_img",
+        "label": "Background Image"
+       },
+      
+       {
+      "type": "header",
+      "content": "Image"
+    },
+               {
+          "type": "select",
+          "id": "width_right",
+          "label": "Column Width",
+          "default": "66",
+          "options": [
+              {
+                  "value": "25",
+                  "label": "25%"
+              },
+              {
+                  "value": "33",
+                  "label": "33%"
+              },
+			   {
+                  "value": "50",
+                  "label": "50%"
+              },
+			    {
+                  "value": "66",
+                  "label": "66%"
+              },
+             {
+                  "value": "75",
+                  "label": "75%"
+              }
+			  
+          ]
+      },
+    {
+      "type": "header",
+      "content": "Text"
+    },
+       {
+          "type": "inline_richtext",
+          "id": "title_1",
+          "default": "What is evcucalyptus tea tree face mist?",
+          "label": "Tittle"
+        },
+        {
+        "type": "range",
+        "id": "font_size",
+        "label": "Font Size",
+        "default": 33,
+        "min": 10,
+        "max": 50,
+        "step": 1
+      },
+       {
+        "type": "color",
+        "id": "font_color",
+        "label": "Tittle Color",
+        "default": "#A1894C"
+       },
+        {
+          "type": "richtext",
+          "id": "text_1",
+          "default": "<p>Personal care’s Amla Ginger Green Tea combines the potent benefits of Amla and Ginger, creating a refreshing tea that supports both your immune and digestive systems. </p>",
+          "label": "Text"
+        },
+          {
+        "type": "range",
+        "id": "font_size1",
+        "label": "Font Size",
+        "default": 19,
+        "min": 10,
+        "max": 50,
+        "step": 1
+      },
+       {
+        "type": "color",
+        "id": "font_color1",
+        "label": "Tittle Color",
+        "default": "#2A2A2A"
+       },
+        {
+          "type": "text",
+          "id": "button_label",
+          "label": "Button Text"
+        },
+        {
+          "type": "url",
+          "id": "button_link",
+          "label": "Button link"
+        },
+        {
+          "type": "select",
+          "id": "text_pos",
+          "label": "Image style",
+          "default": "left",
+          "options": [
+              {
+                  "value": "left",
+                  "label": "left"
+              },
+              {
+                  "value": "center",
+                  "label": "center"
+              },
+              {
+                  "value": "right",
+                  "label": "right"
+              }
+            
+          ]
+      },
+    {
+      "type": "header",
+      "content": "Slider"
+    },
+       {
+      "type": "range",
+      "id": "columns_desktop",
+      "min": 1,
+      "max": 6,
+      "step": 1,
+      "default": 3,
+      "label": "Desktop Colmuns"
+    },
+ {
+          "type": "select",
+          "id": "Mobile_Colmuns",
+          "label": "Mobile Colmuns",
+          "default": "1",
+          "options": [
+              {
+                  "value": "1",
+                  "label": "1"
+              },
+              {
+                  "value": "2",
+                  "label": "2"
+              },
+          ]
+      },
+      {
+          "type": "select",
+          "id": "block_slide",
+          "label": "Slider Desktop",
+          "default": "3.5",
+          "options": [
+             {
+                  "value": "2",
+                  "label": "2"
+              },
+              {
+                  "value": "2.5",
+                  "label": "2.5"
+              },
+              {
+                  "value": "3",
+                  "label": "3"
+              },
+              {
+                  "value": "3.5",
+                  "label": "3.5"
+              },
+              {
+                  "value": "4",
+                  "label": "4"
+              },
+            {
+                  "value": "4.5",
+                  "label": "4.5"
+              }
+          ]
+      },
+       {
+          "type": "select",
+          "id": "block_slide2",
+          "label": "Slider Tablet",
+          "default": "3.5",
+          "options": [
+              {
+                  "value": "2",
+                  "label": "2"
+              },
+              {
+                  "value": "2.5",
+                  "label": "2.5"
+              },
+              {
+                  "value": "3",
+                  "label": "3"
+              },
+            {
+                  "value": "3.5",
+                  "label": "3.5"
+              }
+          ]
+      },
+       {
+          "type": "select",
+          "id": "block_slide3",
+          "label": "Slider Mobile",
+          "default": "1.5",
+          "options": [
+              {
+                  "value": "1",
+                  "label": "1"
+              },
+            {
+                  "value": "1.5",
+                  "label": "1.5"
+              },
+              {
+                  "value": "2",
+                  "label": "2"
+              },
+          ]
+      },
+         {
+          "type": "select",
+          "id": "pos_img",
+          "label": "Image position",
+          "default": "right",
+          "options": [
+              {
+                  "value": "right",
+                  "label": "right"
+              },
+              {
+                  "value": "left",
+                  "label": "left"
+              },
+          ]
+      },
+       {
+      "type": "select",
+      "id": "pos_img2",
+      "label": "Column layout",
+      "default": "grid",
+      "options": [
+          {
+              "value": "grid",
+              "label": "grid"
+          },
+          {
+              "value": "Slider",
+              "label": "Slider"
+          },
+      ]
+      },
+      {
+          "type": "select",
+          "id": "width_left",
+          "label": "Column Width",
+          "default": "33",
+          "options": [
+              {
+                  "value": "25",
+                  "label": "25%"
+              },
+              {
+                  "value": "33",
+                  "label": "33%"
+              },
+			   {
+                  "value": "50",
+                  "label": "50%"
+              },
+			  {
+                  "value": "66",
+                  "label": "66%"
+              },
+              {
+                  "value": "75",
+                  "label": "75%"
+              }
+          ]
+      },
+ 
+
+    ],
+            "blocks": [
+    {
+      "type": "image",
+      "name": "image slide",
+      "settings": [
+             {
+          "type": "image_picker",
+          "id": "ctm_img12",
+          "label": "Desktop Image"
+       },
+       {
+          "type": "image_picker",
+          "id": "ctm_img123",
+          "label": "Mobile Image"
+       },
+        {
+          "type": "image_picker",
+          "id": "ctm_circle_image",
+          "label": "Circle Image"
+       },
+         {
+          "type": "richtext",
+          "id": "ctm_title",
+          "label": "Heading"
+       },
+         {
+          "type": "richtext",
+          "id": "ctm_content",
+          "label": "Content"
+       },
+        
+   
+      ]
+    }
+  ],
+      "presets": [
+    {
+      "name": "fresh-carousel",
+    }
+  ]
+  }
+{% endschema %}

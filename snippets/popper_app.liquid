@@ -1,0 +1,184 @@
+{%liquid
+assign popper_popup_json = shop.metafields['5648753'].popups
+assign popper_settings = shop.metafields['5648753'].shop_metadata
+if popper_settings.value.frontend_ga_code
+    assign popper_ga_code = popper_settings.value.frontend_ga_code
+endif
+%}
+{% if popper_ga_code %}
+<script async src='https://www.googletagmanager.com/gtag/js?id={{popper_ga_code}}'></script>
+<script>window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', '{{popper_ga_code}}', {
+    'cookie_flags': 'samesite=none;secure'
+});
+window.popper_ga = (type, event, eventCategory, eventAction, eventLabel, eventValue) => {
+    let date = Date.now();
+    gtag('event', event, {
+        'time': date,
+        'type': type,
+        'event' : event,
+        'category': eventCategory,
+        'action': eventAction,
+        'label': eventLabel,
+        'value': eventValue
+    })
+}
+</script>
+{% else %}
+<script>window.popper_ga = (type, event, category, action, label, value) => {return false;}</script>
+{% endif %}<script>var PopperAnglerfox={variables:{shop: '[PLACEHOLDER — shudhi myshopify domain]',app_url:'https://popup.anglerfox.com'}};    {% assign collectionList = '' %}
+    {% for cartItem in cart.items %}
+        {% for collection in cartItem.product.collections %}
+        {% if forloop.first == true %}
+                {% assign collectionHandle = collection.handle  %}
+        {% else %}
+                {% assign collectionHandle = collection.handle  | prepend: '/' %}
+        {% endif %}
+            {% assign collectionList = collectionList | append: collectionHandle %}
+        {% endfor %}
+    {% endfor %}
+    PopperAnglerfox.variables.cartObj = {{cart|json}};
+    function ifPopupMatchUrl(configUrl){
+        let currentUrl = new URL(window.location.href);
+        switch (configUrl) {
+            case 'All Pages':
+                return true;
+                break;
+            case 'Home Page Only':
+                return currentUrl.pathname == '/';
+                break;
+            case 'All Product Page':
+                return currentUrl.pathname.startsWith('/products');
+                break;
+            case 'All Collection Page':
+                return currentUrl.pathname.startsWith('/collections') && !currentUrl.pathname.includes('/product');
+                break;
+            default:
+                return ifSpecificPageUrl(configUrl)
+                break;
+        }
+    }
+    function ifSpecificPageUrl(configUrl){
+        let currentUrl = new URL(window.location.href);
+        if (!/^(?:f|ht)tps?\:\/\//.test(configUrl)) {
+            configUrl = 'https://' + configUrl;
+        }
+        let url = new URL(configUrl);
+        return url.host+url.pathname == currentUrl.host+currentUrl.pathname;
+    }
+    function getCookie(cname) {
+        let name = cname + '=';
+        let decodedCookie = decodeURIComponent(document.cookie);
+        let ca = decodedCookie.split(';');
+        for(let i = 0; i <ca.length; i++) {
+            let c = ca[i];
+            while (c.charAt(0) == ' ') {
+                c = c.substring(1);
+            }
+            if (c.indexOf(name) == 0) {
+                return c.substring(name.length, c.length);
+            }
+        }
+        return null;
+    }function checkCustomerTags(check,tags){
+        if(!check) return true;
+        let customerTags ={% if customer.tags %} {{customer.tags|json}}; {% else %} null; {% endif %}
+        if(!customerTags) return false;
+        return tags.some(r=> customerTags.includes(r))
+    }
+    function checkCartDiscount(check){
+        if(check==1) return true;
+        let discount_code = getCookie('discount_code');
+        let cartObj = PopperAnglerfox.variables.cartObj;
+        if(cartObj.cart_level_discount_applications.length>0 || cartObj.total_discount>0 || discount_code){
+            if(check==2)return true;
+        }
+        return false;
+    }
+    function checkCartAmount(condition,amount){
+        if(amount==0)return true;
+        let cartObj = PopperAnglerfox.variables.cartObj;
+        if(condition=='shorter' && (cartObj.total_price/100)<amount){
+            return true;
+        }
+        if(condition=='greater' && (cartObj.total_price/100)>amount){
+            return true;
+        }
+        return false;
+    }
+    function checkDateBetween(dates){
+        if(!dates || dates.length==0) return true;
+        let from = (new Date(dates[0]));//.setHours(0,0,0,0);//.getTime();
+        let to   = (new Date(dates[1]));//.getTime();
+        let check = (new Date());//.getTime();
+        if(check >= from && check <= to){
+            return true
+        }
+    }
+    function checkMobileOrDesktop(plateform){
+        const widnowWidth = window.innerWidth;
+        if(((widnowWidth<700 && plateform=='mobile') || (widnowWidth>700 && plateform=='desktop')) || plateform=='both'){
+            return true;
+        }
+        return false;
+    }
+    function checkProductCollection(isActive, type, name){
+        if(!isActive)return true;
+        if(type=='collection'){
+            let collectionObj = '{{ collectionList }}'.split('/');
+            return collectionObj.includes(name.name)
+        }
+        if(type=='product'){
+            let cartObj = PopperAnglerfox.variables.cartObj;
+            return cartObj.items.some(r=> name.id.includes(r.product_id))
+        }
+        return false;
+    }
+
+    function checkNewUser(configuration,id){
+       if(typeof configuration.showToNewUsersOnly == 'undefined' || !configuration.showToNewUsersOnly ||
+          ((typeof ShopifyAnalytics != "undefined" && typeof ShopifyAnalytics.meta.page.customerId == 'undefined') || localStorage.getItem("popup_"+id) == null))
+         return true;
+
+        return false;
+    }
+{% if popper_popup_json %}
+    PopperAnglerfox.variables.haveToShowPopup = false;
+    PopperAnglerfox.variables.popper_popup_json = {{popper_popup_json}};
+    PopperAnglerfox.variables.queryString = window.location.search;
+    PopperAnglerfox.variables.urlParams = new URLSearchParams(PopperAnglerfox.variables.queryString);
+    PopperAnglerfox.variables.popper_id = PopperAnglerfox.variables.urlParams.get('popper_id')
+    PopperAnglerfox.variables.popper_popup_json.forEach((popup)=>{
+        if(parseInt(popup.id)==parseInt(PopperAnglerfox.variables.popper_id)){
+            PopperAnglerfox.variables.haveToShowPopup=true;
+        }else if(popup.status){
+            let popup_json_value = JSON.parse(popup.popup_json)
+            let configuration = popup_json_value.configuration.input
+            if(
+                ifPopupMatchUrl(configuration.page_url) &&
+                checkMobileOrDesktop(configuration.visible_on) &&
+                checkDateBetween(configuration.available_on) &&
+                checkCartAmount(configuration.cart_value_condition, configuration.cart_value_amount) &&
+                checkCartDiscount(configuration.show_if_no_discount_on_cart) &&
+                checkCustomerTags(configuration.show_to_customer_tags, configuration.customer_tags) &&
+                checkProductCollection(configuration.show_on_cart_product_collection,configuration.cart_check_type, configuration.cart_check) &&
+                checkNewUser(configuration,popup.id)
+            ){
+                PopperAnglerfox.variables.haveToShowPopup=true
+            }
+        }
+    })
+    if(PopperAnglerfox.variables.haveToShowPopup){
+        window.addEventListener('load', (event) => {
+            let script = document.createElement('script');
+            script.type = 'text/javascript';
+            script.src = PopperAnglerfox.variables.app_url+'/frontend/dist/main.js';
+            script.async = true;
+            //script.dataset.cfasync = false;
+            document.head.appendChild(script);
+        })
+    }
+{% endif %}
+</script>

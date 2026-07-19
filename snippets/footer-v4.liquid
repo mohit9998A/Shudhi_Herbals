@@ -1,0 +1,178 @@
+{% if section.settings.select_fts == "footer_v4" %}
+{% if template contains 'index' %}
+<footer class="footer_v4" style="background-color : {{section.settings.ft_home_bg_footer}}">
+  {% if settings.enable_fv4_bottom %}
+  <div class="copyright">
+    <div class="container container-v1">
+      <div class="row align-items-center">
+        <div class="col-md-8 col-lg-7 {% if settings.enable_rtl_mode %} text-md-right {% else %}text-md-left {% endif %} text-center">
+          <div class="logo-footer">
+            {% if settings.logo_svg4 !=blank %}
+            <div class="logosvg m-auto m-md-0" style="max-width:{{settings.fv4_main_logo_maxwidth}}px;">
+              <a class="d-block" href="{{shop.url}}">{{settings.logo_svg4}}</a>          
+            </div>          
+            {% else %}            
+            <a href="{{shop.url}}" class="logo">
+              {% if settings.fv4_main_logo != blank %}
+              <img data-src="{{settings.fv4_main_logo | img_url:'master'}}"  width="{{settings.fv4_main_logo_maxwidth}}" alt="{{shop.name}}" class="lazyload img-fluid">
+              {% else %}
+              <img data-src="//via.placeholder.com/127x35" width="{{settings.fv4_main_logo_maxwidth}}" alt="{{shop.name}}" class="lazyload img-fluid">
+              {% endif %}
+            </a>
+              
+            <a class="fs-12" href="[PLACEHOLDER]">Privacy Policy</a>
+            <a class="fs-12" href="[PLACEHOLDER]">Terms & Conditions</a>    
+            <a class="fs-12" href="[PLACEHOLDER]">Shipping/Delivery Policy</a>
+            <a class="fs-12" href="[PLACEHOLDER]">Organic & Quality Certification</a>
+            <a class="fs-12" href="[PLACEHOLDER]">Herbs</a>
+              
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="col-md-1 col-lg-1 text-center">
+          {% if settings.fv4_bottom_payment_img != blank %}
+          <img data-src="{{settings.fv4_bottom_payment_img | img_url:'master'}}"  class="lazyload" alt="">
+          {% else %}
+            <ul class="list-inline list-unstyled mb-0">    
+                <li class="list-inline-item">
+                  <a href="[PLACEHOLDER]" rel="nofollow" title="" class="social-item"><i class="fa fa-twitter"></i></a>
+                </li>
+                <li class="list-inline-item">
+                  <a href="[PLACEHOLDER]" rel="nofollow" title="" class="social-item"><i class="fa fa-facebook"></i></a>
+                </li>                
+                <li class="list-inline-item">
+                  <a href="[PLACEHOLDER]" rel="nofollow" title="" class="social-item"><i class="fa fa-instagram"></i></a>
+                </li>
+            </ul>
+          {% endif %}
+        </div>
+
+        <div class="col-md-3 col-lg-4  {% if settings.enable_rtl_mode %} text-md-left {% else %}text-md-right {% endif %} text-center">
+          {% if settings.fv4_bottom_copyright != blank %}
+          <p class="text-copyright mb-0">{{settings.fv4_bottom_copyright}}</p>
+          {% else %}
+          {% if settings.enable_rtl_mode %}
+          <div class="text-copyright mb-0"><p>© <a href="https://www.shopify.com/?ref=shopifycenter" rel="nofollow" target="_blank" class=""> Powered by Shopify.</a>  <a href="http://themeocean.net/" rel="nofollow" target="_blank" class="underline_hover link"> ThemeOcean</a> By  <a href="http://themeocean.net/" rel="nofollow" target="_blank" class="underline_hover bold">  HerbyoStore </a> | 2021 Copyright   </p> 
+          </div>          
+          {% else %}
+          <div class="text-copyright mb-0"><p>© Copyright 2021 | <a href="http://themeocean.net/" rel="nofollow" target="_blank" class="underline_hover bold">  HerbyoStore </a> By <a href="http://themeocean.net/" rel="nofollow" target="_blank" class="underline_hover link"> ThemeOcean.</a><a href="https://www.shopify.com/?ref=shopifycenter" rel="nofollow" target="_blank" class=""> Powered by Shopify.</a></p> 
+          </div>
+          {% endif %}
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+</footer>
+<style>
+  .copyright ul li a{
+    color : {{section.settings.ft_home_color_text}};
+  }
+  .text-copyright {
+    color: {{section.settings.ft_home_color_text}};
+  }
+  .logo-footer a {
+      color: {{section.settings.ft_home_color_text}};
+  }
+  .fs-12{
+    font-size: 13px;
+    border-left: 2px solid #b8b2b2;
+    border-right: 2px solid #b8b2b2;
+    padding: 0 5px;
+  }
+</style>
+{% endif %}
+{% endif %}
+
+{% if section.settings.select_fts_all == "footer_ver4" %}
+{% unless template contains 'index' %}
+<footer class="footer_v4 " style="background-color : {{section.settings.ft_other_bg_footer}}">
+  
+  {% if settings.enable_fv4_bottom %}
+  <div class="copyright">
+    <div class="container container-v1">
+      <div class="row align-items-center">
+        <div class="col-md-8 col-lg-7 {% if settings.enable_rtl_mode %} text-md-right {% else %}text-md-left {% endif %} text-center">
+          <div class="logo-footer">
+            {% if settings.logo_svg4 !=blank %}
+            <div class="logosvg m-auto m-md-0" style="max-width:{{settings.fv4_main_logo_maxwidth}}px;">
+              <a class="d-block" href="{{shop.url}}">{{settings.logo_svg4}}</a>          
+            </div>          
+            {% else %}            
+            <a href="{{shop.url}}" class="logo">
+              {% if settings.fv4_main_logo != blank %}
+              <img data-src="{{settings.fv4_main_logo | img_url:'master'}}"  width="{{settings.fv4_main_logo_maxwidth}}" alt="{{shop.name}}" class="lazyload img-fluid">
+              {% else %}
+              <img data-src="//via.placeholder.com/127x35" width="{{settings.fv4_main_logo_maxwidth}}" alt="{{shop.name}}" class="lazyload img-fluid">
+              {% endif %}
+            </a>
+              
+              <a class="fs-12" href="[PLACEHOLDER]">Privacy Policy</a>
+              <a class="fs-12" href="[PLACEHOLDER]">Terms & Conditions</a>    
+              <a class="fs-12" href="[PLACEHOLDER]">Shipping/Delivery Policy</a>
+              <a class="fs-12" href="[PLACEHOLDER]">Organic & Quality Certification</a>
+              <a class="fs-12" href="[PLACEHOLDER]">Herbs</a>
+              
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="col-md-1 col-lg-1 text-center">
+          {% if settings.fv4_bottom_payment_img != blank %}
+          <img data-src="{{settings.fv4_bottom_payment_img | img_url:'master'}}" class="lazyload" alt="">
+          {% else %}
+            <ul class="list-inline list-unstyled mb-0">    
+                <li class="list-inline-item">
+                  <a href="[PLACEHOLDER]" title="" class="social-item"><i class="fa fa-twitter"></i></a>
+                </li>
+                <li class="list-inline-item">
+                  <a href="[PLACEHOLDER]" title="" class="social-item"><i class="fa fa-facebook"></i></a>
+                </li>                
+                <li class="list-inline-item">
+                  <a href="[PLACEHOLDER]" title="" class="social-item"><i class="fa fa-instagram"></i></a>
+                </li>
+            </ul>
+          {% endif %}
+        </div>
+    
+        <div class="col-md-3 col-lg-4  {% if settings.enable_rtl_mode %} text-md-left {% else %}text-md-right {% endif %} text-center">
+          {% if settings.fv4_bottom_copyright != blank %}
+          <p class="text-copyright mb-0">{{settings.fv4_bottom_copyright}}</p>
+          {% else %}
+          {% if settings.enable_rtl_mode %}
+          <div class="text-copyright mb-0"><p>© <a href="https://www.shopify.com/?ref=shopifycenter" rel="nofollow" target="_blank" class=""> Powered by Shopify.</a>  <a href="http://themeocean.net/" rel="nofollow" target="_blank" class="underline_hover link"> ThemeOcean</a> By  <a href="http://themeocean.net/" rel="nofollow" target="_blank" class="underline_hover bold">  HerbyoStore </a> | 2021 Copyright   </p> 
+          </div>          
+          {% else %}
+          <div class="text-copyright mb-0"><p>© Copyright 2021 | <a href="http://themeocean.net/" rel="nofollow" target="_blank" class="underline_hover bold">  HerbyoStore </a> By <a href="http://themeocean.net/" rel="nofollow" target="_blank" class="underline_hover link"> ThemeOcean.</a><a href="https://www.shopify.com/?ref=shopifycenter" rel="nofollow" target="_blank" class=""> Powered by Shopify.</a></p> 
+          </div>
+          {% endif %}
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+</footer>
+<style>
+  .copyright ul li a{
+    color : {{section.settings.ft_home_color_text}};
+  }
+  .text-copyright {
+    color: {{section.settings.ft_home_color_text}};
+  }
+  .logo-footer a {
+      color: {{section.settings.ft_home_color_text}};
+  }
+  .fs-12{
+    font-size: 13px;
+    border-left: 2px solid #b8b2b2;
+    border-right: 2px solid #b8b2b2;
+    padding: 0 5px;
+  }
+</style>
+{% endunless %}
+{% endif %}

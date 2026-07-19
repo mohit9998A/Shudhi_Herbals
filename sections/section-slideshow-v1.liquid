@@ -1,0 +1,1083 @@
+<div class="hov-hero-section" data-section-id="{{ section.id }}" data-section-type="section-slideshow-v1">
+  <div class="hov-hero-card-container">
+    <div class="hov-hero-slider-container">
+      <div class="hov-hero-slider"
+           data-autoplay="{{ section.settings.autoplay }}"
+           data-autoplay-speed="{{ section.settings.autoplay_speed }}">
+        {% if section.blocks.size > 0 %}
+          {% for block in section.blocks %}
+            {% if block.type == "slideshow" %}
+              
+              {%- assign desktop_image = block.settings.slide_image -%}
+              {%- assign mobile_image = block.settings.slide_image_mb | default: desktop_image -%}
+
+              {%- if desktop_image != blank -%}
+                {%- assign desktop_image_url = desktop_image | image_url: width: 2000 -%}
+              {%- else -%}
+                {%- assign desktop_image_url = '//via.placeholder.com/1920x900' -%}
+              {%- endif -%}
+
+              {%- if mobile_image != blank -%}
+                {%- assign mobile_image_url = mobile_image | image_url: width: 800 -%}
+              {%- else -%}
+                {%- assign mobile_image_url = '//via.placeholder.com/600x800' -%}
+              {%- endif -%}
+              
+              {% if block.settings.cta_link != blank %}
+                <a href="{{ block.settings.cta_link }}" class="hov-hero-slide-item" {{ block.shopify_attributes }}>
+              {% else %}
+                <div class="hov-hero-slide-item" {{ block.shopify_attributes }}>
+              {% endif %}
+                
+                <div class="hov-hero-slide-bg d-none d-md-block" style="background-image: url('{{ desktop_image_url }}');"></div>
+                <div class="hov-hero-slide-bg d-block d-md-none" style="background-image: url('{{ mobile_image_url }}');"></div>
+                
+              {% if block.settings.cta_link != blank %}
+                </a>
+              {% else %}
+                </div>
+              {% endif %}
+            {% endif %}
+          {% endfor %}
+        {% endif %}
+      </div>
+
+      {% comment %} Custom Navigation Arrows {% endcomment %}
+      <button type="button" class="hov-hero-prev-arrow hov-hero-prev" aria-label="Previous">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+      </button>
+      <button type="button" class="hov-hero-next-arrow hov-hero-next" aria-label="Next">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+      </button>
+
+      {% comment %} Custom Navigation Dots — mobile only (hidden ≥769px via CSS) {% endcomment %}
+      {% if section.blocks.size > 1 %}
+      <ul class="hov-hero-dots">
+        {% for block in section.blocks %}{% if block.type == "slideshow" %}
+        <li><button type="button" class="hov-hero-dot" aria-label="Go to slide {{ forloop.index }}"></button></li>
+        {% endif %}{% endfor %}
+      </ul>
+      {% endif %}
+    </div>
+
+    {% comment %} Trust Strip {% endcomment %}
+    <div class="hov-hero-trust-strip">
+      <div class="hov-hero-trust-item">
+        <div class="hov-hero-trust-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+          </svg>
+        </div>
+        <div class="hov-hero-trust-text">
+          <span class="hov-hero-trust-line1">{{ section.settings.trust_1_line1 }}</span>
+          <span class="hov-hero-trust-line2">{{ section.settings.trust_1_line2 }}</span>
+        </div>
+      </div>
+
+      <div class="hov-hero-trust-item">
+        <div class="hov-hero-trust-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M2 22C2 12 10 4 22 2C22 12 14 20 2 22Z"></path>
+            <path d="M9 15L22 2"></path>
+          </svg>
+        </div>
+        <div class="hov-hero-trust-text">
+          <span class="hov-hero-trust-line1">{{ section.settings.trust_2_line1 }}</span>
+          <span class="hov-hero-trust-line2">{{ section.settings.trust_2_line2 }}</span>
+        </div>
+      </div>
+
+      <div class="hov-hero-trust-item">
+        <div class="hov-hero-trust-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 10v12"></path>
+            <path d="M12 10a6 6 0 0 0-6-6H3v2a6 6 0 0 0 6 6h3Z"></path>
+            <path d="M12 14a6 6 0 0 1 6-6h3v2a6 6 0 0 1-6 6h-3Z"></path>
+          </svg>
+        </div>
+        <div class="hov-hero-trust-text">
+          <span class="hov-hero-trust-line1">{{ section.settings.trust_3_line1 }}</span>
+          <span class="hov-hero-trust-line2">{{ section.settings.trust_3_line2 }}</span>
+        </div>
+      </div>
+
+      <div class="hov-hero-trust-item">
+        <div class="hov-hero-trust-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="1" y="3" width="15" height="13"></rect>
+            <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon>
+            <circle cx="5.5" cy="18.5" r="2.5"></circle>
+            <circle cx="18.5" cy="18.5" r="2.5"></circle>
+          </svg>
+        </div>
+        <div class="hov-hero-trust-text">
+          <span class="hov-hero-trust-line1">{{ section.settings.trust_4_line1 }}</span>
+          <span class="hov-hero-trust-line2">{{ section.settings.trust_4_line2 }}</span>
+        </div>
+      </div>
+    </div><!-- /.hov-hero-trust-strip -->
+  </div><!-- /.hov-hero-card-container -->
+</div><!-- /.hov-hero-section -->
+
+
+<script>
+// Scoped inside DOMContentLoaded or existing section init
+(function() {
+  function initHovHeroSlider() {
+    const sliderContainer = document.querySelector('.hov-hero-slider-container');
+    if (!sliderContainer) return;
+
+    const slider = sliderContainer.querySelector('.hov-hero-slider');
+    if (!slider) return;
+
+    const slides = slider.querySelectorAll('.hov-hero-slide-item');
+    const dots = sliderContainer.querySelectorAll('.hov-hero-dot');
+    const totalSlides = slides.length;
+    if (totalSlides <= 1) return;
+
+    let currentIndex = 0;
+    let autoplayTimer = null;
+    const autoplayEnabled = true;
+    const autoplaySpeed = 3000;
+
+    function goToSlide(index) {
+      // Remove active classes
+      slides.forEach(s => s.classList.remove('hov-hero-slide-item--active'));
+      dots.forEach(d => d.classList.remove('hov-hero-dot--active'));
+
+      // Set active slide and dot
+      currentIndex = (index + totalSlides) % totalSlides;
+      slides[currentIndex].classList.add('hov-hero-slide-item--active');
+      if (dots[currentIndex]) {
+        dots[currentIndex].classList.add('hov-hero-dot--active');
+      }
+    }
+
+    function nextSlide() {
+      goToSlide(currentIndex + 1);
+    }
+
+    function startAutoplay() {
+      if (!autoplayEnabled) return;
+      stopAutoplay();
+      autoplayTimer = setInterval(nextSlide, autoplaySpeed);
+    }
+
+    function stopAutoplay() {
+      if (autoplayTimer) clearInterval(autoplayTimer);
+    }
+
+    // Wire prev/next buttons
+    const prevBtn = sliderContainer.querySelector('.hov-hero-prev');
+    const nextBtn = sliderContainer.querySelector('.hov-hero-next');
+    if (prevBtn) {
+      prevBtn.addEventListener('click', () => {
+        goToSlide(currentIndex - 1);
+        startAutoplay();
+      });
+    }
+    if (nextBtn) {
+      nextBtn.addEventListener('click', () => {
+        goToSlide(currentIndex + 1);
+        startAutoplay();
+      });
+    }
+
+    // Wire dots
+    dots.forEach((dot, i) => {
+      dot.addEventListener('click', () => {
+        goToSlide(i);
+        startAutoplay();
+      });
+    });
+
+    // Pause on hover
+    sliderContainer.addEventListener('mouseenter', stopAutoplay);
+    sliderContainer.addEventListener('mouseleave', startAutoplay);
+
+    // Pause when tab is hidden
+    document.addEventListener('visibilitychange', () => {
+      document.hidden ? stopAutoplay() : startAutoplay();
+    });
+
+    // Init
+    goToSlide(0);
+    startAutoplay();
+  }
+
+  // Run on load and theme editor events
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initHovHeroSlider);
+  } else {
+    initHovHeroSlider();
+  }
+
+  document.addEventListener('shopify:section:load', function(e) {
+    if (e.detail.sectionId === '{{ section.id }}' || e.target.querySelector('[data-section-id="{{ section.id }}"]')) {
+      initHovHeroSlider();
+    }
+  });
+})();
+</script>
+
+<style>
+.hov-hero-section {
+  width: 100%;
+  margin-top: 0;
+  padding-top: 0;
+  display: block;
+}
+/* Zero out the Shopify section wrapper itself */
+#shopify-section-{{ section.id }},
+.shopify-section:has(.hov-hero-section) {
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+.hov-hero-card-container {
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  border-radius: 0;
+  overflow: hidden;           /* keep — contains slide transitions */
+  box-shadow: none;
+  position: relative;         /* keep — needed for absolutely-positioned children */
+  background: transparent;
+}
+.hov-hero-slider-container {
+  position: relative;
+  width: 100%;
+}
+.hov-hero-slider {
+  position: relative;
+  width: 100%;
+  height: calc(100vh - var(--hov-promo-height, 0px));
+  min-height: 480px;
+  max-height: 900px;
+  margin: 0;
+  margin-top: var(--hov-promo-height, 0px);
+  padding: 0;
+  overflow: hidden;
+}
+/* Mobile header (<1200px) is in-flow above the hero, so the hero must not also
+   offset by promo height (that would double-count and leave a gap on tablets). */
+@media (max-width: 1199px) {
+  .hov-hero-slider {
+    margin-top: 0;
+  }
+}
+@media (max-width: 768px) {
+  .hov-hero-slider {
+    height: 42vh;
+    min-height: 280px;
+    max-height: 380px;
+  }
+}
+@media (max-width: 480px) {
+  .hov-hero-slider {
+    height: 42vh;
+    min-height: 260px;
+    max-height: 360px;
+  }
+}
+.hov-hero-slide-item {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex !important;
+  align-items: center;
+  box-sizing: border-box;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+  opacity: 0;
+  z-index: 0;
+  pointer-events: none;
+  transition: opacity 0.7s ease-in-out;
+}
+.hov-hero-slide-item.hov-hero-slide-item--active {
+  opacity: 1;
+  z-index: 1;
+  pointer-events: auto;
+}
+@media (max-width: 767px) {
+  .hov-hero-slide-item {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 40px 20px 80px 20px;
+  }
+}
+.hov-hero-slide-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center right;
+  z-index: 0;
+}
+
+.hov-hero-content-zone {
+  position: absolute;
+  left: 5%;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 45%;
+  z-index: 2;
+}
+@media (max-width: 1024px) {
+  .hov-hero-content-zone {
+    width: 55%;
+  }
+}
+@media (max-width: 768px) {
+  .hov-hero-content-zone {
+    position: relative;
+    top: auto;
+    left: auto;
+    transform: none;
+    width: 90%;
+    margin-top: 20px;
+  }
+}
+.hov-hero-badge-pill {
+  display: inline-flex;
+  align-items: center;
+  background: rgba(255,255,255,0.85);
+  border: 1px solid #DDD;
+  border-radius: 999px;
+  padding: 6px 16px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: #333;
+  margin-bottom: 20px;
+}
+.hov-hero-badge-dot {
+  color: #2D5A27;
+  margin-right: 6px;
+  font-size: 16px;
+  line-height: 1;
+}
+.hov-hero-headline {
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+.hov-hero-headline-l1,
+.hov-hero-headline-l2 {
+  font-size: clamp(28px, 3.5vw, 48px);
+  font-weight: 900;
+  text-transform: uppercase;
+  color: #1A2E1A;
+  line-height: 1.1;
+  letter-spacing: -0.5px;
+}
+@media (max-width: 480px) {
+  .hov-hero-headline-l1,
+  .hov-hero-headline-l2 {
+    font-size: clamp(22px, 6vw, 32px);
+  }
+}
+.hov-hero-subheading {
+  font-size: 16px;
+  color: #444;
+  font-weight: 400;
+  margin-top: 12px;
+  margin-bottom: 0;
+}
+.hov-hero-features-row {
+  display: flex;
+  gap: 20px;
+  margin-top: 20px;
+  flex-wrap: wrap;
+}
+.hov-hero-feature-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: auto;
+}
+.hov-hero-feature-circle {
+  width: 36px;
+  height: 36px;
+  border: 1.5px solid #CCC;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255,255,255,0.8);
+}
+.hov-hero-feature-text {
+  font-size: 11px;
+  font-weight: 600;
+  color: #333;
+  line-height: 1.3;
+  text-align: center;
+  margin-top: 4px;
+}
+@media (max-width: 1024px) {
+  .hov-hero-features-row {
+    display: none;
+  }
+}
+.hov-hero-cta-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: #1A3D1A;
+  color: #FFFFFF !important;
+  border-radius: 999px;
+  padding: 14px 28px;
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-top: 28px;
+  text-decoration: none;
+  transition: background 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
+}
+.hov-hero-cta-btn:hover {
+  background: #2D5A27;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+}
+.hov-hero-cta-arrow {
+  background: rgba(255,255,255,0.2);
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.25s ease;
+}
+.hov-hero-cta-btn:hover .hov-hero-cta-arrow {
+  transform: translateX(2px);
+}
+.hov-hero-foreground-container {
+  position: absolute;
+  right: 3%;
+  bottom: 0;
+  height: 90%;
+  z-index: 1;
+  pointer-events: none;
+}
+.hov-hero-foreground-image {
+  height: 100%;
+  object-fit: contain;
+}
+@media (max-width: 1024px) {
+  .hov-hero-foreground-container {
+    right: 2%;
+    height: 80%;
+  }
+}
+@media (max-width: 768px) {
+  .hov-hero-foreground-container {
+    position: relative;
+    right: auto;
+    bottom: auto;
+    width: 80%;
+    max-width: 300px;
+    height: auto;
+    margin: 20px auto 0 auto;
+    align-self: center;
+  }
+  .hov-hero-foreground-image {
+    width: 100%;
+    height: auto;
+  }
+}
+.hov-hero-offer-badge {
+  position: absolute;
+  top: 32px;
+  right: 32%;
+  z-index: 3;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: #8B1A1A;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+}
+.hov-hero-offer-badge-line1 {
+  color: #FFFFFF;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+.hov-hero-offer-badge-line2 {
+  color: #FFFFFF;
+  font-size: 20px;
+  font-weight: 700;
+}
+@media (max-width: 1024px) {
+  .hov-hero-offer-badge {
+    width: 80px;
+    height: 80px;
+  }
+  .hov-hero-offer-badge-line1 {
+    font-size: 9px;
+  }
+  .hov-hero-offer-badge-line2 {
+    font-size: 16px;
+  }
+}
+@media (max-width: 768px) {
+  .hov-hero-offer-badge {
+    top: 16px;
+    right: 16px;
+    width: 70px;
+    height: 70px;
+  }
+  .hov-hero-offer-badge-line1 {
+    font-size: 8px;
+  }
+  .hov-hero-offer-badge-line2 {
+    font-size: 14px;
+  }
+}
+.hov-hero-trust-strip {
+  position: absolute;
+  bottom: 20px;               /* lifts it off the bottom edge */
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 80px);   /* doesn't span full width — breathing room on sides */
+  max-width: 900px;
+  height: auto;
+  padding: 10px 24px;         /* compact vertical padding */
+  border-radius: 999px;       /* full pill shape */
+  background: rgba(20, 30, 20, 0.50);
+  backdrop-filter: blur(16px) saturate(1.4);
+  -webkit-backdrop-filter: blur(16px) saturate(1.4);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.25);
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  gap: 0;
+  flex-wrap: nowrap;
+}
+.hov-hero-trust-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 16px;
+  flex: 1;
+  justify-content: center;
+  height: 100%;
+}
+.hov-hero-trust-item:not(:last-child) {
+  border-right: 1px solid rgba(255, 255, 255, 0.15);
+}
+.hov-hero-trust-item:last-child {
+  border-right: none;
+}
+.hov-hero-trust-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.hov-hero-trust-icon svg {
+  width: 22px !important;
+  height: 22px !important;
+  stroke: rgba(255, 255, 255, 0.85) !important;
+  fill: none !important;
+  stroke-width: 1.6px !important;
+}
+.hov-hero-trust-text {
+  display: flex;
+  flex-direction: column;
+}
+.hov-hero-trust-line1 {
+  font-size: 12px;
+  font-weight: 600;
+  color: #FFFFFF;
+  line-height: 1.2;
+}
+.hov-hero-trust-line2 {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.60);
+  line-height: 1.2;
+}
+@supports not (backdrop-filter: blur(1px)) {
+  .hov-hero-trust-strip {
+    background: rgba(15, 25, 15, 0.85) !important;
+  }
+}
+@media (max-width: 768px) {
+  .hov-hero-trust-strip {
+    position: absolute;
+    bottom: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: calc(100% - 32px);
+    max-width: none;
+    height: auto;
+    padding: 6px 10px;
+    border-radius: 16px;
+    flex-wrap: wrap;
+    background: rgba(20, 30, 20, 0.50);
+    backdrop-filter: blur(16px) saturate(1.4);
+    -webkit-backdrop-filter: blur(16px) saturate(1.4);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.25);
+  }
+  .hov-hero-trust-item {
+    width: 50%;
+    flex: none;
+    padding: 6px 12px;
+    height: auto;
+    justify-content: flex-start;
+    box-sizing: border-box;
+    border-right: none !important;
+  }
+  .hov-hero-trust-item:not(:last-child) {
+    border-right: none !important;
+  }
+  .hov-hero-trust-item:nth-child(odd) {
+    border-right: 1px solid rgba(255, 255, 255, 0.12) !important;
+  }
+  .hov-hero-trust-item:nth-child(1), .hov-hero-trust-item:nth-child(2) {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12) !important;
+    padding-bottom: 8px;
+  }
+  .hov-hero-trust-item:nth-child(3), .hov-hero-trust-item:nth-child(4) {
+    padding-top: 8px;
+  }
+}
+@media (max-width: 480px) {
+  /* Mockup: 4-up trust card at the hero's bottom edge (icon stacked above 2-line label) */
+  .hov-hero-trust-strip {
+    display: flex !important;
+    flex-wrap: nowrap;
+    bottom: 8px;
+    left: 12px;
+    right: 12px;
+    width: auto;
+    max-width: none;
+    transform: none;
+    padding: 6px 2px;
+    border-radius: 14px;
+    justify-content: space-around;
+    gap: 0;
+  }
+  .hov-hero-trust-item {
+    width: auto;
+    flex: 1 1 0;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    justify-content: flex-start;
+    gap: 5px;
+    padding: 0 3px;
+    height: auto;
+  }
+  /* Thin vertical dividers between the 4 columns; reset the 2×2 borders from the ≤768 rules */
+  .hov-hero-trust-item:nth-child(1),
+  .hov-hero-trust-item:nth-child(2),
+  .hov-hero-trust-item:nth-child(3) {
+    border-right: 1px solid rgba(255,255,255,0.15) !important;
+  }
+  .hov-hero-trust-item:nth-child(4) {
+    border-right: none !important;
+  }
+  .hov-hero-trust-item:nth-child(1),
+  .hov-hero-trust-item:nth-child(2),
+  .hov-hero-trust-item:nth-child(3),
+  .hov-hero-trust-item:nth-child(4) {
+    border-bottom: none !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+  }
+  .hov-hero-trust-icon svg {
+    width: 20px !important;
+    height: 20px !important;
+  }
+  .hov-hero-trust-line1 { font-size: 9px; line-height: 1.15; }
+  .hov-hero-trust-line2 { font-size: 8px; line-height: 1.15; }
+}
+.hov-hero-prev-arrow,
+.hov-hero-next-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.85);
+  border: 1px solid #DDD;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  outline: none;
+  padding: 0;
+  transition: background 0.25s ease, box-shadow 0.25s ease;
+}
+.hov-hero-prev-arrow {
+  left: 24px;
+}
+.hov-hero-next-arrow {
+  right: 24px;
+}
+.hov-hero-prev-arrow:hover,
+.hov-hero-next-arrow:hover {
+  background: #FFFFFF;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+}
+.hov-hero-prev-arrow svg,
+.hov-hero-next-arrow svg {
+  width: 18px;
+  height: 18px;
+  stroke: #333;
+}
+@media (max-width: 768px) {
+  .hov-hero-prev-arrow,
+  .hov-hero-next-arrow {
+    display: none !important;
+  }
+}
+.hov-hero-dots {
+  position: absolute;
+  bottom: 88px;
+  left: 5%;
+  display: flex !important;
+  gap: 8px;
+  z-index: 10;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.hov-hero-dots li {
+  margin: 0;
+  padding: 0;
+}
+.hov-hero-dots li button {
+  font-size: 0;
+  line-height: 0;
+  display: block;
+  width: 8px;
+  height: 8px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.5);
+  cursor: pointer;
+  outline: none;
+  transition: width 0.3s ease, border-radius 0.3s ease, background 0.3s ease;
+}
+.hov-hero-dots li button.hov-hero-dot--active {
+  width: 24px;
+  border-radius: 999px;
+  background: #2D5A27;
+}
+@media (max-width: 768px) {
+  .hov-hero-dots {
+    bottom: 120px;
+    left: 5%;
+  }
+}
+/* Dots are mobile-only — desktop intentionally has none, so keep it unchanged there */
+@media (min-width: 769px) {
+  .hov-hero-dots { display: none !important; }
+}
+/* Phone: center the dots above the trust card (mockup) */
+@media (max-width: 480px) {
+  .hov-hero-dots {
+    bottom: 92px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+}
+</style>
+
+{% schema %}
+{
+  "name": "SLIDESHOW",
+  "class": "index-section",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Section Settings"
+    },
+    {
+      "type": "checkbox",
+      "id": "autoplay",
+      "label": "Enable Autoplay",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "autoplay_speed",
+      "min": 2000,
+      "max": 8000,
+      "step": 1000,
+      "unit": "ms",
+      "label": "Autoplay Speed",
+      "default": 5000
+    },
+    {
+      "type": "header",
+      "content": "Trust Strip Settings"
+    },
+    {
+      "type": "text",
+      "id": "trust_1_line1",
+      "label": "Trust Item 1 Line 1",
+      "default": "No Harmful"
+    },
+    {
+      "type": "text",
+      "id": "trust_1_line2",
+      "label": "Trust Item 1 Line 2",
+      "default": "Chemicals"
+    },
+    {
+      "type": "text",
+      "id": "trust_2_line1",
+      "label": "Trust Item 2 Line 1",
+      "default": "Eco-Friendly"
+    },
+    {
+      "type": "text",
+      "id": "trust_2_line2",
+      "label": "Trust Item 2 Line 2",
+      "default": "Packaging"
+    },
+    {
+      "type": "text",
+      "id": "trust_3_line1",
+      "label": "Trust Item 3 Line 1",
+      "default": "Sourced From"
+    },
+    {
+      "type": "text",
+      "id": "trust_3_line2",
+      "label": "Trust Item 3 Line 2",
+      "default": "Certified Farms"
+    },
+    {
+      "type": "text",
+      "id": "trust_4_line1",
+      "label": "Trust Item 4 Line 1",
+      "default": "Secure Packaging"
+    },
+    {
+      "type": "text",
+      "id": "trust_4_line2",
+      "label": "Trust Item 4 Line 2",
+      "default": "Pan India Delivery"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "slideshow",
+      "name": "Slide",
+      "settings": [
+        {
+          "type": "header",
+          "content": "Badge"
+        },
+        {
+          "type": "text",
+          "id": "badge_text",
+          "label": "Badge Pill Text",
+          "default": "NEW LAUNCH"
+        },
+        {
+          "type": "header",
+          "content": "Heading"
+        },
+        {
+          "type": "text",
+          "id": "heading_line1",
+          "label": "Headline Line 1",
+          "default": "NO MORE CHEMICALS"
+        },
+        {
+          "type": "text",
+          "id": "heading_line2",
+          "label": "Headline Line 2",
+          "default": "IN YOUR CUP"
+        },
+        {
+          "type": "text",
+          "id": "subheading",
+          "label": "Subheading",
+          "default": "Switch to Organic, Not Just Premium"
+        },
+        {
+          "type": "header",
+          "content": "Feature 1"
+        },
+        {
+          "type": "select",
+          "id": "feature_1_icon",
+          "label": "Feature 1 Icon",
+          "options": [
+            {"value": "leaf", "label": "Leaf"},
+            {"value": "cup", "label": "Cup"},
+            {"value": "sparkle", "label": "Sparkle"},
+            {"value": "heart", "label": "Heart"}
+          ],
+          "default": "leaf"
+        },
+        {
+          "type": "text",
+          "id": "feature_1_label",
+          "label": "Feature 1 Label",
+          "default": "100% Organic"
+        },
+        {
+          "type": "header",
+          "content": "Feature 2"
+        },
+        {
+          "type": "select",
+          "id": "feature_2_icon",
+          "label": "Feature 2 Icon",
+          "options": [
+            {"value": "leaf", "label": "Leaf"},
+            {"value": "cup", "label": "Cup"},
+            {"value": "sparkle", "label": "Sparkle"},
+            {"value": "heart", "label": "Heart"}
+          ],
+          "default": "cup"
+        },
+        {
+          "type": "text",
+          "id": "feature_2_label",
+          "label": "Feature 2 Label",
+          "default": "Rich Aroma"
+        },
+        {
+          "type": "header",
+          "content": "Feature 3"
+        },
+        {
+          "type": "select",
+          "id": "feature_3_icon",
+          "label": "Feature 3 Icon",
+          "options": [
+            {"value": "leaf", "label": "Leaf"},
+            {"value": "cup", "label": "Cup"},
+            {"value": "sparkle", "label": "Sparkle"},
+            {"value": "heart", "label": "Heart"}
+          ],
+          "default": "sparkle"
+        },
+        {
+          "type": "text",
+          "id": "feature_3_label",
+          "label": "Feature 3 Label",
+          "default": "Natural Goodness"
+        },
+        {
+          "type": "header",
+          "content": "Feature 4"
+        },
+        {
+          "type": "select",
+          "id": "feature_4_icon",
+          "label": "Feature 4 Icon",
+          "options": [
+            {"value": "leaf", "label": "Leaf"},
+            {"value": "cup", "label": "Cup"},
+            {"value": "sparkle", "label": "Sparkle"},
+            {"value": "heart", "label": "Heart"}
+          ],
+          "default": "heart"
+        },
+        {
+          "type": "text",
+          "id": "feature_4_label",
+          "label": "Feature 4 Label",
+          "default": "Better Health"
+        },
+        {
+          "type": "header",
+          "content": "Call To Action"
+        },
+        {
+          "type": "text",
+          "id": "cta_text",
+          "label": "CTA Button Text",
+          "default": "EXPLORE ORGANIC TEA"
+        },
+        {
+          "type": "url",
+          "id": "cta_link",
+          "label": "CTA Button Link",
+          "default": "/collections/all"
+        },
+        {
+          "type": "header",
+          "content": "Offer Badge"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_offer_badge",
+          "label": "Show Offer Badge",
+          "default": true
+        },
+        {
+          "type": "textarea",
+          "id": "offer_badge_text",
+          "label": "Offer Badge Text",
+          "default": "FLAT\n₹75 OFF*"
+        },
+        {
+          "type": "header",
+          "content": "Images"
+        },
+        {
+          "type": "image_picker",
+          "id": "slide_image",
+          "label": "Background Image (Desktop)"
+        },
+        {
+          "type": "image_picker",
+          "id": "slide_image_mb",
+          "label": "Background Image (Mobile)"
+        },
+        {
+          "type": "image_picker",
+          "id": "foreground_image",
+          "label": "Foreground Image (Optional product cutout)"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "SLIDESHOW",
+      "category": "HOME",
+      "blocks": [
+        {
+          "type": "slideshow"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}
+
+{% javascript %}
+{% endjavascript %}

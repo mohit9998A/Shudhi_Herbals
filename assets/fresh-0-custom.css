@@ -1,0 +1,194 @@
+ant.btn-action.detail-attr.qty-cart {
+    display: block !important;
+}
+.btn-action.detail-attr.qty-cart .qty_price {
+    display: flex;
+    align-items: center;
+}
+.image-slider .text-info h2.title.inline-richtext strong {
+    font-weight: 500;
+}
+.btn-action.detail-attr.qty-cart .qty_price select#Quantity {
+    width: 135px;
+    margin-right: 23px;
+}
+.btn-action.detail-attr.qty-cart .qty_price .product-price .product-price span.spr-badge-caption.pl-1 {
+    display: block;
+}
+.btn-action.detail-attr.qty-cart .qty_price .product-price .product-price {
+    display: inline-block;
+    margin-bottom: 0 !important;
+}
+/* 17-april-25 */
+
+.product__accordion.accordion.quick-add-hidden {
+    display: none;
+}
+
+.detail-info  .addto_caart {
+    display: flex;
+    gap: 10px;
+    align-items: baseline;
+}
+.detail-info button.shop-button.enj-add-to-cart-btn.engoj-btn-addtocart {
+    width: 201px!important;
+    border-radius: 12px;
+    height: 56px!important;
+}
+.detail-info button.shopify-payment-button__button.shopify-payment-button__button--unbranded {
+    width: 198px!important;
+    border-radius: 12px!important;
+    height: 56px;
+}
+
+.footer__content-bottom {
+    background: #F3DBBE;
+    /* padding-top: 20px; */
+    padding-bottom: 20px;
+}
+.footer__content-bottom .footer__content-bottom-wrapper.page-width:first-child {
+    display: none;
+}
+.footer__content-bottom-wrapper.page-width {
+    padding: 0 5rem;
+}
+.page-width {
+    max-width: 160rem;
+    margin: 0 auto;
+}
+.footer__copyright.caption.text-center {
+    text-align: center !important;
+}
+.payment-icon {
+    display: flex;
+    gap: 7px;
+    padding-bottom: 10px;
+}
+button.play-button.hidden {
+    display: none;
+}
+/* body .payment-icon img {
+    padding: 0 10px;
+}
+body .payment-icon img {
+    background: unset;
+    width: 160px;
+    height: 45px;
+    margin-right: -12px;
+}
+.payment-icon img {
+    border-radius: 5px;
+}
+body .payment-icon img {
+    background: unset;
+    width: 160px;
+    height: 45px;
+    margin-right: -12px;
+}
+ */
+@media (max-width: 767px) {
+	.img-text.show_section {
+    padding-top: 20px !important;
+    padding-bottom: 50px !important;
+}
+.detail-info .addto_caart {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+}
+.prod_extended .content-page-detail .detail-info .btn-action .shop-button, .product_sidebar .content-page-detail .detail-info .btn-action .shop-button {
+    height: 46px;
+}
+.full-secton.pro-video.grid-videos {
+    padding-top: 0 !important;
+}
+.detail-info .shopify-payment-button__button--unbranded {
+    width: 183px !important;
+}
+  body .menu_moblie .logo_menumoblie a img {
+    width: 71%;
+    text-align: center;
+    margin: auto;
+    display: block;
+}
+  .featured-icon {
+    padding-bottom: 30px;
+}
+.brand-logo {
+    padding-top: 30px;
+    padding-bottom: 30px;
+}
+  .img-text.colection223 {
+    padding-top: 10px !important;
+    padding-bottom: 37px !important;
+}
+.image-slider.singal-image {
+    padding-bottom: 40px !important;
+}
+  .image-slider.singal-image h2.title.inline-richtext {
+    margin: 0 !important;
+}
+  body .accordion-item button {
+    padding-right: 30px !important;
+}
+  hr.hr45 {
+    margin: 1rem 0 1rem !important;
+}
+  body .img-text.colection223 .text-container {
+    margin-bottom: 0 !important;
+}
+  div#Description picture {
+    display: none !important;
+}
+  .brand-logo .mobile-cm-2 {
+    justify-content: center;
+}
+ body .full-secton.tabs-ctm {
+    padding-top: 30px;
+    padding-bottom: 20px;
+}
+}
+@media (min-width: 320px) and (max-width: 391px) {
+.detail-info button.shopify-payment-button__button.shopify-payment-button__button--unbranded {
+    width: 140px!important;
+    font-size: 10px !important;
+}
+.detail-info button.shop-button.enj-add-to-cart-btn.engoj-btn-addtocart {
+    font-size: 10px !important;
+}
+
+}
+
+body .tab-content picture {
+    text-align: center;
+    display: block;
+}
+.part-2 img {
+    width:40%;
+}
+
+
+.no_card_slider {
+    display: flex;
+    gap: 10px;
+}
+.no_card_slider .Card-blocks .card {
+    border: unset;
+    background: transparent;
+}
+.related-product .title_heading {
+    text-transform: capitalize;
+}
+.ctm-imgtxt.right .image-container img {
+    border-radius: 12px;
+}
+.jdgm-rev-widg__title {
+    font-size: 28px !important;
+    font-weight: 500;
+}
+
+@media (min-width: 1024px){
+.img-text .ctm-imgtxt.right .text-container {
+    padding-right: 3rem;
+}
+}

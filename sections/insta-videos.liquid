@@ -1,0 +1,702 @@
+{{ 'fresh-0-video-columns.css' | asset_url | stylesheet_tag }}
+
+<div class="full-secton {{ section.settings.dynamic_class }} {{ section.settings.design }}"  style="padding-top:{{section.settings.pd_tp }}px; padding-bottom:{{section.settings.pd_bp }}px;
+    {% if section.settings.back_img %}
+      background-image: url('{{ section.settings.back_img | img_url: "master" }}');
+      background-repeat: no-repeat;
+      background-size: cover;
+    {% else %}
+    background-color:{{ section.settings.back_color }};
+    {% endif %}">
+    <div class="page-width container container-v2">
+      <div class="slide-1 info">
+        <div class="text-info"> 
+       <h2 class="title inline-richtext" style="color:{{ section.settings.text_color }};   text-align:{{ section.settings.text_postion }};">
+          {{ section.settings.title }}
+        </h2>
+           {%- if section.settings.text89 != blank -%}
+      <div class="rte">{{ section.settings.text89 }}</div>
+    {%- endif -%}
+        </div>
+        <div class="carosel">
+          <div class="info-cr info-cr-{{ section.id }} {{ section.settings.pos_img }} dektop-{{ section.settings.columns_desktop }} mobile-cm-{{ section.settings.Mobile_Colmuns }}">
+          
+            <!----------------------------------- BLOCK CODE -----------------------------------------------> 
+       
+             {%- for block in section.blocks -%} 
+              <div class="sl-content {{ section.settings.desogn }}">
+                 <div class="box0-ctm" style="text-align: {{ section.settings.aligncenter }}; background: {{ section.settings.back_color1 }};">
+                      <div class="image">
+                           {% if block.settings.ctm_img  %}
+                                <img src="{{ block.settings.ctm_img | img_url: 'master' }}" alt="Custom Image">
+                           {% endif %}
+                           {% if block.settings.ctm_video %}
+                               <div class="video-container videoo-{{ section.id }}">
+                                  <video id="video_{{ block.id }}"  class="custom-video ctm_video_{{ section.id }}" poster="{{ block.settings.poter_img | image_url: width: 300 }}">
+                                      {% if block.settings.ctm_video.sources %}
+                                          {% for source in block.settings.ctm_video.sources %}
+                                              <source src="{{ source.url }}" type="{{ source.mime_type }}">
+                                          {% endfor %}
+                                      {% endif %}
+                                    </video>
+                                    <button class="play-button ply_btn_{{ section.id }}">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="62" height="62" viewBox="0 0 62 62" fill="none">
+                                        <path d="M24.292 20.2067C24.292 19.4155 25.1672 18.9377 25.8327 19.3655L43.4002 30.6588C44.0125 31.0525 44.0125 31.9475 43.4002 32.3412L25.8328 43.6345C25.1672 44.0623 24.292 43.5845 24.292 42.7933V20.2067Z" stroke="#FBFBFB" style="stroke:#FBFBFB;stroke:color(display-p3 0.9843 0.9843 0.9843);stroke-opacity:1;" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <circle cx="31" cy="31" r="30.5" stroke="#FBFBFB" style="stroke:#FBFBFB;stroke:color(display-p3 0.9843 0.9843 0.9843);stroke-opacity:1;"/>
+                                        </svg>
+                                    </button>
+                               </div>     
+                          {% endif %}
+                      </div>
+                      <div class="text0">
+                          {%- if block.settings.title != blank -%}
+                              <h3 class="inline-richtext " style="font-size:{{ block.settings.heading_size12 }}px; color:{{ block.settings.colo898 }}; font-weight:{{ block.settings.font_weight }};">{{ block.settings.title }}</h3>
+                          {%- endif -%}
+                          {%- if block.settings.text != blank -%}
+                            <div class="rte" style="font-size:{{ block.settings.heading_size1 }}px; color:{{ block.settings.colo89 }};">{{ block.settings.text }}</div>
+                          {%- endif -%}
+                          {%- if block.settings.link_label != blank -%}
+                                <a class="link animate-arrow"
+                                  {% if block.settings.link == blank %}
+                                    role="link" aria-disabled="true"
+                                  {% else %}
+                                    href="{{ block.settings.link }}"
+                                  {% endif %}
+                                >
+                                  {{- block.settings.link_label | escape -}}
+                                  <span class="svg-wrapper"
+                                    ><span class="icon-wrap">&nbsp;{{ 'icon-arrow.svg' | inline_asset_content }}</span></span
+                                  >
+                                </a>
+                          {%- endif -%}
+                      </div>
+              </div>
+            </div>
+          {%- endfor -%}
+         
+ <!----------------------------------- END BLOCK CODE -----------------------------------------------> 
+
+          </div>
+        </div>
+      </div>
+       {%- if section.settings.button_label_1 != blank -%}
+                <a
+                  {% if section.settings.button_link_1 == blank %}
+                    role="link" aria-disabled="true"
+                  {% else %}
+                    href="{{ section.settings.button_link_1 }}"
+                  {% endif %}
+                  class="button{% if section.settings.button_style_secondary_1 %} button--secondary{% else %} button--primary{% endif %}  ctm-btn-2"
+                >
+                  {{- section.settings.button_label_1 | escape -}} 
+                <svg xmlns="http://www.w3.org/2000/svg" width="51" height="50" viewBox="0 0 51 50" fill="none">
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48" fill="none">
+<rect width="48" height="48" rx="24" fill="#A48E57" style="fill:#A48E57;fill:color(display-p3 0.6431 0.5569 0.3412);fill-opacity:1;"/>
+<path d="M19 29L29 19M29 19H19M29 19V29" stroke="#FBFBFB" style="stroke:#FBFBFB;stroke:color(display-p3 0.9843 0.9843 0.9843);stroke-opacity:1;" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+                </a>
+              {%- endif -%}
+    </div>
+</div>
+
+<style>
+  
+.video-container {
+    position: relative;
+}
+  .box0-ctm video {
+    border-radius: 18px;
+}
+  .box0-ctm {
+    padding: 10px;
+    margin: {{ section.settings.mar_wh }}px;
+}
+  .box0-ctm {
+    border-radius:{{ section.settings.radius }}px;;
+}
+  .carosel {
+	button {
+		&.slick-prev {
+			&.slick-arrow {
+			    background: url('{{ 'arrow-left.svg' | asset_url }}');
+				right: 55px;
+				width: 40px;
+				height: 40px;
+				background-repeat: no-repeat;
+				background-size: contain;
+			}
+		}
+		&.slick-next {
+			&.slick-arrow {
+			    background: url('{{ 'arrow-right.svg' | asset_url }}');
+				width: 40px;
+				height: 40px;
+				background-repeat: no-repeat;
+				background-size: contain;
+			}
+		}
+		&.slick-arrow {
+			position: absolute;
+			right: 0;
+			top: -50px;
+			font-size: 0;
+			background-color: transparent;
+			border: unset;
+		}
+	}
+}
+  .box0-ctm {
+    text-align: {{ section.settings.aligncenter}};
+}
+  .box0-ctm .image img {
+    text-align:{{ section.settings.aligncenter}};
+    margin: auto;
+    margin-bottom: 30px;
+  }
+  .full-secton.Brand-logo .info-cr.grid .image img {
+    width: 70%;
+}
+  .singal-btn .slide-1.info p {
+    color: #B49C60;
+}
+   @media(max-width:767px) {
+  .text-info h2 {
+    font-size:{{ section.settings.heading_sizem }}px !important;
+ }
+  }
+  @media(min-width:768px) {
+    .text-info h2 {
+    font-size:{{ section.settings.heading_size }}px !important;
+    font-weight:500;
+}
+  }
+  .video-playing button.play-button {
+    opacity: 0;
+}
+  </style>
+    <script>
+     $('.info-cr-{{ section.id }}.Slider').slick({
+        slidesToShow:{{ section.settings.block_slide }},
+        slidesToScroll: 1,
+        arrows: true,
+        dots: false,
+        speed: 300,
+        infinite: false,
+        autoplaySpeed: 5000,
+        autoplay: true,
+        responsive: [
+      {
+        breakpoint: 991,
+        settings: {
+          slidesToShow:{{ section.settings.block_slide2 }},
+        }
+      },
+      {
+        breakpoint: 767,
+        settings: {
+          slidesToShow:{{ section.settings.block_slide3 }},
+        }
+      }
+    ]
+      });
+    </script>
+{% if section.settings.autplay_video == true %}
+    <script>
+document.addEventListener("DOMContentLoaded", function() {
+    var videos = document.querySelectorAll('.vieww-in-all');
+
+    // IntersectionObserver ko use kar rahe hain
+    var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+                // Jab video viewport mein aaye, autoplay shuru karo
+                entry.target.play();
+                entry.target.classList.add('visible');
+            } else {
+                
+                entry.target.pause();
+            }
+        });
+    }, { threshold: 0.5 }); 
+
+    // Sabhi videos ko observer ke andar add karo
+    videos.forEach(function(video) {
+        observer.observe(video);
+    });
+});
+
+    </script>
+  {% else %}
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+  const videos = document.querySelectorAll('.ctm_video_{{ section.id }}');
+
+  videos.forEach(function(video){
+
+    const container = video.closest('.videoo-{{ section.id }}');
+
+    container.addEventListener("click", function(){
+
+      // Pause other videos and remove class
+      videos.forEach(function(v){
+        const c = v.closest('.videoo-{{ section.id }}');
+
+        if(v !== video){
+          v.pause();
+          c.classList.remove("video-playing");
+        }
+      });
+
+      // Toggle current video
+      if(video.paused){
+        video.play();
+        container.classList.add("video-playing");
+      }else{
+        video.pause();
+        container.classList.remove("video-playing");
+      }
+
+    });
+
+  });
+
+});
+
+  </script>
+  {% endif %}
+{% schema %}
+  {
+    "name": "Insta-video",
+     "class": "section Daishik-video-columns",
+    "settings": [
+        {
+    "type": "text",
+    "id": "dynamic_class",
+    "label": "Dynamic Class"
+    },
+       {
+    "type": "checkbox",
+    "id": "autplay_video",
+    "label": "Autoplay Video"
+    },
+         {
+          "type": "select",
+          "id": "design",
+          "label": "Design Option",
+          "default": "design-1",
+          "options": [
+              {
+                  "value": "design-1",
+                  "label": "Design-1"
+              },
+              {
+                  "value": "Design-2",
+                  "label": "Design-2"
+              },
+            {
+                  "value": "Home-icon",
+                  "label": "Design-3"
+              },
+            {
+                  "value": "grid-videos",
+                  "label": "Grid-video-only"
+              },
+            {
+                  "value": "Brand-logo",
+                  "label": "Brand-logo"
+              },
+          ]
+      },
+      {
+      "type": "header",
+      "content": "Section padding"
+      },
+      {
+        "type": "range",
+        "id": "pd_tp",
+        "label": "padding top",
+        "default": 50,
+        "min": 10,
+        "max": 100,
+        "step": 1
+      },
+	  {
+        "type": "range",
+        "id": "pd_bp",
+        "label": "padding bottom",
+        "default": 50,
+        "min": 10,
+        "max": 100,
+        "step": 1
+      },
+        {
+      "type": "header",
+      "content": "Section tittle"
+     },
+       {
+      "type": "inline_richtext",
+      "id": "title",
+      "default": "Our third party certified",
+      "label": "Section Tittle"
+    },
+       {
+        "type": "range",
+        "id": "heading_size",
+        "label": "Font Size",
+        "default": 50,
+        "min": 10,
+        "max": 60,
+        "step": 1
+      },
+             {
+        "type": "range",
+        "id": "heading_sizem",
+        "label": "Font Size mobile",
+        "default": 28,
+        "min": 10,
+        "max": 60,
+        "step": 1
+      },
+         {
+      "type": "richtext",
+      "id": "text89",
+      "label": "text"
+    },
+       {
+          "type": "text",
+          "id": "button_label_1",
+          "label": "Button",
+          "info": "Leave the label blank to hide the button."
+        },
+        {
+          "type": "url",
+          "id": "button_link_1",
+          "label": "URL"
+        },
+        {
+          "type": "checkbox",
+          "id": "button_style_secondary_1",
+          "default": false,
+          "label": "Use outline button style"
+        },
+      {
+      "type": "color",
+      "id": "text_color",
+      "label": "Color",
+      "default": "#ffffff"
+      },
+         {
+      "type": "select",
+      "id": "text_postion",
+      "label": "Alignment",
+      "default": "center",
+      "options": [
+          {
+              "value": "center",
+              "label": "center"
+          },
+          {
+              "value": "right",
+              "label": "right"
+          },
+          {
+              "value": "left",
+              "label": "left"
+          },
+      ]
+  },
+       {
+      "type": "header",
+      "content": "Column Design"
+    },
+    {
+    "type": "color",
+    "id": "back_color",
+    "label": "Background color",
+    "default": "#ffffff"
+    },
+      {
+        "type": "image_picker",
+        "id": "back_img",
+        "label": "Background Image"
+       },
+       {
+        "type": "range",
+        "id": "radius",
+        "label": "Radius",
+        "default": 12,
+        "min": 10,
+        "max": 60,
+        "step": 1
+      },
+   {
+      "type": "select",
+      "id": "pos_img",
+      "label": "Column layout",
+      "default": "grid",
+      "options": [
+          {
+              "value": "grid",
+              "label": "grid"
+          },
+          {
+              "value": "Slider",
+              "label": "Slider"
+          },
+      ]
+      },
+       {
+      "type": "range",
+      "id": "columns_desktop",
+      "min": 1,
+      "max": 6,
+      "step": 1,
+      "default": 3,
+      "label": "Desktop Colmuns"
+    },
+ {
+          "type": "select",
+          "id": "Mobile_Colmuns",
+          "label": "Mobile Colmuns",
+          "default": "1",
+          "options": [
+              {
+                  "value": "1",
+                  "label": "1"
+              },
+              {
+                  "value": "2",
+                  "label": "2"
+              },
+          ]
+      },
+     {
+      "type": "header",
+      "content": "Slider"
+    },
+      {
+          "type": "select",
+          "id": "block_slide",
+          "label": "Slider Desktop",
+          "default": "3.5",
+          "options": [
+              {
+                  "value": "3",
+                  "label": "3"
+              },
+              {
+                  "value": "3.5",
+                  "label": "3.5"
+              },
+              {
+                  "value": "4",
+                  "label": "4"
+              },
+            {
+                  "value": "4.5",
+                  "label": "4.5"
+              }
+          ]
+      },
+       {
+          "type": "select",
+          "id": "block_slide2",
+          "label": "Slider Tablet",
+          "default": "3.5",
+          "options": [
+              {
+                  "value": "2",
+                  "label": "2"
+              },
+              {
+                  "value": "2.5",
+                  "label": "2.5"
+              },
+              {
+                  "value": "3",
+                  "label": "3"
+              },
+            {
+                  "value": "3.5",
+                  "label": "3.5"
+              }
+          ]
+      },
+       {
+          "type": "select",
+          "id": "block_slide3",
+          "label": "Slider Mobile",
+          "default": "1.5",
+          "options": [
+              {
+                  "value": "1",
+                  "label": "1"
+              },
+            {
+                  "value": "1.5",
+                  "label": "1.5"
+              },
+              {
+                  "value": "2",
+                  "label": "2"
+              },
+          ]
+      },
+    {
+      "type": "header",
+      "content": "Box Design" 
+     },
+        {
+          "type": "select",
+          "id": "desogn",
+          "label": "Design Option",
+          "default": "image-top",
+          "options": [
+              {
+                  "value": "image-top",
+                  "label": "Image-top"
+              },
+              {
+                  "value": "Image-left",
+                  "label": "Image-left"
+              }
+  ]
+      },
+    {
+      "type": "color",
+      "id": "back_color1",
+      "label": "Column background color",
+      "default": "#ffffff"
+    },
+     {
+        "type": "range",
+        "id": "mar_wh",
+        "label": "Column Gap",
+        "default":12,
+        "min": 10,
+        "max": 20,
+        "step": 1
+      },
+    {
+      "type": "select",
+      "id": "aligncenter",
+      "label": "Column alignment",
+      "default": "center",
+      "options": [
+          {
+              "value": "center",
+              "label": "center"
+          },
+          {
+              "value": "right",
+              "label": "right"
+          },
+          {
+              "value": "left",
+              "label": "left"
+          },
+      ]
+  }
+    ],
+      "blocks": [
+    {
+      "type": "column",
+      "name": "column",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "ctm_img",
+          "label": "Image"
+        },
+          {
+      "type": "header",
+      "content": "Video"
+    },
+        {
+          "type": "video",
+          "id": "ctm_video",
+          "label": "Video"
+       },
+        {
+          "type": "image_picker",
+          "id": "poter_img",
+          "label": "Poster Image"
+        },
+         {
+          "type": "inline_richtext",
+          "id": "title",
+          "default": "colmun",
+          "label": "Tittle"
+        },
+           {
+        "type": "range",
+        "id": "heading_size12",
+        "label": "Font Size",
+        "default":12,
+        "min": 10,
+        "max": 28,
+        "step": 1
+       },
+      {
+      "type": "color",
+      "id": "colo898",
+      "label": "Text color",
+      "default": "#000"
+       },
+        {
+          "type": "richtext",
+          "id": "text",
+          "default": "<p>Personal care Organic Amla Ginger Green Tea. Our herbal tea boosts immunity, </p>",
+          "label": "Text"
+        },
+        
+           {
+        "type": "range",
+        "id": "heading_size1",
+        "label": "Font Size",
+        "default":12,
+        "min": 10,
+        "max": 20,
+        "step": 1
+      },
+        {
+      "type": "color",
+      "id": "colo89",
+      "label": "Text color",
+      "default": "#000"
+       },
+        {
+          "type": "text",
+          "id": "link_label",
+          "label": "Button Text"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Button link"
+        }
+      ]
+    }
+  ],
+      "presets": [
+    {
+      "name": "Insta-video",
+      "blocks": [
+        {
+          "type": "column"
+        },
+        {
+          "type": "column"
+        },
+        {
+          "type": "column"
+        },
+        {
+          "type": "column"
+        }
+      ]
+    }
+  ]
+  }
+{% endschema %}

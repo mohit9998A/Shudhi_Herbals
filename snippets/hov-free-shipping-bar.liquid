@@ -1,0 +1,63 @@
+{% comment %}
+  Shared free-shipping progress bar — the SINGLE source of the threshold + remaining math.
+  Included by snippets/minicart.liquid (surface: 'drawer') and sections/page-cart.liquid (surface: 'page').
+
+  Param:
+    surface - 'drawer' (default): keeps the mini-cart's existing classes + copy so the live
+              drawer patcher in assets/ajax-cart.js.liquid (buildCart -> $('.hov-cart-shipping-text'),
+              $('.hov-cart-shipping-fill'), $('.hov-cart-shipping').show/hide) keeps working unchanged.
+            - 'page': uses scoped .hov-cart-page__shipping* classes + the cart-page copy. Driven purely
+              by the server re-render (Section Rendering API) and never JS-patched, so the global
+              drawer patcher above can't cross-write the page bar.
+
+  Threshold value is read once from settings.free_shipping_threshold (default 500). The only other
+  copy of this math is the live-drawer JS in buildCart(), which reads the same setting, so the
+  threshold value can never diverge between surfaces.
+{% endcomment %}
+{% assign hov_fs_surface = surface | default: 'drawer' %}
+{% assign threshold = settings.free_shipping_threshold %}
+{% if threshold == blank or threshold == "" %}
+  {% assign threshold = 500 %}
+{% endif %}
+{% assign threshold_cents = threshold | times: 100 %}
+{% assign remaining = threshold_cents | minus: cart.total_price %}
+{% if remaining < 0 %}{% assign remaining = 0 %}{% endif %}
+{% assign progress_percent = cart.total_price | times: 100.0 | divided_by: threshold_cents %}
+{% if progress_percent > 100 %}{% assign progress_percent = 100 %}{% endif %}
+
+{% if hov_fs_surface == 'page' %}
+  <div class="hov-cart-page__shipping" data-threshold="{{ threshold }}">
+    <div class="hov-cart-page__shipping-track">
+      <div class="hov-cart-page__shipping-fill" style="width: {{ progress_percent }}%;"></div>
+    </div>
+    <p class="hov-cart-page__shipping-text">
+      {% if remaining == 0 %}
+        You are eligible for free shipping!
+      {% else %}
+        Add {{ remaining | money }} more to get FREE shipping
+      {% endif %}
+    </p>
+  </div>
+{% else %}
+  <div class="hov-cart-shipping" style="{% if cart.item_count == 0 %}display: none;{% endif %}" data-threshold="{{ threshold }}">
+    <div class="hov-cart-shipping-top">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#2D5A27" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width: 20px; height: 20px; flex-shrink: 0;">
+        <rect width="16" height="12" x="2" y="6" rx="2" />
+        <path d="M18 8h2l3 3v6h-3" />
+        <path d="M10 18H8" />
+        <circle cx="7" cy="18" r="2" />
+        <circle cx="17" cy="18" r="2" />
+      </svg>
+      <p class="hov-cart-shipping-text">
+        {% if remaining == 0 %}
+          🎉 You've unlocked FREE shipping!
+        {% else %}
+          You are {{ remaining | money }} away from FREE shipping!
+        {% endif %}
+      </p>
+    </div>
+    <div class="hov-cart-shipping-track">
+      <div class="hov-cart-shipping-fill" style="width: {{ progress_percent }}%;"></div>
+    </div>
+  </div>
+{% endif %}

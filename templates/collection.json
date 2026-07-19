@@ -1,0 +1,127 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "12775d68-01a6-4358-8bd0-e2266d28af19": {
+      "type": "section-collection-v1",
+      "blocks": {
+        "template--19964052963640__12775d68-01a6-4358-8bd0-e2266d28af19-168908169061458295-0": {
+          "type": "colection",
+          "settings": {
+            "brand_img": "shopify://shop_images/TEA-CATEGORY.png",
+            "title_collection": "[PLACEHOLDER — category]",
+            "color_title": "#000000",
+            "sub_title": "",
+            "color_subtitle": "#777777",
+            "color_btn": "#ffffff",
+            "bg_btn": "#ff7800",
+            "color_btn_hover": "#ffffff",
+            "bg_btn_hover": "#7fa15a",
+            "brand_url": "shopify://collections/all"
+          }
+        },
+        "template--19964052963640__12775d68-01a6-4358-8bd0-e2266d28af19-168908169061458295-1": {
+          "type": "colection",
+          "settings": {
+            "brand_img": "shopify://shop_images/pulses.png",
+            "title_collection": "[PLACEHOLDER — category]",
+            "color_title": "#000000",
+            "sub_title": "",
+            "color_subtitle": "#777777",
+            "color_btn": "#ffffff",
+            "bg_btn": "#ff7800",
+            "color_btn_hover": "#ffffff",
+            "bg_btn_hover": "#7fa15a",
+            "brand_url": "shopify://collections/all"
+          }
+        },
+        "template--19964052963640__12775d68-01a6-4358-8bd0-e2266d28af19-168908169061458295-2": {
+          "type": "colection",
+          "settings": {
+            "brand_img": "shopify://shop_images/sweetners.png",
+            "title_collection": "[PLACEHOLDER — category]",
+            "color_title": "#000000",
+            "sub_title": "",
+            "color_subtitle": "#777777",
+            "color_btn": "#ffffff",
+            "bg_btn": "#ff7800",
+            "color_btn_hover": "#ffffff",
+            "bg_btn_hover": "#7fa15a",
+            "brand_url": "shopify://collections/all"
+          }
+        },
+        "template--19964052963640__12775d68-01a6-4358-8bd0-e2266d28af19-168908169061458295-3": {
+          "type": "colection",
+          "settings": {
+            "brand_img": "shopify://shop_images/oils.png",
+            "title_collection": "[PLACEHOLDER — category]",
+            "color_title": "#000000",
+            "sub_title": "",
+            "color_subtitle": "#777777",
+            "color_btn": "#ffffff",
+            "bg_btn": "#ff7800",
+            "color_btn_hover": "#ffffff",
+            "bg_btn_hover": "#7fa15a",
+            "brand_url": "shopify://collections/all"
+          }
+        }
+      },
+      "block_order": [
+        "template--19964052963640__12775d68-01a6-4358-8bd0-e2266d28af19-168908169061458295-0",
+        "template--19964052963640__12775d68-01a6-4358-8bd0-e2266d28af19-168908169061458295-1",
+        "template--19964052963640__12775d68-01a6-4358-8bd0-e2266d28af19-168908169061458295-2",
+        "template--19964052963640__12775d68-01a6-4358-8bd0-e2266d28af19-168908169061458295-3"
+      ],
+      "disabled": true,
+      "settings": {
+        "sub_heading": "",
+        "color_sub_heading": "#666666",
+        "title_heading": "Featured Categories",
+        "color_title": "#000000",
+        "margin_top": "",
+        "margin_bottom": ""
+      }
+    },
+    "collection_template": {
+      "type": "collection-template",
+      "settings": {
+        "select_style_bread": "style_1",
+        "ena_bg_img": true,
+        "bg_breadcrumb": "shopify://shop_images/inner-banner_1_e10bbb84-2e97-4692-9634-dab8a243053b.png",
+        "bg_color_breadcrumb": "#111111",
+        "color_breadcrumb": "#111111",
+        "collection_layout": "sidebar",
+        "prod_per_page": 12,
+        "prod_layout": "prod_grid",
+        "prod_per_row": "prod_col_3",
+        "filter_layout": "filter_dropdown",
+        "sidebar_layout": "sidebar_left",
+        "ena_sticky_sidebar": true,
+        "ena_banner_mordern": true,
+        "bannerfull_img": "shopify://shop_images/inner-banner_1.png",
+        "big_title": "",
+        "mini_title": "",
+        "btn_title": "",
+        "bannerfull_url": "shopify://collections",
+        "color_title": "#161616",
+        "ena_best_seller": true,
+        "title_heading": "",
+        "select_collection": "all",
+        "products_limit": 10,
+        "ena_filter": false,
+        "ena_filter2": true
+      }
+    }
+  },
+  "order": [
+    "12775d68-01a6-4358-8bd0-e2266d28af19",
+    "collection_template"
+  ]
+}

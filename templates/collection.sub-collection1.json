@@ -1,0 +1,36 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "sub_collection1": {
+      "type": "sub-collection1-template",
+      "blocks": {
+        "51d0482e-4b2a-4f19-a526-5c1c4bc90376": {
+          "type": "collection",
+          "settings": {
+            "block_collection": "organic-sweeteners"
+          }
+        }
+      },
+      "block_order": [
+        "51d0482e-4b2a-4f19-a526-5c1c4bc90376"
+      ],
+      "settings": {
+        "margin_top": "",
+        "margin_bottom": "",
+        "enable_info_collection": true,
+        "prod_per_row": "prod_col_12"
+      }
+    }
+  },
+  "order": [
+    "sub_collection1"
+  ]
+}

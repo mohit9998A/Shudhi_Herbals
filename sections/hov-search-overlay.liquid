@@ -1,0 +1,321 @@
+{%- comment -%}
+  HOV Premium Search Overlay
+  Triggered by: the inline search bar (snippets/hov-search-bar.liquid, [data-hov-overlay-trigger])
+  Trending source: {{ section.settings.trending_collection_handle }} collection (products.json)
+  All CSS: assets/hov-search-overlay.css (prefix: .hov-so)
+  All JS:  assets/hov-search-overlay.js
+  Font:    inherits the site global (Plus Jakarta Sans) — no extra font load.
+{%- endcomment -%}
+
+{{ 'hov-search-overlay.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'hov-search-overlay.js' | asset_url }}" defer></script>
+
+<div id="hov-so" class="hov-so" data-state="hidden"
+     data-trending-handle="{{ section.settings.trending_collection_handle | default: 'trending-this-week' }}"
+     role="dialog" aria-label="Search Shudhi Herbals" aria-modal="true">
+
+  {%- comment -%} ── BACKDROP ──────────────────────────────────────── {%- endcomment -%}
+  <div class="hov-so__backdrop" id="hov-so-backdrop"></div>
+
+  {%- comment -%} ── PANEL ─────────────────────────────────────────── {%- endcomment -%}
+  <div class="hov-so__panel" id="hov-so-panel">
+
+    {%- comment -%} ── TOP BAR ───────────────────────────────────────── {%- endcomment -%}
+    <div class="hov-so__topbar">
+      <button class="hov-so__close" id="hov-so-close" aria-label="Close search">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+
+      <a href="/" class="hov-so__logo" aria-label="Shudhi Herbals home">
+        {%- if section.settings.logo != blank -%}
+          {{ section.settings.logo | image_url: width: 200 | image_tag: loading: 'eager', alt: 'Shudhi Herbals', class: 'hov-so__logo-img' }}
+        {%- else -%}
+          <span class="hov-so__logo-text">SHUDHI HERBALS</span>
+        {%- endif -%}
+      </a>
+
+      <div class="hov-so__topbar-icons">
+        {%- if customer -%}
+          <a href="/account" class="hov-so__icon-btn" aria-label="Account">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+          </a>
+        {%- endif -%}
+        <a href="{{ settings.url_wishlist | default: '/pages/wishlist' }}" class="hov-so__icon-btn" aria-label="Wishlist">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          <span class="hov-so__icon-badge hov-so__wish-badge hov-wish__nav-count" style="display:none">0</span>
+        </a>
+        <a href="/cart" class="hov-so__icon-btn" aria-label="Cart">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+          <span class="hov-so__icon-badge hov-so__cart-badge enj-cartcount{% if cart.item_count == 0 %} hidden-count{% endif %}">{{ cart.item_count }}</span>
+        </a>
+      </div>
+    </div>
+
+    {%- comment -%} ── SEARCH BAR ────────────────────────────────────── {%- endcomment -%}
+    <div class="hov-so__search-wrap">
+      <div class="hov-so__search-box">
+        <svg class="hov-so__search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6E6E6E" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input
+          type="text"
+          id="hov-so-input"
+          class="hov-so__input"
+          placeholder="Search Ayurvedic Teas, Honey, Wellness..."
+          autocomplete="off"
+          autocorrect="off"
+          autocapitalize="off"
+          spellcheck="false"
+          aria-label="Search products"
+          aria-autocomplete="list"
+          aria-controls="hov-so-suggestions"
+        >
+        <button class="hov-so__voice-btn" id="hov-so-voice" aria-label="Voice search" title="Search by voice">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+        </button>
+        <button class="hov-so__clear-btn" id="hov-so-clear" aria-label="Clear search" style="display:none">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+        </button>
+      </div>
+    </div>
+
+    {%- comment -%} ── SCROLLABLE CONTENT ────────────────────────────── {%- endcomment -%}
+    <div class="hov-so__scroll" id="hov-so-scroll">
+
+      {%- comment -%} ── ACTIVE STATE (typing) ─────────────────────────── {%- endcomment -%}
+      <div class="hov-so__active-pane" id="hov-so-active" hidden>
+        <div class="hov-so__active-inner">
+
+          {%- comment -%} Left: Suggestions list {%- endcomment -%}
+          <div class="hov-so__suggest-col">
+            <ul class="hov-so__suggest-list" id="hov-so-suggestions" role="listbox">
+              {%- comment -%} Populated by JS {%- endcomment -%}
+            </ul>
+            <a href="/search?q=" class="hov-so__view-all-link" id="hov-so-view-all">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              View all results for "<span id="hov-so-query-label"></span>"
+              <svg class="hov-so__view-all-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            </a>
+          </div>
+
+          {%- comment -%} Right: Categories + Health Goals + Ingredients {%- endcomment -%}
+          <div class="hov-so__meta-col">
+
+            <div class="hov-so__meta-section">
+              <p class="hov-so__meta-label">SEARCH CATEGORIES</p>
+              <div class="hov-so__cat-tabs">
+                <a href="/search?q=" class="hov-so__cat-tab" data-cat="products">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+                  Products
+                </a>
+                <a href="/collections" class="hov-so__cat-tab" data-cat="collections">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+                  Collections
+                </a>
+                <a href="/search?q=" class="hov-so__cat-tab" data-cat="ingredients">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C6 2 2 8 2 14c0 4 2.5 7 6 8 1-3 3-5 4-6-1 1-2 3-2 5 2 0 4-1 5.5-3C17 16 18 12 18 8z"/></svg>
+                  Ingredients
+                </a>
+                <a href="/search?q=" class="hov-so__cat-tab" data-cat="goals">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                  Wellness Goals
+                </a>
+              </div>
+            </div>
+
+            <div class="hov-so__meta-section">
+              <p class="hov-so__meta-label">SEARCH BY HEALTH GOAL</p>
+              <div class="hov-so__goal-chips">
+                <a href="/search?q=weight+management+tea" class="hov-so__goal-chip">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+                  Weight Management
+                </a>
+                <a href="/search?q=digestive+tea" class="hov-so__goal-chip">Better Digestion</a>
+                <a href="/search?q=immunity+booster" class="hov-so__goal-chip">Immunity</a>
+                <a href="/search?q=stress+relief+calming" class="hov-so__goal-chip">Stress Relief</a>
+                <a href="/search?q=daily+wellness" class="hov-so__goal-chip">Daily Wellness</a>
+              </div>
+            </div>
+
+            <div class="hov-so__meta-section">
+              <div class="hov-so__ingredient-header">
+                <p class="hov-so__meta-label">INGREDIENT SPOTLIGHT</p>
+                <a href="/search?q=ingredients" class="hov-so__view-all-sm">View all</a>
+              </div>
+              <div class="hov-so__ingredient-grid">
+                {%- assign ingredients = 'ashwagandha,tulsi,turmeric,honey,green-tea' | split: ',' -%}
+                {%- assign ingredient_labels = 'Ashwagandha,Tulsi,Turmeric,Honey,Green Tea' | split: ',' -%}
+                {%- assign ingredient_descs = 'Stress Support,Immunity Booster,Anti-inflammatory,Natural Healer,Antioxidant Rich' | split: ',' -%}
+                {%- for ing in ingredients -%}
+                  <a href="/search?q={{ ing | url_encode }}" class="hov-so__ingredient-card">
+                    <div class="hov-so__ingredient-img-wrap">
+                      <div class="hov-so__ingredient-placeholder">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#6C8C65" stroke-width="1.5"><path d="M12 2C6 2 2 8 2 14c0 4 2.5 7 6 8 1-3 3-5 4-6-1 1-2 3-2 5 2 0 4-1 5.5-3C17 16 18 12 18 8z"/></svg>
+                      </div>
+                    </div>
+                    <p class="hov-so__ingredient-name">{{ ingredient_labels[forloop.index0] }}</p>
+                    <p class="hov-so__ingredient-desc">{{ ingredient_descs[forloop.index0] }}</p>
+                  </a>
+                {%- endfor -%}
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      {%- comment -%} ── DEFAULT STATE (no query) ──────────────────────── {%- endcomment -%}
+      <div class="hov-so__default-pane" id="hov-so-default">
+
+        {%- comment -%} Featured Collections {%- endcomment -%}
+        <div class="hov-so__section">
+          <h3 class="hov-so__section-title">FEATURED COLLECTIONS</h3>
+          <div class="hov-so__featured-grid">
+
+            <a href="/collections/all" class="hov-so__featured-card"
+               style="background-image: url('{{ 'teacollectionfeatureimage.webp' | asset_url }}')">
+              <div class="hov-so__featured-overlay"></div>
+              <div class="hov-so__featured-content">
+                <h4 class="hov-so__featured-title">[PLACEHOLDER — category]</h4>
+                <p class="hov-so__featured-desc">Discover our range of premium Ayurvedic teas</p>
+                <div class="hov-so__featured-arrow">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                </div>
+              </div>
+            </a>
+
+            <a href="/collections/all" class="hov-so__featured-card"
+               style="background-image: url('{{ 'honeyfeaturecollection.webp' | asset_url }}')">
+              <div class="hov-so__featured-overlay"></div>
+              <div class="hov-so__featured-content">
+                <h4 class="hov-so__featured-title">[PLACEHOLDER — category]</h4>
+                <p class="hov-so__featured-desc">Pure · Raw · Natural Goodness of Honey</p>
+                <div class="hov-so__featured-arrow">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                </div>
+              </div>
+            </a>
+
+            <a href="/collections/all" class="hov-so__featured-card"
+               style="background-image: url('{{ 'stapledfoodcollectionfeature.webp' | asset_url }}')">
+              <div class="hov-so__featured-overlay"></div>
+              <div class="hov-so__featured-content">
+                <h4 class="hov-so__featured-title">[PLACEHOLDER — category]</h4>
+                <p class="hov-so__featured-desc">Farm-sourced, clean ingredients for daily life</p>
+                <div class="hov-so__featured-arrow">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                </div>
+              </div>
+            </a>
+
+            <a href="/collections/all" class="hov-so__featured-card"
+               style="background-image: url('{{ 'a2desigheefeaturedcollection.webp' | asset_url }}')">
+              <div class="hov-so__featured-overlay"></div>
+              <div class="hov-so__featured-content">
+                <h4 class="hov-so__featured-title">[PLACEHOLDER — category]</h4>
+                <p class="hov-so__featured-desc">Pure, traditional ghee from grass-fed desi cows</p>
+                <div class="hov-so__featured-arrow">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                </div>
+              </div>
+            </a>
+
+          </div>
+        </div>
+
+        {%- comment -%} Popular Searches {%- endcomment -%}
+        <div class="hov-so__section">
+          <h3 class="hov-so__section-title">POPULAR SEARCHES</h3>
+          <div class="hov-so__popular-chips-wrap">
+            <div class="hov-so__popular-chips">
+              {%- assign popular = section.settings.popular_searches | split: ',' -%}
+              {%- for term in popular -%}
+                {%- assign term_clean = term | strip -%}
+                <a href="/search?q={{ term_clean | url_encode }}" class="hov-so__popular-chip">{{ term_clean }}</a>
+              {%- endfor -%}
+            </div>
+          </div>
+        </div>
+
+        {%- comment -%} Quick category buttons {%- endcomment -%}
+        <div class="hov-so__section">
+          <h3 class="hov-so__section-title">SEARCH CATEGORIES</h3>
+          <div class="hov-so__cat-tabs">
+            <a href="/collections/all" class="hov-so__cat-tab">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+              Products
+            </a>
+            <a href="/collections" class="hov-so__cat-tab">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+              Collections
+            </a>
+            <a href="/search?q=ingredients" class="hov-so__cat-tab">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C6 2 2 8 2 14c0 4 2.5 7 6 8 1-3 3-5 4-6-1 1-2 3-2 5 2 0 4-1 5.5-3C17 16 18 12 18 8z"/></svg>
+              Ingredients
+            </a>
+            <a href="/search?q=wellness" class="hov-so__cat-tab">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              Wellness Goals
+            </a>
+          </div>
+        </div>
+
+        {%- comment -%} Search by health goal {%- endcomment -%}
+        <div class="hov-so__section">
+          <h3 class="hov-so__section-title">SEARCH BY HEALTH GOAL</h3>
+          <div class="hov-so__goal-chips">
+            <a href="/search?q=weight+management+tea" class="hov-so__goal-chip">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+              Weight Management
+            </a>
+            <a href="/search?q=digestive+tea" class="hov-so__goal-chip">Better Digestion</a>
+            <a href="/search?q=immunity+booster" class="hov-so__goal-chip">Immunity</a>
+            <a href="/search?q=stress+relief+calming" class="hov-so__goal-chip">Stress Relief</a>
+            <a href="/search?q=daily+wellness" class="hov-so__goal-chip">Daily Wellness</a>
+          </div>
+        </div>
+
+        {%- comment -%} Recently Viewed — JS populated {%- endcomment -%}
+        <div class="hov-so__section" id="hov-so-rv-wrap" style="display:none">
+          <h3 class="hov-so__section-title">RECENTLY VIEWED</h3>
+          <div class="hov-so__rv-scroll">
+            <div class="hov-so__rv-track" id="hov-so-rv-list"></div>
+          </div>
+        </div>
+
+      </div>
+      {%- comment -%} End default pane {%- endcomment -%}
+
+    </div>
+    {%- comment -%} End scroll {%- endcomment -%}
+
+  </div>
+  {%- comment -%} End panel {%- endcomment -%}
+</div>
+
+{% schema %}
+{
+  "name": "HOV Search Overlay",
+  "settings": [
+    {
+      "type": "image_picker",
+      "id": "logo",
+      "label": "Logo (shown in overlay navbar)"
+    },
+    {
+      "type": "text",
+      "id": "trending_collection_handle",
+      "label": "Trending products collection handle",
+      "default": "trending-this-week",
+      "info": "Create a manual collection in Admin with this exact handle and add 5-10 trending products."
+    },
+    {
+      "type": "textarea",
+      "id": "popular_searches",
+      "label": "Popular search terms (comma-separated)",
+      "default": "Organic Tea, Honey, Detox, Weight Loss, Immunity, Ayurvedic, Digestive, Calming, Women's Wellness, Energy"
+    }
+  ],
+  "presets": [
+    { "name": "HOV Search Overlay" }
+  ]
+}
+{% endschema %}

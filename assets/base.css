@@ -1,0 +1,320 @@
+/* @import url('https://fonts.googleapis.com/css2?family=Josefin+Sans:ital,wght@0,600;1,600&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap'); */
+
+.footer__content-top .grid {
+    display: flex;
+    flex-wrap: wrap;
+    padding: 0;
+    list-style: none;
+}
+.footer__content-top .grid--3-col-tablet .grid__itemm {
+    width: 19%;
+}
+.section-gallery-image .col-item .item .box-img img {
+    margin: auto;
+}
+body .footer__content-bottom {
+    padding: 0;
+    background: transparent;
+}
+body .footer__content-top {
+    padding-bottom: 0;
+}
+body .footer__content-bottom small.copyright__content .text-copyright.mb-0 {
+    color: #000;
+    padding: 8px 0;
+}
+@meida (min-width: 1024px){
+  .footer__content-top .grid--3-col-tablet .grid__itemm.footer-block--menu {
+    width: 17%;
+}
+  
+}
+@media screen and (min-width: 750px) {
+  .grid {
+    column-gap:8px;
+  }
+  .logo-img img {
+    width: 53%;
+}
+  .btn-action.detail-attr.qty-cart .qty_price select#Quantity {
+    padding-top: 11px;
+}
+}
+body .tabs-container .tab-content li, body .tabs-container .tab-content p {
+    color: #000;
+}
+
+
+
+/*balbir*/
+
+
+body footer.footer {
+    background: #F3DBBE;
+}
+
+body .footer-block__heading {
+    font-family: 'SofiaPro';
+    font-weight: 600;
+    font-size: 19px;
+    line-height: 140%;
+    letter-spacing: 0;
+    margin-bottom: 10px;
+    color: #000000;
+}
+body .footer-block__details-content .list-menu__item--link {
+    font-family: 'SofiaPro';
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 140%;
+    letter-spacing: 0;
+    color: #4A4444;
+    padding: 5px 0;
+}
+body .footer-block__details-content.rte a.button.button--primary {
+    display: block;
+}
+body .footer-block__details-content.rte a.button.button--primary {
+    height: 45px;
+    background: #CC9952;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 10px;
+    text-decoration: none;
+    font-family: 'SofiaPro';
+    font-weight: 400;
+    font-size: 15px;
+    line-height: 140%;
+    letter-spacing: 0;
+    color: #FBFBFB;
+    border-radius: 12px;
+}
+body .footer-block__details-content.rte p {
+    font-family: 'SofiaPro';
+    font-weight: 300;
+    font-size: 13px;
+    line-height: 140%;
+    letter-spacing: 0;
+    color: #4A4444;
+}
+body .footer-block__brand-info p {
+    font-family: 'SofiaPro';
+    font-size: 13px;
+    line-height: 140%;
+    letter-spacing: 0;
+    color: #4A4444;
+}
+
+.footer-block__brand-info .footer__list-social a.link.list-social__link {
+    padding: 0;
+    margin-right: 14px;
+}
+body .cocial-icon-headding-ctm p {
+    font-family: 'SofiaPro';
+    font-weight: 500;
+    font-size: 18px;
+    line-height: 140%;
+    letter-spacing: 0;
+    color: #4A4444;
+}
+
+.footer__content-bottom {
+    background: #000;
+}
+.footer__content-bottom .payment-icon img {
+    width: 34%;
+    margin: auto;
+}
+.footer__content-bottom .footer__copyright.caption.text-center {
+    margin-top: 0;
+}
+small.copyright__content .text-copyright.mb-0 {
+    font-family: 'SofiaPro';
+    font-weight: 400;
+    font-size: 15px;
+    line-height: 140%;
+    letter-spacing: 0;
+    text-align: center;
+}
+body .footer_v4 .copyright {
+    display: none;
+}
+
+.image-slider.singal-image.first h2.title.inline-richtext {
+    margin: 0;
+}
+@media(max-width:767px) {
+ body .footer__content-bottom .payment-icon img {
+    width: 100%;
+    margin: auto;
+    padding-top: 20px;
+}
+ body .footer__content-top .grid--3-col-tablet .grid__itemm {
+    width: 100%;
+    padding: 0 17px;
+}
+body .footer-block.grid__itemm.footer-block--menu {
+    width: 48%;
+    display: inline-block;
+    vertical-align: text-top;
+}
+body .footer-block.grid__itemm.footer-block--menu {
+    padding-right: 0;
+}
+body   .detail-info button.shop-button.enj-add-to-cart-btn.engoj-btn-addtocart {
+    width: 89% !important;
+}
+body .detail-info .shopify-payment-button {
+    width: 100%;
+}
+body .detail-info button.shopify-payment-button__button.shopify-payment-button__button--unbranded {
+    width: 100% !important;
+}
+/* ---- Align BUY IT NOW exactly under ADD TO CART (same left edge, same width, same right edge) ----
+   Make the qty column a FIXED width and let Add-to-Cart fill the rest; Buy-It-Now then uses the
+   IDENTICAL left offset (qty width + gap) and the same remaining width, so the two stack perfectly.
+   --hov-qty-col / --hov-row-gap are the single source for the offset (change once to retune).
+   BUY IT NOW renders via the <shopify-accelerated-checkout> custom element (inline by default), so
+   the host + inner button are forced to fill their container. Scoped to #AddToCartForm only. */
+#AddToCartForm .btn-action.detail-attr.qty-cart {
+    --hov-qty-col: 84px;
+    --hov-row-gap: 14px;
+    display: flex !important;
+    align-items: center !important;
+    gap: var(--hov-row-gap) !important;
+}
+#AddToCartForm .btn-action.detail-attr.qty-cart > div:first-child {
+    flex: 0 0 var(--hov-qty-col) !important;
+    width: var(--hov-qty-col) !important;
+    margin: 0 !important;
+}
+#AddToCartForm .btn-action.detail-attr.qty-cart > div:first-child #Quantity {
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+#AddToCartForm .btn-action.detail-attr.qty-cart button.enj-add-to-cart-btn {
+    flex: 1 1 auto !important;
+    width: auto !important;
+    margin: 0 !important;
+}
+#AddToCartForm .shopify-payment-button {
+    width: calc(100% - 84px - 14px) !important;   /* = Add-to-Cart's remaining width */
+    max-width: calc(100% - 84px - 14px) !important;
+    margin-left: calc(84px + 14px) !important;     /* = qty column + gap, so it starts under Add-to-Cart */
+    margin-right: 0 !important;
+    text-align: left !important;
+}
+#AddToCartForm .shopify-payment-button shopify-accelerated-checkout {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+}
+#AddToCartForm .shopify-payment-button .shopify-payment-button__button {
+    width: 100% !important;
+    max-width: 100% !important;
+}
+ body .qty_box, body .btn-action.detail-attr.qty-cart .qty_price select#Quantity {
+    padding-left: 10px;
+    padding-top: 5px;
+}
+  .menu_moblie.menu_mobilescroll {
+    z-index: 99;
+}
+  .img-text.colection223 h3.inline-richtext {
+    padding-bottom: 0 !important;
+}
+.img-text.colection223  .text-container {
+    padding-left: 0;
+}
+  .menu_moblie .menuright {
+    width: 82px;
+    text-align: right;
+}
+}
+
+@media screen and (max-device-width: 767px) and (-webkit-min-device-pixel-ratio: 2) and (orientation: portrait) {
+  /* iPhone portrait styles here */
+ body .qty_box, body .btn-action.detail-attr.qty-cart .qty_price select#Quantity {
+    padding-left: 10px;
+    padding-top: 5px;
+}
+}
+
+@media screen and (max-device-width: 767px) and (-webkit-min-device-pixel-ratio: 2) and (orientation: landscape) {
+  /* iPhone landscape styles here */
+   body .qty_box, body .btn-action.detail-attr.qty-cart .qty_price select#Quantity {
+    padding-left: 10px;
+    padding-top: 5px;
+}
+}
+
+@media (max-width: 575.98px) {
+    .section-slideshow-v1 .info-sideh1 .picture-slideshow img {
+        height: 100%;
+        object-fit: cover;
+    }
+}
+
+@media (max-width: 575.98px) {
+.section-slideshow-v1 .info-sideh1 .picture-slideshow {
+    height: unset;
+}
+}
+
+
+.varint_namme span.pack-label-text {
+    display: block;
+}
+.maxus-color {
+    position: relative;
+}
+.best_tag_show {
+    font-size: 11px;
+    background: #AB1A1A;
+    display: inline-block;
+    position: absolute;
+    bottom: -6px;
+    left: -5px;
+    right: 0;
+    width: 90%;
+    color: #fff;
+    text-align: center;
+    border-radius: 7px;
+    margin: auto;
+    line-height: 21px;
+}
+.swatch .variant_other:hover, .swatch .variant_other:focus, .swatch input:checked + .variant_other {
+    border: 1px solid #cc9952 !important;
+}
+body .maxus-productdetail__options .swatch label.variant_other {
+    padding: 10px 40px;
+}
+
+/*20-apr-2026*/
+.minicart {
+    z-index: 9999999999;
+}
+
+
+@media (max-width: 575.98px) {
+    .page-cart .content-pages .table-responsive td:before {
+        display: block !important;
+        width: 100% !important;
+        text-align: left !important;
+        margin-bottom: 12px !important;
+    }
+.page-cart .content-pages .table-responsive .product-thumbnail a img
+ {
+        float: left !important;
+        display: block !important;
+    }
+    .page-cart .content-pages .table-responsive td.product-price:before {
+    margin-bottom: -19px !important;
+}
+}
+
+.section-slideshow-v1 {
+    overflow: hidden;
+}

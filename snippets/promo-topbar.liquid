@@ -1,0 +1,251 @@
+<div class="promo_topbar hov-promo-outer">
+  <div class="hov-promo-card">
+
+    {%- comment -%} ROW 1 — Main offer bar {%- endcomment -%}
+    <div class="hov-promo-banner">
+
+      {%- comment -%} Leaf watermarks {%- endcomment -%}
+      <svg class="hov-leaf hov-leaf--l" width="160" height="160" viewBox="0 0 160 160" fill="none" aria-hidden="true">
+        <path d="M22 148C22 148 10 72 80 12C150 72 138 148 80 158C56 156 36 153 22 148Z" fill="#5aaa72"/>
+        <path d="M80 158C80 120 80 50 80 12" stroke="#6aba82" stroke-width="2"/>
+        <path d="M80 130C55 118 28 104 18 82" stroke="#6aba82" stroke-width="1.5"/>
+        <path d="M80 130C105 118 132 104 142 82" stroke="#6aba82" stroke-width="1.5"/>
+        <path d="M38 62C38 62 18 36 46 14C62 30 57 56 46 60C52 62 40 64 38 62Z" fill="#5aaa72" opacity=".6"/>
+      </svg>
+      <svg class="hov-leaf hov-leaf--r" width="160" height="160" viewBox="0 0 160 160" fill="none" aria-hidden="true">
+        <path d="M138 148C138 148 150 72 80 12C10 72 22 148 80 158C104 156 124 153 138 148Z" fill="#5aaa72"/>
+        <path d="M80 158C80 120 80 50 80 12" stroke="#6aba82" stroke-width="2"/>
+        <path d="M80 130C105 118 132 104 142 82" stroke="#6aba82" stroke-width="1.5"/>
+        <path d="M122 62C122 62 142 36 114 14C98 30 103 56 114 60C108 62 120 64 122 62Z" fill="#5aaa72" opacity=".6"/>
+      </svg>
+
+      {%- comment -%} Phrases for the typewriter (robust to LF/CRLF) {%- endcomment -%}
+      {%- capture default_phrases -%}on all Tea (Pack of 3), Shilajit & A2 Ghee
+100% Natural & Certified Organic
+Free Fast Delivery on All Orders{%- endcapture -%}
+      {%- assign promo_phrase_src = settings.promo_typewriter_phrases | default: default_phrases -%}
+      {%- assign promo_phrase_lines = promo_phrase_src | strip | newline_to_br | split: '<br />' -%}
+
+      <div class="hov-promo__inner">
+
+        {%- comment -%} ZONE 1 — Badge {%- endcomment -%}
+        <div class="hov-promo__badge">
+          <div class="hov-badge">
+            <svg class="hov-badge-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="13" r="8"/>
+              <polyline points="12 9 12 13 15 15"/>
+              <path d="M9.5 2h5"/><path d="M12 2v3"/>
+              <path d="M17.3 4.7l1.4 1.4"/>
+            </svg>
+            <div class="hov-badge-text">LIMITED PERIOD OFFER</div>
+          </div>
+        </div>
+
+        <div class="hov-promo__divider"></div>
+
+        {%- comment -%} ZONE 2 — Headline + typewriter {%- endcomment -%}
+        <div class="hov-offer-text">
+          <div class="hov-headline">
+            Flat&nbsp;<em>{{ settings.promo_discount_value | default: '26%' }}</em>&nbsp;OFF
+          </div>
+          <div class="hov-subtext hov-promo__typewriter">
+            {%- comment -%} First phrase server-rendered for no-JS / SEO {%- endcomment -%}
+            <span class="hov-typewriter" aria-live="off" data-phrases='[{% for line in promo_phrase_lines %}{{ line | strip | json }}{% unless forloop.last %},{% endunless %}{% endfor %}]'>{{ promo_phrase_lines[0] | strip | escape }}</span>
+          </div>
+        </div>
+
+        {%- comment -%} ZONE 3 — 4 Trust icon items {%- endcomment -%}
+        <div class="hov-promo__trust-inline">
+          <div class="hov-promo__trust-item">
+            <!-- Leaf SVG -->
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="1.6"><path d="M12 2C6 2 2 8 2 14c0 4 2.5 7 6 8 1-3 3-5 4-6-1 1-2 3-2 5 2 0 4-1 5.5-3C17 16 18 12 18 8c0-1 0-2-.5-3C16 8 14 10 12 12c2-2 3-5 3-8 0 0-1-2-3-2z"/></svg>
+            <span class="hov-promo__trust-label">100% Natural</span>
+          </div>
+          <div class="hov-promo__trust-divider"></div>
+          <div class="hov-promo__trust-item">
+            <!-- Shield SVG -->
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="1.6"><path d="M12 2L3 7v5c0 5 4 9 9 10 5-1 9-5 9-10V7l-9-5z"/><polyline points="9 11 11 13 15 9"/></svg>
+            <span class="hov-promo__trust-label">Organic Certified</span>
+          </div>
+          <div class="hov-promo__trust-divider"></div>
+          <div class="hov-promo__trust-item">
+            <!-- Truck SVG -->
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="1.6"><rect x="1" y="3" width="15" height="13" rx="1"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+            <span class="hov-promo__trust-label">Fast Delivery</span>
+          </div>
+          <div class="hov-promo__trust-divider"></div>
+          <div class="hov-promo__trust-item">
+            <!-- Medal SVG -->
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="7"/><path d="M8.21 13.89L7 23l5-3 5 3-1.21-9.12"/></svg>
+            <span class="hov-promo__trust-label">Highly Rated</span>
+          </div>
+        </div>
+
+        {%- comment -%} ZONE 4 — Banner image (left of SHOP NOW) {%- endcomment -%}
+        <div class="hov-promo__banner-img-wrap">
+          <img
+            src="{{ 'banner.webp' | asset_url }}"
+            alt="Shudhi Herbals offer banner"
+            class="hov-promo__banner-img"
+            loading="eager"
+            decoding="async"
+          >
+        </div>
+
+        {%- comment -%} ZONE 5 — SHOP NOW button {%- endcomment -%}
+        <a href="{{ settings.cta_link | default: '/collections/all' }}" class="hov-promo__shop-btn">
+          {{ settings.cta_text | default: 'SHOP NOW' }}
+        </a>
+
+        {%- comment -%} ZONE 5 — Close button {%- endcomment -%}
+        <button type="button" class="close_promo_topbar hov-close" aria-label="Close offer">&#x2715;</button>
+
+      </div>{%- comment -%} /.hov-promo-row {%- endcomment -%}
+
+    </div>{%- comment -%} /.hov-promo-banner {%- endcomment -%}
+
+
+
+  </div>{%- comment -%} /.hov-promo-card {%- endcomment -%}
+</div>{%- comment -%} /.hov-promo-outer {%- endcomment -%}
+
+<script>
+/* Shudhi Herbals — promo subtext typewriter loop (vanilla, no libraries). */
+(function () {
+  var el = document.querySelector('.hov-typewriter');
+  if (!el) return;
+
+  // Mobile: keep the server-rendered first phrase static (matches the mockup and
+  // avoids the narrow-viewport mid-phrase clip). Desktop animation is unchanged.
+  if (window.matchMedia && window.matchMedia('(max-width: 640px)').matches) {
+    return;
+  }
+
+  // Accessibility: if the user prefers reduced motion, leave the
+  // server-rendered first phrase in place and skip the animation entirely.
+  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    return;
+  }
+
+  var phrases;
+  try {
+    phrases = JSON.parse(el.getAttribute('data-phrases')) || [];
+  } catch (e) {
+    return; // malformed data — keep the static fallback text
+  }
+  if (!phrases.length) return;
+
+  var TYPE_SPEED   = 80;   // ms per character while typing
+  var DELETE_SPEED = 40;   // ms per character while deleting
+  var HOLD         = 2000; // ms pause once a phrase is fully typed
+
+  var pIndex = 0, cIndex = 0, deleting = false;
+
+  el.textContent = ''; // clear server-rendered text; first tick rebuilds it
+
+  // setTimeout recursion (not setInterval) so each step can use its own delay.
+  function tick() {
+    var phrase = phrases[pIndex];
+
+    if (!deleting) {
+      cIndex++;
+      el.textContent = phrase.slice(0, cIndex);
+      if (cIndex === phrase.length) {       // fully typed → pause, then delete
+        deleting = true;
+        setTimeout(tick, HOLD);
+        return;
+      }
+      setTimeout(tick, TYPE_SPEED);
+    } else {
+      cIndex--;
+      el.textContent = phrase.slice(0, cIndex);
+      if (cIndex === 0) {                    // fully deleted → advance to next
+        deleting = false;
+        pIndex = (pIndex + 1) % phrases.length;
+        setTimeout(tick, TYPE_SPEED);
+        return;
+      }
+      setTimeout(tick, DELETE_SPEED);
+    }
+  }
+
+  tick();
+})();
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  'use strict';
+  const promoBar = document.querySelector('.hov-promo-outer');
+  const nav = document.querySelector('.hov-nav');
+  const mRow1 = document.querySelector('.menu_moblie');   // mobile header Row 1 (fixed <1200px)
+
+  function syncPromoHeight() {
+    if (promoBar) {
+      const height = promoBar.offsetHeight;
+      document.documentElement.style.setProperty('--hov-promo-height', `${height}px`);
+    }
+  }
+
+  function syncNavHeight() {
+    if (nav) {
+      const height = nav.offsetHeight;
+      document.documentElement.style.setProperty('--hov-nav-height', `${height}px`);
+    }
+  }
+
+  // Mobile Row 1 is position:fixed, so Row 2 (search) must clear it. Measure Row 1
+  // into --hov-mheader-row1-height (desktop: .menu_moblie is display:none → 0, harmless).
+  function syncRow1Height() {
+    if (mRow1) {
+      document.documentElement.style.setProperty('--hov-mheader-row1-height', mRow1.offsetHeight + 'px');
+    }
+  }
+
+  function syncAll() {
+    syncPromoHeight();
+    syncNavHeight();
+    syncRow1Height();
+  }
+
+  // Run on load
+  syncAll();
+
+  // Re-run after a short delay to account for webfonts/images shifting height
+  setTimeout(syncAll, 150);
+
+  // Re-run on resize
+  window.addEventListener('resize', syncAll, { passive: true });
+
+  // Primary mechanism: keep --hov-promo-height in sync with the promo bar's real
+  // height whenever it reflows (font/image load, content wrap). The mobile nav offset
+  // (.menu_moblie margin-top) depends on this being accurate. The load/timeout/resize
+  // calls above remain as a fallback for browsers without ResizeObserver.
+  if (promoBar && 'ResizeObserver' in window) {
+    // Reuse syncPromoHeight() so the measurement stays consistent with the other
+    // triggers (offsetHeight / border-box), rather than the observer's content-box rect.
+    const ro = new ResizeObserver(syncPromoHeight);
+    ro.observe(promoBar);
+  }
+
+  // Keep --hov-mheader-row1-height accurate as the mobile Row 1 reflows.
+  if (mRow1 && 'ResizeObserver' in window) {
+    const roRow1 = new ResizeObserver(syncRow1Height);
+    roRow1.observe(mRow1);
+  }
+
+  // Re-run if the promo bar is ever dismissed
+  if (promoBar) {
+    const promoCloseBtn = promoBar.querySelector('.hov-close, .close_promo_topbar');
+    if(promoCloseBtn) {
+      promoCloseBtn.addEventListener('click', () => {
+        setTimeout(() => {
+          document.documentElement.style.setProperty('--hov-promo-height', '0px');
+          // Re-sync nav height just in case
+          syncNavHeight();
+        }, 50);
+      });
+    }
+  }
+});
+</script>

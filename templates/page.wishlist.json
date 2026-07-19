@@ -1,0 +1,63 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "page_wishlist": {
+      "type": "page-wishlist",
+      "settings": {
+        "bg_breadcrumb": "shopify://shop_images/inner-banner_1_e10bbb84-2e97-4692-9634-dab8a243053b.png"
+      }
+    },
+    "464e425a-bb3f-4e5d-a8ba-2975bd62f617": {
+      "type": "section-product-v2",
+      "blocks": {
+        "template--19964053913912__464e425a-bb3f-4e5d-a8ba-2975bd62f617-tab-1": {
+          "type": "tab",
+          "settings": {
+            "tab_title": "Teas & Infusions",
+            "tab_collection": "teas",
+            "tab_limit": 8
+          }
+        },
+        "template--19964053913912__464e425a-bb3f-4e5d-a8ba-2975bd62f617-tab-2": {
+          "type": "tab",
+          "settings": {
+            "tab_title": "Organic Cooking Oils",
+            "tab_collection": "organic-cooking-oils",
+            "tab_limit": 8
+          }
+        },
+        "template--19964053913912__464e425a-bb3f-4e5d-a8ba-2975bd62f617-tab-3": {
+          "type": "tab",
+          "settings": {
+            "tab_title": "Organic Pulses & Beans",
+            "tab_collection": "organic-pulses-and-beans",
+            "tab_limit": 8
+          }
+        }
+      },
+      "block_order": [
+        "template--19964053913912__464e425a-bb3f-4e5d-a8ba-2975bd62f617-tab-1",
+        "template--19964053913912__464e425a-bb3f-4e5d-a8ba-2975bd62f617-tab-2",
+        "template--19964053913912__464e425a-bb3f-4e5d-a8ba-2975bd62f617-tab-3"
+      ],
+      "settings": {
+        "margin_top": "",
+        "margin_bottom": "",
+        "title_heading": "You would like to add some",
+        "color_title": "#222"
+      }
+    }
+  },
+  "order": [
+    "page_wishlist",
+    "464e425a-bb3f-4e5d-a8ba-2975bd62f617"
+  ]
+}

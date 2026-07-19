@@ -1,0 +1,495 @@
+<!-- sections/page-cart.liquid -->
+{% comment %}
+  Full /cart page (rendered via templates/cart.json -> section "page-cart").
+
+  Reuse contract — this page renders NO new cart logic. Every mutation flows through the shared,
+  $body-delegated pipeline in assets/ajax-cart.js.liquid by emitting the SAME class/data contract the
+  mini-cart drawer uses (.hov-cart-item / .ajaxcart__qty-* / .remove-product / data-line / data-line-total):
+    • quantity steppers  -> .ajaxcart__qty-adjust handler -> updateQuantityOptimistic -> /cart/change.js
+    • delete             -> .remove-product handler -> #hov-remove-modal -> updateQuantityOptimistic(line, 0)
+    • coupon chip/total  -> snippets/minicart.liquid hovSyncCouponUI (surface-agnostic) via [data-coupon-*]/.enj-cartcost
+    • free-shipping bar  -> snippets/hov-free-shipping-bar.liquid (shared threshold + math)
+    • checkout discount  -> hovSetCheckoutDiscount patches .hov-cart-btn-checkout
+  After every mutation, renderAllSurfaces() calls window.hovRenderPageCartSection() (defined below),
+  which re-renders this section from the server and re-broadcasts cart:updated so the coupon overlay
+  and the cross-sell carousel re-apply onto the fresh DOM.
+{% endcomment %}
+
+<div class="wrap-bread-crumb breadcrumb_cart">
+  <div class="container container-v1">
+    {% include 'breadcrumb' %}
+  </div>
+</div>
+
+<section class="hov-cart-page">
+  <div class="container container-v1">
+
+    <div class="hov-cart-page__heading">
+      <h1>Your Shopping Cart <span class="hov-cart-page__count" data-cart-count-inline>({{ cart.item_count }})</span> 🌿</h1>
+      <p>Review your items and proceed to a secure checkout</p>
+    </div>
+
+    {% if cart.item_count > 0 %}
+    <div class="hov-cart-page__grid">
+
+      <!-- LEFT: line items + trust strip -->
+      <div class="hov-cart-page__items-col">
+        <div class="hov-cart-page__table-head" aria-hidden="true">
+          <span>Product</span>
+          <span>Price</span>
+          <span>Quantity</span>
+          <span>Total</span>
+          <span></span>
+        </div>
+
+        <div class="hov-cart-page__lines" id="hov-cart-page-lines">
+          {% for item in cart.items %}
+          <div class="hov-cart-item hov-cart-page__line" data-line="{{ forloop.index }}" data-product-id="{{ item.product.id }}" data-line-total="{{ item.final_line_price }}">
+            <div class="hov-cart-page__line-product">
+              <a href="{{ item.url }}" class="hov-cart-page__line-imglink">
+                <img class="hov-cart-item-img hov-cart-page__line-img" src="{{ item.image | image_url: width: 200 }}" alt="{{ item.title | escape }}" loading="lazy" width="80" height="80">
+              </a>
+              <div class="hov-cart-page__line-info">
+                <a href="{{ item.url }}" class="hov-cart-item-title hov-cart-page__line-title">{{ item.product.title }}</a>
+                {% unless item.variant.title contains 'Default' %}
+                  <span class="hov-cart-page__line-sub">{{ item.variant.title }}</span>
+                {% else %}
+                  {% if item.product.type != blank %}
+                    <span class="hov-cart-page__line-sub">{{ item.product.type }}</span>
+                  {% endif %}
+                {% endunless %}
+              </div>
+            </div>
+
+            <div class="hov-cart-page__line-price" data-label="Price">
+              <span>{{ item.final_price | money }}</span>
+            </div>
+
+            <div class="hov-cart-page__line-qty" data-label="Quantity">
+              <div class="hov-cart-item-qty hov-cart-page__stepper">
+                <button type="button" class="ajaxcart__qty-adjust ajaxcart__qty--minus" data-line="{{ forloop.index }}" data-qty="{{ item.quantity | minus: 1 }}" aria-label="Decrease quantity of {{ item.product.title | escape }}">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 13H5v-2h14v2z"/></svg>
+                </button>
+                <span class="ajaxcart__qty-num" data-line="{{ forloop.index }}" aria-live="polite">{{ item.quantity }}</span>
+                <button type="button" class="ajaxcart__qty-adjust ajaxcart__qty--plus" data-line="{{ forloop.index }}" data-qty="{{ item.quantity | plus: 1 }}" aria-label="Increase quantity of {{ item.product.title | escape }}">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+                </button>
+              </div>
+            </div>
+
+            <div class="hov-cart-page__line-total" data-label="Total">
+              <span class="hov-cart-item-price">{{ item.final_line_price | money }}</span>
+            </div>
+
+            <div class="hov-cart-page__line-remove">
+              <button type="button" class="hov-cart-item-delete remove-product hov-cart-page__remove" data-line="{{ forloop.index }}" aria-label="Remove {{ item.product.title | escape }}">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0l-1 14a2 2 0 01-2 2H7a2 2 0 01-2-2L4 6"/></svg>
+              </button>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+
+        <div class="hov-cart-page__actions-row">
+          <a href="/collections/all" class="hov-cart-page__continue">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5m7-7l-7 7 7 7"/></svg>
+            {{ 'cart.general.continue' | t }}
+          </a>
+        </div>
+
+        <div class="hov-cart-page__trust-strip">
+          <div class="hov-cart-page__trust-item">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2C7 6 4 9 4 13a8 8 0 0016 0c0-4-3-7-8-11z"/></svg>
+            <div><strong>100% Natural</strong><span>Pure &amp; No Additives</span></div>
+          </div>
+          <div class="hov-cart-page__trust-item">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/></svg>
+            <div><strong>Secure Payments</strong><span>100% Safe &amp; Secure</span></div>
+          </div>
+          <div class="hov-cart-page__trust-item">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/><path d="M3.27 6.96L12 12l8.73-5.04M12 22.08V12"/></svg>
+            <div><strong>Easy Returns</strong><span>Hassle Free Returns</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: sticky Order Summary + cross-sell -->
+      <aside class="hov-cart-page__summary-col">
+        <div class="hov-cart-page__summary-card">
+          <h2 class="hov-cart-page__summary-title">Order Summary 🌿</h2>
+
+          {% assign fs_threshold = settings.free_shipping_threshold | default: 500 %}
+          {% assign fs_threshold_cents = fs_threshold | times: 100 %}
+          <div class="hov-cart-page__summary-row">
+            <span>Shipping</span>
+            <span class="hov-cart-page__ship-status{% if cart.total_price >= fs_threshold_cents %} is-free{% endif %}">
+              {% if cart.total_price >= fs_threshold_cents %}FREE{% else %}Calculated at checkout{% endif %}
+            </span>
+          </div>
+
+          {% include 'hov-free-shipping-bar', surface: 'page' %}
+
+          <!-- Coupon: reuses the shared engine (snippets/minicart.liquid hovSyncCouponUI + delegated apply/remove) -->
+          <div class="hov-cart__coupon-preview hov-cart-page__coupon" data-coupon-code="{{ settings.coupon_code | default: 'HOV10' }}" data-coupon-percent="{{ settings.coupon_percent | default: 10 }}" data-coupon-min="{{ settings.coupon_min_order | default: 1000 }}">
+            <div class="hov-cart__coupon-preview-row">
+              <div class="hov-cart__coupon-preview-left">
+                <svg class="hov-cart__coupon-icon" viewBox="0 0 24 24" fill="none" stroke="#2D5A27" stroke-width="1.8"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg>
+                <input type="text" class="hov-cart__coupon-input" data-coupon-input value="{{ settings.coupon_code | default: 'HOV10' }}" placeholder="Enter coupon code" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="Coupon code">
+                <span class="hov-cart__coupon-applied" data-coupon-applied hidden>
+                  <svg class="hov-cart__coupon-icon" viewBox="0 0 24 24" fill="none" stroke="#2D5A27" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+                  Coupon Applied <strong data-coupon-applied-code></strong>
+                  <button type="button" class="hov-cart__coupon-remove" data-coupon-remove aria-label="Remove coupon">×</button>
+                </span>
+              </div>
+              <button type="button" class="hov-cart__coupon-apply-btn" data-coupon-apply>Apply</button>
+            </div>
+            <div class="hov-cart__coupon-error" data-coupon-error role="alert"></div>
+          </div>
+
+          <div class="hov-cart-page__saved" data-coupon-saved-row hidden>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+            You saved <span data-coupon-saved-amount></span>
+          </div>
+
+          <div class="hov-cart-page__total-row">
+            <div class="hov-cart-page__total-label">Total Amount<br><small>(Inclusive of all taxes)</small></div>
+            <strong class="enj-cartcost hov-cart-page__total-amount">{{ cart.total_price | money }}</strong>
+          </div>
+
+          <a href="/checkout" class="hov-cart-btn-checkout hov-cart-page__checkout">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8h-1V6a5 5 0 00-10 0v2H6a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V10a2 2 0 00-2-2zm-6 9a2 2 0 110-4 2 2 0 010 4zm3.1-9H8.9V6a3.1 3.1 0 016.2 0v2z"/></svg>
+            Proceed to Checkout
+          </a>
+          <div class="hov-cart-page__secure">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/></svg>
+            Secure Checkout
+          </div>
+        </div>
+      </aside>
+
+      <!-- You may also like — full-width row spanning both grid columns; populated by JS from Shopify's native Recommendations API; hidden if none -->
+      <div class="hov-cart-page__crosssell" data-crosssell hidden>
+        <div class="hov-cart-page__crosssell-head">
+          <span>You may also like</span>
+          <a href="/collections/all">View all</a>
+        </div>
+        <div class="hov-cart-page__crosssell-scroll" data-crosssell-scroll data-seed-product="{{ cart.items.first.product.id }}"></div>
+      </div>
+
+    </div>
+    {% else %}
+    <div class="hov-cart-page__empty">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg>
+      <p>{{ 'cart.general.empty' | t }}</p>
+      <a href="/collections/all" class="hov-cart-page__continue hov-cart-page__continue--empty">
+        {{ 'cart.general.continue' | t }}
+      </a>
+    </div>
+    {% endif %}
+
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Cart Page",
+  "settings": [
+
+  ]
+}
+{% endschema %}
+
+{% stylesheet %}
+.hov-cart-page { background: #FAF8F3; padding: 24px 0 56px; }
+.hov-cart-page__heading h1 { font-size: 30px; font-weight: 700; color: #1A2E1A; margin: 8px 0 4px; }
+.hov-cart-page__heading .hov-cart-page__count { color: #2D5A27; }
+.hov-cart-page__heading p { color: #6B7264; font-size: 14px; margin: 0 0 22px; }
+
+.hov-cart-page__grid { display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 28px; align-items: start; }
+
+/* ---- Left: items ---- */
+.hov-cart-page__items-col { background: #FFFFFF; border: 1px solid #ECE6D8; border-radius: 16px; padding: 8px 20px 20px; }
+.hov-cart-page__table-head,
+.hov-cart-page__line { display: grid; grid-template-columns: minmax(0,2.4fr) 1fr 1.2fr 1fr 44px; align-items: center; gap: 12px; }
+.hov-cart-page__table-head { padding: 16px 4px 12px; border-bottom: 1px solid #EFEADD; font-size: 12px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: #8A9082; }
+.hov-cart-page__table-head span:nth-child(2),
+.hov-cart-page__table-head span:nth-child(3),
+.hov-cart-page__line-price,
+.hov-cart-page__line-qty { justify-self: center; text-align: center; }
+.hov-cart-page__table-head span:nth-child(4),
+.hov-cart-page__line-total { justify-self: end; text-align: right; }
+
+.hov-cart-page__line { padding: 18px 4px; border-bottom: 1px solid #F1ECE0; }
+.hov-cart-page__line:last-child { border-bottom: 0; }
+.hov-cart-page__line-product { display: flex; align-items: center; gap: 14px; min-width: 0; }
+.hov-cart-page__line-img { width: 72px; height: 72px; border-radius: 12px; object-fit: cover; background: #F3EFE5; flex-shrink: 0; }
+.hov-cart-page__line-info { min-width: 0; }
+.hov-cart-page__line-title { display: block; font-size: 15px; font-weight: 600; color: #1A2E1A; text-decoration: none; line-height: 1.35; }
+.hov-cart-page__line-title:hover { color: #2D5A27; }
+.hov-cart-page__line-sub { display: block; font-size: 12.5px; color: #959B8C; margin-top: 2px; }
+.hov-cart-page__line-price span { font-size: 15px; color: #3A4034; font-weight: 600; }
+.hov-cart-page__line-total .hov-cart-item-price { font-size: 15px; font-weight: 700; color: #1A2E1A; }
+
+/* Stepper — same class contract the shared ajax-cart handler drives */
+.hov-cart-page__stepper { display: inline-flex; align-items: center; border: 1px solid #DCD6C6; border-radius: 10px; overflow: hidden; background: #FFFFFF; }
+.hov-cart-page__stepper button.ajaxcart__qty-adjust { width: 34px; height: 34px; display: inline-flex; align-items: center; justify-content: center; background: #F6F3EA; border: 0; cursor: pointer; color: #2D5A27; padding: 0; transition: background .15s ease; }
+.hov-cart-page__stepper button.ajaxcart__qty-adjust:hover { background: #ECE6D5; }
+.hov-cart-page__stepper button.ajaxcart__qty-adjust svg { width: 14px; height: 14px; fill: currentColor; }
+.hov-cart-page__stepper .ajaxcart__qty-num { min-width: 38px; text-align: center; font-size: 14px; font-weight: 700; color: #1A2E1A; }
+
+.hov-cart-page__remove { width: 36px; height: 36px; display: inline-flex; align-items: center; justify-content: center; border: 0; background: transparent; cursor: pointer; color: #B6655E; border-radius: 8px; padding: 0; transition: background .15s ease, color .15s ease; }
+.hov-cart-page__remove:hover { background: #FBEDEB; color: #C0392B; }
+.hov-cart-page__remove svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+
+.hov-cart-page__actions-row { display: flex; justify-content: flex-start; padding: 18px 4px 4px; }
+.hov-cart-page__continue { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; color: #2D5A27; text-decoration: none; border: 1px solid #CFE0C7; background: #F4F8F0; padding: 11px 18px; border-radius: 10px; transition: background .15s ease; }
+.hov-cart-page__continue:hover { background: #E9F1E2; }
+.hov-cart-page__continue svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+.hov-cart-page__trust-strip { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 18px; padding: 16px; background: #F6F3EA; border-radius: 12px; }
+.hov-cart-page__trust-item { display: flex; align-items: center; gap: 10px; }
+.hov-cart-page__trust-item svg { width: 26px; height: 26px; fill: none; stroke: #2D5A27; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+.hov-cart-page__trust-item strong { display: block; font-size: 13px; color: #1A2E1A; }
+.hov-cart-page__trust-item span { display: block; font-size: 11.5px; color: #8A9082; }
+
+/* ---- Right: summary ---- */
+.hov-cart-page__summary-col { position: sticky; top: 20px; display: flex; flex-direction: column; gap: 20px; }
+.hov-cart-page__summary-card { background: #FFFFFF; border: 1px solid #ECE6D8; border-radius: 16px; padding: 22px; }
+.hov-cart-page__summary-title { font-size: 19px; font-weight: 700; color: #1A2E1A; margin: 0 0 16px; }
+.hov-cart-page__summary-row { display: flex; justify-content: space-between; align-items: center; font-size: 14px; color: #3A4034; margin-bottom: 6px; }
+.hov-cart-page__ship-status { font-weight: 700; color: #8A9082; }
+.hov-cart-page__ship-status.is-free { color: #2D5A27; }
+
+/* Page free-shipping bar (own classes so the drawer's global jQuery patcher never cross-writes it) */
+.hov-cart-page__shipping { margin: 4px 0 16px; }
+.hov-cart-page__shipping-track { height: 6px; background: #E9E2CF; border-radius: 999px; overflow: hidden; }
+.hov-cart-page__shipping-fill { height: 100%; background: #2D5A27; border-radius: 999px; transition: width .4s ease; }
+.hov-cart-page__shipping-text { font-size: 12.5px; color: #6B7264; margin: 8px 0 0; }
+
+/* Coupon (reused .hov-cart__coupon-preview) — page-scoped layout overrides */
+.hov-cart-page__coupon { margin: 4px 0 0; padding: 12px; border: 1px dashed #CFE0C7; border-radius: 12px; background: #F6FAF3; }
+.hov-cart-page__coupon .hov-cart__coupon-preview-row { display: flex; align-items: center; gap: 8px; }
+.hov-cart-page__coupon .hov-cart__coupon-preview-left { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0; }
+.hov-cart-page__coupon .hov-cart__coupon-input { flex: 1; min-width: 0; border: 1px solid #DCD6C6; border-radius: 8px; padding: 9px 10px; font-size: 13px; text-transform: uppercase; background: #fff; }
+.hov-cart-page__coupon .hov-cart__coupon-apply-btn { flex-shrink: 0; background: #2D5A27; color: #fff; border: 0; border-radius: 8px; padding: 9px 16px; font-size: 13px; font-weight: 700; cursor: pointer; }
+.hov-cart-page__coupon .hov-cart__coupon-apply-btn[hidden] { display: none; }
+.hov-cart-page__coupon .hov-cart__coupon-input[hidden] { display: none; }
+.hov-cart-page__coupon .hov-cart__coupon-applied { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: #2D5A27; font-weight: 600; }
+.hov-cart-page__coupon .hov-cart__coupon-applied[hidden] { display: none; }
+.hov-cart-page__coupon .hov-cart__coupon-applied strong { background: #E4F0DC; color: #2D5A27; padding: 2px 8px; border-radius: 6px; letter-spacing: .03em; }
+.hov-cart-page__coupon .hov-cart__coupon-icon { width: 16px; height: 16px; flex-shrink: 0; }
+.hov-cart-page__coupon .hov-cart__coupon-remove { background: transparent; border: 0; color: #8A9082; font-size: 16px; line-height: 1; cursor: pointer; padding: 0 2px; }
+.hov-cart-page__coupon .hov-cart__coupon-error { font-size: 12px; color: #C0392B; margin-top: 6px; display: none; }
+.hov-cart-page__coupon .hov-cart__coupon-error[data-visible="true"] { display: block; }
+
+.hov-cart-page__saved { display: flex; align-items: center; gap: 7px; margin-top: 12px; padding: 9px 12px; background: #EAF4E3; border-radius: 10px; font-size: 13px; font-weight: 600; color: #2D5A27; }
+.hov-cart-page__saved svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 2; flex-shrink: 0; }
+.hov-cart-page__saved[hidden] { display: none; }
+
+.hov-cart-page__total-row { display: flex; justify-content: space-between; align-items: flex-end; margin: 16px 0 4px; padding-top: 16px; border-top: 1px solid #EFEADD; }
+.hov-cart-page__total-label { font-size: 15px; font-weight: 700; color: #1A2E1A; }
+.hov-cart-page__total-label small { font-size: 11px; font-weight: 400; color: #9AA08F; }
+.hov-cart-page__total-amount { font-size: 24px; font-weight: 800; color: #2D5A27; }
+
+.hov-cart-page__checkout { display: flex; align-items: center; justify-content: center; gap: 9px; width: 100%; margin-top: 16px; background: var(--hov-green); color: #fff; text-decoration: none; font-size: 15px; font-weight: 700; padding: 15px; border-radius: 12px; transition: background .15s ease; }
+.hov-cart-page__checkout:hover { background: var(--hov-green-dk); color: #fff; }
+.hov-cart-page__checkout svg { width: 18px; height: 18px; fill: currentColor; }
+.hov-cart-page__secure { display: flex; align-items: center; justify-content: center; gap: 7px; margin-top: 10px; font-size: 13px; font-weight: 600; color: #2D5A27; }
+.hov-cart-page__secure svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.8; }
+
+/* Cross-sell — full-width row spanning both grid columns */
+.hov-cart-page__crosssell[hidden] { display: none; }
+.hov-cart-page__crosssell { grid-column: 1 / -1; min-width: 0; background: #FFFFFF; border: 1px solid #ECE6D8; border-radius: 16px; padding: 18px; }
+.hov-cart-page__crosssell-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 14px; }
+.hov-cart-page__crosssell-head span { font-size: 15px; font-weight: 700; color: #1A2E1A; }
+.hov-cart-page__crosssell-head a { font-size: 12.5px; color: #2D5A27; text-decoration: none; font-weight: 600; }
+.hov-cart-page__crosssell-scroll { display: grid; grid-auto-flow: column; grid-auto-columns: 132px; gap: 12px; min-width: 0; overflow-x: auto; padding-bottom: 6px; scrollbar-width: thin; }
+.hov-cart-page__cs-card { display: flex; flex-direction: column; border: 1px solid #EFEADD; border-radius: 12px; padding: 10px; background: #FCFBF7; }
+.hov-cart-page__cs-imglink { display: block; }
+.hov-cart-page__cs-img { width: 100%; height: 100px; object-fit: cover; border-radius: 8px; background: #F3EFE5; }
+.hov-cart-page__cs-title { font-size: 12.5px; font-weight: 600; color: #1A2E1A; margin: 8px 0 2px; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.hov-cart-page__cs-price { font-size: 13px; font-weight: 700; color: #2D5A27; margin: 0 0 8px; }
+.hov-cart-page__cs-add { margin-top: auto; background: #fff; border: 1px solid #2D5A27; color: #2D5A27; border-radius: 8px; padding: 7px; font-size: 12.5px; font-weight: 700; cursor: pointer; transition: background .15s ease, color .15s ease; }
+.hov-cart-page__cs-add:hover { background: #2D5A27; color: #fff; }
+.hov-cart-page__cs-add[disabled] { opacity: .6; cursor: default; }
+
+/* Empty */
+.hov-cart-page__empty { text-align: center; padding: 60px 20px; background: #FFFFFF; border: 1px solid #ECE6D8; border-radius: 16px; }
+.hov-cart-page__empty svg { width: 54px; height: 54px; fill: none; stroke: #C7CDBC; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; }
+.hov-cart-page__empty p { font-size: 16px; color: #6B7264; margin: 16px 0 20px; }
+.hov-cart-page__continue--empty { display: inline-flex; }
+
+/* Responsive */
+@media (max-width: 990px) {
+  .hov-cart-page__grid { grid-template-columns: minmax(0, 1fr); }
+  .hov-cart-page__summary-col { position: static; }
+}
+@media (max-width: 768px) {
+  .hov-cart-page__table-head { display: none; }
+  .hov-cart-page__line { grid-template-columns: 1fr auto; grid-template-areas: "product remove" "price price" "qty qty" "total total"; gap: 8px 12px; }
+  .hov-cart-page__line-product { grid-area: product; }
+  .hov-cart-page__line-remove { grid-area: remove; justify-self: end; align-self: start; }
+  .hov-cart-page__line-price { grid-area: price; justify-self: start; text-align: left; }
+  .hov-cart-page__line-qty { grid-area: qty; justify-self: start; }
+  .hov-cart-page__line-total { grid-area: total; justify-self: start; text-align: left; }
+  .hov-cart-page__line-price::before,
+  .hov-cart-page__line-total::before { content: attr(data-label) ": "; font-size: 11px; color: #9AA08F; font-weight: 600; }
+  /* Trust strip: let the 3 badges reflow (2-then-1) on narrow phones instead of clipping mid-word */
+  .hov-cart-page__trust-strip { grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); }
+  .hov-cart-page__trust-item { min-width: 0; }
+}
+
+/* ============================================================
+   HOV — Cart Page Mobile Hardening
+   Cart is div + CSS grid (NOT a table). Base rules already
+   collapse the grid (<=990px) and card-stack line items
+   (<=768px). This block re-asserts the header, stepper,
+   summary, and checkout on phones so a stale compiled-CSS
+   cache or any external rule cannot leave them broken.
+   Div-grid based, no !important, no table selectors.
+   ============================================================ */
+@media (max-width: 768px) {
+  /* Heading fits phones; keeps the leaf/count from orphaning */
+  .hov-cart-page__heading h1 { font-size: 22px; line-height: 1.3; }
+
+  /* Backstop: nothing inside the cart section may cause page-level
+     horizontal scroll (clip, not hidden, so overflow-y stays visible) */
+  .hov-cart-page { overflow-x: clip; }
+
+  /* Single column + non-sticky summary (re-assert of <=990px).
+     minmax(0,1fr) caps the track's min so the cross-sell row of
+     fixed-width cards can't force the grid wider than the viewport. */
+  .hov-cart-page__grid { grid-template-columns: minmax(0, 1fr); }
+  .hov-cart-page__summary-col { position: static; width: 100%; }
+
+  /* Order Summary card: full width, content never clipped */
+  .hov-cart-page__summary-card { width: 100%; overflow: visible; }
+
+  /* Quantity stepper stays visible + tappable */
+  .hov-cart-page__stepper { display: inline-flex; }
+
+  /* Checkout button: full width, label never clipped */
+  .hov-cart-page__checkout { width: 100%; white-space: nowrap; }
+}
+{% endstylesheet %}
+
+{% javascript %}
+(function () {
+  // This is a JSON-template section, so its real id is template-prefixed
+  // (e.g. shopify-section-template--123__page_cart). A section JS block cannot read the
+  // Liquid section id, so derive the host + id from the live DOM instead of hardcoding it
+  // (the original 'page_cart' guess matched neither the wrapper nor a valid section_id -> silent no-op).
+  function getHost() {
+    var root = document.querySelector('.hov-cart-page');
+    return root ? root.closest('.shopify-section') : null;
+  }
+
+  // Re-render this section from the server via the Section Rendering API. Exposed globally so the
+  // shared pipeline (assets/ajax-cart.js.liquid renderAllSurfaces) refreshes /cart after any mutation.
+  function renderSection() {
+    var host = getHost();
+    if (!host || !host.id) return Promise.resolve();
+    var sid = host.id.replace(/^shopify-section-/, '');
+    return fetch(window.location.pathname + '?section_id=' + encodeURIComponent(sid))
+      .then(function (r) { return r.text(); })
+      .then(function (html) {
+        var trimmed = (html || '').trim();
+        var doc = new DOMParser().parseFromString(trimmed, 'text/html');
+        var wrapped = doc.getElementById(host.id); // response may or may not include the wrapper
+        host.innerHTML = wrapped ? wrapped.innerHTML : trimmed;
+        // The server re-render is coupon-unaware (the applied code lives in sessionStorage) and it
+        // wipes the JS-populated cross-sell. Re-broadcast cart:updated so the shared coupon engine
+        // re-overlays the discount/total and the carousel re-injects onto the fresh DOM.
+        document.dispatchEvent(new CustomEvent('cart:updated'));
+      })
+      .catch(function () {});
+  }
+  window.hovRenderPageCartSection = renderSection;
+
+  // ── "You may also like" — Shopify native Product Recommendations API (the theme's established
+  //    cross-sell source). Caches per seed product; re-paints (no re-fetch) after section re-renders.
+  (function () {
+    var recProducts = null, cachedSeed = null;
+
+    function money(c) { return '₹' + (c / 100).toFixed(2); }
+    function esc(s) {
+      return String(s == null ? '' : s).replace(/[&<>"']/g, function (ch) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch];
+      });
+    }
+    function cartProductIds() {
+      var ids = [], nodes = document.querySelectorAll('#hov-cart-page-lines [data-product-id]');
+      for (var i = 0; i < nodes.length; i++) { ids.push(parseInt(nodes[i].getAttribute('data-product-id'), 10)); }
+      return ids;
+    }
+    function cardHTML(p) {
+      var img = p.featured_image || (p.images && p.images[0]) || '';
+      var v = p.variants && p.variants[0];
+      return '<div class="hov-cart-page__cs-card">' +
+        '<a class="hov-cart-page__cs-imglink" href="' + esc(p.url) + '">' +
+          '<img class="hov-cart-page__cs-img" src="' + esc(img) + '" alt="' + esc(p.title) + '" loading="lazy"></a>' +
+        '<p class="hov-cart-page__cs-title">' + esc(p.title) + '</p>' +
+        '<p class="hov-cart-page__cs-price">' + money(p.price) + '</p>' +
+        '<button type="button" class="hov-cart-page__cs-add"' +
+          (v ? ' data-variant-id="' + v.id + '"' : ' disabled') + '>+ Add</button>' +
+      '</div>';
+    }
+    function paint() {
+      var section = document.querySelector('[data-crosssell]');
+      var scroll = document.querySelector('[data-crosssell-scroll]');
+      if (!section || !scroll || !recProducts) return;
+      var inCart = cartProductIds();
+      var show = recProducts.filter(function (p) { return inCart.indexOf(p.id) === -1; }).slice(0, 8);
+      if (!show.length) { section.hidden = true; return; }
+      scroll.innerHTML = show.map(cardHTML).join('');
+      section.hidden = false;
+    }
+    function load() {
+      var section = document.querySelector('[data-crosssell]');
+      var scroll = document.querySelector('[data-crosssell-scroll]');
+      if (!section || !scroll) return; // empty cart — nothing to render
+      var seed = scroll.getAttribute('data-seed-product');
+      if (!seed) { section.hidden = true; return; }
+      if (recProducts && cachedSeed === seed) { paint(); return; } // re-inject after a re-render, no re-fetch
+      fetch('/recommendations/products.json?product_id=' + encodeURIComponent(seed) + '&limit=10&intent=related')
+        .then(function (r) { return r.json(); })
+        .then(function (data) { recProducts = (data && data.products) || []; cachedSeed = seed; paint(); })
+        .catch(function () { section.hidden = true; });
+    }
+
+    // Delegated so the handler survives section re-renders (cards are re-created on each paint).
+    document.addEventListener('click', function (e) {
+      var btn = e.target.closest('.hov-cart-page__cs-add[data-variant-id]');
+      if (!btn || btn.disabled) return;
+      e.preventDefault();
+      var id = btn.getAttribute('data-variant-id');
+      if (!id) return;
+      var label = btn.textContent;
+      btn.disabled = true;
+      btn.textContent = 'Adding…';
+      fetch('/cart/add.js', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ items: [{ id: id, quantity: 1 }] })
+      })
+        .then(function (r) { if (!r.ok) throw new Error('add'); return r.json(); })
+        .then(function () { return fetch('/cart.js').then(function (r) { return r.json(); }); })
+        .then(function (cart) {
+          btn.textContent = 'Added ✓';
+          // Reuse the shared render path — refreshes drawer, header badge AND this page's totals.
+          if (typeof window.renderAllSurfaces === 'function') window.renderAllSurfaces(cart);
+          setTimeout(function () { btn.textContent = label; btn.disabled = false; }, 1500);
+        })
+        .catch(function () {
+          btn.textContent = label; btn.disabled = false;
+          if (typeof window.hovShowCartToast === 'function') window.hovShowCartToast('Could not add item — please try again.');
+        });
+    });
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', load);
+    } else { load(); }
+    document.addEventListener('cart:updated', load);
+  })();
+})();
+{% endjavascript %}

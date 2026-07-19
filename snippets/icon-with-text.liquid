@@ -1,0 +1,67 @@
+{% comment %}
+  Renders icon with text block
+
+  Accepts:
+  - block: {Object} passes in the block information.
+
+
+  Usage:
+  {% render 'icon-with-text',
+    block: block
+  %}
+{% endcomment %}
+{%- liquid
+  assign heading_1_empty = false
+  assign heading_2_empty = false
+  assign heading_3_empty = false
+  assign text_only_all_items = true
+
+  if block.settings.heading_1 == empty
+    assign heading_1_empty = true
+  endif
+
+  if block.settings.heading_2 == empty
+    assign heading_2_empty = true
+  endif
+
+  if block.settings.heading_3 == empty
+    assign heading_3_empty = true
+  endif
+
+  if heading_1_empty == false and block.settings.icon_1 != 'none' or block.settings.image_1 != null
+    assign text_only_all_items = false
+  elsif heading_2_empty == false and block.settings.icon_2 != 'none' or block.settings.image_2 != null
+    assign text_only_all_items = false
+  elsif heading_3_empty == false and block.settings.icon_3 != 'none' or block.settings.image_3 != null
+    assign text_only_all_items = false
+  endif
+-%}
+
+ {% if product.metafields.custom.key_highlight!= blank %}
+ {% assign highlights = product.metafields.custom.key_highlight.value %}
+<ul class="icon-with-text icon-with-text--{{ block.settings.layout }} list-unstyled{% if text_only_all_items %} icon-with-text--text-only{% endif %}"
+  {{ block.shopify_attributes }}>
+  {% for highlight in highlights %}
+  <li class="icon-with-text__item">
+    {% if highlight.highlight_icon %}
+    <img class="lazyload"
+          data-src="{{ highlight.highlight_icon | image_url }}"
+          {% if highlight.highlight_icon.alt != blank %}
+            alt="{{ highlight.highlight_icon.alt | escape }}"
+          {% else %}
+            role="presentation"
+          {% endif %}
+          height="auto"
+          width="auto"
+          loading="lazy"
+        >
+      {% endif %}
+    {% if highlight.highlight_text %}
+    <span class="h4 inline-richtext">
+      {{ highlight.highlight_text | strip }}
+    </span>
+    {% endif %}
+  </li>
+    {% endfor %}
+</ul>
+{% endif %}

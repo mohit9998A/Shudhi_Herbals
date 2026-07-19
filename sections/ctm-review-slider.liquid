@@ -1,0 +1,594 @@
+{% assign reviews = product.metafields.custom.product_reviews.value %}
+
+{% if reviews != blank and reviews.size > 0 %}
+
+<div class="review-wrapper" style="
+  {% if section.settings.back_img %}
+    background-image: url('{{ section.settings.back_img | img_url: "master" }}');
+    background-repeat: no-repeat;
+    background-size: cover;
+  {% else %}
+    background-color: {{ section.settings.back_color }};
+  {% endif %}
+">
+
+<div class="page-width container">
+<h1 class="text">Listen to what our customers have to say</h1>
+  <!-- DESKTOP -->
+  <div class="review-grid desktop-review">
+
+    {% for review in reviews %}
+    <div class="review-card">
+
+      <div class="review-left">
+        {% if review.image != blank %}
+          <img src="{{ review.image | img_url: 'master' }}">
+        {% endif %}
+        <div class="review-stars">
+          {{ review.rating }}
+        </div>
+      </div>
+
+      <div class="review-right">
+        <p class="review-text">
+          {{ review.review_text }}
+        </p>
+
+        <div class="review-user">
+          <h4>{{ review.name }}</h4>
+          <span>{{ review.city }}</span>
+        </div>
+      </div>
+
+    </div>
+    {% endfor %}
+
+  </div>
+
+
+  <!-- MOBILE -->
+  <div class="review-slider mobile-review">
+
+    {% for review in reviews %}
+    <div class="review-card">
+
+      <div class="review-left">
+        {% if review.image != blank %}
+          <img src="{{ review.image | img_url: 'master' }}">
+        {% endif %}
+        <div class="review-stars">
+          {{ review.rating }}
+        </div>
+      </div>
+
+      <div class="review-right">
+        <p class="review-text">
+          {{ review.review_text }}
+        </p>
+
+        <div class="review-user">
+          <h4>{{ review.name }}</h4>
+          <span>{{ review.city }}</span>
+        </div>
+      </div>
+
+    </div>
+    {% endfor %}
+
+  </div>
+
+</div>
+</div>
+
+{% endif %}
+
+<style>
+  h1.text {
+    font-size: 28px;
+    text-align: center;
+    font-weight: 500;
+    color: #3f3e3d;
+}
+   .review-wrapper {
+    padding-top:{{section.settings.pd_tp }}px;
+    padding-bottom:{{section.settings.pd_bp }}px;
+    background:{{section.settings.back_color }};
+}
+  .review-grid{
+display:grid;
+grid-template-columns:repeat(2,1fr);
+gap:25px;
+margin-top:40px;
+}
+
+.review-card{
+background:#f5f8f3;
+padding:25px;
+border-radius:16px;
+display:flex;
+gap:20px;
+align-items:flex-start;
+}
+
+.review-left{
+width:120px;
+text-align:center;
+}
+
+.review-left img{
+width:120px;
+height:120px;
+border-radius:12px;
+object-fit:cover;
+}
+
+.review-stars{
+color:#d49a45;
+font-size:26px;
+margin-top:8px;
+}
+
+.review-right{
+flex:1;
+}
+
+.review-text{
+font-size:20px;
+line-height:1.6;
+color:#444;
+margin-bottom:15px;
+}
+
+.review-user h4{
+margin:0;
+font-size:20px;
+}
+
+.review-user span{
+color:#777;
+font-size:14px;
+}
+
+/* MOBILE */
+
+.mobile-review{
+display:none;
+}
+
+
+
+@media (min-width: 450px) and (max-width: 500px) {
+.review-wrapper button.slick-next.slick-arrow {
+    right: 38%;
+}
+.review-wrapper  button.slick-prev.slick-arrow {
+    left: 38%;
+}
+}
+@media (min-width: 501px) and (max-width: 600px) {
+.review-wrapper button.slick-next.slick-arrow {
+    right: 40%;
+}
+.review-wrapper  button.slick-prev.slick-arrow {
+    left: 40%;
+}
+}
+@media (min-width: 601px) and (max-width: 700px) {
+.review-wrapper button.slick-next.slick-arrow {
+    right: 43%;
+}
+.review-wrapper  button.slick-prev.slick-arrow {
+    left: 43%;
+}
+}
+
+@media (min-width: 701px) and (max-width: 768px) {
+.review-wrapper button.slick-next.slick-arrow {
+    right: 46%;
+}
+.review-wrapper  button.slick-prev.slick-arrow {
+    left: 46%;
+}
+}
+
+
+@media(max-width:768px){
+h1.text {
+    font-size: 26px;
+    text-align: center;
+    font-weight: 400;
+    color: #3f3e3d;
+}
+  .review-card {
+    display: flex !important;
+}
+.review-left {
+    width: 80px;
+    text-align: center;
+}
+.review-left img {
+    width: 80px;
+    height: 80px;
+}
+.review-stars {
+    font-size: 18px;
+}
+.review-text {
+    font-size: 14px;
+    line-height: 1.5;
+    margin-bottom: 10px;
+}
+.review-user h4 {
+    margin: 0;
+    font-size: 16px;
+}
+.review-user span {
+    font-size: 12px;
+}
+
+.desktop-review{
+display:none;
+}
+
+.mobile-review{
+display:block;
+}
+
+.review-grid{
+grid-template-columns:1fr;
+}
+.review-wrapper button.slick-arrow {
+    background: transparent;
+}
+.review-wrapper button.slick-next.slick-arrow::before {
+    content: '' !important;
+    background: url(https://cdn.shopify.com/s/files/1/0583/0760/8679/files/Component_22.svg?v=1737965671);
+    width: 40px;
+    height: 40px;
+    background-repeat: no-repeat;
+    background-size: contain;
+}
+
+
+.review-wrapper button.slick-prev.slick-arrow:before {
+    background: url('https://cdn.shopify.com/s/files/1/0583/0760/8679/files/Component_23_786aad0c-1ac5-4fa3-9f41-a0b66660ebc7.svg?v=1737965143');
+    left: 55px;
+    width: 40px;
+    height: 40px;
+    background-repeat: no-repeat;
+    background-size: contain;
+    content: '' !important;
+}
+.review-wrapper button.slick-arrow {
+    bottom: -40px;
+    top: auto;
+}
+.review-wrapper button.slick-next.slick-arrow {
+    right: 35%;
+}
+.review-wrapper  button.slick-prev.slick-arrow {
+    left: 35%;
+}
+.review-slider.mobile-review {
+    padding-bottom: 40px;
+}
+}
+
+
+</style>
+<script>
+    $('.review-slider').slick({
+slidesToShow:1,
+slidesToScroll:1,
+arrows:true,
+dots:false,
+adaptiveHeight: true,
+infinite:true
+});
+</script>
+{% schema %}
+  {
+    "name": "fresh-0-review-slider 2",
+    "settings": [
+        {
+      "type": "header",
+      "content": "Section padding"
+      },
+        {
+          "type": "select",
+          "id": "pos_img12",
+          "label": "Design Option",
+          "default": "Slider",
+          "options": [
+              {
+                  "value": "Grid",
+                  "label": "Grid"
+              },
+              {
+                  "value": "Slider",
+                  "label": "Slider"
+              }
+          ]
+      },
+     {
+        "type": "range",
+        "id": "pd_tp",
+        "label": "padding top",
+        "default": 50,
+        "min": 10,
+        "max": 60,
+        "step": 1
+      },
+	  {
+        "type": "range",
+        "id": "pd_bp",
+        "label": "padding bottom",
+        "default": 50,
+        "min": 10,
+        "max": 60,
+        "step": 1
+      },
+        {
+        "type": "color",
+        "id": "back_color",
+        "label": "Background Color",
+        "default": "#fbedef"
+       },
+       {
+        "type": "image_picker",
+        "id": "back_img",
+        "label": "Background Image"
+       },
+      {
+        "type": "metaobject_list",
+        "id": "testimonials",
+        "label": "Customer Testimonials",
+        "metaobject_type": "customer_testimonials"
+      },
+       {
+      "type": "header",
+      "content": "Section tittle"
+     },
+        {
+      "type": "inline_richtext",
+      "id": "subtitle",
+      "default": "Satisfied customers",
+      "label": "Sub title "
+    },
+        {
+        "type": "range",
+        "id": "heading_sizem2",
+        "label": "Sub Font Size",
+        "default":16,
+        "min": 10,
+        "max": 60,
+        "step": 1
+      },
+       {
+      "type": "inline_richtext",
+      "id": "title",
+      "default": "Real stories, real satisfaction",
+      "label": "Section Tittle"
+    },
+       {
+        "type": "range",
+        "id": "heading_size",
+        "label": "Font Size",
+        "default": 50,
+        "min": 10,
+        "max": 60,
+        "step": 1
+      },
+             {
+        "type": "range",
+        "id": "heading_sizem",
+        "label": "Font Size mobile",
+        "default": 28,
+        "min": 10,
+        "max": 60,
+        "step": 1
+      },
+      {
+      "type": "color",
+      "id": "text_color",
+      "label": "Color",
+      "default": "#ffffff"
+      },
+     {
+      "type": "select",
+      "id": "text_postion",
+      "label": "Alignment",
+      "default": "center",
+      "options": [
+          {
+              "value": "center",
+              "label": "center"
+          },
+          {
+              "value": "right",
+              "label": "right"
+          },
+          {
+              "value": "left",
+              "label": "left"
+          },
+      ]
+  },
+       {
+      "type": "header",
+      "content": "Slider"
+    },
+      {
+      "type": "select",
+      "id": "pos_img",
+      "label": "Column layout",
+      "default": "grid",
+      "options": [
+          {
+              "value": "grid",
+              "label": "grid"
+          },
+          {
+              "value": "Slider",
+              "label": "Slider"
+          },
+      ]
+      },
+      {
+          "type": "select",
+          "id": "block_slide",
+          "label": "Slider Desktop",
+          "default": "1",
+          "options": [
+              {
+                  "value": "1",
+                  "label": "1"
+              },
+    
+          ]
+      },
+       {
+          "type": "select",
+          "id": "block_slide2",
+          "label": "Slider Tablet",
+          "default": "1",
+          "options": [
+              {
+                  "value": "1",
+                  "label": "1"
+              },
+             {
+                  "value": "2",
+                  "label": "2"
+              },
+             {
+                  "value": "3",
+                  "label": "3"
+              },
+             {
+                  "value": "4",
+                  "label": "4"
+              },
+          ]
+      },
+       {
+          "type": "select",
+          "id": "block_slide3",
+          "label": "Slider Mobile",
+          "default": "1",
+          "options": [
+              {
+                  "value": "1",
+                  "label": "1"
+              },
+          ]
+      },
+         {
+      "type": "text",
+      "id": "design",
+      "label": "Class name "
+    },
+    ],
+     "blocks": [
+    {
+      "type": "desktop-slider",
+      "name": "Desktop-Slide",
+      "limit": 3,
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "ctm_img1",
+          "label": "Image"
+        },
+         {
+          "type": "image_picker",
+          "id": "ctm_img2",
+          "label": "Image"
+        },
+        {
+          "type": "image_picker",
+          "id": "ctm_img3",
+          "label": "Image"
+        },
+        {
+          "type": "image_picker",
+          "id": "ctm_img4",
+          "label": "Image"
+        }
+      ]
+    },
+           {
+      "type": "mobile-slide",
+      "name": "mobile-slide",
+      "limit": 1,
+      "settings": [
+              {
+          "type": "image_picker",
+          "id": "ctm_img17",
+          "label": "Image"
+        },
+         {
+          "type": "image_picker",
+          "id": "ctm_img27",
+          "label": "Image"
+        },
+        {
+          "type": "image_picker",
+          "id": "ctm_img37",
+          "label": "Image"
+        },
+        {
+          "type": "image_picker",
+          "id": "ctm_img47",
+          "label": "Image"
+        },
+  {
+          "type": "image_picker",
+          "id": "ctm_img5",
+          "label": "Image"
+        },
+         {
+          "type": "image_picker",
+          "id": "ctm_img6",
+          "label": "Image"
+        },
+        {
+          "type": "image_picker",
+          "id": "ctm_img7",
+          "label": "Image"
+        },
+        {
+          "type": "image_picker",
+          "id": "ctm_img8",
+          "label": "Image"
+        },
+        {
+          "type": "image_picker",
+          "id": "ctm_img9",
+          "label": "Image"
+        },
+         {
+          "type": "image_picker",
+          "id": "ctm_img10",
+          "label": "Image"
+        },
+        {
+          "type": "image_picker",
+          "id": "ctm_img11",
+          "label": "Image"
+        },
+        {
+          "type": "image_picker",
+          "id": "ctm_img12",
+          "label": "Image"
+        }
+             ]
+    }
+  ],
+    "presets": [
+    {
+      "name": "fresh-0-review-slider 2",
+    }
+  ]
+  }
+{% endschema %}

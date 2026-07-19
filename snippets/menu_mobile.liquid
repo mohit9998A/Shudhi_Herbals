@@ -1,0 +1,472 @@
+<div class="menu_moblie hov-mheader-row1 d-flex d-xl-none jsmenumobile align-items-center {% unless settings.enable_sticky_mobile %}engoc-disable-sticky{% endunless %}">
+
+  {%- comment -%} LEFT: brand column — logo + small single-line location, pinned inside Row 1 {%- endcomment -%}
+  <div class="hov-mheader-brand">
+    <div class="logo_menumoblie hov-mheader-logo">
+
+      {% if settings.logo_svgmobile != blank %}
+      <div class="logosvg" style="max-width:{{settings.mobile_logo_maxwidth}}px;">
+        <a href="{{shop.url}}">{{settings.logo_svgmobile}}</a>
+      </div>
+      {% else %}
+      <a href="{{shop.url}}">
+        {% if settings.logo_mobile != blank %}
+        <img src="{{settings.logo_mobile|img_url:'master'}}" width="{{settings.mobile_logo_maxwidth}}" alt="logo">
+        {% else %}
+        <img src="//via.placeholder.com/150x40" width="{{settings.mobile_logo_maxwidth}}" alt="logo">
+        {% endif %}
+      </a>
+      {% endif %}
+
+    </div>
+
+    <div class="hov-mnav__location d-flex align-items-center">
+      <span class="hov-mnav__pin">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
+        </svg>
+      </span>
+      <span class="hov-mnav__pincode"><span data-hov-pincode>141120</span><span data-hov-sep>, </span><span data-hov-city>Ludhiana</span></span>
+      <a href="#" class="hov-mnav__verify" data-pincode-modal-trigger>Verify pincodes for accurate delivery
+        <svg class="hov-mnav__chev" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+      </a>
+    </div>
+  </div>
+
+  {%- comment -%} RIGHT: cart + hamburger (wishlist + inline search removed — now on bottom nav / Row 2) {%- endcomment -%}
+  <div class="menuright hov-mheader-actions">
+    <a href="javascript:void(0)" title="" class="js-call-minicart hov-mheader-cart">{% if settings.hd_icon_cart_mb_svg != blank %}{{settings.hd_icon_cart_mb_svg}} {% else %}<i class="{{settings.hd_icon_cart_mb}}"></i>{% endif %}
+      <span class="count_pr_incart enj-cartcount{% if cart.item_count == 0 %} hidden-count{% endif %}">{{cart.item_count }}</span>
+    </a>
+    <a href="javascript:void(0)" title="" class="menuleft hov-mheader-hamburger" aria-label="Menu">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+        <line x1="3" y1="6" x2="21" y2="6"/>
+        <line x1="3" y1="12" x2="21" y2="12"/>
+        <line x1="3" y1="18" x2="21" y2="18"/>
+      </svg>
+    </a>
+  </div>
+</div>
+
+{%- comment -%} ROW 2: full-width search (normal flow, scrolls away). Same component/JS as desktop. {%- endcomment -%}
+<div class="hov-mheader-row2 d-xl-none">
+  {% render 'hov-search-bar' with suffix: 'mobile' %}
+  <a href="/pages/track-order" class="hov-mheader-trackorder" aria-label="Track your order">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+      <rect x="1" y="3" width="15" height="13" rx="1"/>
+      <path d="M16 8h4l3 5v3h-7V8z"/>
+      <circle cx="5.5" cy="18.5" r="2.5"/>
+      <circle cx="18.5" cy="18.5" r="2.5"/>
+    </svg>
+  </a>
+</div>
+
+{%- comment -%} Mobile-only header layout (matches the mockup). Only renders < xl; the
+   desktop header (header-v1) is a separate component, so desktop is untouched. {%- endcomment -%}
+<style>
+@media (max-width: 1199px) {
+  /* ROW 1 — pinned. position:fixed (sticky is impossible: an ancestor .wrap has overflow:hidden).
+     !important beats the legacy .engoc-disable-sticky{position:unset} and .menu_mobilescroll rules. */
+  .menu_moblie.hov-mheader-row1 {
+    position: fixed !important;
+    top: var(--hov-promo-height, 32px);   /* sits just below the fixed promo bar */
+    left: 0;
+    right: 0;
+    z-index: 9000;                        /* above content; below promo (9010) & drawers/overlays (9999+) */
+    background: #fff;                     /* opaque so the hero doesn't bleed through */
+    justify-content: space-between;
+    padding: 4px 14px;   /* was 10px — slim Row 1 height ~40% */
+    gap: 8px;
+  }
+  /* ROW 2 — search, normal flow (scrolls away). Clears both fixed bars (promo + Row 1). */
+  .hov-mheader-row2 {
+    margin-top: calc(var(--hov-promo-height, 32px) + var(--hov-mheader-row1-height, 60px));
+    width: 100%;
+    background: #fff;
+    padding: 5px 14px;              /* was 8px — ~20% row height reduction */
+    box-sizing: border-box;
+    border-bottom: 1px solid #F0EBE0;
+    display: flex;
+    align-items: center;
+    gap: 10px;                      /* normal spacing between search + track order */
+    min-height: 46px;               /* LOCK Row 2 height — pill shrink below can't move the row */
+  }
+  .hov-mheader-row2 .hov-search__wrapper { max-width: none; flex: 1; min-width: 0; }   /* was width:100% */
+  .hov-mheader-row2 .hov-search__form { height: 25px; }   /* was 36px — pill ~30% thinner (desktop pill untouched) */
+  .hov-mheader-row2 .hov-search__icon { width: 13px; height: 13px; }   /* 18 × ~0.75, proportional to thinner pill */
+  .hov-mheader-row2 .hov-search__input { line-height: 1.1; }           /* keep 14px text tidy in the slimmer pill */
+  .hov-mheader-trackorder {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 36px;                   /* >=36px tap floor; matches the pill so it doesn't out-tall the row */
+    color: #1A2E1A;                 /* matches the other dark nav icons; drives the SVG currentColor */
+  }
+  .hov-mheader-trackorder svg { width: 20px; height: 20px; }
+  .menu_moblie .menuleft { flex: 0 0 auto; position: relative; z-index: 2; }
+  /* Brand column — logo + small single-line location, pinned inside Row 1.
+     min-width:0 + overflow:hidden cap the location to available width so it can't widen the navbar. */
+  .hov-mheader-brand {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 0;
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+  }
+  .menu_moblie .logo_menumoblie {
+    position: static;
+    transform: none;
+    left: auto;
+    top: auto;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    max-width: 100%;
+    z-index: 1;
+  }
+  .menu_moblie .logo_menumoblie a img,
+  .menu_moblie .logo_menumoblie .logosvg svg,
+  .menu_moblie .logo_menumoblie svg {
+    width: auto !important;
+    max-width: 100%;
+    max-height: 26px !important;   /* was 36px — slim Row 1 height ~40% (logo is the dominant height) */
+    margin: 0 !important;
+  }
+  .menu_moblie .menuright {
+    flex: 0 0 auto;
+    width: auto !important;
+    display: flex;
+    align-items: center;
+    gap: 12px;                     /* was 16px — tighter, single consistent cart+hamburger pair */
+    position: relative;
+    z-index: 2;
+  }
+  .menu_moblie .menuright > span,
+  .menu_moblie .menuright > a {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    padding: 0 !important;
+    margin: 0 !important;
+    color: #1A2E1A;
+  }
+  .menu_moblie .menuright svg { width: 21px; height: 21px; }
+  .menu_moblie .menuright i { font-size: 19px; line-height: 1; color: #1A2E1A; }
+
+  /* Hamburger — reuses the theme's known-correct SVG (same as desktop .hov-nav__hamburger).
+     Sized by the existing `.menuright svg { 21px }` rule and colored via currentColor. */
+  .menu_moblie .menuright .menuleft {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: auto;              /* overrides base .menuleft{width:70px} so it sits snug by the cart */
+  }
+
+  /* Cart badge: stronger red pill with a white ring (matches .hov-sb__quick-badge convention) */
+  .menu_moblie .menuright .count_pr_incart {
+    position: absolute;
+    top: -7px;
+    right: -8px;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 4px;
+    box-sizing: border-box;
+    border-radius: 999px;
+    background: #E8193C;
+    color: #fff;
+    font-size: 10px;
+    font-weight: 800;
+    line-height: 1;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1.5px solid #fff;
+  }
+  .menu_moblie .menuright .enj-cartcount.hidden-count { display: none !important; }
+
+  /* Location — small, thin, single inline line under the logo (inside Row 1) */
+  .hov-mnav__location {
+    gap: 5px;
+    padding: 0;
+    margin: 0;
+    font-size: 10px;
+    background: transparent;
+    border-bottom: none;
+    flex-wrap: nowrap;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+    min-width: 0;
+    line-height: 1;              /* tightens the line box to slim Row 1 */
+  }
+  .hov-mnav__pin { display: inline-flex; align-items: center; color: #C8902A; flex-shrink: 0; }
+  .hov-mnav__pin svg { width: 10px; height: 10px; }   /* was 11px */
+  .hov-mnav__pincode { font-weight: 600; color: #1A2E1A; flex-shrink: 0; }
+  .hov-mnav__verify {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: #8A8A8A;
+    font-size: 9px;
+    text-decoration: none;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .hov-mnav__verify:hover { color: #8A8A8A; text-decoration: none; }
+  .hov-mnav__chev { flex-shrink: 0; width: 10px; height: 10px; }   /* was 12px */
+}
+</style>
+
+<div class="box_contentmenu_background">
+</div>
+<div class="box_contentmenu">
+  <div class="tab_content_menu_mobile">
+    <ul class="nav nav-tabs toptab_box_content list-unstyled mb-0" role="tablist">
+      <li class="toptab_li">
+        <a class="tab_navar active" href="#tab_menu_mobile" role="tab" data-toggle="tab">
+          <span class="tab-menu-icon">
+            <span></span>
+            <span></span>
+            <span></span>
+          </span>
+          <span class="{% if settings.enable_rtl_mode %} mr-3 {% else %}ml-3{% endif %}">{{ 'layout.navigation.menu' | t }}</span>
+        </a>
+      </li>
+      <li class="toptab_li">
+        <a class="tab_navar_right" href="#tab_account_mobile" role="tab" data-toggle="tab">
+          <span class=""><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" height="400" width="400" id="svg2" version="1.1" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:svg="http://www.w3.org/2000/svg" xml:space="preserve"><metadata id="metadata8"><rdf><work rdf:about=""><format>image/svg+xml</format><type rdf:resource="http://purl.org/dc/dcmitype/StillImage"></type></work></rdf></metadata><defs id="defs6"></defs><g transform="matrix(1.3333333,0,0,-1.3333333,0,400)" id="g10"><g transform="scale(0.1)" id="g12"><path id="path14" style="fill-opacity:1;fill-rule:nonzero;stroke:none" d="m 1506.87,2587.11 c -225.04,0 -408.14,-183.08 -408.14,-408.11 0,-225.06 183.1,-408.13 408.14,-408.13 225.02,0 408.13,183.07 408.13,408.13 0,225.03 -183.11,408.11 -408.13,408.11 z m 0,-1038.56 c -347.64,0 -630.432,282.79 -630.432,630.45 0,347.63 282.792,630.43 630.432,630.43 347.63,0 630.42,-282.8 630.42,-630.43 0,-347.66 -282.79,-630.45 -630.42,-630.45 v 0"></path><path id="path16" style="fill-opacity:1;fill-rule:nonzero;stroke:none" d="M 399.648,361.789 H 2614.07 c -25.06,261.531 -139.49,503.461 -327.47,689.831 -124.25,123.14 -300.78,193.96 -483.86,193.96 h -591.76 c -183.61,0 -359.601,-70.82 -483.863,-193.96 C 539.148,865.25 424.719,623.32 399.648,361.789 Z M 2730.69,139.461 H 283.035 c -61.558,0 -111.16,49.59 -111.16,111.16 0,363.438 141.68,704 398.32,959.019 165.657,164.55 399.414,258.82 640.785,258.82 h 591.76 c 241.94,0 475.14,-94.27 640.8,-258.82 256.63,-255.019 398.31,-595.581 398.31,-959.019 0,-61.57 -49.59,-111.16 -111.16,-111.16 v 0"></path></g></g></svg></span>
+          <span class="{% if settings.enable_rtl_mode %} mr-2 {% else %}ml-2{% endif %}"> {{ 'customer.login.title' | t }}</span>
+        </a>
+      </li>
+    </ul>
+    <div class="tab-content">
+      <div role="tabpanel" class="tab-pane show in active tab_children_menu" id="tab_menu_mobile">        
+
+        {% assign i = 1 %}
+
+        {% assign main_menu = settings.main_menu_store_mb %}
+        {% for link in linklists[main_menu].links %}    
+        {% assign item = link.title | downcase %}
+        {% assign child_list_handle = link.title | handleize %}
+
+        {% if linklists[child_list_handle].links != blank %}
+
+        <div class="menu-horizon-list">
+
+
+          {% if link.title contains '[' %}
+          {%- assign label  = link.title | split: '[' | last  | split: ']' | first -%}  
+          {%- assign bgc  = link.title | split: '(' | last  | split: ')' | first -%}
+
+          <a href="{{ link.url }}" title="{{link.title | split: '[' | first }}" class="relative nammenu ">{{link.title | split: '[' | first }}
+            <span class="absolute label_menu label_menu-{{link.title | handleize}}-{{forloop.index}}" {% if link.title contains '(' %}style="background-color: {{link.title | split: '(' | last  | split: ')' | first}};"{% endif %}><span>{{link.title | split: '[' | last  | split: ']' | first}}</span></span>
+            <style>
+              .label_menu-{{link.title | handleize}}-{{forloop.index}}:before {
+                border-top: 4px solid {{link.title | split: '(' | last  | split: ')' | first}};
+              }            
+            </style>
+          </a>
+          {% else %}
+          <a href="{{ link.url }}" title="{{link.title | split: '[' | first }}" class="relative nammenu ">{{link.title | split: '[' | first }}</a>
+          {% endif %}
+
+          <a data-check="c{{i}}" class="toggle-menumobile  js_icon_horizon-menu">
+            <i class=" {% if settings.enable_rtl_mode %}fa fa-angle-left{%else%}fa fa-angle-right{% endif %}"></i>
+          </a>
+          <div class="c{{i}} menu_lv2" >
+            {% if settings.enable_rtl_mode %}
+            <a href="javascript:void(0)" title="{{link.title | split: '[' | first }}" class="js-back back-to"> {{link.title | split: '[' | first }} <i class="fa fa-angle-left pr-2 "></i></a>
+            {% else %}
+            <a href="javascript:void(0)" title="{{link.title | split: '[' | first }}" class="js-back back-to">  {{link.title | split: '[' | first }} <i class="fa fa-angle-right pl-2 "></i> </a>
+            {% endif %}
+            {% for childlink in linklists[child_list_handle].links %}
+            {% assign grand_child_list_handle = childlink.title | handle %}
+            {% if linklists[grand_child_list_handle].links != blank %}
+            <h2 class="title_menu_mb relative">
+              {% if childlink.title contains '[' %}
+
+              <a href="{{ childlink.url }}" title="{{childlink.title | split: '[' | first }}" class="delay03 uppercase menu_lv1 "><span>{{childlink.title | split: '[' | first }}</span>
+                <div class="absolute label_menu label_menu-{{childlink.title | handleize}}-{{forloop.index}}" {% if childlink.title contains '(' %}style="background-color: {{childlink.title | split: '(' | last  | split: ')' | first}};"{% endif %}>{{childlink.title | split: '[' | last  | split: ']' | first}}</div>
+                <style>
+                  .label_menu-{{childlink.title | handleize}}-{{forloop.index}}:before {
+                    border-top: 4px solid {{childlink.title | split: '(' | last  | split: ')' | first}};
+                  }            
+                </style>
+              </a>
+              {% else %}
+              <a href="{{ childlink.url }}" title="{{childlink.title | split: '[' | first }}" class="delay03 uppercase menu_lv1 "><span>{{childlink.title | split: '[' | first }}</span></a>
+              {% endif %}
+
+            </h2>
+            <ul class="list-unstyled mb-0 menu_lv3">
+              {% for grandchildlink in linklists[grand_child_list_handle].links %}
+              <li>
+
+                {% if grandchildlink.title contains '[' %}
+                {%- assign label  = grandchildlink.title | split: '[' | last  | split: ']' | first -%}  
+                {%- assign bgc  = grandchildlink.title | split: '(' | last  | split: ')' | first -%}
+                <a href="{{ grandchildlink.url }}" title="{{grandchildlink.title | split: '[' | first }}" class="relative delay03 uppercase menu_lv1 "><span>{{grandchildlink.title | split: '[' | first }}</span>
+                  <div class="absolute label_menu label_menu-{{grandchildlink.title | handleize}}-{{forloop.index}}" {% if grandchildlink.title contains '(' %}style="background-color: {{grandchildlink.title | split: '(' | last  | split: ')' | first}};"{% endif %}>{{grandchildlink.title | split: '[' | last  | split: ']' | first}}</div>
+                  <style>
+                    .label_menu-{{grandchildlink.title | handleize}}-{{forloop.index}}:before {
+                      border-top: 4px solid {{grandchildlink.title | split: '(' | last  | split: ')' | first}};
+                    }            
+                  </style>
+                </a>
+                {% else %}
+                <a href="{{ grandchildlink.url }}" title="{{grandchildlink.title | split: '[' | first }}" class="delay03 uppercase menu_lv1 "><span>{{grandchildlink.title | split: '[' | first }}</span></a>
+                {% endif %}
+              </li>
+              {% endfor %}
+            </ul>
+            {% else %}
+            <h2 class="title_menu_mb title_only_one"><a href="{{childlink.url}}">{{childlink.title}}</a></h2>
+            {% endif %}
+            {% endfor %}
+          </div>
+          {% assign i= i| plus :1 %}
+        </div>
+        {% else %}
+
+        <div class="menu-horizon-list ">
+          {% if link.title contains '[' %}
+          {%- assign label  = link.title | split: '[' | last  | split: ']' | first -%}  
+          {%- assign bgc  = link.title | split: '(' | last  | split: ')' | first -%}
+          <a href="{{ link.url }}" title="{{link.title | split: '[' | first }}" class="nammenu relative w-100 menu_lv1 "><span>{{link.title | split: '[' | first }}</span>
+            <div class="absolute label_menu label_menu-{{link.title | handleize}}-{{forloop.index}}" {% if link.title contains '(' %}style="background-color: {{link.title | split: '(' | last  | split: ')' | first}};"{% endif %}>{{link.title | split: '[' | last  | split: ']' | first}}</div>
+            <style>
+              .label_menu-{{link.title | handleize}}-{{forloop.index}}:before {
+                border-top: 4px solid {{link.title | split: '(' | last  | split: ')' | first}};
+              }            
+            </style>
+          </a>
+          {% else %}
+          <a href="{{ link.url }}" title="{{link.title | split: '[' | first }}" class="nammenu w-100 menu_lv1 "><span>{{link.title | split: '[' | first }}</span></a>
+          {% endif %}
+        </div>
+
+        {% endif %}
+        {% endfor %}
+
+      </div>
+      <!-- tab account login-regester-->
+      <div role="tabpanel" class="tab-pane fade" id="tab_account_mobile">
+        <div class="overlay_login-content">
+          <div class="row justify-content-center box_content_accountdestop text-center">
+
+            <div class="formlogin">
+              <div class="login_primary CustomerLoginForm">
+                <div class="login-icon">
+                  <span class="icon-icon-user"></span>
+                </div>
+                <div class="mailrrr mt-3">
+                  {% form 'customer_login' %}
+                  {{ form.errors | default_errors }}
+                  <div class="form-group">
+                    <input type="email"  class="form-control" name="customer[email]"  placeholder="{{ 'customer.login.email' | t }}" required>
+                  </div>
+                  {% if form.password_needed %}
+                  <div class="form-group">
+                    <input type="password" class="form-control"  placeholder="{{ 'customer.login.password' | t }}" name="customer[password]" required>
+                  </div>
+                  {% endif %}
+                  <div class="form-check">
+                    {% if form.password_needed %}
+                    <a href="#recover" class="RecoverPassword">{{ 'customer.login.forgot_password' | t }}</a>
+                    {% endif %}
+                  </div>
+                  <button type="submit" class="btn btn-dark w-100" value="{{ 'customer.login.log_in' | t }}">
+                    {{ 'customer.login.log_in' | t }}
+                  </button>
+                  {% endform %}
+                </div>
+                <div class="or_creat my-3">
+                  <span>{{ 'customer.login.or' | t }}</span>
+                  {% if settings.enable_rtl_mode %}
+                  <div><a href="javascript:void(0)" class="jsCreate_account">{{ 'customer.account.register_now' | t }} </a></div>
+                  {% else %}
+                  <div><a href="javascript:void(0)" class="jsCreate_account">{{ 'customer.account.register_now' | t }}</a></div>
+                  {% endif %}
+                </div>
+              </div>
+              {% form 'recover_customer_password' %}
+              {{ form.errors | default_errors }}
+              {% comment %}
+              Assign variable to be used after timber.init() is run in theme.liquid
+              {% endcomment %}
+              {% if form.posted_successfully? %}
+              {% assign resetPassword = true %}
+              {% endif %}
+              <div class="RecoverPasswordForm" style="display: none;">
+                <div class="block-login">
+                  <span>
+                    <i class="ti-reload"></i>
+                  </span>
+                  <h2 class="title24 text-center title-form-account">{{ 'customer.recover_password.title' | t }}</h2>
+                  <div class="form-group row">
+                    <div class="col-sm-12">
+                      <input type="email" class="form-control" placeholder="{{ 'customer.login.email' | t }}" name="customer[email]" {% if form.email %} value="{{ form.email }}"{% endif %} required>
+                    </div>
+                  </div>
+                  <div class="text-center mt-3">
+                    <input type="submit" class="register-button" value="{{ 'customer.recover_password.submit' | t }}">
+                  </div>
+                  <div class="table-custom create-account">
+                    <div class="text-center mt-4">
+                      <a class="HideRecoverPasswordLink" style="cursor: pointer;" class="color">{{ 'customer.recover_password.cancel' | t }}</a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              {% endform %}
+            </div>
+
+            <div class="form_register">
+              <div class="login_primary">
+                <div class="login-icon register-icon">
+                  <span class="ti-pencil-alt">
+                  </span>
+                </div>
+                <span class="title_resgister">{{ 'customer.register.title' | t }}</span>
+                <div class="mailrrr mt-3">
+                  {% form 'create_customer' %}
+                  {{ form.errors | default_errors }}
+                  <div class="form-group">
+                    <input type="email" placeholder="{{ 'customer.register.email' | t }}" class="form-control" name="customer[email]" {% if form.email %} value="{{ form.email }}"{% endif %} required>
+                  </div>
+                  <div class="form-group">
+                    <input type="password" class="form-control" name="customer[password]" placeholder="{{ 'customer.register.password' | t }}" required>
+                  </div>
+                  <button type="submit" class="btn btn-dark w-100" value="{{ 'customer.register.submit' | t }}">
+                    {{ 'customer.register.submit' | t }}
+                  </button>
+                  {% endform %}
+                </div>
+                <div class="or_creat my-3">
+                  <span>{{ 'customer.login.or' | t }}</span>
+                  {% if settings.enable_rtl_mode %}
+                  <div><a href="javascript:void(0)" class="jsBack_login"><i class="mr-3 ti-arrow-left"></i> {{ 'customer.login.back_to_login' | t }} </a></div>
+                  {% else %}
+                  <div><a href="javascript:void(0)" class="jsBack_login">{{ 'customer.login.back_to_login' | t }} <i class="ml-3 ti-arrow-right"></i></a></div>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="close-menu-mobile text-center js-eveland-close">
+      Close    
+    </div>
+  </div>
+</div>

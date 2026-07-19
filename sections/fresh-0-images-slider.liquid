@@ -1,0 +1,478 @@
+{{ 'fresh-0-images-slider.css' | asset_url | stylesheet_tag }}
+<div class="image-slider {{ section.settings.design }}" style="
+    {% if section.settings.back_img %}
+      background-image: url('{{ section.settings.back_img | img_url: "master" }}');
+      background-repeat: no-repeat;
+      background-size: cover;
+    {% else %}
+      background-color: {{ section.settings.back_color }};
+    {% endif %}
+  ">
+   <div class="page-width container  block-slide-{{ section.settings.pos_img12 }} ctmm_slide-{{ section.id }}">
+     <div class="let67">
+          <div class="text-info"> 
+          <h2 class="title inline-richtext">
+          <span style="font-size:{{ section.settings.heading_sizem2 }}px;">{{ section.settings.subtitle }}</span>
+          {{ section.settings.title }}
+        </h2>
+        </div>
+     </div>
+      <div class="card-sl-list desktop small-hide ">
+           {%- for block in section.blocks -%} 
+                {% case block.type %}
+                  {%- when 'desktop-slider' -%}  
+         <div class="desktop-slider card-box"> 
+           <div class="card-sl">
+         {% if block.settings.ctm_img1  %}<div class="card-sl-img"> <img  class="lazyload" data-src="{{ block.settings.ctm_img1 | img_url: 'master' }}" alt="Custom Image"></div>{% endif %}
+         {% if block.settings.ctm_img2  %}<div class="card-sl-img"> <img  class="lazyload" data-src="{{ block.settings.ctm_img2 | img_url: 'master' }}" alt="Custom Image"></div>{% endif %}
+         {% if block.settings.ctm_img3  %}<div class="card-sl-img"> <img  class="lazyload" data-src="{{ block.settings.ctm_img3 | img_url: 'master' }}" alt="Custom Image"></div>{% endif %}
+         {% if block.settings.ctm_img4  %}<div class="card-sl-img"> <img  class="lazyload" data-src="{{ block.settings.ctm_img4 | img_url: 'master' }}" alt="Custom Image"></div>{% endif %}
+ 
+        </div>
+         </div>
+                  
+                    {%- endcase -%}
+             {%- endfor -%}
+             
+      </div>
+  {%- for block in section.blocks -%} 
+                {% case block.type %}
+      {%- when 'mobile-slide' -%}  
+                  <div class="mobile-slider">
+         <div class="card-sl-ml">
+         {% if block.settings.ctm_img17  %}<div class="card-sl-img"> <img  class="lazyload" data-src="{{ block.settings.ctm_img17 | img_url: 'master' }}" alt="Custom Image"></div>{% endif %}
+         {% if block.settings.ctm_img27  %}<div class="card-sl-img"> <img  class="lazyload" data-src="{{ block.settings.ctm_img27 | img_url: 'master' }}" alt="Custom Image"></div>{% endif %}
+         {% if block.settings.ctm_img37  %}<div class="card-sl-img"> <img  class="lazyload" data-src="{{ block.settings.ctm_img37 | img_url: 'master' }}" alt="Custom Image"></div>{% endif %}
+         {% if block.settings.ctm_img47  %}<div class="card-sl-img"> <img  class="lazyload" data-src="{{ block.settings.ctm_img47 | img_url: 'master' }}" alt="Custom Image"></div>{% endif %}
+         {% if block.settings.ctm_img5  %}<div class="card-sl-img"> <img  class="lazyload" data-src="{{ block.settings.ctm_img5 | img_url: 'master' }}" alt="Custom Image"></div>{% endif %}
+         {% if block.settings.ctm_img6  %}<div class="card-sl-img"> <img  class="lazyload" data-src="{{ block.settings.ctm_img6 | img_url: 'master' }}" alt="Custom Image"></div>{% endif %}
+         {% if block.settings.ctm_img7  %}<div class="card-sl-img"> <img  class="lazyload" data-src="{{ block.settings.ctm_img7 | img_url: 'master' }}" alt="Custom Image"></div>{% endif %}
+         {% if block.settings.ctm_img8  %}<div class="card-sl-img"> <img  class="lazyload" data-src="{{ block.settings.ctm_img8 | img_url: 'master' }}" alt="Custom Image"></div>{% endif %}
+         {% if block.settings.ctm_img9  %}<div class="card-sl-img"> <img  class="lazyload" data-src="{{ block.settings.ctm_img9 | img_url: 'master' }}" alt="Custom Image"></div>{% endif %}
+         {% if block.settings.ctm_img10  %}<div class="card-sl-img"> <img  class="lazyload" data-src="{{ block.settings.ctm_img10 | img_url: 'master' }}" alt="Custom Image"></div>{% endif %}
+         {% if block.settings.ctm_img11  %}<div class="card-sl-img"> <img  class="lazyload" data-src="{{ block.settings.ctm_img11 | img_url: 'master' }}" alt="Custom Image"></div>{% endif %}
+         {% if block.settings.ctm_img12  %}<div class="card-sl-img"> <img  class="lazyload" data-src="{{ block.settings.ctm_img12 | img_url: 'master' }}" alt="Custom Image"></div>{% endif %}
+                   </div> </div>
+                   {%- endcase -%}
+             {%- endfor -%}
+   </div>
+  
+</div>
+<style>
+
+   .card-sl-list {
+	button {
+		&.slick-prev {
+			&.slick-arrow {
+			    background: url('{{ 'arrow-left.svg' | asset_url }}');
+				right: 55px;
+				width: 40px;
+				height: 40px;
+				background-repeat: no-repeat;
+				background-size: contain;
+			}
+		}
+		&.slick-next {
+			&.slick-arrow {
+			    background: url('{{ 'arrow-right.svg' | asset_url }}');
+				width: 40px;
+				height: 40px;
+				background-repeat: no-repeat;
+				background-size: contain;
+			}
+		}
+		&.slick-arrow {
+			position: absolute;
+			right: 0;
+			top: -56px;
+			font-size: 0;
+			background-color: transparent;
+			border: unset;
+		}
+	}
+}
+     .image-slider .text-info h2 span{
+       font-size:{{ section.settings.heading_sizem2 }}px;
+     }
+ 
+    @media(max-width:767px) {
+   .image-slider .text-info h2 {
+    font-size:{{ section.settings.heading_sizem }}px;
+    color:{{ section.settings.text_color }};
+    text-align:{{ section.settings.text_postion }};
+ }
+      .mobile-slider button.slick-next.slick-arrow {
+    right: 34%;
+}
+.mobile-slider button.slick-prev.slick-arrow {
+    left: 37%;
+} 
+  
+.mobile-slider button.slick-arrow:before {
+    content: unset;
+}
+.mobile-slider button.slick-arrow {
+    border: unset;
+}
+.mobile-slider button.slick-arrow {
+    border: unset;
+    bottom: -80px;
+    top: auto;
+}
+.mobile-slider button.slick-prev.slick-arrow {
+    background: url('https://cdn.shopify.com/s/files/1/0583/0760/8679/files/Component_23_786aad0c-1ac5-4fa3-9f41-a0b66660ebc7.svg?v=1737965143');
+    right: 55px;
+    width: 40px;
+    height: 40px;
+    background-repeat: no-repeat;
+    background-size: contain;
+}
+.mobile-slider button.slick-next.slick-arrow {
+    background: url('https://cdn.shopify.com/s/files/1/0583/0760/8679/files/Component_22.svg?v=1737965671');
+    width: 40px;
+    height: 40px;
+    background-repeat: no-repeat;
+    background-size: contain;
+}
+      .image-slider {
+    padding-top: 29px !important;
+}
+  }
+  @media(min-width:768px) {
+    .image-slider .text-info h2 {
+    font-size:{{ section.settings.heading_size }}px;
+    color:{{ section.settings.text_color }};
+    text-align:{{ section.settings.text_postion }};
+}
+    .mobile-slider {
+    display: none;
+}
+  }
+   .image-slider {
+    padding-top:{{section.settings.pd_tp }}px;
+    padding-bottom:{{section.settings.pd_bp }}px;
+    background:{{section.settings.back_color }};
+}
+    
+   .mobile-slider img {
+    width: 100%;
+}
+  .block-slide-Grid .card-sl .card-sl-img {
+    width: 100%;
+}
+</style>
+
+  <script>
+     $('.block-slide-Slider.ctmm_slide-{{ section.id }} .card-sl-list, .block-slide-Slider.ctmm_slide-{{ section.id }} .mobile-slider .card-sl-ml').slick({
+        slidesToShow:1,
+        slidesToScroll: 1,
+        arrows: true,
+        dots: false,
+        speed: 300,
+        infinite: true,
+        autoplaySpeed: 5000,
+        autoplay: true,
+      });
+  </script>
+  
+  
+{% schema %}
+  {
+    "name": "fresh-0-images-slider",
+    "settings": [
+        {
+      "type": "header",
+      "content": "Section padding"
+      },
+        {
+          "type": "select",
+          "id": "pos_img12",
+          "label": "Design Option",
+          "default": "Slider",
+          "options": [
+              {
+                  "value": "Grid",
+                  "label": "Grid"
+              },
+              {
+                  "value": "Slider",
+                  "label": "Slider"
+              }
+          ]
+      },
+      {
+        "type": "range",
+        "id": "pd_tp",
+        "label": "padding top",
+        "default": 50,
+        "min": 10,
+        "max": 60,
+        "step": 1
+      },
+	  {
+        "type": "range",
+        "id": "pd_bp",
+        "label": "padding bottom",
+        "default": 50,
+        "min": 10,
+        "max": 60,
+        "step": 1
+      },
+        {
+        "type": "color",
+        "id": "back_color",
+        "label": "Background Color",
+        "default": "#fbedef"
+       },
+       {
+        "type": "image_picker",
+        "id": "back_img",
+        "label": "Background Image"
+       },
+       {
+      "type": "header",
+      "content": "Section tittle"
+     },
+        {
+      "type": "inline_richtext",
+      "id": "subtitle",
+      "default": "Satisfied customers",
+      "label": "Sub title "
+    },
+        {
+        "type": "range",
+        "id": "heading_sizem2",
+        "label": "Sub Font Size",
+        "default":16,
+        "min": 10,
+        "max": 60,
+        "step": 1
+      },
+       {
+      "type": "inline_richtext",
+      "id": "title",
+      "default": "Real stories, real satisfaction",
+      "label": "Section Tittle"
+    },
+       {
+        "type": "range",
+        "id": "heading_size",
+        "label": "Font Size",
+        "default": 50,
+        "min": 10,
+        "max": 60,
+        "step": 1
+      },
+             {
+        "type": "range",
+        "id": "heading_sizem",
+        "label": "Font Size mobile",
+        "default": 28,
+        "min": 10,
+        "max": 60,
+        "step": 1
+      },
+      {
+      "type": "color",
+      "id": "text_color",
+      "label": "Color",
+      "default": "#ffffff"
+      },
+     {
+      "type": "select",
+      "id": "text_postion",
+      "label": "Alignment",
+      "default": "center",
+      "options": [
+          {
+              "value": "center",
+              "label": "center"
+          },
+          {
+              "value": "right",
+              "label": "right"
+          },
+          {
+              "value": "left",
+              "label": "left"
+          },
+      ]
+  },
+       {
+      "type": "header",
+      "content": "Slider"
+    },
+      {
+      "type": "select",
+      "id": "pos_img",
+      "label": "Column layout",
+      "default": "grid",
+      "options": [
+          {
+              "value": "grid",
+              "label": "grid"
+          },
+          {
+              "value": "Slider",
+              "label": "Slider"
+          },
+      ]
+      },
+      {
+          "type": "select",
+          "id": "block_slide",
+          "label": "Slider Desktop",
+          "default": "1",
+          "options": [
+              {
+                  "value": "1",
+                  "label": "1"
+              },
+    
+          ]
+      },
+       {
+          "type": "select",
+          "id": "block_slide2",
+          "label": "Slider Tablet",
+          "default": "1",
+          "options": [
+              {
+                  "value": "1",
+                  "label": "1"
+              },
+             {
+                  "value": "2",
+                  "label": "2"
+              },
+             {
+                  "value": "3",
+                  "label": "3"
+              },
+             {
+                  "value": "4",
+                  "label": "4"
+              },
+          ]
+      },
+       {
+          "type": "select",
+          "id": "block_slide3",
+          "label": "Slider Mobile",
+          "default": "1",
+          "options": [
+              {
+                  "value": "1",
+                  "label": "1"
+              },
+          ]
+      },
+         {
+      "type": "text",
+      "id": "design",
+      "label": "Class name "
+    },
+    ],
+     "blocks": [
+    {
+      "type": "desktop-slider",
+      "name": "Desktop-Slide",
+      "limit": 3,
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "ctm_img1",
+          "label": "Image"
+        },
+         {
+          "type": "image_picker",
+          "id": "ctm_img2",
+          "label": "Image"
+        },
+        {
+          "type": "image_picker",
+          "id": "ctm_img3",
+          "label": "Image"
+        },
+        {
+          "type": "image_picker",
+          "id": "ctm_img4",
+          "label": "Image"
+        }
+      ]
+    },
+           {
+      "type": "mobile-slide",
+      "name": "mobile-slide",
+      "limit": 1,
+      "settings": [
+              {
+          "type": "image_picker",
+          "id": "ctm_img17",
+          "label": "Image"
+        },
+         {
+          "type": "image_picker",
+          "id": "ctm_img27",
+          "label": "Image"
+        },
+        {
+          "type": "image_picker",
+          "id": "ctm_img37",
+          "label": "Image"
+        },
+        {
+          "type": "image_picker",
+          "id": "ctm_img47",
+          "label": "Image"
+        },
+  {
+          "type": "image_picker",
+          "id": "ctm_img5",
+          "label": "Image"
+        },
+         {
+          "type": "image_picker",
+          "id": "ctm_img6",
+          "label": "Image"
+        },
+        {
+          "type": "image_picker",
+          "id": "ctm_img7",
+          "label": "Image"
+        },
+        {
+          "type": "image_picker",
+          "id": "ctm_img8",
+          "label": "Image"
+        },
+        {
+          "type": "image_picker",
+          "id": "ctm_img9",
+          "label": "Image"
+        },
+         {
+          "type": "image_picker",
+          "id": "ctm_img10",
+          "label": "Image"
+        },
+        {
+          "type": "image_picker",
+          "id": "ctm_img11",
+          "label": "Image"
+        },
+        {
+          "type": "image_picker",
+          "id": "ctm_img12",
+          "label": "Image"
+        }
+             ]
+    }
+  ],
+    "presets": [
+    {
+      "name": "fresh-0-images-slider",
+    }
+  ]
+  }
+{% endschema %}
