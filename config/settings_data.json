@@ -3952,7 +3952,7 @@
           "hd_bg_header_opacity": 1,
           "enable_sticky_hd_home": true,
           "hd_home_logo": "shopify://shop_images/SHUDHI_HERBALS_LOGO_COLOR-01.png",
-          "hd_home_logo_maxwidth": 250,
+          "hd_home_logo_maxwidth": 300,
           "hd_home_logo_svg": "",
           "select_hds_all": "header_ver1",
           "hd_other_color_text": "#161616",
