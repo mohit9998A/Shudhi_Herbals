@@ -43,7 +43,7 @@
         "t4"
       ],
       "settings": {
-        "frame_count": 192,
+        "frame_count": 240,
         "frame_prefix": "hero_frame_",
         "frame_ext": "webp",
         "frame_pad": 4,
@@ -62,8 +62,8 @@
         "scroll_label": "Scroll",
         "show_pager": true,
         "pager_count": 3,
-        "badge_title": "100% Natural",
-        "badge_sub": "Pure & Safe",
+        "badge_title": "",
+        "badge_sub": "",
         "bg_color": "#c98d86"
       }
     },

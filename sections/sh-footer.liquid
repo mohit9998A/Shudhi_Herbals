@@ -116,9 +116,16 @@
     {%- endif -%}
   </div>
 
-  <button type="button" class="sh-totop" data-to-top aria-label="Back to top">
-    {% render 'sh-icon', name: 'arrow-up' %}
-  </button>
+  {%- comment -%} Not rendered on the home page. The footer section is shared,
+      so this is scoped by template rather than removed outright — inner pages
+      keep the control. Both JS users are null-guarded (`if (top)` in sync(),
+      `if (!btn) return` in toTop()), so its absence needs no script change.
+  {%- endcomment -%}
+  {%- unless template.name == 'index' -%}
+    <button type="button" class="sh-totop" data-to-top aria-label="Back to top">
+      {% render 'sh-icon', name: 'arrow-up' %}
+    </button>
+  {%- endunless -%}
 </footer>
 
 {% schema %}

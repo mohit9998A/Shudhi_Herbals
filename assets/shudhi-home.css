@@ -71,7 +71,12 @@
 .sh img, .sh svg, .sh canvas { display: block; max-width: 100%; }
 .sh img { height: auto; }
 .sh a { color: inherit; text-decoration: none; transition: color .25s ease, opacity .25s ease; }
-.sh a:hover { color: inherit; text-decoration: none; }
+/* Deliberately sets NO colour. It used to be `color: inherit`, which at
+   (0,2,1) out-specified `.sh-nav a` (0,1,1) — so every hovered nav link fell
+   through to body's #1F2A24 and vanished against the header. Every competing
+   a:hover in the theme is <= (0,1,1) and shudhi-home.css loads last, so
+   `.sh a` above already governs the colour. */
+.sh a:hover { text-decoration: none; }
 .sh button {
   font: inherit; color: inherit; background: none;
   border: 0; padding: 0; cursor: pointer;
@@ -217,6 +222,20 @@ body.template-index .sh-header-sticky { margin-bottom: calc(-1 * var(--sh-header
   opacity: 0; transition: opacity .4s ease; will-change: opacity;
 }
 .sh-header.is-solid::before { opacity: 1; }
+
+/* Legibility scrim for the transparent state. The hero's own scrim starts
+   BELOW the header (that was the seam fix), so the nav had no protection over
+   the bright sunburst frames. Taller than the header so it fades out with no
+   hard edge, and it cross-fades away as the solid bar arrives — so inner
+   pages, which render .is-solid from scroll 0, never show it. */
+.sh-header::after {
+  content: ""; position: absolute; left: 0; right: 0; top: 0; height: 190px;
+  z-index: -1; pointer-events: none;
+  background: linear-gradient(to bottom,
+    rgba(10, 14, 7, .42) 0%, rgba(10, 14, 7, .22) 45%, rgba(10, 14, 7, 0) 100%);
+  transition: opacity .4s ease;
+}
+.sh-header.is-solid::after { opacity: 0; }
 .sh-header__inner {
   width: 100%; max-width: var(--sh-max); margin-inline: auto; padding-inline: var(--sh-pad);
   display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 24px;
@@ -224,7 +243,9 @@ body.template-index .sh-header-sticky { margin-bottom: calc(-1 * var(--sh-header
 /* .is-solid's appearance is carried entirely by ::before above. */
 
 /* Logo lockup */
-.sh-logo { display: inline-flex; align-items: center; gap: 10px; color: var(--sh-light); }
+/* .sh prefix needed: a bare .sh-logo is (0,1,0) and loses to `.sh a`
+   (0,1,1), which would leave the logo anchor dark on dark. */
+.sh .sh-logo { display: inline-flex; align-items: center; gap: 10px; color: var(--sh-light); }
 .sh-logo__mark { width: 34px; height: 34px; flex: none; }
 .sh-logo__text { display: grid; line-height: 1; }
 .sh-logo__text b { font-size: 1.02rem; letter-spacing: .3em; font-weight: 500; }
@@ -242,7 +263,9 @@ body.template-index .sh-header-sticky { margin-bottom: calc(-1 * var(--sh-header
   background: currentColor; transform: scaleX(0); transform-origin: center;
   transition: transform .3s ease;
 }
-.sh-nav a:hover, .sh-nav a[aria-current="page"] { opacity: 1; }
+.sh-nav a:hover,
+.sh-nav a:focus-visible,
+.sh-nav a[aria-current="page"] { color: var(--sh-gold); opacity: 1; }
 .sh-nav a:hover::after, .sh-nav a[aria-current="page"]::after { transform: scaleX(1); }
 
 /* Actions */
@@ -668,7 +691,11 @@ a.sh-story__play:hover {
   display: grid; grid-template-columns: 1fr 1.45fr;
   gap: clamp(38px, 5vw, 80px); align-items: center;
 }
-.sh-mindful__title { font-size: clamp(1.8rem, 3.2vw, 2.7rem); margin-bottom: 22px; }
+/* Colour set explicitly, never left to inherit: houseofveda-modern.css gives
+   `h1..h6` an explicit `color: var(--hov-dark)`, and an explicit colour on the
+   element always beats one inherited from the section — so the heading went
+   near-black on this dark backdrop. Same reason `.sh-step h3` sets one below. */
+.sh-mindful__title { font-size: clamp(1.8rem, 3.2vw, 2.7rem); margin-bottom: 22px; color: var(--sh-light); }
 .sh-mindful__text {
   font-size: .9rem; line-height: 1.8; color: var(--sh-muted-light);
   max-width: 34ch; margin-bottom: 32px;
@@ -693,7 +720,7 @@ a.sh-story__play:hover {
   color: var(--sh-gold); background: rgba(20, 27, 12, .5); backdrop-filter: blur(4px);
 }
 .sh-step__n { font-size: .62rem; letter-spacing: .2em; color: var(--sh-gold); }
-.sh-step h3 { font-family: var(--sh-serif) !important; font-size: 1.12rem; }
+.sh-step h3 { font-family: var(--sh-serif) !important; font-size: 1.12rem; color: var(--sh-light); }
 .sh-step p { font-size: .75rem; line-height: 1.6; color: var(--sh-muted-light); max-width: 18ch; }
 
 /* ============================================================
@@ -814,18 +841,46 @@ a.sh-story__play:hover {
 .sh-totop .sh-icon { width: 17px; height: 17px; }
 
 /* ============================================================
-   14. THIRD-PARTY WIDGET DE-CONFLICTION (homepage only)
+   14. THIRD-PARTY WIDGET DE-CONFLICTION
    theme.liquid hardcodes a WhatsApp bubble (z-index 9999) and a chat widget
    (z-index 99999), both position:fixed bottom-corner. Left alone they sit on
    top of our back-to-top button and, on mobile, the hero trust bar.
+
+   The chat sits on the SAME bottom baseline as WhatsApp, at the far right —
+   WhatsApp bottom-left, chat bottom-right, one line. 24px is not a free
+   choice: houseofveda-modern.css:951 pins `.whatsapp-icon` with
+   `bottom: 24px !important`, so the baseline is dictated by that rule and the
+   chat is matched to it. (A previous 92px here only ever moved the chat — the
+   !important meant WhatsApp never followed, which is what knocked the two out
+   of line and pushed the chat into #hov-reelpop's video panel at bottom 96px.)
+
+   Below 576px both are already aligned at 62px by !important rules in
+   houseofveda-modern.css (1610 and 960), so desktop is all that needs setting.
    ============================================================ */
-#hov-chat-widget, .whatsapp-icon { bottom: 92px; }
-.sh-totop { right: 88px; }
+#hov-chat-widget { bottom: 24px; right: 20px; }   /* mirrors .whatsapp-icon's left: 20px */
+.sh-totop { right: 88px; }                        /* clears the 56px chat button + gap */
+
+/* The WhatsApp PNG is genuinely transparent (only ~52% opaque), but
+   houseofveda-modern.css:968 gives it a `box-shadow`, which is painted on the
+   element's BOX rather than its artwork. That box would have been a circle,
+   except line 2039's `border-radius: inherit !important` overrides the 50% at
+   line 967 and resolves to the parent div's 0 — so the shadow renders as a
+   SQUARE. On the cream sections the darkened surround makes the unshadowed
+   interior read as a light square panel behind the glyph.
+
+   `drop-shadow` is the alpha-aware equivalent: it follows the PNG's actual
+   silhouette, so the shadow hugs the bubble and the square vanishes. */
+.whatsapp-icon img {
+  box-shadow: none;
+  filter: drop-shadow(0 3px 8px rgba(0, 0, 0, .28));
+}
+.whatsapp-icon:hover img {
+  box-shadow: none;
+  filter: drop-shadow(0 5px 12px rgba(0, 0, 0, .34));
+}
 
 @media (max-width: 576px) {
-  /* .menu_toolbar is a 50px fixed bottom bar below 576px */
-  #hov-chat-widget, .whatsapp-icon { bottom: 116px; }
-  .sh-footer__bottom { padding-bottom: 66px; }
+  .sh-footer__bottom { padding-bottom: 66px; }    /* .menu_toolbar is a 50px fixed bottom bar */
 }
 
 /* ============================================================

@@ -1,11 +1,12 @@
 {%- comment -%}
   SHUDHI — Hero (scroll-scrubbed frame sequence)
 
-  Frames live in /assets as hero_frame_0001.webp … hero_frame_0192.webp —
-  every frame of HeroSectionVideo.mp4 (1280x720, 8.000s, 24fps CFR), so there
-  is no temporal loss. Re-extract with:
-    ffmpeg -i HeroSectionVideo.mp4 -vf "fps=24" -q:v 2 -an frames/f_%04d.jpg
-  then convert to WebP at 1280w q78 and update "Number of frames" to match.
+  Frames live in /assets as hero_frame_0001.webp … hero_frame_0240.webp —
+  every frame of Hero_section_final_video.mp4 (1280x720, 10.006s, 24fps CFR),
+  so there is no temporal loss. Re-extract with:
+    ffmpeg -i Hero_section_final_video.mp4 -vf "fps=24" -an frames/f_%04d.png
+  then convert to WebP at 1280w q88 (smartSubsample on) and update "Number of
+  frames" to match the file count exactly.
   Only divisors of 24 (24/12/8) give uniform spacing; 18fps judders.
 
   The section is a tall wrapper; inside it a position:sticky stage holds the
@@ -17,12 +18,27 @@
 
 {%- comment -%}
   Derive the /assets CDN directory once by probing a known filename and
-  stripping it back off; the JS then reconstructs every frame URL. This also
-  strips Shopify's ?v= cache-buster. The probe extension is hardcoded because
-  the directory is identical regardless of the configured frame extension.
+  stripping it back off; the JS then reconstructs every frame URL. The probe
+  extension is hardcoded because the directory is identical regardless of the
+  configured frame extension.
+
+  The split also discards Shopify's ?v= token, so it is captured separately and
+  handed to the JS to re-append. Without it every frame is fetched at a bare,
+  permanently-cacheable URL — and because a re-extraction reuses the same
+  filenames, swapping the video left browsers serving the OLD frames forever.
+  That is exactly what produced a hero mixing two different videos: frames
+  1-192 came from cache (previous video) while 193-240, being new URLs, loaded
+  fresh from the current one.
+
+  All frames share frame 1's token. A re-extraction rewrites every frame, so
+  frame 1 always changes and the whole sequence busts together.
 {%- endcomment -%}
 {%- assign probe = 'hero_frame_0001.webp' | asset_url -%}
 {%- assign frame_base = probe | split: 'hero_frame_0001.webp' | first -%}
+{%- assign frame_ver = '' -%}
+{%- if probe contains '?' -%}
+  {%- assign frame_ver = probe | split: '?' | last -%}
+{%- endif -%}
 
 <section class="sh sh-hero"
          id="hero"
@@ -43,9 +59,10 @@
 
     <canvas class="sh-hero__canvas"
             data-frame-base="{{ frame_base }}"
+            data-frame-version="{{ frame_ver }}"
             data-frame-prefix="{{ s.frame_prefix }}"
             data-frame-ext="{{ s.frame_ext }}"
-            data-frame-count="{{ s.frame_count | default: 192 }}"
+            data-frame-count="{{ s.frame_count | default: 240 }}"
             data-frame-pad="{{ s.frame_pad }}"
             {%- comment -%} Stored 0-50 because Shopify range steps must be
                 divisible by 0.1; the engine wants a 0-0.5 fraction, which it
@@ -136,7 +153,7 @@
   "settings": [
     { "type": "header", "content": "Frame sequence" },
     { "type": "paragraph", "content": "Frames live in Assets as hero_frame_0001.webp, hero_frame_0002.webp … Set the count below to match exactly how many you uploaded." },
-    { "type": "number", "id": "frame_count", "label": "Number of frames", "default": 192,
+    { "type": "number", "id": "frame_count", "label": "Number of frames", "default": 240,
       "info": "Must match exactly how many hero_frame_ files are in Assets. A range setting can't be used here — Shopify caps ranges at 101 steps." },
     { "type": "text", "id": "frame_prefix", "label": "Filename prefix", "default": "hero_frame_" },
     { "type": "select", "id": "frame_ext", "label": "File extension", "default": "webp",
