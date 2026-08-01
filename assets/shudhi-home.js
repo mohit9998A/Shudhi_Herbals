@@ -33,10 +33,23 @@
     var top  = document.querySelector('[data-to-top]');
     if (!head && !top) return;
 
-    var after = head ? (parseInt(head.getAttribute('data-solid-after'), 10) || 80) : 0;
+    var fallbackAfter = head ? (parseInt(head.getAttribute('data-solid-after'), 10) || 80) : 0;
     var alwaysSolid = head ? head.getAttribute('data-always-solid') === 'true' : false;
+    var hero = document.querySelector('.sh-hero');
     var HYST = 24;
     var solid = null, visible = null;
+    var after = fallbackAfter;
+
+    // The nav stays transparent for the WHOLE hero and only goes solid once
+    // Our Story reaches it — so the threshold is the hero's own bottom edge
+    // minus the header height, not a fixed pixel count. Measured here and
+    // CACHED; sync() below must never read layout.
+    function measureHero() {
+      if (!hero) { after = fallbackAfter; return; }
+      var r = hero.getBoundingClientRect();
+      var headH = head ? head.offsetHeight : 0;
+      after = Math.max(0, r.top + window.pageYOffset + r.height - headH);
+    }
 
     function sync() {
       var y = window.pageYOffset;                 // single read, before any write
@@ -48,13 +61,28 @@
         var nextSolid = solid ? y > after - HYST : y > after + HYST;
         if (nextSolid !== solid) { solid = nextSolid; head.classList.toggle('is-solid', nextSolid); }
       }
+      // Gate on the hero threshold when there is a hero, so the arrow never
+      // sits over the opening shot; falls back to one viewport on inner pages.
       if (top) {
-        var nextVis = visible ? y > vh - HYST : y > vh + HYST;
+        var showAt = hero ? after : vh;
+        var nextVis = visible ? y > showAt - HYST : y > showAt + HYST;
         if (nextVis !== visible) { visible = nextVis; top.classList.toggle('is-visible', nextVis); }
       }
     }
 
     window.addEventListener('scroll', sync, { passive: true });
+
+    // Re-measure only on events that can actually change the geometry —
+    // never per scroll tick.
+    var rt;
+    function remeasure() { clearTimeout(rt); rt = setTimeout(function () { measureHero(); sync(); }, 100); }
+    window.addEventListener('resize', remeasure, { passive: true });
+    window.addEventListener('load', function () { measureHero(); sync(); });
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(function () { measureHero(); sync(); });
+    }
+
+    measureHero();
     sync();
   }
 

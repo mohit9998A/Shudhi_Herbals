@@ -67,6 +67,9 @@
     if (!canvas || !pin) return;
 
     var base    = canvas.getAttribute('data-frame-base') || '';
+    // Shopify's ?v= token, stripped out when the section derives the directory
+    // and passed back in so replaced frames aren't served stale from cache.
+    var ver     = canvas.getAttribute('data-frame-version') || '';
     var prefix  = canvas.getAttribute('data-frame-prefix') || 'hero_frame_';
     var ext     = canvas.getAttribute('data-frame-ext') || 'webp';
     var pad     = parseInt(canvas.getAttribute('data-frame-pad'), 10) || 4;
@@ -111,7 +114,7 @@
     function frameURL(i) {
       var n = String(i + 1);
       while (n.length < pad) n = '0' + n;
-      return base + prefix + n + '.' + ext;
+      return base + prefix + n + '.' + ext + (ver ? '?' + ver : '');
     }
 
     /* =====================================================================
