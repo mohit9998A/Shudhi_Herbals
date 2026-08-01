@@ -6379,15 +6379,15 @@
         "type": "text",
         "id": "promo_strip_text",
         "label": "Promo strip offer text",
-        "default": "Get 10% OFF — use code HOV10"
+        "default": "Get 10% OFF — use code SHUDHI10"
       },
       {
         "type": "text",
         "id": "promo_strip_code",
         "label": "Promo strip coupon code",
-        "default": "HOV10"
+        "default": "SHUDHI10"
       },
-      { "type": "text", "id": "coupon_code", "label": "Coupon preview code", "default": "HOV10" },
+      { "type": "text", "id": "coupon_code", "label": "Coupon preview code", "default": "SHUDHI10" },
       { "type": "range", "id": "coupon_percent", "label": "Coupon discount %", "min": 1, "max": 50, "default": 10, "step": 1 },
       { "type": "number", "id": "coupon_min_order", "label": "Coupon minimum order (₹)", "default": 1000 },
       { "type": "url", "id": "coupons_page_url", "label": "\"View all coupons\" link" },

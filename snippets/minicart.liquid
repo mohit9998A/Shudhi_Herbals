@@ -1080,7 +1080,7 @@
         <div class="hov-cart__promo-strip" style="{% if settings.show_promo_strip == false or cart.item_count == 0 %}display:none;{% endif %}">
           <span class="hov-cart__promo-strip-emoji">{{ settings.promo_strip_emoji | default: "🎉" }}</span>
           <span class="hov-cart__promo-strip-text">
-            {{ settings.promo_strip_text | default: "Get 10% OFF — use code HOV10" }}
+            {{ settings.promo_strip_text | default: "Get 10% OFF — use code SHUDHI10" }}
           </span>
         </div>
 
@@ -1139,11 +1139,11 @@
             </div>
             {% endfor %}
             
-            <div class="hov-cart__coupon-preview" data-coupon-code="{{ settings.coupon_code | default: 'HOV10' }}" data-coupon-percent="{{ settings.coupon_percent | default: 10 }}" data-coupon-min="{{ settings.coupon_min_order | default: 1000 }}">
+            <div class="hov-cart__coupon-preview" data-coupon-code="{{ settings.coupon_code | default: 'SHUDHI10' }}" data-coupon-percent="{{ settings.coupon_percent | default: 10 }}" data-coupon-min="{{ settings.coupon_min_order | default: 1000 }}">
               <div class="hov-cart__coupon-preview-row">
                 <div class="hov-cart__coupon-preview-left">
                   <svg class="hov-cart__coupon-icon" viewBox="0 0 24 24" fill="none" stroke="#2D5A27" stroke-width="1.8"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg>
-                  <input type="text" class="hov-cart__coupon-input" data-coupon-input value="{{ settings.coupon_code | default: 'HOV10' }}" placeholder="Enter coupon code" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="Coupon code">
+                  <input type="text" class="hov-cart__coupon-input" data-coupon-input value="{{ settings.coupon_code | default: 'SHUDHI10' }}" placeholder="Enter coupon code" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="Coupon code">
                   <span class="hov-cart__coupon-applied" data-coupon-applied hidden>
                     <svg class="hov-cart__coupon-icon" viewBox="0 0 24 24" fill="none" stroke="#2D5A27" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
                     <strong data-coupon-applied-code></strong> applied
@@ -1251,7 +1251,7 @@
 </div>
 <div class="js-bg bg-minicart"></div>
 
-{%- assign hov_coupon_code = settings.coupon_code | default: 'HOV10' -%}
+{%- assign hov_coupon_code = settings.coupon_code | default: 'SHUDHI10' -%}
 {%- assign hov_coupon_percent = settings.coupon_percent | default: 10 -%}
 <div class="hov-coupon-modal" id="hov-coupon-modal" data-state="hidden" role="dialog" aria-modal="true" aria-labelledby="hov-coupon-modal-title">
   <div class="hov-coupon-modal__overlay" data-coupon-modal-close></div>
@@ -1336,7 +1336,7 @@ document.addEventListener('DOMContentLoaded', function() {
       return '₹' + (cents / 100).toFixed(2);
     }
 
-    // HOV10 minimum order (paise), sourced from the Customizer setting via data-coupon-min (rupees).
+    // SHUDHI10 minimum order (paise), sourced from the Customizer setting via data-coupon-min (rupees).
     function getCouponMinPaise() {
       var preview = document.querySelector('.hov-cart__coupon-preview');
       var rupees = preview ? parseFloat(preview.getAttribute('data-coupon-min')) : NaN;
@@ -1347,7 +1347,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function hovCouponEl() { return document.querySelector('.hov-cart__coupon-preview'); }
     function hovConfiguredCode() {
       var p = hovCouponEl();
-      return ((p && p.getAttribute('data-coupon-code')) || 'HOV10').trim().toUpperCase();
+      return ((p && p.getAttribute('data-coupon-code')) || 'SHUDHI10').trim().toUpperCase();
     }
     function hovCouponPercent() {
       var p = hovCouponEl();

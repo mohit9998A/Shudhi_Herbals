@@ -275,12 +275,10 @@
       e.preventDefault();
       const provider = btn.dataset.socialLogin; // 'google' or 'apple'
       
-      if (provider === 'google') {
-        window.location.href = '/account';
-      } else {
-        console.warn(`Social login via ${provider} is not yet connected to a backend provider.`);
-        alert(`Social login via ${provider} is not yet connected to a backend provider.`);
-      }
+      // Google is a plain link to Shopify's login, where real social sign-in is
+        // configured (Admin -> Settings -> Customer accounts). Apple was removed:
+        // it only ever fired an alert saying it wasn't connected.
+        return;
     });
   });
 

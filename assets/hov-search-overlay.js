@@ -17,7 +17,7 @@
     trendingLimit:  5,
     recentMax:      5,
     recentKey:      'hov_recent_searches',
-    rvKey:          'hov_recently_viewed',
+    rvKey:          'sh_recently_viewed',
     rvMax:          8,
     trendingHandle: 'trending-this-week'
   };
@@ -235,7 +235,7 @@
         '<li class="hov-so__suggest-empty">' +
           '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#6C8C65" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>' +
           '<p>No results for "<strong>' + hovSOEsc(q) + '</strong>"</p>' +
-          '<small>Try "Organic Tea", "Honey", or "Immunity"</small>' +
+          '<small>Try "Herbal Soap", "Neem", or "Sandalwood"</small>' +
         '</li>';
     }
   }

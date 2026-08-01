@@ -193,8 +193,11 @@ a:hover > .sh-play, .sh-play:hover { background: var(--sh-gold); border-color: v
    ============================================================ */
 .sh-header-sticky {
   position: sticky; top: 0; z-index: var(--sh-z-header);
-  margin-bottom: calc(-1 * var(--sh-header-h));
 }
+/* The negative pull-up exists ONLY to slide the homepage hero up under the
+   transparent nav. Every other template has no hero, so the header must sit in
+   normal flow there or it would overlap the page content. */
+body.template-index .sh-header-sticky { margin-bottom: calc(-1 * var(--sh-header-h)); }
 .sh-header {
   position: relative;
   min-height: var(--sh-header-h);
@@ -816,15 +819,13 @@ a.sh-story__play:hover {
    (z-index 99999), both position:fixed bottom-corner. Left alone they sit on
    top of our back-to-top button and, on mobile, the hero trust bar.
    ============================================================ */
-body.template-index #hov-chat-widget,
-body.template-index .whatsapp-icon { bottom: 92px; }
-body.template-index .sh-totop { right: 88px; }
+#hov-chat-widget, .whatsapp-icon { bottom: 92px; }
+.sh-totop { right: 88px; }
 
 @media (max-width: 576px) {
   /* .menu_toolbar is a 50px fixed bottom bar below 576px */
-  body.template-index #hov-chat-widget,
-  body.template-index .whatsapp-icon { bottom: 116px; }
-  body.template-index .sh-footer__bottom { padding-bottom: 66px; }
+  #hov-chat-widget, .whatsapp-icon { bottom: 116px; }
+  .sh-footer__bottom { padding-bottom: 66px; }
 }
 
 /* ============================================================
@@ -901,7 +902,7 @@ body.template-index .sh-totop { right: 88px; }
   .sh-footer__links { justify-items: center; }
   .sh-social { justify-content: center; }
   .sh-totop { right: 16px; bottom: 16px; }
-  body.template-index .sh-totop { right: 76px; }
+  .sh-totop { right: 76px; }
 }
 
 /* ============================================================

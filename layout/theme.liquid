@@ -139,16 +139,15 @@
    {%- comment -%} Unified typography — loaded LAST so it is the final word on font-family. {%- endcomment -%}
    {{ 'hov-typography.css' | asset_url | stylesheet_tag }}
 
-   {%- comment -%}
-     Shudhi homepage system. Must load AFTER hov-typography.css: both declare
-     font-family with !important, so source order breaks the specificity tie.
-     Homepage only — zero bytes shipped to any other template.
-     Fonts are NOT re-fetched here; Cormorant Garamond + Jost already come from
-     snippets/engo-header-fonts.liquid (line 79 below).
-   {%- endcomment -%}
+   {%- comment -%} Must load AFTER hov-typography.css: both declare font-family
+       with !important, so source order breaks the specificity tie. Fonts are
+       not re-fetched here — engo-header-fonts.liquid already loads them.
+       Chrome is site-wide now, so the stylesheet and interaction
+       JS must load everywhere. The hero engine stays index-only — no other
+       template has a scroll-scrub canvas for it to drive. {%- endcomment -%}
+   {{ 'shudhi-home.css' | asset_url | stylesheet_tag }}
+   <script src="{{ 'shudhi-home.js' | asset_url }}" defer></script>
    {%- if template.name == 'index' -%}
-     {{ 'shudhi-home.css' | asset_url | stylesheet_tag }}
-     <script src="{{ 'shudhi-home.js' | asset_url }}" defer></script>
      <script src="{{ 'shudhi-hero.js' | asset_url }}" defer></script>
    {%- endif -%}
 
@@ -294,12 +293,11 @@
 {% comment %}
 Add the page template as a class for easy page or template specific styling.
 
-DO NOT make hov-has-fixed-nav-offset unconditional. It is deliberately absent
-on index: it applies a nav-height top padding to main.main-content
-(engo-customizes.css.liquid), which on the homepage would push a white band
-above the full-bleed hero and kill the transparent overlay nav.
+hov-has-fixed-nav-offset is gone entirely. It padded main.main-content by the
+legacy fixed nav's height (engo-customizes.css.liquid); sh-header is sticky and
+sits in normal flow, so that padding would now double-offset every inner page.
 {% endcomment %}
-<body class="template-{{ template.name }} {% if template.name != 'index' %}hov-has-fixed-nav-offset{% endif %} {% if settings.enable_rtl_mode %}rtl{% endif %} preload push_filter_left js_overhidden relative" {% if settings.bg_color_body != blank %}style="background: {{settings.bg_color_body}};"{% endif %}>
+<body class="template-{{ template.name }} {% if settings.enable_rtl_mode %}rtl{% endif %} preload push_filter_left js_overhidden relative" {% if settings.bg_color_body != blank %}style="background: {{settings.bg_color_body}};"{% endif %}>
 
   {%- comment -%} [PLACEHOLDER] Add Shudhi Herbals' GTM <noscript> here if you add a GTM container. {%- endcomment -%}
 
@@ -309,20 +307,14 @@ above the full-bleed hero and kill the transparent overlay nav.
   <div class="wrap">
     <div class="contentbody">
       {%- comment -%}
-        Homepage runs the Shudhi chrome (marquee announcement + transparent
-        overlay nav); every other template keeps the original Herbyo header
-        and promo topbar untouched. sh-announcement replaces promo-topbar on
-        index, so it is deliberately suppressed there rather than stacked.
+        Shudhi chrome on EVERY template. The legacy Herbyo chain
+        (promo-topbar -> header.liquid -> header-v1..v6) is retired: it carried
+        the "My Store" wordmark, the House of Veda pincode widget and the
+        "Flat 26% OFF on Tea, Shilajit & A2 Ghee" offer bar.
+        sh-announcement replaces promo-topbar; it is never stacked with one.
       {%- endcomment -%}
-      {%- if template.name == 'index' -%}
-        {% section 'sh-announcement' %}
-        {% section 'sh-header' %}
-      {%- else -%}
-        {% if settings.enable_promo_topbar %}
-        {% include 'promo-topbar' %}
-        {% endif %}
-        {% section 'header' %}
-      {%- endif -%}
+      {% section 'sh-announcement' %}
+      {% section 'sh-header' %}
 
       <!-- HEADING HIDDEN SEO -->
       {% if template contains 'index' %}
@@ -331,17 +323,18 @@ above the full-bleed hero and kill the transparent overlay nav.
 
       {% include 'search' %}
       {% include 'minicart' %}
-      {% include 'menu_mobile' %}
+      {%- comment -%}
+        menu_mobile (the legacy Herbyo mobile nav) is retired — sh-header's own
+        drawer covers mobile. It used to render unconditionally, so it was
+        double-stacking a second nav under 1200px even on the homepage.
+      {%- endcomment -%}
       <main id="MainContent" class="main-content" role="main">
         {{ content_for_layout }}
       </main>
 
-      {%- if template.name == 'index' -%}
-        {% section 'sh-footer' %}
-      {%- else -%}
-        {% section 'footer' %}
-        {% section 'latest-footer' %}
-      {%- endif -%}
+      {%- comment -%} One Shudhi footer everywhere. Non-index templates
+          previously rendered footer-v4 AND latest-footer stacked. {%- endcomment -%}
+      {% section 'sh-footer' %}
     </div>
   </div>
 
@@ -585,7 +578,7 @@ above the full-bleed hero and kill the transparent overlay nav.
         <div class="hov-pre__card-dots">
           <span></span><span></span><span></span>
         </div>
-        <div class="hov-pre__card-logo">HOV</div>
+        <div class="hov-pre__card-logo">SH</div>
       </div>
 
       <!-- Success Checkmark -->
@@ -806,7 +799,7 @@ above the full-bleed hero and kill the transparent overlay nav.
           {% endif %}
           <!-- Tagline -->
           <span class="hov-auth__logo-tagline">
-            Ancient Wisdom. Modern Wellness.
+            Purify Your Skin. Cleanse Your Aura.
           </span>
         </div>
       </div>
@@ -836,7 +829,7 @@ above the full-bleed hero and kill the transparent overlay nav.
             Welcome back!
           </h2>
           <p class="hov-auth__subtitle">
-            Login to continue your Ayurvedic journey
+            Login to continue your Shudhi ritual
           </p>
         </div>
 
@@ -995,7 +988,7 @@ above the full-bleed hero and kill the transparent overlay nav.
 
         <!-- Social buttons -->
         <div class="hov-auth__social-btns">
-          <a href="#" class="hov-auth__social-btn"
+          <a href="{{ routes.account_login_url }}" class="hov-auth__social-btn"
              id="hov-google-btn" data-social-login="google" aria-label="Continue with Google">
             <svg width="20" height="20" viewBox="0 0 24 24">
               <path fill="#4285F4"
@@ -1016,24 +1009,6 @@ above the full-bleed hero and kill the transparent overlay nav.
                    7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
             </svg>
             Google
-          </a>
-          <a href="#" class="hov-auth__social-btn"
-             data-social-login="apple" aria-label="Continue with Apple">
-            <svg width="20" height="20" viewBox="0 0 24 24"
-                 fill="currentColor">
-              <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05
-                       2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2
-                       .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53
-                       C4.25 17 2.94 12.45 4.7 9.39c.87-1.52
-                       2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87
-                       .78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64
-                       1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02
-                       2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38
-                       2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13
-                       1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51
-                       -2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
-            </svg>
-            Apple
           </a>
         </div>
 
@@ -1211,7 +1186,7 @@ above the full-bleed hero and kill the transparent overlay nav.
 
         <!-- Social buttons -->
         <div class="hov-auth__social-btns">
-          <button type="button" class="hov-auth__social-btn" data-social-login="google" aria-label="Continue with Google">
+          <a href="{{ routes.account_login_url }}" class="hov-auth__social-btn" data-social-login="google" aria-label="Continue with Google">
             <svg width="20" height="20" viewBox="0 0 24 24">
               <path fill="#4285F4"
                 d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92
@@ -1231,24 +1206,7 @@ above the full-bleed hero and kill the transparent overlay nav.
                    7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
             </svg>
             Google
-          </button>
-          <button type="button" class="hov-auth__social-btn" data-social-login="apple" aria-label="Continue with Apple">
-            <svg width="20" height="20" viewBox="0 0 24 24"
-                 fill="currentColor">
-              <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05
-                       2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2
-                       .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53
-                       C4.25 17 2.94 12.45 4.7 9.39c.87-1.52
-                       2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87
-                       .78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64
-                       1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02
-                       2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38
-                       2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13
-                       1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51
-                       -2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
-            </svg>
-            Apple
-          </button>
+          </a>
         </div>
 
         <p class="hov-auth__switch">

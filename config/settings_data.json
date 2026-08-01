@@ -21,7 +21,7 @@
     "social_facebook_link": "",
     "social_instagram_link": "",
     "social_twitter_link": "",
-    "enable_promo_topbar": true,
+    "enable_promo_topbar": false,
     "background_promo": "shopify://shop_images/top-bar-black.jpg",
     "color_content_promo_topbar": "#fff",
     "content_promo_topbar": "Purify your skin. Cleanse your aura. — Shudhi Herbals",
@@ -6182,8 +6182,8 @@
       "hov-search-overlay": {
         "type": "hov-search-overlay",
         "settings": {
-          "trending_collection_handle": "trending-this-week",
-          "popular_searches": "Organic Tea, Honey, Detox, Weight Loss, Immunity, Ayurvedic, Digestive, Calming, Women's Wellness, Energy"
+          "trending_collection_handle": "all",
+          "popular_searches": "Herbal Soap, Neem, Tulsi, Sandalwood, Aura Cleansing, Handmade, Cold Process, Sensitive Skin, Gift Sets, Bestsellers"
         }
       },
       "sh-announcement": {
@@ -6242,7 +6242,7 @@
             "settings": {
               "heading": "Quick Links",
               "menu": "",
-              "links": "Shop All | /collections/all\nOur Story | #our-story\nIngredients | #ritual-benefits\nRituals | #rituals\nBlog | /blogs/news"
+              "links": "Shop All | /collections/all\nOur Story | /#our-story\nIngredients | /#ritual-benefits\nRituals | /#rituals\nBlog | /blogs/news"
             }
           },
           "q2": {
@@ -6285,7 +6285,20 @@
       "1623030751ead92bdd",
       "16173320280a632935",
       "162373083198e445e0"
-    ]
+    ],
+    "coupon_code": "SHUDHI10",
+    "promo_strip_code": "SHUDHI10",
+    "promo_strip_text": "Get 10% OFF — use code SHUDHI10",
+    "coupon_percent": 10,
+    "coupon_min_order": 999,
+    "free_shipping_threshold": 999,
+    "promo_discount_value": "",
+    "promo_subtext_1": "",
+    "promo_subtext_2": "",
+    "promo_typewriter_phrases": "",
+    "trust_1_label": "100% Secure Payments",
+    "trust_2_label": "Easy Returns & Refunds",
+    "trust_3_label": "Authentic Handmade Soap"
   },
   "presets": {
     "Home 1": {

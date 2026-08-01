@@ -39,11 +39,11 @@
         {{/items}} 
         
         {% endraw %}
-        <div class="hov-cart__coupon-preview" data-coupon-code="{{ settings.coupon_code | default: 'HOV10' }}" data-coupon-percent="{{ settings.coupon_percent | default: 10 }}" data-coupon-min="{{ settings.coupon_min_order | default: 1000 }}">
+        <div class="hov-cart__coupon-preview" data-coupon-code="{{ settings.coupon_code | default: 'SHUDHI10' }}" data-coupon-percent="{{ settings.coupon_percent | default: 10 }}" data-coupon-min="{{ settings.coupon_min_order | default: 1000 }}">
           <div class="hov-cart__coupon-preview-row">
             <div class="hov-cart__coupon-preview-left">
               <svg class="hov-cart__coupon-icon" viewBox="0 0 24 24" fill="none" stroke="#2D5A27" stroke-width="1.8"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg>
-              <input type="text" class="hov-cart__coupon-input" data-coupon-input value="{{ settings.coupon_code | default: 'HOV10' }}" placeholder="Enter coupon code" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="Coupon code">
+              <input type="text" class="hov-cart__coupon-input" data-coupon-input value="{{ settings.coupon_code | default: 'SHUDHI10' }}" placeholder="Enter coupon code" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="Coupon code">
               <span class="hov-cart__coupon-applied" data-coupon-applied hidden>
                 <svg class="hov-cart__coupon-icon" viewBox="0 0 24 24" fill="none" stroke="#2D5A27" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
                 <strong data-coupon-applied-code></strong> applied

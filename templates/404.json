@@ -9,55 +9,12 @@
  */
 {
   "sections": {
-    "hov_testimonials_7xeEY6": {
-      "type": "hov-testimonials",
-      "blocks": {
-        "testimonial_tRgBiF": {
-          "type": "testimonial",
-          "settings": {
-            "name": "[PLACEHOLDER — customer name]",
-            "role": "[PLACEHOLDER — role/location]",
-            "quote": "[PLACEHOLDER — review]",
-            "rating": 5,
-            "video_url": "[PLACEHOLDER — video URL]"
-          }
-        },
-        "testimonial_3jTX3J": {
-          "type": "testimonial",
-          "settings": {
-            "name": "[PLACEHOLDER — customer name]",
-            "role": "[PLACEHOLDER — role/location]",
-            "quote": "[PLACEHOLDER — review]",
-            "rating": 5,
-            "video_url": ""
-          }
-        },
-        "testimonial_bAnaTD": {
-          "type": "testimonial",
-          "settings": {
-            "name": "[PLACEHOLDER — customer name]",
-            "role": "[PLACEHOLDER — role/location]",
-            "quote": "[PLACEHOLDER — review]",
-            "rating": 5,
-            "video_url": "[PLACEHOLDER — video URL]"
-          }
-        }
-      },
-      "block_order": [
-        "testimonial_tRgBiF",
-        "testimonial_3jTX3J",
-        "testimonial_bAnaTD"
-      ],
-      "name": "Testimonials",
-      "settings": {}
-    },
     "main": {
       "type": "main-404",
       "settings": {}
     }
   },
   "order": [
-    "hov_testimonials_7xeEY6",
     "main"
   ]
 }

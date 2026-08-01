@@ -283,7 +283,7 @@ var ajaxCart = (function(module, $) {
     // when the customer applies it. Avoids showing a stored/stuck code discount before Apply.
     $('.enj-cartcost').html(Shopify.formatMoney(cart.items_subtotal_price, settings.moneyFormat));
 
-    // Discount row: shown only when Shopify reports a real discount (e.g. the HOV10
+    // Discount row: shown only when Shopify reports a real discount (e.g. the SHUDHI10
     // automatic discount). Amount is read straight from the payload, never computed.
     var $discountRow = $('[data-cart-discount]');
     if ($discountRow.length) {

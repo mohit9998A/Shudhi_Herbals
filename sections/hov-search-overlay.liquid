@@ -59,7 +59,7 @@
           type="text"
           id="hov-so-input"
           class="hov-so__input"
-          placeholder="Search Ayurvedic Teas, Honey, Wellness..."
+          placeholder="Search Organic Herbal Soap..."
           autocomplete="off"
           autocorrect="off"
           autocapitalize="off"
@@ -124,14 +124,14 @@
             <div class="hov-so__meta-section">
               <p class="hov-so__meta-label">SEARCH BY HEALTH GOAL</p>
               <div class="hov-so__goal-chips">
-                <a href="/search?q=weight+management+tea" class="hov-so__goal-chip">
+                <a href="/search?q=deep+cleanse" class="hov-so__goal-chip">
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
-                  Weight Management
+                  Deep Cleanse
                 </a>
-                <a href="/search?q=digestive+tea" class="hov-so__goal-chip">Better Digestion</a>
-                <a href="/search?q=immunity+booster" class="hov-so__goal-chip">Immunity</a>
-                <a href="/search?q=stress+relief+calming" class="hov-so__goal-chip">Stress Relief</a>
-                <a href="/search?q=daily+wellness" class="hov-so__goal-chip">Daily Wellness</a>
+                <a href="/search?q=sensitive+skin" class="hov-so__goal-chip">Sensitive Skin</a>
+                <a href="/search?q=glow+brightening" class="hov-so__goal-chip">Natural Glow</a>
+                <a href="/search?q=calming+aroma" class="hov-so__goal-chip">Calm & Unwind</a>
+                <a href="/search?q=daily+ritual" class="hov-so__goal-chip">Daily Ritual</a>
               </div>
             </div>
 
@@ -141,9 +141,9 @@
                 <a href="/search?q=ingredients" class="hov-so__view-all-sm">View all</a>
               </div>
               <div class="hov-so__ingredient-grid">
-                {%- assign ingredients = 'ashwagandha,tulsi,turmeric,honey,green-tea' | split: ',' -%}
-                {%- assign ingredient_labels = 'Ashwagandha,Tulsi,Turmeric,Honey,Green Tea' | split: ',' -%}
-                {%- assign ingredient_descs = 'Stress Support,Immunity Booster,Anti-inflammatory,Natural Healer,Antioxidant Rich' | split: ',' -%}
+                {%- assign ingredients = 'neem,tulsi,turmeric,sandalwood,aloe-vera' | split: ',' -%}
+                {%- assign ingredient_labels = 'Neem,Tulsi,Turmeric,Sandalwood,Aloe Vera' | split: ',' -%}
+                {%- assign ingredient_descs = 'Purifying,Clarifying,Brightening,Calming,Soothing' | split: ',' -%}
                 {%- for ing in ingredients -%}
                   <a href="/search?q={{ ing | url_encode }}" class="hov-so__ingredient-card">
                     <div class="hov-so__ingredient-img-wrap">
@@ -171,11 +171,11 @@
           <div class="hov-so__featured-grid">
 
             <a href="/collections/all" class="hov-so__featured-card"
-               style="background-image: url('{{ 'teacollectionfeatureimage.webp' | asset_url }}')">
+               style="background-image: url('{{ 'Our collection.webp' | asset_url }}')">
               <div class="hov-so__featured-overlay"></div>
               <div class="hov-so__featured-content">
                 <h4 class="hov-so__featured-title">[PLACEHOLDER — category]</h4>
-                <p class="hov-so__featured-desc">Discover our range of premium Ayurvedic teas</p>
+                <p class="hov-so__featured-desc">Handmade cold-process bars for every skin type</p>
                 <div class="hov-so__featured-arrow">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
                 </div>
@@ -183,11 +183,11 @@
             </a>
 
             <a href="/collections/all" class="hov-so__featured-card"
-               style="background-image: url('{{ 'honeyfeaturecollection.webp' | asset_url }}')">
+               style="background-image: url('{{ 'Its a ritual.webp' | asset_url }}')">
               <div class="hov-so__featured-overlay"></div>
               <div class="hov-so__featured-content">
                 <h4 class="hov-so__featured-title">[PLACEHOLDER — category]</h4>
-                <p class="hov-so__featured-desc">Pure · Raw · Natural Goodness of Honey</p>
+                <p class="hov-so__featured-desc">Sacred Ayurvedic herbs, cold-process crafted</p>
                 <div class="hov-so__featured-arrow">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
                 </div>
@@ -195,11 +195,11 @@
             </a>
 
             <a href="/collections/all" class="hov-so__featured-card"
-               style="background-image: url('{{ 'stapledfoodcollectionfeature.webp' | asset_url }}')">
+               style="background-image: url('{{ 'Transform your daily Bath.webp' | asset_url }}')">
               <div class="hov-so__featured-overlay"></div>
               <div class="hov-so__featured-content">
                 <h4 class="hov-so__featured-title">[PLACEHOLDER — category]</h4>
-                <p class="hov-so__featured-desc">Farm-sourced, clean ingredients for daily life</p>
+                <p class="hov-so__featured-desc">Turn your daily bath into a mindful ritual</p>
                 <div class="hov-so__featured-arrow">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
                 </div>
@@ -207,11 +207,11 @@
             </a>
 
             <a href="/collections/all" class="hov-so__featured-card"
-               style="background-image: url('{{ 'a2desigheefeaturedcollection.webp' | asset_url }}')">
+               style="background-image: url('{{ 'Our story.webp' | asset_url }}')">
               <div class="hov-so__featured-overlay"></div>
               <div class="hov-so__featured-content">
                 <h4 class="hov-so__featured-title">[PLACEHOLDER — category]</h4>
-                <p class="hov-so__featured-desc">Pure, traditional ghee from grass-fed desi cows</p>
+                <p class="hov-so__featured-desc">Four generations of herbal wisdom</p>
                 <div class="hov-so__featured-arrow">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
                 </div>
@@ -262,14 +262,14 @@
         <div class="hov-so__section">
           <h3 class="hov-so__section-title">SEARCH BY HEALTH GOAL</h3>
           <div class="hov-so__goal-chips">
-            <a href="/search?q=weight+management+tea" class="hov-so__goal-chip">
+            <a href="/search?q=deep+cleanse" class="hov-so__goal-chip">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
-              Weight Management
+              Deep Cleanse
             </a>
-            <a href="/search?q=digestive+tea" class="hov-so__goal-chip">Better Digestion</a>
-            <a href="/search?q=immunity+booster" class="hov-so__goal-chip">Immunity</a>
-            <a href="/search?q=stress+relief+calming" class="hov-so__goal-chip">Stress Relief</a>
-            <a href="/search?q=daily+wellness" class="hov-so__goal-chip">Daily Wellness</a>
+            <a href="/search?q=sensitive+skin" class="hov-so__goal-chip">Sensitive Skin</a>
+            <a href="/search?q=glow+brightening" class="hov-so__goal-chip">Natural Glow</a>
+            <a href="/search?q=calming+aroma" class="hov-so__goal-chip">Calm & Unwind</a>
+            <a href="/search?q=daily+ritual" class="hov-so__goal-chip">Daily Ritual</a>
           </div>
         </div>
 
@@ -293,7 +293,7 @@
 
 {% schema %}
 {
-  "name": "HOV Search Overlay",
+  "name": "SH · Search Overlay",
   "settings": [
     {
       "type": "image_picker",
@@ -311,11 +311,11 @@
       "type": "textarea",
       "id": "popular_searches",
       "label": "Popular search terms (comma-separated)",
-      "default": "Organic Tea, Honey, Detox, Weight Loss, Immunity, Ayurvedic, Digestive, Calming, Women's Wellness, Energy"
+      "default": "Herbal Soap, Neem, Tulsi, Sandalwood, Aura Cleansing, Handmade, Cold Process, Sensitive Skin, Gift Sets, Bestsellers"
     }
   ],
   "presets": [
-    { "name": "HOV Search Overlay" }
+    { "name": "SH · Search Overlay" }
   ]
 }
 {% endschema %}

@@ -34,6 +34,7 @@
     if (!head && !top) return;
 
     var after = head ? (parseInt(head.getAttribute('data-solid-after'), 10) || 80) : 0;
+    var alwaysSolid = head ? head.getAttribute('data-always-solid') === 'true' : false;
     var HYST = 24;
     var solid = null, visible = null;
 
@@ -41,7 +42,9 @@
       var y = window.pageYOffset;                 // single read, before any write
       var vh = window.innerHeight;
 
-      if (head) {
+      // Off the homepage the header is solid from scroll 0 and must never be
+      // stripped back to transparent — there is no hero behind it.
+      if (head && !alwaysSolid) {
         var nextSolid = solid ? y > after - HYST : y > after + HYST;
         if (nextSolid !== solid) { solid = nextSolid; head.classList.toggle('is-solid', nextSolid); }
       }
@@ -197,16 +200,22 @@
      --------------------------------------------------------------- */
   function anchors() {
     document.addEventListener('click', function (e) {
-      var a = e.target.closest ? e.target.closest('a[href^="#"]') : null;
+      // Scoped to .sh — this file is loaded site-wide now, and an unscoped
+      // handler would swallow every in-page anchor in the legacy theme
+      // (collection filter accordions, product tabs, FAQ accordions).
+      // Also accepts /#foo so footer links work from any template.
+      var a = e.target.closest ? e.target.closest('.sh a[href^="#"], .sh a[href^="/#"]') : null;
       if (!a) return;
-      var id = a.getAttribute('href');
-      if (!id || id.length < 2) return;
+      var href = a.getAttribute('href') || '';
+      var hash = href.indexOf('#') >= 0 ? href.slice(href.indexOf('#')) : '';
+      if (hash.length < 2) return;
 
-      // preventDefault unconditionally: without it, an anchor whose target
-      // doesn't exist sends the browser jumping to the top of the page.
+      var target = document.querySelector(hash);
+      // No target on this page? Let the browser navigate (that is how /#foo
+      // reaches the homepage) rather than swallowing the click.
+      if (!target) return;
       e.preventDefault();
-      var target = document.querySelector(id);
-      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
   }
 
