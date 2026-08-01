@@ -1,0 +1,203 @@
+{%- comment -%}
+  SHUDHI — Hero (scroll-scrubbed frame sequence)
+
+  Frames live in /assets as hero_frame_0001.webp … hero_frame_0192.webp —
+  every frame of HeroSectionVideo.mp4 (1280x720, 8.000s, 24fps CFR), so there
+  is no temporal loss. Re-extract with:
+    ffmpeg -i HeroSectionVideo.mp4 -vf "fps=24" -q:v 2 -an frames/f_%04d.jpg
+  then convert to WebP at 1280w q78 and update "Number of frames" to match.
+  Only divisors of 24 (24/12/8) give uniform spacing; 18fps judders.
+
+  The section is a tall wrapper; inside it a position:sticky stage holds the
+  canvas, so the page cannot reach the next section until the sequence has
+  played through — without hijacking wheel or touch events.
+{%- endcomment -%}
+
+{%- assign s = section.settings -%}
+
+{%- comment -%}
+  Derive the /assets CDN directory once by probing a known filename and
+  stripping it back off; the JS then reconstructs every frame URL. This also
+  strips Shopify's ?v= cache-buster. The probe extension is hardcoded because
+  the directory is identical regardless of the configured frame extension.
+{%- endcomment -%}
+{%- assign probe = 'hero_frame_0001.webp' | asset_url -%}
+{%- assign frame_base = probe | split: 'hero_frame_0001.webp' | first -%}
+
+<section class="sh sh-hero"
+         id="hero"
+         data-scrub="true"
+         style="height:{{ s.scroll_length }}svh;--sh-hero-bg:{{ s.bg_color }};">
+
+  <div class="sh-hero__pin">
+
+    {%- comment -%} Poster: paints instantly, is the LCP element, and is the
+        entire hero under prefers-reduced-motion. {%- endcomment -%}
+    {%- if s.poster != blank -%}
+      <img class="sh-hero__poster" src="{{ s.poster | image_url: width: 1600 }}"
+           alt="" width="1600" height="900" fetchpriority="high" decoding="async">
+    {%- else -%}
+      <img class="sh-hero__poster" src="{{ 'hero-poster.webp' | asset_url }}"
+           alt="" width="1280" height="720" fetchpriority="high" decoding="async">
+    {%- endif -%}
+
+    <canvas class="sh-hero__canvas"
+            data-frame-base="{{ frame_base }}"
+            data-frame-prefix="{{ s.frame_prefix }}"
+            data-frame-ext="{{ s.frame_ext }}"
+            data-frame-count="{{ s.frame_count | default: 192 }}"
+            data-frame-pad="{{ s.frame_pad }}"
+            {%- comment -%} Stored 0-50 because Shopify range steps must be
+                divisible by 0.1; the engine wants a 0-0.5 fraction, which it
+                multiplies by 220 to get a millisecond time-constant. {%- endcomment -%}
+            data-smoothing="{{ s.smoothing | divided_by: 100.0 }}"
+            data-blend="{{ s.blend_frames }}"
+            role="img"
+            aria-label="{{ s.headline_l1 }} {{ s.headline_l2 }} {{ s.headline_l3 }}"></canvas>
+
+    <div class="sh-hero__scrim"></div>
+
+    {%- comment -%} Loading indicator — clears as soon as frame 1 is decoded {%- endcomment -%}
+    <div class="sh-hero__loader">
+      <div class="sh-hero__loader-num">0%</div>
+      <div class="sh-hero__loader-track"><div class="sh-hero__loader-bar"></div></div>
+    </div>
+
+    {%- if s.show_scroll_hint -%}
+      <div class="sh-hero__scroll" aria-hidden="true">{{ s.scroll_label }}</div>
+    {%- endif -%}
+
+    {%- if s.show_pager -%}
+      <div class="sh-hero__pager" aria-hidden="true">
+        {%- for i in (1..s.pager_count) -%}
+          <span data-index="{{ forloop.index0 }}"{% if forloop.first %} class="is-active"{% endif %}>{{ i | prepend: '0' }}</span>
+        {%- endfor -%}
+        <span class="sh-hero__pager-rail"><i></i></span>
+      </div>
+    {%- endif -%}
+
+    {%- comment -%} Copy {%- endcomment -%}
+    <div class="sh-hero__content">
+      <div class="sh-wrap">
+        <div class="sh-hero__copy"{% if s.animate_in %} data-reveal{% endif %}>
+          <h1 class="sh-hero__title sh-serif">
+            {{ s.headline_l1 }}{% if s.headline_l2 != blank %}<br>{{ s.headline_l2 }}{% endif %}{% if s.headline_l3 != blank %}<br>{{ s.headline_l3 }}{% endif %}
+          </h1>
+
+          <div class="sh-hero__rule"></div>
+
+          {%- if s.label != blank -%}<div class="sh-hero__label">{{ s.label }}</div>{%- endif -%}
+          {%- if s.body != blank -%}<p class="sh-hero__text">{{ s.body }}</p>{%- endif -%}
+
+          <div class="sh-hero__cta">
+            {%- if s.cta_label != blank -%}
+              <a href="{{ s.cta_link | default: routes.all_products_collection_url }}" class="sh-btn sh-btn--solid">
+                {{ s.cta_label }} {% render 'sh-icon', name: 'arrow-right' %}
+              </a>
+            {%- endif -%}
+            {%- if s.cta2_label != blank -%}
+              <a href="{{ s.cta2_link | default: '#our-story' }}" class="sh-discover">
+                <span class="sh-play">{% render 'sh-icon', name: 'play' %}</span>{{ s.cta2_label }}
+              </a>
+            {%- endif -%}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {%- if s.badge_title != blank -%}
+      <div class="sh-hero__badge">
+        {% render 'sh-icon', name: 'leaf-line', sw: 1.1 %}
+        <div><b>{{ s.badge_title }}</b><small>{{ s.badge_sub }}</small></div>
+      </div>
+    {%- endif -%}
+
+    {%- if section.blocks.size > 0 -%}
+      <div class="sh-hero__trust">
+        {%- for block in section.blocks -%}
+          <div class="sh-hero__trust-item" {{ block.shopify_attributes }}>
+            {% render 'sh-icon', name: block.settings.icon, sw: 1.1 %}
+            <div>
+              <b>{{ block.settings.title }}</b>
+              <small>{{ block.settings.subtitle }}</small>
+            </div>
+          </div>
+        {%- endfor -%}
+      </div>
+    {%- endif -%}
+
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "SH · Hero (scroll video)",
+  "class": "index-section",
+  "settings": [
+    { "type": "header", "content": "Frame sequence" },
+    { "type": "paragraph", "content": "Frames live in Assets as hero_frame_0001.webp, hero_frame_0002.webp … Set the count below to match exactly how many you uploaded." },
+    { "type": "number", "id": "frame_count", "label": "Number of frames", "default": 192,
+      "info": "Must match exactly how many hero_frame_ files are in Assets. A range setting can't be used here — Shopify caps ranges at 101 steps." },
+    { "type": "text", "id": "frame_prefix", "label": "Filename prefix", "default": "hero_frame_" },
+    { "type": "select", "id": "frame_ext", "label": "File extension", "default": "webp",
+      "options": [
+        { "value": "webp", "label": "webp" },
+        { "value": "jpg", "label": "jpg" },
+        { "value": "png", "label": "png" }
+      ] },
+    { "type": "range", "id": "frame_pad", "label": "Zero-padding digits", "min": 1, "max": 6, "step": 1, "default": 4 },
+    { "type": "image_picker", "id": "poster", "label": "Poster image",
+      "info": "Shown while frames load and for reduced-motion visitors. Defaults to hero-poster.webp." },
+
+    { "type": "header", "content": "Scroll behaviour" },
+    { "type": "range", "id": "scroll_length", "label": "Scroll length (svh)", "min": 150, "max": 600, "step": 10, "default": 450,
+      "info": "How far you scroll before the hero releases. Higher = slower, more cinematic scrub." },
+    { "type": "range", "id": "smoothing", "label": "Motion smoothing", "min": 0, "max": 50, "step": 2, "default": 36, "unit": "%",
+      "info": "0 = locked exactly to scroll. Higher = a longer glide as it catches up. Feels identical on 60Hz and 120Hz screens." },
+    { "type": "checkbox", "id": "blend_frames", "label": "Blend between frames", "default": true,
+      "info": "Cross-fades neighbouring frames so motion is continuous instead of stepping frame to frame. Turn off if it looks ghosted." },
+    { "type": "checkbox", "id": "animate_in", "label": "Fade copy in", "default": true },
+
+    { "type": "header", "content": "Copy" },
+    { "type": "text", "id": "headline_l1", "label": "Headline line 1", "default": "Purify Your Skin." },
+    { "type": "text", "id": "headline_l2", "label": "Headline line 2", "default": "Cleanse Your Aura." },
+    { "type": "text", "id": "headline_l3", "label": "Headline line 3", "default": "Elevate Your Ritual." },
+    { "type": "text", "id": "label", "label": "Gold label", "default": "Negativity Removal Cleansing Bar" },
+    { "type": "textarea", "id": "body", "label": "Body text", "default": "A ritual-inspired herbal soap with sacred Ayurvedic herbs to purify your skin, mind and energy." },
+    { "type": "text", "id": "cta_label", "label": "Primary button", "default": "Shop the ritual" },
+    { "type": "url", "id": "cta_link", "label": "Primary button link" },
+    { "type": "text", "id": "cta2_label", "label": "Secondary link", "default": "Discover the ritual" },
+    { "type": "url", "id": "cta2_link", "label": "Secondary link URL" },
+
+    { "type": "header", "content": "Overlays" },
+    { "type": "checkbox", "id": "show_scroll_hint", "label": "Show scroll hint", "default": true },
+    { "type": "text", "id": "scroll_label", "label": "Scroll hint text", "default": "Scroll" },
+    { "type": "checkbox", "id": "show_pager", "label": "Show 01 / 02 / 03 pager", "default": true },
+    { "type": "range", "id": "pager_count", "label": "Pager steps", "min": 2, "max": 5, "step": 1, "default": 3 },
+    { "type": "text", "id": "badge_title", "label": "Floating badge title", "default": "100% Natural" },
+    { "type": "text", "id": "badge_sub", "label": "Floating badge subtitle", "default": "Pure & Safe" },
+    { "type": "color", "id": "bg_color", "label": "Background fallback", "default": "#c98d86" }
+  ],
+  "blocks": [
+    { "type": "trust", "name": "Trust badge", "settings": [
+      { "type": "select", "id": "icon", "label": "Icon", "default": "leaf", "options": [
+        { "value": "leaf-line", "label": "Leaf (fine)" }, { "value": "heart-line", "label": "Heart (fine)" },
+        { "value": "hand-line", "label": "Hand (fine)" }, { "value": "rabbit-line", "label": "Rabbit (fine)" },
+        { "value": "leaf", "label": "Leaf" }, { "value": "heart", "label": "Heart" },
+        { "value": "hand", "label": "Hand" }, { "value": "rabbit", "label": "Rabbit" },
+        { "value": "lotus", "label": "Lotus" }, { "value": "drop", "label": "Drop" },
+        { "value": "sparkle", "label": "Sparkle" }, { "value": "plant", "label": "Plant" },
+        { "value": "badge", "label": "Badge" }, { "value": "recycle", "label": "Recycle" } ] },
+      { "type": "text", "id": "title", "label": "Title", "default": "100% Natural" },
+      { "type": "text", "id": "subtitle", "label": "Subtitle", "default": "No harsh chemicals" }
+    ] }
+  ],
+  "max_blocks": 4,
+  "presets": [ { "name": "SH · Hero (scroll video)", "blocks": [
+    { "type": "trust", "settings": { "icon": "leaf",   "title": "100% Natural",      "subtitle": "No harsh chemicals" } },
+    { "type": "trust", "settings": { "icon": "heart",  "title": "Organic Certified", "subtitle": "Pure & safe" } },
+    { "type": "trust", "settings": { "icon": "hand",   "title": "Handmade in India", "subtitle": "Small batch crafted" } },
+    { "type": "trust", "settings": { "icon": "rabbit", "title": "Cruelty Free",      "subtitle": "Kind to you & nature" } }
+  ] } ]
+}
+{% endschema %}

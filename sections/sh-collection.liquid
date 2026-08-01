@@ -1,0 +1,135 @@
+{%- comment -%}
+  SHUDHI — Our Collection carousel + trust strip
+
+  Deliberately loads NOTHING. jQuery and slick.min.js are already loaded
+  synchronously in <head> by layout/theme.liquid (lines 155-156), and
+  slick-theme.min.css at line 102. Pulling in a second jQuery here would
+  replace window.jQuery with a fresh instance whose .fn has none of the
+  plugins registered against the first — detaching slick, fancybox,
+  quickview and the ajax cart site-wide.
+{%- endcomment -%}
+
+{%- assign s = section.settings -%}
+
+<section class="sh sh-collection" id="collection" style="--sh-cream:{{ s.bg }};">
+  <div class="sh-wrap">
+
+    <div class="sh-collection__head"{% if s.animate %} data-reveal{% endif %}>
+      {%- if s.eyebrow != blank -%}<div class="sh-eyebrow">{{ s.eyebrow }}</div>{%- endif -%}
+      <h2 class="sh-collection__title sh-serif">
+        {{ s.title_l1 }}{% if s.title_l2 != blank %}<br>{{ s.title_l2 }}{% endif %}
+      </h2>
+    </div>
+
+    {%- assign cards = 0 -%}
+    {%- for block in section.blocks -%}
+      {%- if block.type == 'card' -%}{%- assign cards = cards | plus: 1 -%}{%- endif -%}
+    {%- endfor -%}
+
+    {%- if cards > 0 -%}
+      <div class="sh-collection__viewport"{% if s.animate %} data-reveal{% endif %}>
+        <button type="button" class="sh-collection__arrow sh-collection__arrow--prev" aria-label="Previous">
+          {% render 'sh-icon', name: 'chevron-left' %}
+        </button>
+
+        <div data-collection-carousel data-autoplay="{{ s.autoplay }}">
+          {%- for block in section.blocks -%}
+            {%- if block.type == 'card' -%}
+              <div class="sh-collection__slide" {{ block.shopify_attributes }}>
+                <a href="{{ block.settings.link | default: routes.all_products_collection_url }}" class="sh-card">
+                  {%- if block.settings.image != blank -%}
+                    <img src="{{ block.settings.image | image_url: width: 800 }}"
+                         alt="{{ block.settings.title | escape }}"
+                         width="800" height="600" loading="lazy" decoding="async">
+                  {%- else -%}
+                    <img src="{{ 'Our collection.webp' | asset_url }}"
+                         alt="{{ block.settings.title | escape }}"
+                         width="800" height="600" loading="lazy" decoding="async">
+                  {%- endif -%}
+                  <div class="sh-card__body">
+                    <h3>{{ block.settings.title }}</h3>
+                    <span class="sh-card__cta">
+                      {{ block.settings.cta }} {% render 'sh-icon', name: 'arrow-right' %}
+                    </span>
+                  </div>
+                </a>
+              </div>
+            {%- endif -%}
+          {%- endfor -%}
+        </div>
+
+        <button type="button" class="sh-collection__arrow sh-collection__arrow--next" aria-label="Next">
+          {% render 'sh-icon', name: 'chevron-right' %}
+        </button>
+      </div>
+    {%- endif -%}
+
+    {%- assign trust = 0 -%}
+    {%- for block in section.blocks -%}
+      {%- if block.type == 'trust' -%}{%- assign trust = trust | plus: 1 -%}{%- endif -%}
+    {%- endfor -%}
+
+    {%- if trust > 0 -%}
+      <div class="sh-collection__strip"{% if s.animate %} data-reveal{% endif %}>
+        {%- for block in section.blocks -%}
+          {%- if block.type == 'trust' -%}
+            <div class="sh-collection__strip-item" {{ block.shopify_attributes }}>
+              {% render 'sh-icon', name: block.settings.icon %}
+              <div>
+                <b>{{ block.settings.title }}</b>
+                <small>{{ block.settings.subtitle }}</small>
+              </div>
+            </div>
+          {%- endif -%}
+        {%- endfor -%}
+      </div>
+    {%- endif -%}
+
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "SH · Collection",
+  "class": "index-section",
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Explore our collection" },
+    { "type": "text", "id": "title_l1", "label": "Heading line 1", "default": "Nature. Science. Rituals." },
+    { "type": "text", "id": "title_l2", "label": "Heading line 2", "default": "In Every Product." },
+    { "type": "header", "content": "Carousel" },
+    { "type": "checkbox", "id": "autoplay", "label": "Autoplay", "default": false },
+    { "type": "header", "content": "Appearance" },
+    { "type": "checkbox", "id": "animate", "label": "Animate on scroll", "default": true },
+    { "type": "color", "id": "bg", "label": "Background", "default": "#f2ece0" }
+  ],
+  "blocks": [
+    { "type": "card", "name": "Category card", "settings": [
+      { "type": "image_picker", "id": "image", "label": "Image", "info": "Defaults to \"Our collection.webp\" in Assets." },
+      { "type": "text", "id": "title", "label": "Title", "default": "Handmade Soaps" },
+      { "type": "text", "id": "cta", "label": "Link text", "default": "Explore Now" },
+      { "type": "url", "id": "link", "label": "Link" }
+    ] },
+    { "type": "trust", "name": "Trust item", "settings": [
+      { "type": "select", "id": "icon", "label": "Icon", "default": "leaf", "options": [
+        { "value": "leaf", "label": "Leaf" }, { "value": "heart", "label": "Heart" },
+        { "value": "hand", "label": "Hand" }, { "value": "lotus", "label": "Lotus" },
+        { "value": "plant", "label": "Plant" }, { "value": "sparkle", "label": "Sparkle" },
+        { "value": "badge", "label": "Badge" }, { "value": "recycle", "label": "Recycle" } ] },
+      { "type": "text", "id": "title", "label": "Title", "default": "100% Natural" },
+      { "type": "text", "id": "subtitle", "label": "Subtitle", "default": "Pure & safe" }
+    ] }
+  ],
+  "max_blocks": 16,
+  "presets": [ { "name": "SH · Collection", "blocks": [
+    { "type": "card",  "settings": { "title": "Handmade Soaps",  "cta": "Explore Now" } },
+    { "type": "card",  "settings": { "title": "Herbal Skincare", "cta": "Explore Now" } },
+    { "type": "card",  "settings": { "title": "Herbal Body Care","cta": "Explore Now" } },
+    { "type": "card",  "settings": { "title": "Essential Oils",  "cta": "Explore Now" } },
+    { "type": "card",  "settings": { "title": "Herbal Wellness", "cta": "Explore Now" } },
+    { "type": "trust", "settings": { "icon": "leaf",    "title": "100% Natural",     "subtitle": "Pure & safe" } },
+    { "type": "trust", "settings": { "icon": "badge",   "title": "Organic Certified","subtitle": "Quality you can trust" } },
+    { "type": "trust", "settings": { "icon": "hand",    "title": "Small Batch",      "subtitle": "Handmade with care" } },
+    { "type": "trust", "settings": { "icon": "recycle", "title": "Eco-Friendly",     "subtitle": "Sustainable & responsible" } }
+  ] } ]
+}
+{% endschema %}

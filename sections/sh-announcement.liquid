@@ -1,0 +1,80 @@
+{%- comment -%}
+  SHUDHI — Announcement bar
+
+  Rendered statically from layout/theme.liquid (homepage only), so Shopify
+  IGNORES the `presets` block below. That is why there is an explicit
+  no-blocks fallback: without it a fresh install shows an empty bar.
+  Blocks are seeded in config/settings_data.json.
+{%- endcomment -%}
+
+{%- assign s = section.settings -%}
+{%- if s.enabled -%}
+<section class="sh sh-announce sh-announce--{{ s.style }}"
+         style="--sh-announce-bg:{{ s.bg }};--sh-announce-fg:{{ s.fg }};--sh-announce-speed:{{ s.speed }}s;">
+
+  {%- if section.blocks.size > 0 -%}
+
+    {%- if s.style == 'marquee' -%}
+      <div class="sh-announce__track">
+        {%- comment -%} Duplicated once so translateX(-50%) loops seamlessly {%- endcomment -%}
+        {%- for pass in (1..2) -%}
+          <div class="sh-announce__group" {% if forloop.index == 2 %}aria-hidden="true"{% endif %}>
+            {%- for block in section.blocks -%}
+              <span class="sh-announce__item" {{ block.shopify_attributes }}>{{ block.settings.text }}</span>
+            {%- endfor -%}
+          </div>
+        {%- endfor -%}
+      </div>
+    {%- else -%}
+      <div class="sh-announce__track">
+        <div class="sh-announce__group">
+          {%- assign first = section.blocks.first -%}
+          <span class="sh-announce__item" {{ first.shopify_attributes }}>{{ first.settings.text }}</span>
+        </div>
+      </div>
+    {%- endif -%}
+
+  {%- else -%}
+    {%- comment -%} Fallback so the bar is never empty {%- endcomment -%}
+    <div class="sh-announce__track">
+      <div class="sh-announce__group">
+        <span class="sh-announce__item">{{ s.fallback_text }}</span>
+      </div>
+    </div>
+  {%- endif -%}
+
+</section>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "SH · Announcement",
+  "class": "sh-announce-section",
+  "settings": [
+    { "type": "checkbox", "id": "enabled", "label": "Show announcement bar", "default": true },
+    { "type": "select", "id": "style", "label": "Style", "default": "marquee",
+      "options": [
+        { "value": "marquee", "label": "Scrolling marquee" },
+        { "value": "static", "label": "Single centred message" }
+      ] },
+    { "type": "range", "id": "speed", "label": "Marquee speed (seconds per loop)", "min": 12, "max": 60, "step": 2, "default": 28,
+      "info": "Higher = slower." },
+    { "type": "text", "id": "fallback_text", "label": "Fallback message",
+      "info": "Shown only if every message block is deleted.",
+      "default": "Free shipping on orders over ₹999" },
+    { "type": "header", "content": "Colours" },
+    { "type": "color", "id": "bg", "label": "Background", "default": "#1b2411" },
+    { "type": "color", "id": "fg", "label": "Text", "default": "#c9a86a" }
+  ],
+  "blocks": [
+    { "type": "message", "name": "Message", "settings": [
+      { "type": "text", "id": "text", "label": "Text", "default": "Free shipping on orders over ₹999" }
+    ] }
+  ],
+  "presets": [ { "name": "SH · Announcement", "blocks": [
+    { "type": "message", "settings": { "text": "Free shipping on orders over ₹999" } },
+    { "type": "message", "settings": { "text": "Handmade in small batches · 100% natural" } },
+    { "type": "message", "settings": { "text": "Cruelty free · Rooted in Ayurveda" } }
+  ] } ]
+}
+{% endschema %}

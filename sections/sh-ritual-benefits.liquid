@@ -1,0 +1,140 @@
+{%- comment -%}
+  SHUDHI — "It's a Ritual." benefits
+
+  Benefits fan out either side of a centre product image, joined to it by
+  dotted connectors. Each block chooses its own column, so the mockup's
+  3-left / 2-right arrangement is reproducible exactly (an automatic
+  size/2 split could only ever produce balanced halves).
+
+  The connector SVG uses preserveAspectRatio="none" over a 1000x400 viewBox,
+  so coordinates map proportionally to whatever the grid's real size is.
+{%- endcomment -%}
+
+{%- assign s = section.settings -%}
+
+{%- comment -%} Count each column up front so connector geometry can be generated {%- endcomment -%}
+{%- assign lc = 0 -%}
+{%- assign rc = 0 -%}
+{%- for b in section.blocks -%}
+  {%- if b.settings.column == 'right' -%}
+    {%- assign rc = rc | plus: 1 -%}
+  {%- else -%}
+    {%- assign lc = lc | plus: 1 -%}
+  {%- endif -%}
+{%- endfor -%}
+
+<section class="sh sh-ritual" id="ritual-benefits">
+
+  {%- if s.bg_image != blank -%}
+    <img class="sh-ritual__bg" src="{{ s.bg_image | image_url: width: 2000 }}" alt=""
+         width="2000" height="1200" loading="lazy" decoding="async">
+  {%- else -%}
+    <img class="sh-ritual__bg" src="{{ 'Its a ritual.webp' | asset_url }}" alt=""
+         width="2000" height="1200" loading="lazy" decoding="async">
+  {%- endif -%}
+
+  {%- if s.side_label != blank -%}
+    <div class="sh-ritual__side" aria-hidden="true">{{ s.side_label }}</div>
+  {%- endif -%}
+
+  <div class="sh-wrap">
+
+    <div class="sh-ritual__head"{% if s.animate %} data-reveal{% endif %}>
+      {%- if s.eyebrow != blank -%}<div class="sh-eyebrow">{{ s.eyebrow }}</div>{%- endif -%}
+      <h2 class="sh-ritual__title sh-serif">{{ s.title }}</h2>
+    </div>
+
+    <div class="sh-ritual__cols">
+
+      {%- comment -%} Dotted connectors {%- endcomment -%}
+      <svg class="sh-ritual__connectors" viewBox="0 0 1000 400" preserveAspectRatio="none"
+           aria-hidden="true" focusable="false">
+        {%- for i in (1..lc) -%}
+          {%- assign y = forloop.index0 | times: 800 | plus: 400 | divided_by: lc | divided_by: 2 -%}
+          <path d="M430,200 Q385,{{ y }} 340,{{ y }}"/>
+        {%- endfor -%}
+        {%- for i in (1..rc) -%}
+          {%- assign y = forloop.index0 | times: 800 | plus: 400 | divided_by: rc | divided_by: 2 -%}
+          <path d="M570,200 Q615,{{ y }} 660,{{ y }}"/>
+        {%- endfor -%}
+      </svg>
+
+      {%- comment -%} Left column {%- endcomment -%}
+      <div class="sh-ritual__col sh-ritual__col--left">
+        {%- for block in section.blocks -%}
+          {%- unless block.settings.column == 'right' -%}
+            <div class="sh-ritual__item"{% if s.animate %} data-reveal{% endif %} {{ block.shopify_attributes }}>
+              {% render 'sh-icon', name: block.settings.icon %}
+              <div>
+                <h3>{{ block.settings.title }}</h3>
+                <p>{{ block.settings.text }}</p>
+              </div>
+            </div>
+          {%- endunless -%}
+        {%- endfor -%}
+      </div>
+
+      {%- comment -%} Centre product cut-out {%- endcomment -%}
+      <div class="sh-ritual__center">
+        {%- if s.center_image != blank -%}
+          <img src="{{ s.center_image | image_url: width: 800 }}" alt=""
+               width="800" height="800" loading="lazy" decoding="async">
+        {%- endif -%}
+      </div>
+
+      {%- comment -%} Right column {%- endcomment -%}
+      <div class="sh-ritual__col sh-ritual__col--right">
+        {%- for block in section.blocks -%}
+          {%- if block.settings.column == 'right' -%}
+            <div class="sh-ritual__item"{% if s.animate %} data-reveal{% endif %} {{ block.shopify_attributes }}>
+              {% render 'sh-icon', name: block.settings.icon %}
+              <div>
+                <h3>{{ block.settings.title }}</h3>
+                <p>{{ block.settings.text }}</p>
+              </div>
+            </div>
+          {%- endif -%}
+        {%- endfor -%}
+      </div>
+
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "SH · Ritual Benefits",
+  "class": "index-section",
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "More than a soap." },
+    { "type": "text", "id": "title", "label": "Heading", "default": "It's a Ritual." },
+    { "type": "text", "id": "side_label", "label": "Vertical side label", "default": "Ritual Benefits" },
+    { "type": "header", "content": "Images" },
+    { "type": "image_picker", "id": "bg_image", "label": "Background image", "info": "Defaults to \"Its a ritual.webp\" in Assets." },
+    { "type": "image_picker", "id": "center_image", "label": "Centre product cut-out", "info": "Optional. A transparent PNG works best." },
+    { "type": "header", "content": "Appearance" },
+    { "type": "checkbox", "id": "animate", "label": "Animate on scroll", "default": true }
+  ],
+  "blocks": [
+    { "type": "benefit", "name": "Benefit", "settings": [
+      { "type": "select", "id": "column", "label": "Column", "default": "left",
+        "options": [ { "value": "left", "label": "Left" }, { "value": "right", "label": "Right" } ] },
+      { "type": "select", "id": "icon", "label": "Icon", "default": "leaf", "options": [
+        { "value": "leaf", "label": "Leaf" }, { "value": "lotus", "label": "Lotus" },
+        { "value": "drop", "label": "Drop" }, { "value": "plant", "label": "Plant" },
+        { "value": "sparkle", "label": "Sparkle" }, { "value": "heart", "label": "Heart" },
+        { "value": "hand", "label": "Hand" }, { "value": "mortar", "label": "Mortar" } ] },
+      { "type": "text", "id": "title", "label": "Title", "default": "Aura Cleansing" },
+      { "type": "textarea", "id": "text", "label": "Description", "default": "Helps remove negative energy and uplift your aura." }
+    ] }
+  ],
+  "max_blocks": 6,
+  "presets": [ { "name": "SH · Ritual Benefits", "blocks": [
+    { "type": "benefit", "settings": { "column": "left",  "icon": "sparkle", "title": "Aura Cleansing",       "text": "Helps remove negative energy and uplift your aura." } },
+    { "type": "benefit", "settings": { "column": "left",  "icon": "mortar",  "title": "Sacred Ayurveda",      "text": "Crafted with powerful herbs known for their purifying properties." } },
+    { "type": "benefit", "settings": { "column": "left",  "icon": "leaf",    "title": "Cold Process Crafted", "text": "Made slowly in small batches to retain natural goodness." } },
+    { "type": "benefit", "settings": { "column": "right", "icon": "drop",    "title": "Deep & Gentle Cleanse","text": "Cleanses deeply while nourishing your skin naturally." } },
+    { "type": "benefit", "settings": { "column": "right", "icon": "heart",   "title": "Made with Intention",  "text": "Handmade in small batches with love, care & mindfulness." } }
+  ] } ]
+}
+{% endschema %}

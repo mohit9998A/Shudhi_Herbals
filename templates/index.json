@@ -1,979 +1,299 @@
-/*
- * ------------------------------------------------------------
- * IMPORTANT: The contents of this file are auto-generated.
- *
- * This file may be updated by the Shopify admin theme editor
- * or related systems. Please exercise caution as any changes
- * made to this file may be overwritten.
- * ------------------------------------------------------------
- */
 {
   "sections": {
-    "1637553995596c0e5f": {
-      "type": "section-slideshow-v1",
+    "hero": {
+      "type": "sh-hero-scroll",
       "blocks": {
-        "slideshow_VcLKE6": {
-          "type": "slideshow",
+        "t1": {
+          "type": "trust",
           "settings": {
-            "badge_text": "NEW LAUNCH",
-            "heading_line1": "PURIFY YOUR SKIN",
-            "heading_line2": "CLEANSE YOUR AURA",
-            "subheading": "A handmade herbal cleansing ritual.",
-            "feature_1_icon": "leaf",
-            "feature_1_label": "Natural",
-            "feature_2_icon": "cup",
-            "feature_2_label": "Herbal",
-            "feature_3_icon": "sparkle",
-            "feature_3_label": "Handmade",
-            "feature_4_icon": "heart",
-            "feature_4_label": "Pure",
-            "cta_text": "SHOP THE CLEANSING BAR",
-            "cta_link": "shopify://products/negativity-removal-cleansing-bar",
-            "show_offer_badge": true,
-            "offer_badge_text": "[PLACEHOLDER — offer]",
-            "slide_image": "shopify://shop_images/healthsupplement.webp",
-            "slide_image_mb": "shopify://shop_images/healthsupplement.webp"
+            "icon": "leaf-line",
+            "title": "100% Natural",
+            "subtitle": "No harsh chemicals"
           }
         },
-        "slideshow_JVWHtm": {
-          "type": "slideshow",
+        "t2": {
+          "type": "trust",
           "settings": {
-            "badge_text": "NEW LAUNCH",
-            "heading_line1": "PURIFY YOUR SKIN",
-            "heading_line2": "CLEANSE YOUR AURA",
-            "subheading": "A handmade herbal cleansing ritual.",
-            "feature_1_icon": "leaf",
-            "feature_1_label": "Natural",
-            "feature_2_icon": "cup",
-            "feature_2_label": "Herbal",
-            "feature_3_icon": "sparkle",
-            "feature_3_label": "Handmade",
-            "feature_4_icon": "heart",
-            "feature_4_label": "Pure",
-            "cta_text": "SHOP THE CLEANSING BAR",
-            "cta_link": "shopify://products/negativity-removal-cleansing-bar",
-            "show_offer_badge": true,
-            "offer_badge_text": "[PLACEHOLDER — offer]",
-            "slide_image": "shopify://shop_images/asaamm.webp",
-            "slide_image_mb": "shopify://shop_images/asaamm.webp"
+            "icon": "heart-line",
+            "title": "Organic Certified",
+            "subtitle": "Pure & safe"
           }
         },
-        "slideshow_D38HCP": {
-          "type": "slideshow",
+        "t3": {
+          "type": "trust",
           "settings": {
-            "badge_text": "NEW LAUNCH",
-            "heading_line1": "PURIFY YOUR SKIN",
-            "heading_line2": "CLEANSE YOUR AURA",
-            "subheading": "A handmade herbal cleansing ritual.",
-            "feature_1_icon": "leaf",
-            "feature_1_label": "Natural",
-            "feature_2_icon": "cup",
-            "feature_2_label": "Herbal",
-            "feature_3_icon": "sparkle",
-            "feature_3_label": "Handmade",
-            "feature_4_icon": "heart",
-            "feature_4_label": "Pure",
-            "cta_text": "SHOP THE CLEANSING BAR",
-            "cta_link": "shopify://products/negativity-removal-cleansing-bar",
-            "show_offer_badge": true,
-            "offer_badge_text": "[PLACEHOLDER — offer]",
-            "slide_image": "shopify://shop_images/oil_a71df242-ad6d-4749-b567-acc764b13fd9.webp",
-            "slide_image_mb": "shopify://shop_images/oil_a71df242-ad6d-4749-b567-acc764b13fd9.webp"
+            "icon": "hand-line",
+            "title": "Handmade in India",
+            "subtitle": "Small batch crafted"
           }
         },
-        "slideshow_ApUjgU": {
-          "type": "slideshow",
+        "t4": {
+          "type": "trust",
           "settings": {
-            "badge_text": "NEW LAUNCH",
-            "heading_line1": "PURIFY YOUR SKIN",
-            "heading_line2": "CLEANSE YOUR AURA",
-            "subheading": "A handmade herbal cleansing ritual.",
-            "feature_1_icon": "leaf",
-            "feature_1_label": "Natural",
-            "feature_2_icon": "cup",
-            "feature_2_label": "Herbal",
-            "feature_3_icon": "sparkle",
-            "feature_3_label": "Handmade",
-            "feature_4_icon": "heart",
-            "feature_4_label": "Pure",
-            "cta_text": "SHOP THE CLEANSING BAR",
-            "cta_link": "shopify://products/negativity-removal-cleansing-bar",
-            "show_offer_badge": true,
-            "offer_badge_text": "[PLACEHOLDER — offer]",
-            "slide_image": "shopify://shop_images/a2desighee.webp",
-            "slide_image_mb": "shopify://shop_images/a2desighee.webp"
-          }
-        },
-        "slideshow_kBXQzY": {
-          "type": "slideshow",
-          "settings": {
-            "badge_text": "NEW LAUNCH",
-            "heading_line1": "PURIFY YOUR SKIN",
-            "heading_line2": "CLEANSE YOUR AURA",
-            "subheading": "A handmade herbal cleansing ritual.",
-            "feature_1_icon": "leaf",
-            "feature_1_label": "Natural",
-            "feature_2_icon": "cup",
-            "feature_2_label": "Herbal",
-            "feature_3_icon": "sparkle",
-            "feature_3_label": "Handmade",
-            "feature_4_icon": "heart",
-            "feature_4_label": "Pure",
-            "cta_text": "SHOP THE CLEANSING BAR",
-            "cta_link": "shopify://products/negativity-removal-cleansing-bar",
-            "show_offer_badge": true,
-            "offer_badge_text": "[PLACEHOLDER — offer]",
-            "slide_image": "shopify://shop_images/HOV_-_Website_Banner_Dark-min_19f46640-1fe5-431c-b13f-3f66ceb6b1f5.webp",
-            "slide_image_mb": "shopify://shop_images/HOV_Shilajeet_img_f59d75d7-438c-47b0-967a-62b4f1989be1.webp"
-          }
-        },
-        "slideshow_4K9cfa": {
-          "type": "slideshow",
-          "settings": {
-            "badge_text": "NEW LAUNCH",
-            "heading_line1": "PURIFY YOUR SKIN",
-            "heading_line2": "CLEANSE YOUR AURA",
-            "subheading": "A handmade herbal cleansing ritual.",
-            "feature_1_icon": "leaf",
-            "feature_1_label": "Natural",
-            "feature_2_icon": "cup",
-            "feature_2_label": "Herbal",
-            "feature_3_icon": "sparkle",
-            "feature_3_label": "Handmade",
-            "feature_4_icon": "heart",
-            "feature_4_label": "Pure",
-            "cta_text": "SHOP THE CLEANSING BAR",
-            "cta_link": "shopify://products/negativity-removal-cleansing-bar",
-            "show_offer_badge": true,
-            "offer_badge_text": "[PLACEHOLDER — offer]",
-            "slide_image": "shopify://shop_images/Honey_Banner_1_d7d20a3c-988e-4284-b9c6-5c38e974c412.webp",
-            "slide_image_mb": "shopify://shop_images/Honey_2_1_f9a16c2b-e1aa-4e0b-b96b-8aea8b81a097.webp"
+            "icon": "rabbit-line",
+            "title": "Cruelty Free",
+            "subtitle": "Kind to you & nature"
           }
         }
       },
       "block_order": [
-        "slideshow_VcLKE6",
-        "slideshow_JVWHtm",
-        "slideshow_D38HCP",
-        "slideshow_ApUjgU",
-        "slideshow_kBXQzY",
-        "slideshow_4K9cfa"
+        "t1",
+        "t2",
+        "t3",
+        "t4"
       ],
       "settings": {
-        "autoplay": true,
-        "autoplay_speed": 5000,
-        "trust_1_line1": "No Harmful",
-        "trust_1_line2": "Chemicals",
-        "trust_2_line1": "Eco-Friendly",
-        "trust_2_line2": "Packaging",
-        "trust_3_line1": "Handmade In",
-        "trust_3_line2": "Small Batches",
-        "trust_4_line1": "Secure Packaging",
-        "trust_4_line2": "Pan India Delivery"
+        "frame_count": 192,
+        "frame_prefix": "hero_frame_",
+        "frame_ext": "webp",
+        "frame_pad": 4,
+        "scroll_length": 450,
+        "smoothing": 36,
+        "blend_frames": true,
+        "animate_in": true,
+        "headline_l1": "Purify Your Skin.",
+        "headline_l2": "Cleanse Your Aura.",
+        "headline_l3": "Elevate Your Ritual.",
+        "label": "Negativity Removal Cleansing Bar",
+        "body": "A ritual-inspired herbal soap with sacred Ayurvedic herbs to purify your skin, mind and energy.",
+        "cta_label": "Shop the ritual",
+        "cta2_label": "Discover the ritual",
+        "show_scroll_hint": true,
+        "scroll_label": "Scroll",
+        "show_pager": true,
+        "pager_count": 3,
+        "badge_title": "100% Natural",
+        "badge_sub": "Pure & Safe",
+        "bg_color": "#c98d86"
       }
     },
-    "163728576344f143b5": {
-      "type": "section-collection-v1",
+    "our_story": {
+      "type": "sh-our-story",
+      "settings": {
+        "eyebrow": "Our Story",
+        "title_l1": "Rooted in Tradition.",
+        "title_l2": "Crafted for Today.",
+        "body": "Inspired by 4 generations of herbal wisdom, Shudhi Herbals brings ancient Ayurvedic recipes into your modern self-care rituals.",
+        "cta_label": "Know our story",
+        "scrim": 90,
+        "min_height": 440,
+        "show_play": true,
+        "play_label": "Play the Shudhi Herbals story",
+        "seal_number": "4",
+        "seal_text": "Generations of herbal wisdom",
+        "animate": true,
+        "bg": "#1b2411"
+      }
+    },
+    "ritual_benefits": {
+      "type": "sh-ritual-benefits",
       "blocks": {
-        "c3c0898d-bb27-44b5-8bfb-eb90bfd401bf": {
-          "type": "colection",
+        "b1": {
+          "type": "benefit",
           "settings": {
-            "collection": "",
-            "category_name": "",
-            "tagline": "",
-            "explore_link": "",
-            "accent_color": ""
+            "column": "left",
+            "icon": "sparkle",
+            "title": "Aura Cleansing",
+            "text": "Helps remove negative energy and uplift your aura."
           }
         },
-        "163728576376cd3690-0": {
-          "type": "colection",
+        "b2": {
+          "type": "benefit",
           "settings": {
-            "collection": "",
-            "category_name": "",
-            "tagline": "",
-            "explore_link": "",
-            "accent_color": ""
+            "column": "left",
+            "icon": "mortar",
+            "title": "Sacred Ayurveda",
+            "text": "Crafted with powerful herbs known for their purifying properties."
           }
         },
-        "163728576376cd3690-2": {
-          "type": "colection",
+        "b3": {
+          "type": "benefit",
           "settings": {
-            "collection": "",
-            "category_name": "",
-            "tagline": "",
-            "explore_link": "",
-            "accent_color": ""
+            "column": "left",
+            "icon": "leaf",
+            "title": "Cold Process Crafted",
+            "text": "Made slowly in small batches to retain natural goodness."
           }
         },
-        "163728576376cd3690-1": {
-          "type": "colection",
+        "b4": {
+          "type": "benefit",
           "settings": {
-            "collection": "",
-            "category_name": "",
-            "tagline": "",
-            "explore_link": "",
-            "accent_color": ""
+            "column": "right",
+            "icon": "drop",
+            "title": "Deep & Gentle Cleanse",
+            "text": "Cleanses deeply while nourishing your skin naturally."
           }
         },
-        "163728576376cd3690-3": {
-          "type": "colection",
+        "b5": {
+          "type": "benefit",
           "settings": {
-            "collection": "",
-            "category_name": "",
-            "tagline": "",
-            "explore_link": "",
-            "accent_color": ""
+            "column": "right",
+            "icon": "heart",
+            "title": "Made with Intention",
+            "text": "Handmade in small batches with love, care & mindfulness."
           }
         }
       },
       "block_order": [
-        "c3c0898d-bb27-44b5-8bfb-eb90bfd401bf",
-        "163728576376cd3690-0",
-        "163728576376cd3690-2",
-        "163728576376cd3690-1",
-        "163728576376cd3690-3"
+        "b1",
+        "b2",
+        "b3",
+        "b4",
+        "b5"
       ],
       "settings": {
-        "eyebrow_text": "PURE BY NATURE",
-        "heading_plain": "Discover Our",
-        "heading_cursive": "Cleansing Ritual",
-        "subtitle": "A handmade herbal cleansing bar for <span class=\"hov-col-bold-green\">purer skin</span> & a <span class=\"hov-col-bold-green\">calmer presence.</span>",
-        "cta_text": "VIEW ALL PRODUCTS",
-        "cta_link": "shopify://collections/all",
-        "margin_top": "",
-        "margin_bottom": "30"
+        "eyebrow": "More than a soap.",
+        "title": "It's a Ritual.",
+        "side_label": "Ritual Benefits",
+        "animate": true
       }
     },
-    "16372299715511f5e5": {
-      "type": "section-banner-v11",
+    "mindful_ritual": {
+      "type": "sh-mindful-ritual",
       "blocks": {
-        "1637229971e99a1347-0": {
-          "type": "item",
-          "disabled": true,
+        "s1": {
+          "type": "step",
           "settings": {
-            "img_icon": "shopify://shop_images/banner11_icon1_1.webp",
-            "title_item": "Free delivery services",
-            "color_title": "#000000"
+            "icon": "drop",
+            "title": "Wet",
+            "text": "Begin with mindful presence"
           }
         },
-        "1637229971e99a1347-1": {
-          "type": "item",
-          "disabled": true,
+        "s2": {
+          "type": "step",
           "settings": {
-            "img_icon": "shopify://shop_images/banner11_icon2.webp",
-            "title_item": "Proffesional customer support",
-            "color_title": "#000000"
+            "icon": "lotus",
+            "title": "Lather",
+            "text": "Let the herbs cleanse & purify"
           }
         },
-        "1637229971e99a1347-2": {
-          "type": "item",
-          "disabled": true,
+        "s3": {
+          "type": "step",
           "settings": {
-            "img_icon": "shopify://shop_images/banner11_icon3.png",
-            "title_item": "Online store and payments",
-            "color_title": "#000000"
+            "icon": "wind",
+            "title": "Breathe",
+            "text": "Release negativity, embrace calm"
+          }
+        },
+        "s4": {
+          "type": "step",
+          "settings": {
+            "icon": "leaf",
+            "title": "Refresh",
+            "text": "Step out renewed, refreshed & grounded"
           }
         }
       },
       "block_order": [
-        "1637229971e99a1347-0",
-        "1637229971e99a1347-1",
-        "1637229971e99a1347-2"
+        "s1",
+        "s2",
+        "s3",
+        "s4"
       ],
-      "disabled": true,
       "settings": {
-        "bg_section_color": "#f5f8f2",
-        "sub_title_top": "WHAT BROUGHT US HERE",
-        "color_title_top": "#7bae23",
-        "title_banner": "THE SHUDHI RITUAL",
-        "color_title": "#000000",
-        "subtitle_banner": "Shudhi Herbals is a return to calm, considered self-care, where a simple daily wash becomes a grounding ritual. <br><br>  Our first creation, the Negativity Removal Cleansing Bar, is handmade in small batches from herbs and pure essential oils — free from harsh chemicals and made slowly, with care. Rooted in Purity, Balance and Nature, it is designed to cleanse the skin and quiet the mind, so you can begin and end each day feeling refreshed, clear and grounded.",
-        "color_subtitle": "#666666",
-        "btn_banner": "",
-        "url_banner": "shopify://collections/all",
-        "color_btn": "#ffffff",
-        "bg_btn": "#7bae23",
-        "color_btn_hover": "#ffffff",
-        "bg_btn_hover": "#000000",
-        "banner_img": "shopify://shop_images/vedic.jpg",
-        "margin_top": "",
-        "margin_bottom": ""
+        "title": "Transform Your Daily Bath into a Mindful Ritual",
+        "body": "Breathe. Pause. Purify. Let every shower be a moment to reset, release and reconnect with yourself.",
+        "cta_label": "Explore rituals",
+        "animate": true
       }
     },
-    "1636433775d4d6b061": {
-      "type": "section-product-v3",
-      "settings": {
-        "title_heading": "THE CLEANSING BAR",
-        "color_title": "#222222",
-        "sub_title": "",
-        "color_sub_title": "#6B991E",
-        "select_collection": "all",
-        "products_limit": 8,
-        "margin_top": "-10",
-        "margin_bottom": "20"
-      }
-    },
-    "hov_testimonials": {
-      "type": "hov-testimonials",
+    "collection": {
+      "type": "sh-collection",
       "blocks": {
-        "block_1": {
-          "type": "testimonial",
+        "c1": {
+          "type": "card",
           "settings": {
-            "name": "[PLACEHOLDER — customer name]",
-            "role": "[PLACEHOLDER — customer location]",
-            "quote": "[PLACEHOLDER — customer review]",
-            "rating": 5,
-            "video_url": ""
+            "title": "Handmade Soaps",
+            "cta": "Explore Now"
           }
         },
-        "block_2": {
-          "type": "testimonial",
+        "c2": {
+          "type": "card",
           "settings": {
-            "name": "[PLACEHOLDER — customer name]",
-            "role": "[PLACEHOLDER — customer location]",
-            "quote": "[PLACEHOLDER — customer review]",
-            "rating": 5,
-            "video_url": ""
+            "title": "Herbal Skincare",
+            "cta": "Explore Now"
           }
         },
-        "block_3": {
-          "type": "testimonial",
+        "c3": {
+          "type": "card",
           "settings": {
-            "name": "[PLACEHOLDER — customer name]",
-            "role": "[PLACEHOLDER — customer location]",
-            "quote": "[PLACEHOLDER — customer review]",
-            "rating": 5,
-            "video_url": ""
+            "title": "Herbal Body Care",
+            "cta": "Explore Now"
+          }
+        },
+        "c4": {
+          "type": "card",
+          "settings": {
+            "title": "Essential Oils",
+            "cta": "Explore Now"
+          }
+        },
+        "c5": {
+          "type": "card",
+          "settings": {
+            "title": "Herbal Wellness",
+            "cta": "Explore Now"
+          }
+        },
+        "u1": {
+          "type": "trust",
+          "settings": {
+            "icon": "leaf",
+            "title": "100% Natural",
+            "subtitle": "Pure & safe"
+          }
+        },
+        "u2": {
+          "type": "trust",
+          "settings": {
+            "icon": "badge",
+            "title": "Organic Certified",
+            "subtitle": "Quality you can trust"
+          }
+        },
+        "u3": {
+          "type": "trust",
+          "settings": {
+            "icon": "hand",
+            "title": "Small Batch",
+            "subtitle": "Handmade with care"
+          }
+        },
+        "u4": {
+          "type": "trust",
+          "settings": {
+            "icon": "recycle",
+            "title": "Eco-Friendly",
+            "subtitle": "Sustainable & responsible"
           }
         }
       },
       "block_order": [
-        "block_1",
-        "block_2",
-        "block_3"
-      ],
-      "settings": {}
-    },
-    "why_choose_us": {
-      "type": "why-choose-us",
-      "settings": {}
-    },
-    "16372956879f6fc104": {
-      "type": "section-banner-v10",
-      "disabled": true,
-      "settings": {
-        "bg_section": "#f5f8f2",
-        "url_video1": "https://www.youtube.com/watch?v=9mqg7fpeUo4",
-        "title_banner1": "Herbal Tea",
-        "color_title1": "#000000",
-        "sub_title1": "A unique type of fermented tea that’s traditionally made <br>in the Yunnan Province of China.",
-        "color_subtitle1": "#666666",
-        "url_video2": "https://www.youtube.com/watch?v=9mqg7fpeUo4",
-        "title_banner2": "Blend Flavors",
-        "color_title2": "#000000",
-        "sub_title2": "A unique type of fermented tea that’s traditionally made <br>in the Yunnan Province of China.",
-        "color_subtitle2": "#666666",
-        "margin_top": "",
-        "margin_bottom": ""
-      }
-    },
-    "1098bf91-d673-441a-b2d5-f86706ee2715": {
-      "type": "section-banner-v12",
-      "settings": {
-        "bg_section": "#f5f8f2",
-        "img_video1": "shopify://shop_images/122222_dc921509-ac43-44e3-9362-a0b5615b79d2.webp",
-        "url_video1": "https://cdn.shopify.com/videos/c/o/v/f1976c03132a4b39bc274974a5b77a02.mp4",
-        "title_banner": "PURITY, BALANCE & NATURE",
-        "color_title": "#000000",
-        "subtitle_banner": "Purity, balance and nature guide everything we make. The Negativity Removal Cleansing Bar is handmade in small batches from herbs and pure essential oils — a slow, mindful ritual that cleanses the skin and helps you feel calm, clear and grounded.",
-        "color_subtitle": "#666666",
-        "margin_top": "80",
-        "margin_bottom": ""
-      }
-    },
-    "29007d91-f833-4b3d-b1d3-b1487746aa08": {
-      "type": "section-slideshow-v1",
-      "blocks": {
-        "template--16748800508216__29007d91-f833-4b3d-b1d3-b1487746aa08-1667377226746597c7-0": {
-          "type": "slideshow",
-          "settings": {
-            "badge_text": "NEW LAUNCH",
-            "heading_line1": "PURIFY YOUR SKIN",
-            "heading_line2": "CLEANSE YOUR AURA",
-            "subheading": "A handmade herbal cleansing ritual.",
-            "feature_1_icon": "leaf",
-            "feature_1_label": "Natural",
-            "feature_2_icon": "cup",
-            "feature_2_label": "Herbal",
-            "feature_3_icon": "sparkle",
-            "feature_3_label": "Handmade",
-            "feature_4_icon": "heart",
-            "feature_4_label": "Pure",
-            "cta_text": "SHOP THE CLEANSING BAR",
-            "cta_link": "shopify://collections/all",
-            "show_offer_badge": true,
-            "offer_badge_text": "[PLACEHOLDER — offer]"
-          }
-        },
-        "template--16748800508216__29007d91-f833-4b3d-b1d3-b1487746aa08-1667377226746597c7-1": {
-          "type": "slideshow",
-          "disabled": true,
-          "settings": {
-            "badge_text": "NEW LAUNCH",
-            "heading_line1": "PURIFY YOUR SKIN",
-            "heading_line2": "CLEANSE YOUR AURA",
-            "subheading": "A handmade herbal cleansing ritual.",
-            "feature_1_icon": "leaf",
-            "feature_1_label": "Natural",
-            "feature_2_icon": "cup",
-            "feature_2_label": "Herbal",
-            "feature_3_icon": "sparkle",
-            "feature_3_label": "Handmade",
-            "feature_4_icon": "heart",
-            "feature_4_label": "Pure",
-            "cta_text": "SHOP THE CLEANSING BAR",
-            "cta_link": "shopify://collections/all",
-            "show_offer_badge": true,
-            "offer_badge_text": "[PLACEHOLDER — offer]"
-          }
-        }
-      },
-      "block_order": [
-        "template--16748800508216__29007d91-f833-4b3d-b1d3-b1487746aa08-1667377226746597c7-0",
-        "template--16748800508216__29007d91-f833-4b3d-b1d3-b1487746aa08-1667377226746597c7-1"
-      ],
-      "disabled": true,
-      "settings": {
-        "autoplay": true,
-        "autoplay_speed": 5000,
-        "trust_1_line1": "No Harmful",
-        "trust_1_line2": "Chemicals",
-        "trust_2_line1": "Eco-Friendly",
-        "trust_2_line2": "Packaging",
-        "trust_3_line1": "Handmade In",
-        "trust_3_line2": "Small Batches",
-        "trust_4_line1": "Secure Packaging",
-        "trust_4_line2": "Pan India Delivery"
-      }
-    },
-    "3e34b4f5-1bfb-476a-b540-28b125de05f7": {
-      "type": "section-banner-v11",
-      "blocks": {
-        "template--16748800508216__3e34b4f5-1bfb-476a-b540-28b125de05f7-16673629123af1ec1d-0": {
-          "type": "item",
-          "disabled": true,
-          "settings": {
-            "title_item": "Free delivery services",
-            "color_title": "#000000"
-          }
-        },
-        "template--16748800508216__3e34b4f5-1bfb-476a-b540-28b125de05f7-16673629123af1ec1d-1": {
-          "type": "item",
-          "disabled": true,
-          "settings": {
-            "title_item": "Proffesional customer support",
-            "color_title": "#000000"
-          }
-        },
-        "template--16748800508216__3e34b4f5-1bfb-476a-b540-28b125de05f7-16673629123af1ec1d-2": {
-          "type": "item",
-          "disabled": true,
-          "settings": {
-            "title_item": "Online store and payments",
-            "color_title": "#000000"
-          }
-        }
-      },
-      "block_order": [
-        "template--16748800508216__3e34b4f5-1bfb-476a-b540-28b125de05f7-16673629123af1ec1d-0",
-        "template--16748800508216__3e34b4f5-1bfb-476a-b540-28b125de05f7-16673629123af1ec1d-1",
-        "template--16748800508216__3e34b4f5-1bfb-476a-b540-28b125de05f7-16673629123af1ec1d-2"
-      ],
-      "disabled": true,
-      "settings": {
-        "bg_section_color": "#f5f8f2",
-        "sub_title_top": "",
-        "color_title_top": "#7bae23",
-        "title_banner": "<b>PURITY, BALANCE & NATURE</b><hr>",
-        "color_title": "#000000",
-        "subtitle_banner": "Purity, balance and nature guide everything we make. The Negativity Removal Cleansing Bar is handmade in small batches from herbs and pure essential oils — a slow, mindful ritual that cleanses the skin and helps you feel calm, clear and grounded.",
-        "color_subtitle": "#666666",
-        "btn_banner": "",
-        "url_banner": "shopify://collections/all",
-        "color_btn": "#ffffff",
-        "bg_btn": "#7bae23",
-        "color_btn_hover": "#ffffff",
-        "bg_btn_hover": "#000000",
-        "banner_img": "shopify://shop_images/5_Elements.jpg",
-        "margin_top": "",
-        "margin_bottom": ""
-      }
-    },
-    "1557f71a-c765-4ec4-8ace-f2c290b0bd8c": {
-      "type": "section-product-v5",
-      "disabled": true,
-      "settings": {
-        "select_collection": "all",
-        "products_limit": 2,
-        "button_1": "Shop now",
-        "url_banner1": "shopify://collections/all",
-        "color_btn": "#ffffff",
-        "color_hover_button": "#ffffff",
-        "bgcolor_btn": "#000000",
-        "bg_hovercolor_buton": "#000000",
-        "select_collection2": "",
-        "products_limit2": 2,
-        "margin_top": "",
-        "margin_bottom": ""
-      }
-    },
-    "85748114-503a-4b8b-a202-3d27bcfa2ce6": {
-      "type": "section-banner-v10",
-      "disabled": true,
-      "settings": {
-        "bg_section": "#f5f8f2",
-        "url_video1": "",
-        "title_banner1": "Herbal Tea",
-        "color_title1": "#000000",
-        "sub_title1": "A unique type of fermented tea that’s traditionally made in the Yunnan Province of China.",
-        "color_subtitle1": "#666666",
-        "url_video2": "",
-        "title_banner2": "Blend Flavors",
-        "color_title2": "#000000",
-        "sub_title2": "A unique type of fermented tea that’s traditionally made in the Yunnan Province of China.",
-        "color_subtitle2": "#666666",
-        "margin_top": "",
-        "margin_bottom": ""
-      }
-    },
-    "624e7c81-2982-4464-9402-5412e9b3073d": {
-      "type": "section-slideshow-v2",
-      "blocks": {
-        "template--16748800508216__624e7c81-2982-4464-9402-5412e9b3073d-16673712974e8d20cd-0": {
-          "type": "slideshow",
-          "settings": {
-            "block_banerimage": "shopify://shop_images/hov-home-img.jpg",
-            "block_banerimage_mb": "shopify://shop_images/hov-home-img.jpg",
-            "sub_title": "Discover beautiful plants",
-            "color_sub_title": "#010101",
-            "block_title_top": "Shade Loving Plants",
-            "color_block_title_top": "#010101",
-            "block_title_top2": "Plants for your office",
-            "color_block_title_top2": "#010101",
-            "block_buton": "SHOP NOW",
-            "color_block_button": "#ffffff",
-            "bg_button": "#7fa15a",
-            "color_block_button_hover": "#ffffff",
-            "bg_button_hover": "#222222",
-            "block_url": "shopify://collections/all"
-          }
-        },
-        "template--16748800508216__624e7c81-2982-4464-9402-5412e9b3073d-16673712974e8d20cd-1": {
-          "type": "slideshow",
-          "disabled": true,
-          "settings": {
-            "sub_title": "Discover beautiful plants",
-            "color_sub_title": "#010101",
-            "block_title_top": "Sun Loving Plants",
-            "color_block_title_top": "#010101",
-            "block_title_top2": "Plants for your garden",
-            "color_block_title_top2": "#010101",
-            "block_buton": "SHOP NOW",
-            "color_block_button": "#ffffff",
-            "bg_button": "#7fa15a",
-            "color_block_button_hover": "#ffffff",
-            "bg_button_hover": "#222222",
-            "block_url": "shopify://collections/all"
-          }
-        }
-      },
-      "block_order": [
-        "template--16748800508216__624e7c81-2982-4464-9402-5412e9b3073d-16673712974e8d20cd-0",
-        "template--16748800508216__624e7c81-2982-4464-9402-5412e9b3073d-16673712974e8d20cd-1"
-      ],
-      "disabled": true,
-      "settings": {
-        "margin_top": "",
-        "margin_bottom": ""
-      }
-    },
-    "0e064541-e37d-4215-9294-fadfadb8981b": {
-      "type": "section-banner-v2",
-      "settings": {
-        "select_pos": "center",
-        "img_banner1": "shopify://shop_images/Pulses_2e393c67-bdb7-4775-a1f0-98a31145e230.webp",
-        "img_banner1_mb": "shopify://shop_images/2_hov_500x600_af2a5fef-6c3e-4425-9368-519daf3cc38c.webp",
-        "title_banner": "",
-        "color_title": "#222222",
-        "sub_title": "",
-        "color_sub_title": "#222222",
-        "button_1": "shop",
-        "color_btn": "#ffffff",
-        "bg_btn": "#000000",
-        "color_btn_hover": "#000000",
-        "bg_btn_hover": "#ffffff",
-        "url_button1": "shopify://collections/all",
-        "margin_top": "",
-        "margin_bottom": "80"
-      }
-    },
-    "f9852e57-9ca1-4b79-9d2d-24b8a30b9e67": {
-      "type": "section-banner-v11",
-      "blocks": {
-        "template--16748800508216__f9852e57-9ca1-4b79-9d2d-24b8a30b9e67-16673858295f05369c-0": {
-          "type": "item",
-          "disabled": true,
-          "settings": {
-            "title_item": "Free delivery services",
-            "color_title": "#000000"
-          }
-        },
-        "template--16748800508216__f9852e57-9ca1-4b79-9d2d-24b8a30b9e67-16673858295f05369c-1": {
-          "type": "item",
-          "disabled": true,
-          "settings": {
-            "title_item": "Proffesional customer support",
-            "color_title": "#000000"
-          }
-        },
-        "template--16748800508216__f9852e57-9ca1-4b79-9d2d-24b8a30b9e67-16673858295f05369c-2": {
-          "type": "item",
-          "disabled": true,
-          "settings": {
-            "title_item": "Online store and payments",
-            "color_title": "#000000"
-          }
-        }
-      },
-      "block_order": [
-        "template--16748800508216__f9852e57-9ca1-4b79-9d2d-24b8a30b9e67-16673858295f05369c-0",
-        "template--16748800508216__f9852e57-9ca1-4b79-9d2d-24b8a30b9e67-16673858295f05369c-1",
-        "template--16748800508216__f9852e57-9ca1-4b79-9d2d-24b8a30b9e67-16673858295f05369c-2"
-      ],
-      "disabled": true,
-      "settings": {
-        "bg_section_color": "#ebe3db",
-        "sub_title_top": "",
-        "color_title_top": "#000000",
-        "title_banner": "",
-        "color_title": "#000000",
-        "subtitle_banner": "",
-        "color_subtitle": "#666666",
-        "btn_banner": "",
-        "url_banner": "shopify://collections/all",
-        "color_btn": "#ffffff",
-        "bg_btn": "#7bae23",
-        "color_btn_hover": "#ffffff",
-        "bg_btn_hover": "#000000",
-        "banner_img": "shopify://shop_images/Picture8.jpg",
-        "margin_top": "",
-        "margin_bottom": ""
-      }
-    },
-    "8e092401-65da-4ff6-8d83-eb9f4fea5247": {
-      "type": "section-gallery-image",
-      "blocks": {
-        "template--16748800508216__8e092401-65da-4ff6-8d83-eb9f4fea5247-166745582879afb919-0": {
-          "type": "gallery",
-          "settings": {
-            "img_gallery": "shopify://shop_images/icon31_1_c482a7f6-ba95-4f38-8879-f2323b334f69.webp",
-            "gallery_caption": "PURITY",
-            "gallery_caption1": "Herbs and pure essential oils, and nothing harsh"
-          }
-        },
-        "template--16748800508216__8e092401-65da-4ff6-8d83-eb9f4fea5247-166745582879afb919-1": {
-          "type": "gallery",
-          "settings": {
-            "img_gallery": "shopify://shop_images/icon32_a4ffc494-6589-4901-b4ca-09ead9526b36.webp",
-            "gallery_caption": "BALANCE",
-            "gallery_caption1": "Blended slowly, by hand, in small batches"
-          }
-        },
-        "template--16748800508216__8e092401-65da-4ff6-8d83-eb9f4fea5247-166745582879afb919-2": {
-          "type": "gallery",
-          "settings": {
-            "img_gallery": "shopify://shop_images/icon33_d94f5477-a29b-4888-9677-5b13a42aa3f1.webp",
-            "gallery_caption": "NATURE",
-            "gallery_caption1": "Rooted in nature, kind to skin and earth"
-          }
-        },
-        "template--16748800508216__8e092401-65da-4ff6-8d83-eb9f4fea5247-166745582879afb919-3": {
-          "type": "gallery",
-          "settings": {
-            "img_gallery": "shopify://shop_images/icon34_effc3c14-bc42-437f-9a49-7efa06bedc9e.webp",
-            "gallery_caption": "RITUAL",
-            "gallery_caption1": "A grounding cleanse for skin and spirit"
-          }
-        }
-      },
-      "block_order": [
-        "template--16748800508216__8e092401-65da-4ff6-8d83-eb9f4fea5247-166745582879afb919-0",
-        "template--16748800508216__8e092401-65da-4ff6-8d83-eb9f4fea5247-166745582879afb919-1",
-        "template--16748800508216__8e092401-65da-4ff6-8d83-eb9f4fea5247-166745582879afb919-2",
-        "template--16748800508216__8e092401-65da-4ff6-8d83-eb9f4fea5247-166745582879afb919-3"
+        "c1",
+        "c2",
+        "c3",
+        "c4",
+        "c5",
+        "u1",
+        "u2",
+        "u3",
+        "u4"
       ],
       "settings": {
-        "gallery_heading": "A HANDMADE RITUAL",
-        "gallery_heading1": "A slow, considered cleanse — herbs and pure essential oils, handmade in small batches to bring calm to every day",
-        "margin_top": "",
-        "margin_bottom": "80"
+        "eyebrow": "Explore our collection",
+        "title_l1": "Nature. Science. Rituals.",
+        "title_l2": "In Every Product.",
+        "autoplay": false,
+        "animate": true,
+        "bg": "#f2ece0"
       }
-    },
-    "insta_videos_GfDGeM": {
-      "type": "insta-videos",
-      "blocks": {
-        "column_ATjGkY": {
-          "type": "column",
-          "settings": {
-            "ctm_video": "shopify://files/videos/We didn’t script it because we didn’t have to.When it’s organic, it shows.Thank you to every hea.mp4",
-            "poter_img": "shopify://shop_images/video-capture-t0023.58seg-2091.webp",
-            "title": "",
-            "heading_size12": 12,
-            "colo898": "#000000",
-            "text": "",
-            "heading_size1": 12,
-            "colo89": "#000000",
-            "link_label": "",
-            "link": ""
-          }
-        },
-        "column_FcCgw3": {
-          "type": "column",
-          "settings": {
-            "ctm_video": "shopify://files/videos/Not all Shilajit is the same; some are defined by their source, purity, and what they deliver to.mp4",
-            "poter_img": "shopify://shop_images/download_5a0e205e-c1f9-4b7c-964c-dee410fd72c2.webp",
-            "title": "",
-            "heading_size12": 12,
-            "colo898": "#000000",
-            "text": "",
-            "heading_size1": 12,
-            "colo89": "#000000",
-            "link_label": "",
-            "link": ""
-          }
-        },
-        "column_HUgtpg": {
-          "type": "column",
-          "settings": {
-            "ctm_video": "shopify://files/videos/A glimpse behind the scenes at Manthan. Where health wasn’t just discussed, it was questioned.St.mp4",
-            "poter_img": "shopify://shop_images/video-capture-t0005.04seg-6583.webp",
-            "title": "",
-            "heading_size12": 12,
-            "colo898": "#000000",
-            "text": "",
-            "heading_size1": 12,
-            "colo89": "#000000",
-            "link_label": "",
-            "link": ""
-          }
-        },
-        "column_tBdt8E": {
-          "type": "column",
-          "settings": {
-            "ctm_video": "shopify://files/videos/This is your daily dose of strength, hydration, and antioxidants, brewed to keep you active and .mp4",
-            "poter_img": "shopify://shop_images/video-capture-t0001.04seg-895.webp",
-            "title": "",
-            "heading_size12": 12,
-            "colo898": "#000000",
-            "text": "",
-            "heading_size1": 12,
-            "colo89": "#000000",
-            "link_label": "",
-            "link": ""
-          }
-        }
-      },
-      "block_order": [
-        "column_ATjGkY",
-        "column_FcCgw3",
-        "column_HUgtpg",
-        "column_tBdt8E"
-      ],
-      "name": "Insta-video",
-      "settings": {
-        "dynamic_class": "",
-        "autplay_video": false,
-        "design": "grid-videos",
-        "pd_tp": 50,
-        "pd_bp": 50,
-        "title": "Watch & Feel Inspired to the Path of Wellness",
-        "heading_size": 44,
-        "heading_sizem": 32,
-        "text89": "",
-        "button_label_1": "",
-        "button_link_1": "",
-        "button_style_secondary_1": false,
-        "text_color": "#111111",
-        "text_postion": "center",
-        "back_color": "#ebe3db",
-        "radius": 12,
-        "pos_img": "Slider",
-        "columns_desktop": 3,
-        "Mobile_Colmuns": "1",
-        "block_slide": "4",
-        "block_slide2": "3",
-        "block_slide3": "1.5",
-        "desogn": "image-top",
-        "back_color1": "rgba(0,0,0,0)",
-        "mar_wh": 10,
-        "aligncenter": "center"
-      }
-    },
-    "eeb765be-f1a2-4c54-9462-c9e205b6677f": {
-      "type": "section-blog-v2",
-      "custom_css": [
-        "img {border-radius: 0 !important;}",
-        ".card__media {border-radius: 0 !important;}",
-        ".media {border-radius: 0 !important;}"
-      ],
-      "settings": {
-        "bg_section_color": "#fbf3f0",
-        "section_title": "RECENT BLOG POSTS",
-        "color_title": "#222222",
-        "description_title": "",
-        "color_sub_title": "#666666",
-        "select_blog": "articles",
-        "blogs_limit": 3,
-        "enable_category": true,
-        "enable_date": true,
-        "enable_title": true,
-        "enable_excerpt": true,
-        "margin_top": "",
-        "margin_bottom": ""
-      }
-    },
-    "d8208aeb-7c0f-45cb-aa33-3c0cfe46a19b": {
-      "type": "section-slideshow-v3",
-      "blocks": {
-        "template--16748800508216__d8208aeb-7c0f-45cb-aa33-3c0cfe46a19b-1667390205a851841a-0": {
-          "type": "slideshow",
-          "settings": {
-            "backgroud_slide": "shopify://shop_images/Rectangle-56.png",
-            "select_pos": "center",
-            "block_title": "LEARN  THE PROCESS Cultivation of sugarcane in India begun in 500 BC",
-            "color_title": "#ffffff",
-            "block_buton": "",
-            "color_block_button": "#000000",
-            "bg_btn": "#ffffff",
-            "block_url": "shopify://collections/all"
-          }
-        },
-        "template--16748800508216__d8208aeb-7c0f-45cb-aa33-3c0cfe46a19b-1667390205a851841a-1": {
-          "type": "slideshow",
-          "settings": {
-            "backgroud_slide": "shopify://shop_images/Rectangle-57.png",
-            "select_pos": "center",
-            "block_title": "WATCH  THE EXTRACTION OF SUGAR Take a look and see how we extract the purest and unadlutrated from of sugar",
-            "color_title": "#ffffff",
-            "block_buton": "",
-            "color_block_button": "#000000",
-            "bg_btn": "#ffffff",
-            "block_url": "shopify://collections/all"
-          }
-        },
-        "template--16748800508216__d8208aeb-7c0f-45cb-aa33-3c0cfe46a19b-1667390205a851841a-2": {
-          "type": "slideshow",
-          "disabled": true,
-          "settings": {
-            "select_pos": "center",
-            "block_title": "Nutrition and Health Benefits",
-            "color_title": "#ffffff",
-            "block_buton": "SHOP NOW",
-            "color_block_button": "#000000",
-            "bg_btn": "#ffffff",
-            "block_url": "shopify://collections/all"
-          }
-        }
-      },
-      "block_order": [
-        "template--16748800508216__d8208aeb-7c0f-45cb-aa33-3c0cfe46a19b-1667390205a851841a-0",
-        "template--16748800508216__d8208aeb-7c0f-45cb-aa33-3c0cfe46a19b-1667390205a851841a-1",
-        "template--16748800508216__d8208aeb-7c0f-45cb-aa33-3c0cfe46a19b-1667390205a851841a-2"
-      ],
-      "disabled": true,
-      "settings": {
-        "margin_top": "",
-        "margin_bottom": ""
-      }
-    },
-    "66f35cc0-7b75-4faa-8383-68924c0c3d94": {
-      "type": "section-banner-v10",
-      "settings": {
-        "bg_section": "#f5fdec",
-        "img_video1": "shopify://shop_images/video-capture-7096_591f3189-a85b-4207-a620-7b23e48ada91.webp",
-        "url_video1": "https://cdn.shopify.com/videos/c/o/v/88db9e7db8044b7ab64064d1a8f52931.mp4",
-        "title_banner1": "A Journey to Shudhi Herbals",
-        "color_title1": "#000000",
-        "sub_title1": "We extend you an invitation to pause and reflect on your lifestyle.",
-        "color_subtitle1": "#010101",
-        "img_video2": "shopify://shop_images/video-capture-6491_00eebf8c-fb44-4fb3-a0e4-c2b6eb2d619a.webp",
-        "url_video2": "https://cdn.shopify.com/videos/c/o/v/b35b9fa0a12d4aa6abd738c53b1f6355.mp4",
-        "title_banner2": "Shudhi Herbals Belief",
-        "color_title2": "#000000",
-        "sub_title2": "Let’s tune in to the melodies of nature.",
-        "color_subtitle2": "#010101",
-        "margin_top": "",
-        "margin_bottom": ""
-      }
-    },
-    "1637569934459b4ba0": {
-      "type": "section-newsletter-v1",
-      "settings": {
-        "select_style": "style_1",
-        "select_width": "full",
-        "style_bg": "color",
-        "bg_color": "#ffffff",
-        "bg_color_newletter": "#ffffff",
-        "bg_color_inputnewletter": "#f3f3f3",
-        "border_color_newletter": "#ffffff",
-        "url_banner": "",
-        "title_newletter": "STAY IN TOUCH",
-        "color_title": "",
-        "content_newletter": "Subscribe to receive updates and access to Our New blogs",
-        "color_content": "",
-        "margin_top": "",
-        "margin_bottom": ""
-      }
-    },
-    "1781244357849ffa52": {
-      "type": "_blocks",
-      "blocks": {
-        "ai_gen_block_c7cab55_3fV6tA": {
-          "type": "ai_gen_block_c7cab55",
-          "settings": {
-            "card_border_radius": 16
-          },
-          "blocks": {}
-        }
-      },
-      "block_order": [
-        "ai_gen_block_c7cab55_3fV6tA"
-      ],
-      "settings": {}
     }
   },
   "order": [
-    "1637553995596c0e5f",
-    "163728576344f143b5",
-    "16372299715511f5e5",
-    "1636433775d4d6b061",
-    "hov_testimonials",
-    "why_choose_us",
-    "16372956879f6fc104",
-    "1098bf91-d673-441a-b2d5-f86706ee2715",
-    "29007d91-f833-4b3d-b1d3-b1487746aa08",
-    "3e34b4f5-1bfb-476a-b540-28b125de05f7",
-    "1557f71a-c765-4ec4-8ace-f2c290b0bd8c",
-    "85748114-503a-4b8b-a202-3d27bcfa2ce6",
-    "624e7c81-2982-4464-9402-5412e9b3073d",
-    "0e064541-e37d-4215-9294-fadfadb8981b",
-    "f9852e57-9ca1-4b79-9d2d-24b8a30b9e67",
-    "8e092401-65da-4ff6-8d83-eb9f4fea5247",
-    "insta_videos_GfDGeM",
-    "eeb765be-f1a2-4c54-9462-c9e205b6677f",
-    "d8208aeb-7c0f-45cb-aa33-3c0cfe46a19b",
-    "66f35cc0-7b75-4faa-8383-68924c0c3d94",
-    "1637569934459b4ba0",
-    "1781244357849ffa52"
+    "hero",
+    "our_story",
+    "ritual_benefits",
+    "mindful_ritual",
+    "collection"
   ]
 }

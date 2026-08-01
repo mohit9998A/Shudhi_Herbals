@@ -1,0 +1,61 @@
+{%- comment -%}
+  Renders a thin line SVG icon for the Shudhi homepage sections.
+
+  Usage: {% render 'sh-icon', name: 'leaf' %}
+         {% render 'sh-icon', name: 'arrow-right', class: 'my-class' %}
+
+  Available: shudhi-mark, leaf, drop, heart, hand, rabbit, lotus, wind, eye,
+  sparkle, mortar, plant, bottle, recycle, badge, search, user, cart, menu,
+  close, arrow-right, arrow-up, chevron-left, chevron-right, play, instagram,
+  facebook, pinterest, youtube
+{%- endcomment -%}
+{%- assign n = name | default: 'leaf' -%}
+{%- comment -%} Optional `sw` overrides stroke weight, for the finer line art
+    used in the nav and the hero trust bar. Defaults to the library weight. {%- endcomment -%}
+{%- assign stroke_w = sw | default: 1.4 -%}
+{%- capture cls -%}sh-icon sh-icon--{{ n }}{% if class %} {{ class }}{% endif %}{%- endcapture -%}
+<svg class="{{ cls }}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="{{ stroke_w }}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+{%- case n -%}
+{%- comment -%} Brand mark: the seated figure — dot (purity), curve (balance), base (nature) {%- endcomment -%}
+{%- when 'shudhi-mark' -%}<circle cx="12" cy="4.4" r="1.7" fill="currentColor" stroke="none"/><path d="M12 8.6c-3.4 0-6.2 2.4-6.2 5.4 0 1 .4 1.9 1.1 2.6"/><path d="M12 8.6c3.4 0 6.2 2.4 6.2 5.4 0 1-.4 1.9-1.1 2.6"/><path d="M4.2 18.6c2.2-1.4 4.9-2.1 7.8-2.1s5.6.7 7.8 2.1"/>
+{%- when 'leaf' -%}<path d="M4 20c0-8 6-14 16-14 0 10-6 14-14 14"/><path d="M6 18C10 14 14 12 18 10"/>
+{%- when 'drop' -%}<path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11Z"/>
+{%- when 'heart' -%}<path d="M12 20s-7-4.6-7-9.5A3.5 3.5 0 0 1 12 8a3.5 3.5 0 0 1 7 2.5C19 15.4 12 20 12 20Z"/>
+{%- when 'hand' -%}<path d="M8 12V6a1.5 1.5 0 0 1 3 0v5"/><path d="M11 11V4.5a1.5 1.5 0 0 1 3 0V11"/><path d="M14 11V6a1.5 1.5 0 0 1 3 0v7c0 4-2.5 7-6 7s-6-2-7-6l-1-3a1.5 1.5 0 0 1 2.7-1.2L8 13"/>
+{%- when 'rabbit' -%}<path d="M9 12c-2 0-3.5-1.5-3.5-4S6.5 3 8 4.5 9 9 9 12Z"/><path d="M12 12c2 0 3.5-1.5 3.5-4S14 3 12.5 4.5 12 9 12 12Z"/><circle cx="10.5" cy="16" r="4"/><path d="M8.5 20c0 1 4 1 4 0"/>
+{%- when 'lotus' -%}<circle cx="12" cy="7" r="1.4"/><path d="M8 12c0-2.5 4-3.5 4-3.5s4 1 4 3.5"/><path d="M4 15c2-4 8-3 8-3s6-1 8 3c-3 3-13 3-16 0Z"/>
+{%- when 'wind' -%}<path d="M3 8h11a2.5 2.5 0 1 0-2.5-2.5"/><path d="M3 12h15a2.5 2.5 0 1 1-2.5 2.5"/><path d="M3 16h9a2 2 0 1 1-2 2"/>
+{%- when 'eye' -%}<path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6Z"/><circle cx="12" cy="12" r="2.5"/>
+{%- when 'sparkle' -%}<path d="M12 3v4M12 17v4M3 12h4M17 12h4"/><path d="M12 8c1 2.2 1.8 3 4 4-2.2 1-3 1.8-4 4-1-2.2-1.8-3-4-4 2.2-1 3-1.8 4-4Z"/>
+{%- when 'mortar' -%}<path d="M5 10h14"/><path d="M6 10c0 4 2.5 7 6 7s6-3 6-7"/><path d="M12 17v3"/><path d="M9 20h6"/><path d="M15 4l2 4"/>
+{%- when 'plant' -%}<path d="M12 20v-8"/><path d="M12 12c0-3 2.5-5 6-5 0 3.5-2.5 5-6 5Z"/><path d="M12 14c0-3-2.5-5-6-5 0 3.5 2.5 5 6 5Z"/>
+{%- when 'bottle' -%}<path d="M10 3h4v3l1 2v11a2 2 0 0 1-2 2h-2a2 2 0 0 1-2-2V8l1-2Z"/><path d="M9 12h6"/>
+{%- when 'recycle' -%}<path d="M7 19H5a2 2 0 0 1-1.7-3l1.5-2.5"/><path d="M10.5 5.5 12 3l1.5 2.5"/><path d="m17 19 2-3.4"/><path d="M12 3 9 8"/><path d="m15 8 4 6.6"/><path d="M9 19h8"/><path d="M5.3 13.5 9 8"/>
+{%- when 'badge' -%}<circle cx="12" cy="10" r="6"/><path d="m8.5 15-1 6 4.5-2.5L16.5 21l-1-6"/><path d="m10 10 1.5 1.5L14.5 8.5"/>
+{%- comment -%} Nav utility icons — refined, used only by sh-header {%- endcomment -%}
+{%- when 'search' -%}<circle cx="10.8" cy="10.8" r="6.4"/><path d="M20 20l-4.7-4.7"/>
+{%- when 'user' -%}<circle cx="12" cy="8.4" r="3.7"/><path d="M5.4 20.2c.8-3.5 3.5-5.4 6.6-5.4s5.8 1.9 6.6 5.4"/>
+{%- comment -%} A soft-cornered shopping bag, matching the reference, not a trolley {%- endcomment -%}
+{%- when 'cart' -%}<path d="M6.2 8h11.6l1 12.2H5.2L6.2 8Z"/><path d="M9.2 10V6.6a2.8 2.8 0 0 1 5.6 0V10"/>
+
+{%- comment -%} Fine-line trust-bar variants. Deliberately separate from the
+    base leaf/heart/hand/rabbit so the Collection, Mindful and Ritual sections
+    that use those keep rendering exactly as they do today. {%- endcomment -%}
+{%- when 'leaf-line' -%}<path d="M12 21c0-4.6 0-7.4 0-9.6"/><path d="M12 11.4c0-3.3 2.3-5.6 5.6-5.6 0 3.3-2.3 5.6-5.6 5.6Z"/><path d="M12 13.6c0-3.3-2.3-5.6-5.6-5.6 0 3.3 2.3 5.6 5.6 5.6Z"/><path d="M12 8.2c0-1.7 1.1-2.9 2.8-3.2-.2 1.7-1.1 2.8-2.8 3.2Z"/>
+{%- when 'heart-line' -%}<path d="M12 20.2c-.2 0-6.6-3.9-6.6-8.6a3.4 3.4 0 0 1 6.6-1.2 3.4 3.4 0 0 1 6.6 1.2c0 4.7-6.4 8.6-6.6 8.6Z"/><path d="M12 3.4v3"/>
+{%- when 'hand-line' -%}<path d="M12 20.4c-3.6 0-6.4-2-6.4-4.6 0-2.2 2-3.6 4-3.6"/><path d="M12 20.4c3.6 0 6.4-2 6.4-4.6 0-2.2-2-3.6-4-3.6"/><path d="M12 20.4V9.6"/><circle cx="12" cy="6.4" r="2.2"/>
+{%- when 'rabbit-line' -%}<path d="M9.3 11.6c-1.5-.4-2.4-2-2-4.2.4-2.2 1.7-3.2 2.6-2.9.9.3 1.2 2 .8 4.2-.2 1.2-.8 2.4-1.4 2.9Z"/><path d="M13.5 11.6c1.5-.4 2.4-2 2-4.2-.4-2.2-1.7-3.2-2.6-2.9-.9.3-1.2 2-.8 4.2.2 1.2.8 2.4 1.4 2.9Z"/><path d="M16 16.6a4.6 4.6 0 1 1-9.2 0 4.6 4.6 0 0 1 9.2 0Z"/><path d="M9.9 18.6c.8.7 2.4.7 3.2 0"/>
+{%- when 'menu' -%}<path d="M4 7h16M4 12h16M4 17h16"/>
+{%- when 'close' -%}<path d="M6 6l12 12M18 6 6 18"/>
+{%- when 'arrow-right' -%}<path d="M4 12h16M14 6l6 6-6 6"/>
+{%- when 'arrow-up' -%}<path d="M12 20V4M6 10l6-6 6 6"/>
+{%- when 'chevron-left' -%}<path d="M15 6l-6 6 6 6"/>
+{%- when 'chevron-right' -%}<path d="M9 6l6 6-6 6"/>
+{%- when 'play' -%}<path d="M8 5v14l11-7-11-7Z"/>
+{%- when 'instagram' -%}<rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1"/>
+{%- when 'facebook' -%}<path d="M14 9h3V5h-3c-2 0-3 1.5-3 3.5V11H8v4h3v6h4v-6h3l1-4h-4V9c0-.6.4-1 1-1Z"/>
+{%- when 'pinterest' -%}<path d="M12 3a9 9 0 0 0-3 17.5c-.1-1 0-2.3.2-3.3l1.2-5s-.3-.6-.3-1.5c0-1.4.8-2.4 1.8-2.4.9 0 1.3.6 1.3 1.4 0 .9-.6 2.2-.9 3.4-.2 1 .5 1.8 1.5 1.8 1.8 0 3-2.3 3-5 0-2-1.4-3.6-4-3.6a4.5 4.5 0 0 0-4.7 4.5c0 .9.3 1.5.7 2 .2.2.2.3.1.5l-.2.9c0 .3-.2.4-.5.2-1.3-.5-1.9-2-1.9-3.6C6 7.7 8.3 5 12.3 5c3.2 0 5.7 2.3 5.7 5.4 0 3.2-2 5.8-4.9 5.8-1 0-1.9-.5-2.2-1.1l-.6 2.3c-.2.8-.7 1.8-1.1 2.5A9 9 0 1 0 12 3Z"/>
+{%- when 'youtube' -%}<rect x="3" y="6" width="18" height="12" rx="3"/><path d="M10 9l5 3-5 3V9Z"/>
+{%- else -%}<circle cx="12" cy="12" r="8"/>
+{%- endcase -%}
+</svg>

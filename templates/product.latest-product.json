@@ -23,7 +23,6 @@
         "text_DJqCki": {
           "type": "text",
           "settings": {
-            "text": "<p>{{ product.metafields.custom.short_description | metafield_tag }}</p>",
             "text_style": "body"
           }
         },
@@ -110,7 +109,6 @@
       ],
       "settings": {
         "image_vector": "shopify://shop_images/Vector_1.svg",
-        "customer_review": "{{ product.metafields.custom.last_day_bought_this_product.value }}",
         "spd_style": "pd_extend_background",
         "style_page": "bottom",
         "bg_prod_color": "#f7eede",
@@ -248,10 +246,7 @@
         "back_color": "#f7eede",
         "width_left": "40",
         "pos_img": "right",
-        "ctm_img": "{{ product.metafields.custom.fresh_text_image_.value }}",
         "img_left": "center",
-        "ctm_video": "{{ product.metafields.custom.fresh_text_video_.value }}",
-        "poter_img": "{{ product.metafields.custom.fresh_text_image_.value }}",
         "design_op": "design-1",
         "width_right": "60",
         "icon_show": false,
@@ -259,11 +254,9 @@
         "font_size133": 33,
         "sub_headingt": 16,
         "sub_color": "#2b2b2b",
-        "title_1": "{{ product.metafields.custom.fresh_text_title_.value }}",
         "font_size": 28,
         "font_sizem": 24,
         "font_color": "#2b2b2b",
-        "text_1": "{{ product.metafields.custom.fresh_text_description_ | metafield_tag }}",
         "font_size1": 19,
         "font_size1m": 16,
         "font_color1": "#4c4228",
@@ -292,7 +285,6 @@
         "back_color": "#fdf9f4",
         "back_img": "shopify://shop_images/Group_1171276704.png",
         "width_right": "33",
-        "title_1": "{{ product.metafields.custom.multiple_carousel_title.value }}",
         "font_size": 28,
         "font_color": "#2b2b2b",
         "text_1": "",
@@ -387,15 +379,11 @@
       "blocks": {
         "desktop_slider_TR9cXD": {
           "type": "desktop-slider",
-          "settings": {
-            "ctm_img1": "{{ product.metafields.custom.whats_make_of_house_of_veda_desktop.value }}"
-          }
+          "settings": {}
         },
         "mobile_slide_dDd7R3": {
           "type": "mobile-slide",
-          "settings": {
-            "ctm_img17": "{{ product.metafields.custom.whats_make_of_house_of_veda_mobile.value }}"
-          }
+          "settings": {}
         }
       },
       "block_order": [
@@ -428,16 +416,14 @@
       "name": "HOV-what-makes",
       "settings": {
         "back_color": "#fdf9f4",
-        "heading_text": "",
-        "main_heading": "{{ product.metafields.custom.what_makes_item_main_title_.value }}"
+        "heading_text": ""
       }
     },
     "ctm_gallery_text_i8DtAE": {
       "type": "ctm--gallery-text",
       "name": "ctm-gallery-text",
       "settings": {
-        "back_color": "#f7eede",
-        "heading_text": "{{ product.metafields.custom.gallery_block_heading.value }}"
+        "back_color": "#f7eede"
       }
     },
     "fresh_0_images_slider_1_WbnxMi": {
@@ -445,15 +431,11 @@
       "blocks": {
         "desktop_slider_XFmWdg": {
           "type": "desktop-slider",
-          "settings": {
-            "ctm_img1": "{{ product.metafields.custom.boost_your_health_with_certified_desktop.value }}"
-          }
+          "settings": {}
         },
         "mobile_slide_igBeCC": {
           "type": "mobile-slide",
-          "settings": {
-            "ctm_img17": "{{ product.metafields.custom.boost_your_health_with_certified_mobile.value }}"
-          }
+          "settings": {}
         }
       },
       "block_order": [
@@ -583,7 +565,6 @@
             "heading_size12": 19,
             "colo898": "#595959",
             "custom_liquid": "",
-            "text": "{{ product.metafields.custom.ingredients | metafield_tag }}",
             "heading_size1": 16,
             "colo89": "#635635"
           }
@@ -595,11 +576,8 @@
             "heading_size12": 19,
             "colo898": "#595959",
             "custom_liquid": "",
-            "text": "<p>{{ product.metafields.custom.brewing_instruction | metafield_tag }}</p>",
             "heading_size1": 16,
-            "colo89": "#635635",
-            "desktop_image": "{{ product.metafields.custom.brewing_ins_desktop.value }}",
-            "mobile_image": "{{ product.metafields.custom.brewing_ins_mobile.value }}"
+            "colo89": "#635635"
           }
         },
         "tab_hgnztx": {
@@ -611,9 +589,7 @@
             "custom_liquid": "",
             "text": "",
             "heading_size1": 16,
-            "colo89": "#635635",
-            "desktop_image": "{{ product.metafields.custom.how_to_consume_desk_img.value }}",
-            "mobile_image": "{{ product.metafields.custom.how_to_consume_mob_img.value }}"
+            "colo89": "#635635"
           }
         },
         "tab_f7BVg4": {
@@ -625,9 +601,7 @@
             "custom_liquid": "",
             "text": "",
             "heading_size1": 16,
-            "colo89": "#635635",
-            "desktop_image": "{{ product.metafields.custom.usage_method_desk_img.value }}",
-            "mobile_image": "{{ product.metafields.custom.usage_method_mob_img.value }}"
+            "colo89": "#635635"
           }
         },
         "tab_ww96cb": {
@@ -637,7 +611,6 @@
             "heading_size12": 19,
             "colo898": "#595959",
             "custom_liquid": "",
-            "text": "{{ product.metafields.custom.brand_overview | metafield_tag }}",
             "heading_size1": 16,
             "colo89": "#635635"
           }
@@ -649,7 +622,6 @@
             "heading_size12": 19,
             "colo898": "#595959",
             "custom_liquid": "",
-            "text": "{{ product.metafields.custom.certifications | metafield_tag }}",
             "heading_size1": 16,
             "colo89": "#635635"
           }
@@ -662,7 +634,6 @@
             "heading_size12": 19,
             "colo898": "#595959",
             "custom_liquid": "",
-            "text": "{{ product.metafields.custom.brand_overview | metafield_tag }}",
             "heading_size1": 16,
             "colo89": "#635635"
           }
@@ -674,7 +645,6 @@
             "heading_size12": 19,
             "colo898": "#595959",
             "custom_liquid": "",
-            "text": "{{ product.metafields.custom.more_information | metafield_tag }}",
             "heading_size1": 16,
             "colo89": "#635635"
           }
@@ -703,7 +673,6 @@
         "column_nUtbNE": {
           "type": "column",
           "settings": {
-            "ctm_video": "shopify://files/videos/tea range reloaded.mp4",
             "poter_img": "shopify://shop_images/image_5.png",
             "title": "",
             "heading_size12": 12,
@@ -787,8 +756,6 @@
         "column_ErEyrT": {
           "type": "column",
           "settings": {
-            "ctm_video": "{{ product.metafields.custom.watch_feel_inspired_video_1st.value }}",
-            "poter_img": "{{ product.metafields.custom.watch_feel_inspired_video_poster_image_1st.value }}",
             "title": "",
             "heading_size12": 16,
             "colo898": "#cc9952",
@@ -802,8 +769,6 @@
         "column_xEwEQF": {
           "type": "column",
           "settings": {
-            "ctm_video": "{{ product.metafields.custom.watch_feel_inspired_video_2nd.value }}",
-            "poter_img": "{{ product.metafields.custom.watch_feel_inspired_video_poster_image_2nd.value }}",
             "title": "",
             "heading_size12": 16,
             "colo898": "#cc9952",
@@ -817,8 +782,6 @@
         "column_LzLxde": {
           "type": "column",
           "settings": {
-            "ctm_video": "{{ product.metafields.custom.watch_feel_inspired_video_3rd.value }}",
-            "poter_img": "{{ product.metafields.custom.watch_feel_inspired_video_poster_image_3rd.value }}",
             "title": "",
             "heading_size12": 16,
             "colo898": "#cc9952",
@@ -832,8 +795,6 @@
         "column_GVigaP": {
           "type": "column",
           "settings": {
-            "ctm_video": "{{ product.metafields.custom.watch_feel_inspired_video_4th.value }}",
-            "poter_img": "{{ product.metafields.custom.watch_feel_inspired_video_poster_image_4th.value }}",
             "title": "",
             "heading_size12": 16,
             "colo898": "#cc9952",
@@ -857,7 +818,6 @@
         "design": "grid-videos",
         "pd_tp": 50,
         "pd_bp": 30,
-        "title": "{{ product.metafields.custom.watch_feel_inspired_title_.value }}",
         "heading_size": 28,
         "heading_sizem": 24,
         "text89": "",

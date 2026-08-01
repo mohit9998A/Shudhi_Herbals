@@ -139,6 +139,19 @@
    {%- comment -%} Unified typography — loaded LAST so it is the final word on font-family. {%- endcomment -%}
    {{ 'hov-typography.css' | asset_url | stylesheet_tag }}
 
+   {%- comment -%}
+     Shudhi homepage system. Must load AFTER hov-typography.css: both declare
+     font-family with !important, so source order breaks the specificity tie.
+     Homepage only — zero bytes shipped to any other template.
+     Fonts are NOT re-fetched here; Cormorant Garamond + Jost already come from
+     snippets/engo-header-fonts.liquid (line 79 below).
+   {%- endcomment -%}
+   {%- if template.name == 'index' -%}
+     {{ 'shudhi-home.css' | asset_url | stylesheet_tag }}
+     <script src="{{ 'shudhi-home.js' | asset_url }}" defer></script>
+     <script src="{{ 'shudhi-hero.js' | asset_url }}" defer></script>
+   {%- endif -%}
+
 
   <!-- Header hook for plugins ================================================== -->
   {{ content_for_header }}
@@ -280,6 +293,11 @@
 </head>
 {% comment %}
 Add the page template as a class for easy page or template specific styling.
+
+DO NOT make hov-has-fixed-nav-offset unconditional. It is deliberately absent
+on index: it applies a nav-height top padding to main.main-content
+(engo-customizes.css.liquid), which on the homepage would push a white band
+above the full-bleed hero and kill the transparent overlay nav.
 {% endcomment %}
 <body class="template-{{ template.name }} {% if template.name != 'index' %}hov-has-fixed-nav-offset{% endif %} {% if settings.enable_rtl_mode %}rtl{% endif %} preload push_filter_left js_overhidden relative" {% if settings.bg_color_body != blank %}style="background: {{settings.bg_color_body}};"{% endif %}>
 
@@ -290,10 +308,21 @@ Add the page template as a class for easy page or template specific styling.
 
   <div class="wrap">
     <div class="contentbody">
-      {% if settings.enable_promo_topbar %}
-      {% include 'promo-topbar' %}
-      {% endif %}
-      {% section 'header' %}
+      {%- comment -%}
+        Homepage runs the Shudhi chrome (marquee announcement + transparent
+        overlay nav); every other template keeps the original Herbyo header
+        and promo topbar untouched. sh-announcement replaces promo-topbar on
+        index, so it is deliberately suppressed there rather than stacked.
+      {%- endcomment -%}
+      {%- if template.name == 'index' -%}
+        {% section 'sh-announcement' %}
+        {% section 'sh-header' %}
+      {%- else -%}
+        {% if settings.enable_promo_topbar %}
+        {% include 'promo-topbar' %}
+        {% endif %}
+        {% section 'header' %}
+      {%- endif -%}
 
       <!-- HEADING HIDDEN SEO -->
       {% if template contains 'index' %}
@@ -307,8 +336,12 @@ Add the page template as a class for easy page or template specific styling.
         {{ content_for_layout }}
       </main>
 
-      {% section 'footer' %}
-      {% section 'latest-footer' %}
+      {%- if template.name == 'index' -%}
+        {% section 'sh-footer' %}
+      {%- else -%}
+        {% section 'footer' %}
+        {% section 'latest-footer' %}
+      {%- endif -%}
     </div>
   </div>
 

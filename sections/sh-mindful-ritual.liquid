@@ -1,0 +1,117 @@
+{%- comment -%}
+  SHUDHI — "Transform Your Daily Bath into a Mindful Ritual"
+
+  Four steps sit on a gentle wave (CSS alternates translateY per step) joined
+  by a dashed arc. The arc path is generated from the actual block count so
+  it still lands on the icon centres if a merchant deletes a step.
+
+  Geometry: the SVG is 96px tall, anchored to the top of the steps grid, with
+  preserveAspectRatio="none" over a 1000-wide viewBox. Icon boxes are 62px, so
+  their centres sit at 31px ∓ the 16px wave offset -> y = 15 and y = 47.
+{%- endcomment -%}
+
+{%- assign s = section.settings -%}
+{%- assign n = section.blocks.size -%}
+
+<section class="sh sh-mindful" id="rituals">
+
+  {%- if s.bg_image != blank -%}
+    <img class="sh-mindful__bg" src="{{ s.bg_image | image_url: width: 2000 }}" alt=""
+         width="2000" height="1100" loading="lazy" decoding="async">
+  {%- else -%}
+    <img class="sh-mindful__bg" src="{{ 'Transform your daily Bath.webp' | asset_url }}" alt=""
+         width="2000" height="1100" loading="lazy" decoding="async">
+  {%- endif -%}
+
+  <div class="sh-wrap">
+    <div class="sh-mindful__grid">
+
+      <div class="sh-mindful__copy"{% if s.animate %} data-reveal{% endif %}>
+        <h2 class="sh-mindful__title sh-serif">{{ s.title }}</h2>
+        {%- if s.body != blank -%}<p class="sh-mindful__text">{{ s.body }}</p>{%- endif -%}
+        {%- if s.cta_label != blank -%}
+          <a href="{{ s.cta_link | default: '#collection' }}" class="sh-btn sh-btn--outline">
+            {{ s.cta_label }}
+          </a>
+        {%- endif -%}
+      </div>
+
+      {%- if n > 0 -%}
+        <div class="sh-steps" style="grid-template-columns:repeat({{ n }},1fr);">
+
+          {%- if n > 1 -%}
+            {%- capture arc_path -%}
+              {%- assign px = 0 -%}
+              {%- assign py = 0 -%}
+              {%- for block in section.blocks -%}
+                {%- assign i = forloop.index0 -%}
+                {%- assign x = i | times: 1000 | plus: 500 | divided_by: n -%}
+                {%- assign m = i | modulo: 2 -%}
+                {%- if m == 0 -%}{%- assign y = 15 -%}{%- else -%}{%- assign y = 47 -%}{%- endif -%}
+                {%- if forloop.first -%}
+                  M{{ x }},{{ y }}
+                {%- else -%}
+                  {%- assign d = x | minus: px | divided_by: 3 -%}
+                  {%- assign c1 = px | plus: d -%}
+                  {%- assign c2 = x | minus: d -%}
+                  C{{ c1 }},{{ py }} {{ c2 }},{{ y }} {{ x }},{{ y }}
+                {%- endif -%}
+                {%- assign px = x -%}
+                {%- assign py = y -%}
+              {%- endfor -%}
+            {%- endcapture -%}
+            <svg class="sh-steps__arc" viewBox="0 0 1000 96" preserveAspectRatio="none"
+                 aria-hidden="true" focusable="false">
+              <path d="{{ arc_path | strip_newlines | strip }}"/>
+            </svg>
+          {%- endif -%}
+
+          {%- for block in section.blocks -%}
+            <div class="sh-step"{% if s.animate %} data-reveal{% endif %} {{ block.shopify_attributes }}>
+              {% render 'sh-icon', name: block.settings.icon %}
+              <span class="sh-step__n">{{ forloop.index | prepend: '0' }}</span>
+              <h3>{{ block.settings.title }}</h3>
+              <p>{{ block.settings.text }}</p>
+            </div>
+          {%- endfor -%}
+
+        </div>
+      {%- endif -%}
+
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "SH · Mindful Ritual",
+  "class": "index-section",
+  "settings": [
+    { "type": "text", "id": "title", "label": "Heading", "default": "Transform Your Daily Bath into a Mindful Ritual" },
+    { "type": "textarea", "id": "body", "label": "Body text", "default": "Breathe. Pause. Purify. Let every shower be a moment to reset, release and reconnect with yourself." },
+    { "type": "text", "id": "cta_label", "label": "Button text", "default": "Explore rituals" },
+    { "type": "url", "id": "cta_link", "label": "Button link" },
+    { "type": "header", "content": "Background" },
+    { "type": "image_picker", "id": "bg_image", "label": "Background image", "info": "Defaults to \"Transform your daily Bath.webp\" in Assets." },
+    { "type": "header", "content": "Appearance" },
+    { "type": "checkbox", "id": "animate", "label": "Animate on scroll", "default": true }
+  ],
+  "blocks": [
+    { "type": "step", "name": "Step", "settings": [
+      { "type": "select", "id": "icon", "label": "Icon", "default": "drop", "options": [
+        { "value": "drop", "label": "Drop" }, { "value": "lotus", "label": "Lotus" },
+        { "value": "wind", "label": "Wind" }, { "value": "leaf", "label": "Leaf" },
+        { "value": "sparkle", "label": "Sparkle" }, { "value": "heart", "label": "Heart" } ] },
+      { "type": "text", "id": "title", "label": "Title", "default": "Wet" },
+      { "type": "textarea", "id": "text", "label": "Description", "default": "Begin with mindful presence" }
+    ] }
+  ],
+  "max_blocks": 4,
+  "presets": [ { "name": "SH · Mindful Ritual", "blocks": [
+    { "type": "step", "settings": { "icon": "drop",    "title": "Wet",     "text": "Begin with mindful presence" } },
+    { "type": "step", "settings": { "icon": "lotus",   "title": "Lather",  "text": "Let the herbs cleanse & purify" } },
+    { "type": "step", "settings": { "icon": "wind",    "title": "Breathe", "text": "Release negativity, embrace calm" } },
+    { "type": "step", "settings": { "icon": "leaf",    "title": "Refresh", "text": "Step out renewed, refreshed & grounded" } }
+  ] } ]
+}
+{% endschema %}

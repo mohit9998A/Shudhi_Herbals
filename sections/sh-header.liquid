@@ -1,0 +1,150 @@
+{%- comment -%}
+  SHUDHI — Header / transparent overlay nav
+
+  The sticky element is the Shopify section wrapper (schema "class":
+  "sh-header-sticky"), not this <header>: position:sticky can only stick
+  within its own parent's box, so sticking the inner element would unstick
+  it the moment its short wrapper scrolled away. The wrapper also carries a
+  negative margin-bottom equal to the header height, which pulls the hero up
+  underneath for the overlay effect — no absolute/fixed switch, no jump.
+
+  Fonts are NOT loaded here. Cormorant Garamond + Jost are already fetched
+  globally by snippets/engo-header-fonts.liquid (theme.liquid:79).
+  shudhi-home.css / .js are loaded from layout/theme.liquid.
+{%- endcomment -%}
+
+{%- assign s = section.settings -%}
+{%- assign menu = linklists[s.menu] -%}
+
+<header class="sh sh-header{% unless s.overlay %} is-solid{% endunless %}"
+        data-solid-after="{{ s.solid_after }}"
+        role="banner">
+  <div class="sh-header__inner">
+
+    {%- comment -%} Logo {%- endcomment -%}
+    {%- comment -%}
+      Logo falls back in three steps: merchant upload -> the derived cream
+      transparent PNG -> the inline SVG lockup. shudhi-logo-light.png is
+      generated from Shudhilogo.jpeg (white background, dark green art, which
+      would render as a white box on the transparent nav and vanish on the
+      solid one). The cream monochrome version reads on both states.
+    {%- endcomment -%}
+    <a href="{{ routes.root_url }}" class="sh-logo" aria-label="{{ shop.name | escape }} — home">
+      {%- if s.logo != blank -%}
+        <img class="sh-logo__img" src="{{ s.logo | image_url: width: 440 }}"
+             alt="{{ shop.name | escape }}" width="440" height="327" loading="eager">
+      {%- elsif s.use_asset_logo -%}
+        <img class="sh-logo__img" src="{{ 'shudhi-logo-light.png' | asset_url }}"
+             alt="{{ shop.name | escape }}" width="440" height="327" loading="eager">
+      {%- else -%}
+        {% render 'sh-icon', name: 'shudhi-mark', class: 'sh-logo__mark' %}
+        <span class="sh-logo__text">
+          <b>{{ s.brand_name }}</b>
+          <small>{{ s.brand_sub }}</small>
+        </span>
+      {%- endif -%}
+    </a>
+
+    {%- comment -%} Desktop nav {%- endcomment -%}
+    <nav class="sh-nav" aria-label="Primary">
+      {%- if menu != blank and menu.links.size > 0 -%}
+        {%- for link in menu.links -%}
+          <a href="{{ link.url }}"{% if link.active %} aria-current="page"{% endif %}>{{ link.title }}</a>
+        {%- endfor -%}
+      {%- else -%}
+        {%- comment -%}
+          Built-in menu, used when no Shopify menu is selected. Matches the
+          approved design. NOTE: "Reviews" points at /pages/reviews, which 404s
+          until that page exists — build main-menu in Navigation and select it
+          in this section's settings for the durable fix.
+        {%- endcomment -%}
+        <a href="#hero" aria-current="page">Home</a>
+        <a href="{{ routes.all_products_collection_url }}">Shop</a>
+        <a href="#our-story">Our Story</a>
+        <a href="#ritual-benefits">Ingredients</a>
+        <a href="#rituals">Rituals</a>
+        <a href="/pages/reviews">Reviews</a>
+        <a href="{{ blog.url | default: '/blogs/news' }}">Blog</a>
+      {%- endif -%}
+    </nav>
+
+    {%- comment -%} Actions {%- endcomment -%}
+    <div class="sh-actions">
+      <a href="{{ routes.search_url }}" data-sh-search aria-label="Search">
+        {% render 'sh-icon', name: 'search', sw: 1.1 %}
+      </a>
+
+      <a href="{{ routes.account_url }}" aria-label="Account">
+        {% render 'sh-icon', name: 'user', sw: 1.1 %}
+      </a>
+
+      {%- comment -%}
+        .js-call-minicart and .enj-cartcount are the theme's own hooks
+        (ajaxCartConfig at theme.liquid:353-355). Using them gets the existing
+        minicart drawer and live count updates with no extra JS.
+      {%- endcomment -%}
+      <a href="{{ routes.cart_url }}" class="sh-cart js-call-minicart" aria-label="Cart">
+        {% render 'sh-icon', name: 'cart', sw: 1.1 %}
+        <span class="sh-cart__count enj-cartcount{% if cart.item_count == 0 %} hidden-count{% endif %}">{{ cart.item_count }}</span>
+      </a>
+
+      <button type="button" class="sh-burger" data-drawer-open
+              aria-label="Open menu" aria-expanded="false" aria-controls="sh-drawer">
+        {% render 'sh-icon', name: 'menu' %}
+      </button>
+    </div>
+
+  </div>
+</header>
+
+{%- comment -%} Mobile drawer {%- endcomment -%}
+<div class="sh sh-overlay" data-drawer-close></div>
+
+<aside class="sh sh-drawer" id="sh-drawer" aria-hidden="true" aria-label="Menu">
+  <div class="sh-drawer__top">
+    <span class="sh-logo">
+      {% render 'sh-icon', name: 'shudhi-mark', class: 'sh-logo__mark' %}
+      <span class="sh-logo__text"><b>{{ s.brand_name }}</b><small>{{ s.brand_sub }}</small></span>
+    </span>
+    <button type="button" data-drawer-close aria-label="Close menu">
+      {% render 'sh-icon', name: 'close' %}
+    </button>
+  </div>
+
+  <nav class="sh-drawer__nav" aria-label="Mobile">
+    {%- if menu != blank and menu.links.size > 0 -%}
+      {%- for link in menu.links -%}
+        <a href="{{ link.url }}">{{ link.title }}</a>
+      {%- endfor -%}
+    {%- else -%}
+      <a href="#hero">Home</a>
+      <a href="{{ routes.all_products_collection_url }}">Shop</a>
+      <a href="#our-story">Our Story</a>
+      <a href="#ritual-benefits">Ingredients</a>
+      <a href="#rituals">Rituals</a>
+      <a href="/pages/reviews">Reviews</a>
+      <a href="{{ blog.url | default: '/blogs/news' }}">Blog</a>
+    {%- endif -%}
+  </nav>
+</aside>
+
+{% schema %}
+{
+  "name": "SH · Header",
+  "class": "sh-header-sticky",
+  "settings": [
+    { "type": "image_picker", "id": "logo", "label": "Logo image",
+      "info": "Leave empty to use the built-in Shudhi mark + wordmark." },
+    { "type": "checkbox", "id": "use_asset_logo", "label": "Use the built-in logo image", "default": true,
+      "info": "Uses shudhi-logo-light.png from Assets when no logo is uploaded above. Uncheck to fall back to the text lockup." },
+    { "type": "text", "id": "brand_name", "label": "Brand name", "default": "SHUDHI" },
+    { "type": "text", "id": "brand_sub", "label": "Brand sub-line", "default": "HERBALS" },
+    { "type": "link_list", "id": "menu", "label": "Menu", "default": "main-menu",
+      "info": "Falls back to a built-in menu if empty." },
+    { "type": "header", "content": "Behaviour" },
+    { "type": "checkbox", "id": "overlay", "label": "Transparent over the hero", "default": true },
+    { "type": "range", "id": "solid_after", "label": "Turn solid after (px scrolled)", "min": 20, "max": 400, "step": 10, "default": 90 }
+  ],
+  "presets": [ { "name": "SH · Header" } ]
+}
+{% endschema %}

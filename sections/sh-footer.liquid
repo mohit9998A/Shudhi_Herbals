@@ -1,0 +1,164 @@
+{%- comment -%}
+  SHUDHI — Footer
+
+  Rendered statically from layout/theme.liquid (homepage only), so Shopify
+  IGNORES the `presets` block. Link columns are seeded in
+  config/settings_data.json; the no-blocks fallback below covers a merchant
+  who deletes them all.
+
+  Each column can take either a Shopify menu (preferred) or a plain
+  "Label | /url" list, one per line.
+{%- endcomment -%}
+
+{%- assign s = section.settings -%}
+
+<footer class="sh sh-footer" style="--sh-green-900:{{ s.bg }};" role="contentinfo">
+  <div class="sh-wrap">
+    <div class="sh-footer__grid">
+
+      {%- comment -%} Newsletter {%- endcomment -%}
+      <div class="sh-footer__news">
+        {%- if s.news_title != blank -%}<div class="sh-footer__title">{{ s.news_title }}</div>{%- endif -%}
+        {%- if s.news_body != blank -%}<p class="sh-footer__text">{{ s.news_body }}</p>{%- endif -%}
+
+        {%- form 'customer' -%}
+          <input type="hidden" name="contact[tags]" value="newsletter">
+          <div class="sh-news">
+            <label class="sh-visually-hidden" for="sh-news-email">Email address</label>
+            <input id="sh-news-email" type="email" name="contact[email]"
+                   placeholder="{{ s.news_placeholder }}" required autocomplete="email">
+            <button type="submit" aria-label="Subscribe">
+              {% render 'sh-icon', name: 'arrow-right' %}
+            </button>
+          </div>
+          {%- if form.posted_successfully? -%}
+            <p class="sh-footer__text" style="margin-top:12px;">{{ s.news_success }}</p>
+          {%- endif -%}
+        {%- endform -%}
+
+        {%- if s.instagram != blank or s.facebook != blank or s.pinterest != blank or s.youtube != blank -%}
+          <div class="sh-social">
+            {%- if s.instagram != blank -%}<a href="{{ s.instagram }}" aria-label="Instagram" rel="noopener" target="_blank">{% render 'sh-icon', name: 'instagram' %}</a>{%- endif -%}
+            {%- if s.facebook != blank -%}<a href="{{ s.facebook }}" aria-label="Facebook" rel="noopener" target="_blank">{% render 'sh-icon', name: 'facebook' %}</a>{%- endif -%}
+            {%- if s.pinterest != blank -%}<a href="{{ s.pinterest }}" aria-label="Pinterest" rel="noopener" target="_blank">{% render 'sh-icon', name: 'pinterest' %}</a>{%- endif -%}
+            {%- if s.youtube != blank -%}<a href="{{ s.youtube }}" aria-label="YouTube" rel="noopener" target="_blank">{% render 'sh-icon', name: 'youtube' %}</a>{%- endif -%}
+          </div>
+        {%- endif -%}
+      </div>
+
+      {%- comment -%} Centre brand lockup {%- endcomment -%}
+      <div class="sh-footer__brand">
+        <span class="sh-logo">
+          {% render 'sh-icon', name: 'shudhi-mark', class: 'sh-logo__mark' %}
+          <span class="sh-logo__text">
+            <b>{{ s.brand_name }}</b>
+            <small>{{ s.brand_sub }}</small>
+          </span>
+        </span>
+        {%- if s.tagline != blank -%}<p class="sh-footer__tagline">{{ s.tagline }}</p>{%- endif -%}
+        {%- if s.copyright != blank -%}<p class="sh-footer__copy">{{ s.copyright }}</p>{%- endif -%}
+      </div>
+
+      {%- comment -%} Link columns {%- endcomment -%}
+      {%- if section.blocks.size > 0 -%}
+        {%- for block in section.blocks -%}
+          <div class="sh-footer__col" {{ block.shopify_attributes }}>
+            {%- if block.settings.heading != blank -%}
+              <div class="sh-footer__title">{{ block.settings.heading }}</div>
+            {%- endif -%}
+            <div class="sh-footer__links">
+              {%- assign menu = linklists[block.settings.menu] -%}
+              {%- if menu != blank and menu.links.size > 0 -%}
+                {%- for link in menu.links -%}
+                  <a href="{{ link.url }}">{{ link.title }}</a>
+                {%- endfor -%}
+              {%- elsif block.settings.links != blank -%}
+                {%- assign rows = block.settings.links | newline_to_br | split: '<br />' -%}
+                {%- for row in rows -%}
+                  {%- assign row = row | strip -%}
+                  {%- if row != blank -%}
+                    {%- assign parts = row | split: '|' -%}
+                    {%- assign label = parts[0] | strip -%}
+                    {%- assign href = parts[1] | strip | default: '#' -%}
+                    <a href="{{ href }}">{{ label }}</a>
+                  {%- endif -%}
+                {%- endfor -%}
+              {%- endif -%}
+            </div>
+          </div>
+        {%- endfor -%}
+      {%- else -%}
+        <div class="sh-footer__col">
+          <div class="sh-footer__title">Quick Links</div>
+          <div class="sh-footer__links">
+            <a href="{{ routes.all_products_collection_url }}">Shop All</a>
+            <a href="#our-story">Our Story</a>
+            <a href="#ritual-benefits">Ingredients</a>
+            <a href="#rituals">Rituals</a>
+            <a href="{{ blog.url | default: '/blogs/news' }}">Blog</a>
+          </div>
+        </div>
+        <div class="sh-footer__col">
+          <div class="sh-footer__title">Customer Care</div>
+          <div class="sh-footer__links">
+            <a href="/pages/contactus">Contact Us</a>
+            <a href="/pages/faqs">FAQs</a>
+            <a href="/policies/shipping-policy">Shipping &amp; Delivery</a>
+            <a href="/policies/refund-policy">Returns &amp; Refunds</a>
+          </div>
+        </div>
+      {%- endif -%}
+
+    </div>
+
+    {%- if s.bottom_note != blank -%}
+      <div class="sh-footer__bottom">{{ s.bottom_note }}</div>
+    {%- endif -%}
+  </div>
+
+  <button type="button" class="sh-totop" data-to-top aria-label="Back to top">
+    {% render 'sh-icon', name: 'arrow-up' %}
+  </button>
+</footer>
+
+{% schema %}
+{
+  "name": "SH · Footer",
+  "class": "sh-footer-section",
+  "settings": [
+    { "type": "header", "content": "Newsletter" },
+    { "type": "text", "id": "news_title", "label": "Heading", "default": "Join our wellness circle" },
+    { "type": "textarea", "id": "news_body", "label": "Body", "default": "Be the first to know about new rituals, offers & herbal wisdom." },
+    { "type": "text", "id": "news_placeholder", "label": "Input placeholder", "default": "Your email address" },
+    { "type": "text", "id": "news_success", "label": "Success message", "default": "Thanks for subscribing." },
+
+    { "type": "header", "content": "Social links" },
+    { "type": "url", "id": "instagram", "label": "Instagram" },
+    { "type": "url", "id": "facebook", "label": "Facebook" },
+    { "type": "url", "id": "pinterest", "label": "Pinterest" },
+    { "type": "url", "id": "youtube", "label": "YouTube" },
+
+    { "type": "header", "content": "Brand" },
+    { "type": "text", "id": "brand_name", "label": "Brand name", "default": "SHUDHI" },
+    { "type": "text", "id": "brand_sub", "label": "Brand sub-line", "default": "HERBALS" },
+    { "type": "text", "id": "tagline", "label": "Tagline", "default": "Purify your skin. Cleanse your aura." },
+    { "type": "text", "id": "copyright", "label": "Copyright", "default": "© 2025 Shudhi Herbals. All rights reserved." },
+    { "type": "text", "id": "bottom_note", "label": "Bottom bar note", "default": "Made with intention · Rooted in Ayurveda" },
+
+    { "type": "header", "content": "Appearance" },
+    { "type": "color", "id": "bg", "label": "Background", "default": "#1b2411" }
+  ],
+  "blocks": [
+    { "type": "column", "name": "Link column", "settings": [
+      { "type": "text", "id": "heading", "label": "Heading", "default": "Quick Links" },
+      { "type": "link_list", "id": "menu", "label": "Menu", "info": "Takes priority over the manual list below." },
+      { "type": "textarea", "id": "links", "label": "Manual links", "info": "One per line, as: Label | /url" }
+    ] }
+  ],
+  "max_blocks": 3,
+  "presets": [ { "name": "SH · Footer", "blocks": [
+    { "type": "column", "settings": { "heading": "Quick Links",   "links": "Shop All | /collections/all\nOur Story | #our-story\nIngredients | #ritual-benefits\nRituals | #rituals\nBlog | /blogs/news" } },
+    { "type": "column", "settings": { "heading": "Customer Care", "links": "Contact Us | /pages/contactus\nFAQs | /pages/faqs\nShipping & Delivery | /policies/shipping-policy\nReturns & Refunds | /policies/refund-policy" } }
+  ] } ]
+}
+{% endschema %}

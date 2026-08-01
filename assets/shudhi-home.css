@@ -1,0 +1,935 @@
+/* ============================================================================
+   SHUDHI HERBALS — Homepage system
+   Loaded from layout/theme.liquid AFTER hov-typography.css, homepage only.
+
+   Everything is namespaced `sh-` / `.sh`. Verified zero collisions against
+   engo-customizes.css.liquid and houseofveda-modern.css.
+
+   Cascade note: hov-typography.css declares `font-family: … !important` on
+   bare element selectors (html, body, h1-h6, p, a, span, div, li, button…).
+   An !important declaration beats a normal one at ANY specificity, so the
+   only way to win is !important + higher specificity. `.sh p` (0,1,1) beats
+   `p` (0,0,1). See the TYPOGRAPHY DEFENCE block below.
+   ========================================================================== */
+
+/* ============================================================
+   1. TOKENS
+   ============================================================ */
+.sh,
+:root {
+  /* Palette — sampled from the approved mockup */
+  --sh-green-900: #1b2411;   /* Our Story band, footer, solid nav */
+  --sh-green-800: #26331a;
+  --sh-green-700: #33441f;
+  --sh-green-600: #41562a;
+  --sh-cream:     #f2ece0;   /* Collection band */
+  --sh-cream-2:   #e9e0cf;
+  --sh-gold:      #c9a86a;   /* eyebrows, labels, rules, active pager */
+  --sh-gold-2:    #b8934a;
+  --sh-rose:      #c98d86;   /* hero fallback while frames load */
+  --sh-ink:       #241d15;   /* body copy on light */
+  --sh-light:     #f4efe6;   /* body copy on dark */
+  --sh-muted-light: rgba(244, 239, 230, .72);
+  --sh-muted-dark:  rgba(36, 29, 21, .68);
+  --sh-hairline:  rgba(244, 239, 230, .18);
+
+  /* Type — --font-heading is already Cormorant Garamond (hov-typography.css:18)
+     and --hov-font-primary is already Jost, both loaded globally by
+     snippets/engo-header-fonts.liquid. We inherit rather than re-fetch.
+     To switch the body face to the self-hosted Sofia Pro, change ONE line:
+       --sh-sans: 'SofiaPro', sans-serif;
+     (the !important block below is what makes that swap actually take) */
+  --sh-serif: var(--font-heading, 'Cormorant Garamond', Georgia, serif);
+  --sh-sans:  var(--hov-font-primary, 'Jost', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif);
+
+  /* Metrics */
+  --sh-max: 1280px;
+  --sh-pad: clamp(20px, 5vw, 64px);
+  --sh-radius: 12px;
+  --sh-header-h: 88px;
+
+  /* Layer bands. The theme hardcodes a WhatsApp bubble at z-index 9999
+     (theme.liquid:481) and a chat widget at 99999 (houseofveda-modern.css),
+     both position:fixed. Our modal layer must clear them. */
+  --sh-z-header: 900;
+  --sh-z-overlay: 100000;
+  --sh-z-drawer: 100001;
+}
+
+@media (max-width: 768px) {
+  .sh, :root { --sh-header-h: 68px; }
+}
+
+/* ============================================================
+   2. RESET — neutralise Bootstrap 4 Reboot inside our scope only
+   ============================================================ */
+.sh, .sh *, .sh *::before, .sh *::after { box-sizing: border-box; }
+
+.sh h1, .sh h2, .sh h3, .sh h4, .sh h5, .sh h6,
+.sh p, .sh figure, .sh blockquote { margin: 0; }          /* Reboot adds margin-bottom */
+.sh ul, .sh ol { margin: 0; padding-left: 0; list-style: none; }
+.sh img, .sh svg, .sh canvas { display: block; max-width: 100%; }
+.sh img { height: auto; }
+.sh a { color: inherit; text-decoration: none; transition: color .25s ease, opacity .25s ease; }
+.sh a:hover { color: inherit; text-decoration: none; }
+.sh button {
+  font: inherit; color: inherit; background: none;
+  border: 0; padding: 0; cursor: pointer;
+}
+.sh input, .sh select, .sh textarea { font: inherit; color: inherit; }
+
+/* ============================================================
+   3. TYPOGRAPHY DEFENCE
+   Both declarations are !important, so specificity decides.
+   ============================================================ */
+.sh,
+.sh p, .sh a, .sh span, .sh div, .sh li, .sh small,
+.sh b, .sh strong, .sh em, .sh label,
+.sh button, .sh input, .sh select, .sh textarea {
+  font-family: var(--sh-sans) !important;
+}
+.sh h1, .sh h2, .sh h3, .sh h4, .sh h5, .sh h6, .sh .sh-serif {
+  font-family: var(--sh-serif) !important;
+}
+
+.sh { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+
+/* ============================================================
+   4. SHARED UTILITIES
+   ============================================================ */
+.sh-wrap { width: 100%; max-width: var(--sh-max); margin-inline: auto; padding-inline: var(--sh-pad); }
+
+.sh-serif { font-weight: 500; line-height: 1.06; letter-spacing: -.005em; }
+
+.sh-eyebrow {
+  font-size: .7rem; letter-spacing: .3em; text-transform: uppercase;
+  font-weight: 500; color: var(--sh-gold);
+}
+
+.sh-visually-hidden {
+  position: absolute !important; width: 1px; height: 1px;
+  padding: 0; margin: -1px; overflow: hidden;
+  clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap;
+}
+
+/* Buttons */
+.sh-btn {
+  display: inline-flex; align-items: center; gap: .7em;
+  padding: 1.05em 1.7em; border-radius: 4px;
+  font-size: .7rem; letter-spacing: .18em; text-transform: uppercase; font-weight: 500;
+  transition: background .3s ease, color .3s ease, border-color .3s ease, transform .3s ease;
+}
+.sh-btn .sh-icon { width: 15px; height: 15px; flex: none; }
+.sh-btn--solid   { background: var(--sh-green-800); color: var(--sh-light); }
+.sh-btn--solid:hover { background: var(--sh-green-700); color: var(--sh-light); transform: translateY(-2px); }
+.sh-btn--outline { border: 1px solid var(--sh-hairline); color: var(--sh-light); }
+.sh-btn--outline:hover { border-color: var(--sh-gold); color: var(--sh-gold); }
+.sh-btn--ghost   { padding: 0; color: var(--sh-gold); letter-spacing: .2em; }
+.sh-btn--ghost:hover { color: var(--sh-light); }
+.sh-btn--ghost .sh-icon { transition: transform .3s ease; }
+.sh-btn--ghost:hover .sh-icon { transform: translateX(5px); }
+
+/* Circular play button */
+.sh-play {
+  display: inline-grid; place-items: center;
+  width: 34px; height: 34px; border-radius: 50%;
+  border: 1px solid rgba(244, 239, 230, .55);
+  transition: background .3s ease, border-color .3s ease;
+}
+.sh-play .sh-icon { width: 12px; height: 12px; margin-left: 2px; fill: currentColor; stroke: none; }
+.sh-play--lg { width: 74px; height: 74px; background: rgba(27, 36, 17, .35); backdrop-filter: blur(3px); }
+.sh-play--lg .sh-icon { width: 22px; height: 22px; }
+a:hover > .sh-play, .sh-play:hover { background: var(--sh-gold); border-color: var(--sh-gold); color: var(--sh-green-900); }
+
+/* Scroll reveal — the JS adds .is-in via IntersectionObserver */
+.sh [data-reveal] {
+  opacity: 0; transform: translateY(26px);
+  transition: opacity .8s cubic-bezier(.22, .61, .36, 1),
+              transform .8s cubic-bezier(.22, .61, .36, 1);
+}
+.sh [data-reveal].is-in { opacity: 1; transform: none; }
+
+/* Focus. hov-typography.css:65 sets a forest-green ring — invisible on our
+   dark green bands. Gold reads on both light and dark surfaces. */
+.sh a:focus-visible, .sh button:focus-visible,
+.sh input:focus-visible, .sh [tabindex]:focus-visible {
+  outline: 2px solid var(--sh-gold);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* ============================================================
+   5. ANNOUNCEMENT BAR
+   ============================================================ */
+.sh-announce {
+  position: relative; z-index: 40;
+  background: var(--sh-announce-bg, var(--sh-green-900));
+  color: var(--sh-announce-fg, var(--sh-gold));
+  font-size: .68rem; letter-spacing: .22em; text-transform: uppercase; font-weight: 500;
+  overflow: hidden;
+}
+/* width:max-content is load-bearing: a block-level flex container is sized to
+   its parent, so translateX(-50%) would travel half the VIEWPORT instead of
+   half the duplicated content, and the loop would visibly jump. */
+.sh-announce__track { display: flex; width: max-content; white-space: nowrap; will-change: transform; }
+.sh-announce--marquee .sh-announce__track {
+  animation: sh-marquee var(--sh-announce-speed, 28s) linear infinite;
+}
+.sh-announce--marquee:hover .sh-announce__track { animation-play-state: paused; }
+.sh-announce__group { display: flex; flex: none; }
+.sh-announce__item { padding: .78em 0; display: inline-flex; align-items: center; }
+.sh-announce__item::after { content: "•"; color: currentColor; opacity: .5; margin-inline: 2.6em; }
+.sh-announce--static .sh-announce__track { width: 100%; justify-content: center; }
+.sh-announce--static .sh-announce__item::after { content: none; }
+@keyframes sh-marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+/* ============================================================
+   6. HEADER / NAV
+   The sticky element is the Shopify section wrapper (schema "class"), because
+   position:sticky can only stick within its own parent's box — sticking the
+   inner <header> would unstick the moment its short wrapper scrolled away.
+   The negative margin pulls the hero up underneath for the overlay effect,
+   with no absolute/fixed switch and therefore no scroll jump.
+   ============================================================ */
+.sh-header-sticky {
+  position: sticky; top: 0; z-index: var(--sh-z-header);
+  margin-bottom: calc(-1 * var(--sh-header-h));
+}
+.sh-header {
+  position: relative;
+  min-height: var(--sh-header-h);
+  display: flex; align-items: center;
+}
+/* The solid state lives on a pseudo-element whose OPACITY animates, rather than
+   transitioning background + box-shadow on the header itself.
+   box-shadow is not composited in Blink: the old rule repainted ~178,000px² for
+   400ms on every is-solid flip — which fires at 90px of scroll, i.e. at the
+   start of every scrub gesture — and because the header sits at z-index 900
+   over a negative-margin wrapper, that paint rect lands directly on top of the
+   canvas, on the same frames as its drawImage. Same look, one raster. */
+.sh-header::before {
+  content: ""; position: absolute; inset: 0; z-index: -1;
+  background: var(--sh-green-900);
+  box-shadow: 0 6px 30px rgba(0, 0, 0, .28);
+  opacity: 0; transition: opacity .4s ease; will-change: opacity;
+}
+.sh-header.is-solid::before { opacity: 1; }
+.sh-header__inner {
+  width: 100%; max-width: var(--sh-max); margin-inline: auto; padding-inline: var(--sh-pad);
+  display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 24px;
+}
+/* .is-solid's appearance is carried entirely by ::before above. */
+
+/* Logo lockup */
+.sh-logo { display: inline-flex; align-items: center; gap: 10px; color: var(--sh-light); }
+.sh-logo__mark { width: 34px; height: 34px; flex: none; }
+.sh-logo__text { display: grid; line-height: 1; }
+.sh-logo__text b { font-size: 1.02rem; letter-spacing: .3em; font-weight: 500; }
+.sh-logo__text small { font-size: .5rem; letter-spacing: .42em; opacity: .8; margin-top: 4px; }
+.sh-logo__img { max-height: 52px; width: auto; }
+
+/* Desktop nav */
+.sh-nav { display: flex; justify-content: center; gap: clamp(16px, 2.2vw, 34px); }
+.sh-nav a {
+  position: relative; color: var(--sh-light);
+  font-size: .78rem; letter-spacing: .04em; padding-block: 6px; opacity: .9;
+}
+.sh-nav a::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 1px;
+  background: currentColor; transform: scaleX(0); transform-origin: center;
+  transition: transform .3s ease;
+}
+.sh-nav a:hover, .sh-nav a[aria-current="page"] { opacity: 1; }
+.sh-nav a:hover::after, .sh-nav a[aria-current="page"]::after { transform: scaleX(1); }
+
+/* Actions */
+.sh-actions { display: flex; align-items: center; gap: clamp(12px, 1.6vw, 22px); color: var(--sh-light); }
+.sh-actions button, .sh-actions a { display: inline-flex; position: relative; opacity: .92; }
+.sh-actions button:hover, .sh-actions a:hover { opacity: 1; color: var(--sh-gold); }
+.sh-actions .sh-icon { width: 20px; height: 20px; }
+.sh-cart { position: relative; }
+.sh-cart__count {
+  position: absolute; top: -6px; right: -8px; min-width: 16px; height: 16px;
+  display: grid; place-items: center; padding: 0 4px;
+  border-radius: 999px; background: var(--sh-gold); color: var(--sh-green-900);
+  font-size: .58rem; font-weight: 700; letter-spacing: 0;
+}
+.sh-cart__count.hidden-count { display: none; }
+/* Must out-specify `.sh-actions button { display: inline-flex }` above (0,1,1).
+   A bare `.sh-burger` (0,1,0) loses to it, which is why the hamburger was
+   showing at desktop widths alongside the full nav. */
+.sh-actions .sh-burger { display: none; }
+
+/* Search opens the theme's existing predictive overlay (window.hovSOOpen) —
+   no panel of our own, so there is nothing to style here. */
+
+/* ============================================================
+   7. MOBILE DRAWER
+   ============================================================ */
+.sh-overlay {
+  position: fixed; inset: 0; z-index: var(--sh-z-overlay);
+  background: rgba(12, 17, 8, .6); backdrop-filter: blur(2px);
+  opacity: 0; visibility: hidden; transition: opacity .35s ease, visibility .35s ease;
+}
+.sh-overlay.is-open { opacity: 1; visibility: visible; }
+.sh-drawer {
+  position: fixed; top: 0; right: 0; bottom: 0; z-index: var(--sh-z-drawer);
+  width: min(88vw, 360px); background: var(--sh-green-900); color: var(--sh-light);
+  transform: translateX(100%); transition: transform .42s cubic-bezier(.22, .61, .36, 1);
+  display: flex; flex-direction: column; padding: 26px 28px;
+  overflow-y: auto; overscroll-behavior: contain;
+}
+.sh-drawer.is-open { transform: none; }
+.sh-drawer__top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 34px; }
+.sh-drawer__nav { display: grid; gap: 4px; }
+.sh-drawer__nav a {
+  padding: 13px 0; font-size: 1rem; letter-spacing: .02em;
+  border-bottom: 1px solid var(--sh-hairline);
+}
+.sh-drawer__nav a:hover { color: var(--sh-gold); }
+.sh-drawer .sh-icon { width: 22px; height: 22px; }
+
+/* ============================================================
+   8. HERO — scroll-scrubbed frame sequence
+   ============================================================ */
+/* Same leaked globals as .sh-story: houseofveda-modern.css:55 colours all
+   h1-h6 (#1F2A24) and timber.scss.liquid:814 force-capitalises them. An
+   explicit colour on the element beats the colour inherited from
+   .sh-hero__copy, which is why the headline rendered dark green on the photo.
+   (0,1,1) beats a bare h1 (0,0,1), so no !important needed. */
+.sh-hero h1 { color: inherit; text-transform: none; }
+
+.sh-hero { position: relative; background: var(--sh-hero-bg, var(--sh-rose)); }
+/* Logo image — constrained so it works in both nav states. */
+.sh-logo__img { max-height: 56px; width: auto; }
+/* contain: layout paint keeps any layout/paint work triggered inside the pin
+   scoped to this subtree instead of the whole document — the canvas repaints
+   on every scrub frame, so that isolation is worth having. */
+.sh-hero__pin {
+  position: sticky; top: 0; height: 100svh;
+  overflow: hidden; contain: layout paint;
+}
+
+.sh-hero__canvas,
+.sh-hero__poster {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  display: block;
+}
+.sh-hero__poster { object-fit: cover; z-index: 1; transition: opacity .6s ease; }
+/* object-fit: fill, NOT cover. The engine already does cover-fit maths against
+   the backing store, which it sizes to match this box. `cover` would apply a
+   SECOND crop on top whenever the backing-store aspect and the CSS box aspect
+   momentarily disagree — exactly what happens during a resize, before the next
+   draw lands. `fill` maps the backing store 1:1 onto the box, as intended. */
+.sh-hero__canvas { object-fit: fill; z-index: 2; opacity: 0; transition: opacity .5s ease; }
+.sh-hero.is-ready .sh-hero__canvas { opacity: 1; }
+.sh-hero.is-ready .sh-hero__poster { opacity: 0; }
+
+/* Legibility scrim — the mockup's copy sits on bright cloud, so it needs one.
+   The sticky header wrapper carries margin-bottom: calc(-1 * var(--sh-header-h)),
+   pulling the hero up underneath the nav, so a plain inset:0 scrim put its
+   62%-opaque left edge directly behind the logo and made a transparent header
+   read as a solid bar. Cutting the top off with inset:<header-h> fixed that but
+   left a hard unfeathered step at exactly the header baseline — the visible
+   seam. Masking instead gives the same clear nav with no edge, and the mask
+   tracks --sh-header-h so it follows the 68px mobile breakpoint automatically.
+   Static and inside contain:paint, so it rasters once — no per-frame cost. */
+.sh-hero__scrim {
+  position: absolute; inset: 0; z-index: 3; pointer-events: none;
+  /* A radial ellipse anchored at the lower-left, NOT a linear gradient plus a
+     mask. It falls off in every direction, so it darkens behind the copy while
+     reaching zero well before the top of the viewport — no seam and no tint
+     behind the nav, with no mask.
+     Measured: the mask version cost ~6.6 fps and took long tasks from 4.7 to
+     12.3 under 6x CPU throttle, because a mask on a full-viewport element over
+     a per-frame-repainting canvas forces an extra compositing pass every frame.
+     Two plain background layers rasterise once. */
+  /* MEASURED CORRECTION: order-balanced A/B showed the mask cost nothing
+     (25.5 vs 26.9 fps, identical long tasks — within noise). The radial is kept
+     for simplicity and wider support, NOT as a performance win. */
+  background:
+    radial-gradient(120% 92% at 6% 76%,
+      rgba(20, 14, 12, .72) 0%, rgba(20, 14, 12, .42) 34%,
+      rgba(20, 14, 12, .12) 56%, rgba(20, 14, 12, 0) 72%),
+    linear-gradient(to top, rgba(20, 14, 12, .5) 0%, rgba(20, 14, 12, 0) 30%);
+}
+
+/* Loading indicator */
+.sh-hero__loader {
+  position: absolute; left: 50%; bottom: 50%; z-index: 8;
+  transform: translate(-50%, 50%); width: min(220px, 40vw);
+  text-align: center; color: var(--sh-light);
+  transition: opacity .5s ease, visibility .5s ease;
+}
+.sh-hero__loader.is-done { opacity: 0; visibility: hidden; }
+.sh-hero__loader-num { font-size: .68rem; letter-spacing: .22em; margin-bottom: 10px; opacity: .85; }
+.sh-hero__loader-track { height: 1px; background: rgba(244, 239, 230, .28); overflow: hidden; }
+/* scaleX, not width. `width` triggers layout, and settle() rewrites it once per
+   decoded frame — 192 times — each restarting a 250ms layout-animating
+   transition inside the pinned stage, overlapping the first scrub. transform is
+   compositor-only, so the same 192 writes now cost nothing. */
+.sh-hero__loader-bar {
+  height: 100%; width: 100%; background: var(--sh-gold);
+  transform: scaleX(0); transform-origin: left center;
+  transition: transform .25s linear; will-change: transform;
+}
+
+/* Copy */
+.sh-hero__content {
+  position: absolute; inset: 0; z-index: 5;
+  display: flex; align-items: center;
+  padding-top: var(--sh-header-h); padding-bottom: 150px;
+  pointer-events: none;
+}
+.sh-hero__content .sh-wrap { pointer-events: none; }
+.sh-hero__copy { max-width: 560px; color: var(--sh-light); pointer-events: auto; }
+.sh-hero__title { font-size: clamp(2.3rem, 4.6vw, 4.05rem); }
+.sh-hero__rule { width: 38px; height: 1px; background: var(--sh-gold); margin: 26px 0 20px; }
+.sh-hero__label {
+  color: var(--sh-gold); font-size: .82rem; letter-spacing: .04em; margin-bottom: 16px; font-weight: 500;
+}
+.sh-hero__text {
+  font-size: .93rem; line-height: 1.75; color: var(--sh-muted-light);
+  max-width: 40ch; margin-bottom: 32px;
+}
+.sh-hero__cta { display: flex; align-items: center; gap: clamp(18px, 3vw, 34px); flex-wrap: wrap; }
+.sh-discover {
+  display: inline-flex; align-items: center; gap: 12px; color: var(--sh-light);
+  font-size: .68rem; letter-spacing: .18em; text-transform: uppercase;
+}
+.sh-discover:hover { color: var(--sh-gold); }
+
+/* Vertical "SCROLL" rail, left edge */
+.sh-hero__scroll {
+  position: absolute; left: calc(var(--sh-pad) - 4px); bottom: 190px; z-index: 6;
+  display: flex; align-items: center; gap: 14px;
+  writing-mode: vertical-rl; transform: rotate(180deg);
+  color: var(--sh-muted-light); font-size: .6rem; letter-spacing: .34em; text-transform: uppercase;
+  /* Driven by a class, not a per-frame inline opacity write. One style write
+     for the page's lifetime, and it fades on a timeline rather than tracking
+     scroll — which also reads better. */
+  transition: opacity .45s ease;
+}
+.sh-hero.is-scrolled .sh-hero__scroll { opacity: 0; }
+.sh-hero__scroll::after { content: ""; width: 1px; height: 54px; background: currentColor; opacity: .5; }
+
+/* 01 / 02 / 03 pager with progress rail */
+.sh-hero__pager {
+  position: absolute; right: var(--sh-pad); top: 50%; transform: translateY(-50%); z-index: 6;
+  display: grid; gap: 12px; justify-items: end; align-items: center;
+  grid-template-columns: auto auto;
+}
+.sh-hero__pager-rail {
+  grid-column: 2; grid-row: 1 / -1; align-self: stretch;
+  width: 1px; background: rgba(244, 239, 230, .28); position: relative; margin-left: 12px;
+}
+.sh-hero__pager-rail i {
+  position: absolute; inset: 0; background: var(--sh-gold);
+  transform: scaleY(0); transform-origin: top; will-change: transform;
+}
+/* Scales with transform, not font-size. font-size is a layout-animating
+   property — transitioning it ran 300ms of relayout inside the pin on every
+   pager change, compounding with the scrub. transform is compositor-only. */
+/* Base font-size is the ACTIVE size and the inactive items scale DOWN, rather
+   than the reverse. Transformed text rasters at the layer's base scale, so
+   scaling up softens glyphs — scaling down does not. The item the eye is on
+   therefore stays crisp. */
+.sh-hero__pager span {
+  grid-column: 1;
+  font-size: 1.15rem; letter-spacing: .08em; color: var(--sh-muted-light);
+  opacity: .55;
+  transform: scale(.643); transform-origin: 100% 50%;
+  transition: opacity .3s ease,
+              transform .3s cubic-bezier(.22, .61, .36, 1);
+}
+.sh-hero__pager span.is-active { opacity: 1; color: var(--sh-gold); transform: scale(1); }
+
+/* Floating "100% Natural" pill */
+/* Offset left of the chat widget, which occupies roughly right 24-80px /
+   bottom 92-148px. Repositioning the pill resolves that collision without
+   touching the widget. */
+.sh-hero__badge {
+  position: absolute; right: calc(var(--sh-pad) + 92px); bottom: 116px; z-index: 6;
+  display: flex; align-items: center; gap: 12px;
+  padding: 9px 20px 9px 9px; border-radius: 999px;
+  background: rgba(27, 36, 17, .5);
+  -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+  border: 1px solid rgba(244, 239, 230, .26); color: var(--sh-light);
+}
+.sh-hero__badge > .sh-icon {
+  width: 38px; height: 38px; padding: 9px; border-radius: 50%;
+  background: var(--sh-green-600); color: var(--sh-light); flex: none;
+}
+.sh-hero__badge b { display: block; font-size: .76rem; font-weight: 600; }
+.sh-hero__badge small { display: block; font-size: .66rem; color: var(--sh-muted-light); }
+
+/* Trust bar */
+.sh-hero__trust {
+  position: absolute; left: 50%; bottom: 26px; z-index: 6;
+  transform: translateX(-50%);
+  width: min(1180px, calc(100% - 2 * var(--sh-pad)));
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  /* Real frosted glass. This blurs against a canvas whose pixels change every
+     scrub frame, so it can never be cached — which is why it gets switched off
+     while scrubbing (below) rather than being permanently weakened. */
+  background: rgba(23, 30, 15, .5);
+  -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+  border: 1px solid rgba(244, 239, 230, .26); border-radius: 14px;
+  padding: 16px clamp(12px, 2vw, 26px);
+  transform: translateX(-50%);
+}
+
+/* While the hero is actively scrubbing, drop the blur and compensate with
+   opacity. The alphas are chosen so the swap is not visible — and it only ever
+   happens mid-scroll, when nobody is studying the bar. */
+.sh-hero.is-scrubbing .sh-hero__trust,
+.sh-hero.is-scrubbing .sh-hero__badge {
+  -webkit-backdrop-filter: none; backdrop-filter: none;
+  background: rgba(23, 30, 15, .88);
+}
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .sh-hero__trust, .sh-hero__badge { background: rgba(23, 30, 15, .9); }
+}
+.sh-hero__trust-item {
+  display: flex; align-items: center; gap: 13px;
+  padding-inline: clamp(10px, 1.6vw, 24px); position: relative; color: var(--sh-light);
+}
+.sh-hero__trust-item + .sh-hero__trust-item::before {
+  content: ""; position: absolute; left: 0; top: 50%; transform: translateY(-50%);
+  width: 1px; height: 32px; background: var(--sh-hairline);
+}
+.sh-hero__trust-item > .sh-icon {
+  width: 40px; height: 40px; padding: 9px; flex: none;
+  border: 1px solid rgba(201, 168, 106, .5); border-radius: 50%; color: var(--sh-gold);
+}
+.sh-hero__trust-item b {
+  display: block; font-size: .68rem; letter-spacing: .13em; text-transform: uppercase; font-weight: 600;
+}
+.sh-hero__trust-item small { display: block; font-size: .68rem; color: var(--sh-muted-light); margin-top: 3px; }
+
+/* ============================================================
+   9. OUR STORY
+   ============================================================ */
+/* Two global bare-element rules leak into this section and must be neutralised:
+     houseofveda-modern.css:55  h1..h6 { color: var(--hov-dark) }  -> #1F2A24
+     timber.scss.liquid:814     h1..h6 { text-transform: capitalize }
+   An explicit colour on the element beats the colour inherited from .sh-story,
+   which is why the heading rendered as a near-invisible ghost on the dark green.
+   `.sh-story h2` (0,1,1) beats a bare `h2` (0,0,1), so no !important is needed.
+   Deliberately scoped to this section only — the hero has the same bug, but
+   fixing it here would change a section that is out of scope for this pass. */
+.sh-story h2 { color: inherit; text-transform: none; }
+
+.sh-story {
+  position: relative; overflow: hidden;
+  background: var(--sh-green-900); color: var(--sh-light);
+  padding-block: clamp(56px, 6vw, 92px);
+  min-height: var(--sh-story-h, 440px);
+  display: flex; align-items: center;
+}
+/* Full-bleed photo: runs to all four edges of the band, as in the mockup. */
+.sh-story__bg {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  object-fit: cover; z-index: 0;
+}
+/* Gradient scrim so the copy stays legible over any photo that gets swapped in.
+   Strength is schema-controlled via --sh-story-scrim. */
+.sh-story__scrim {
+  position: absolute; inset: 0; z-index: 1; pointer-events: none;
+  background: linear-gradient(100deg,
+    rgb(from var(--sh-green-900) r g b / var(--sh-story-scrim, .92)) 0%,
+    rgb(from var(--sh-green-900) r g b / calc(var(--sh-story-scrim, .92) * .9)) 30%,
+    rgb(from var(--sh-green-900) r g b / calc(var(--sh-story-scrim, .92) * .42)) 56%,
+    rgb(from var(--sh-green-900) r g b / 0) 80%);
+}
+/* Fallback for engines without relative colour syntax — same intent, fixed hue. */
+@supports not (background: rgb(from #000 r g b / 50%)) {
+  .sh-story__scrim {
+    background: linear-gradient(100deg,
+      rgba(27, 36, 17, .94) 0%, rgba(27, 36, 17, .86) 30%,
+      rgba(27, 36, 17, .4) 56%, rgba(27, 36, 17, 0) 80%);
+  }
+}
+.sh-story > .sh-wrap { position: relative; z-index: 2; }
+
+.sh-story__grid {
+  display: grid; grid-template-columns: 1fr 1.05fr;
+  gap: clamp(24px, 4vw, 64px); align-items: center;
+}
+.sh-story__eyebrow { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
+.sh-story__eyebrow .sh-icon { width: 14px; height: 14px; }
+/* ~2.5x the paragraph, matching the mockup's proportion (was ~3.2x). */
+.sh-story__title { font-size: clamp(1.55rem, 2.6vw, 2.3rem); margin-bottom: 20px; }
+.sh-story__text {
+  font-size: .93rem; line-height: 1.8; color: var(--sh-muted-light);
+  max-width: 40ch; margin-bottom: 28px;
+}
+/* Now purely a positioning anchor for the overlays — no longer an image box. */
+.sh-story__media {
+  position: relative; align-self: stretch;
+  display: grid; place-items: center; min-height: 180px;
+}
+.sh-story__play {
+  width: 72px; height: 72px; border-radius: 50%;
+  border: 1px solid rgba(244, 239, 230, .75);
+  display: grid; place-items: center; color: var(--sh-light);
+  background: rgba(27, 36, 17, .18); backdrop-filter: blur(2px);
+  transition: background .3s ease, border-color .3s ease, color .3s ease, transform .3s ease;
+}
+.sh-story__play .sh-icon { width: 20px; height: 20px; margin-left: 3px; fill: currentColor; stroke: none; }
+a.sh-story__play:hover {
+  background: var(--sh-gold); border-color: var(--sh-gold);
+  color: var(--sh-green-900); transform: scale(1.06);
+}
+.sh-story__seal {
+  position: absolute; left: 0; bottom: 6%;
+  width: clamp(72px, 7vw, 98px); aspect-ratio: 1;
+  display: grid; place-items: center;
+  border-radius: 50%; background: rgba(38, 51, 26, .82); backdrop-filter: blur(3px);
+  border: 1px solid rgba(201, 168, 106, .45); color: var(--sh-gold);
+}
+.sh-story__seal-num {
+  font-family: var(--sh-serif) !important;
+  font-size: clamp(1.1rem, 1.7vw, 1.5rem); line-height: 1; color: var(--sh-light);
+}
+.sh-story__seal svg { position: absolute; inset: 0; width: 100%; height: 100%; animation: sh-spin 34s linear infinite; }
+.sh-story__seal text { font-size: 7.2px; letter-spacing: .22em; fill: var(--sh-gold); text-transform: uppercase; }
+@keyframes sh-spin { to { transform: rotate(360deg); } }
+
+/* ============================================================
+   10. RITUAL BENEFITS — "It's a Ritual."
+   ============================================================ */
+.sh-ritual {
+  position: relative; overflow: hidden; color: var(--sh-light);
+  padding-block: clamp(78px, 10vw, 138px); background: var(--sh-green-900);
+}
+.sh-ritual__bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; }
+.sh-ritual::after {
+  content: ""; position: absolute; inset: 0; z-index: 1;
+  background: linear-gradient(to bottom, rgba(14, 20, 9, .72), rgba(14, 20, 9, .55) 45%, rgba(14, 20, 9, .82));
+}
+.sh-ritual > .sh-wrap { position: relative; z-index: 2; }
+.sh-ritual__side {
+  position: absolute; left: 26px; top: 50%; z-index: 2;
+  transform: translateY(-50%) rotate(180deg); writing-mode: vertical-rl;
+  font-size: .62rem; letter-spacing: .38em; text-transform: uppercase; color: var(--sh-muted-light);
+}
+.sh-ritual__head { text-align: center; margin-bottom: clamp(34px, 5vw, 62px); }
+.sh-ritual__head .sh-eyebrow { margin-bottom: 14px; }
+.sh-ritual__title { font-size: clamp(1.9rem, 3.6vw, 3.1rem); }
+
+.sh-ritual__cols {
+  display: grid; grid-template-columns: 1fr minmax(200px, 380px) 1fr;
+  gap: clamp(16px, 2.6vw, 46px); align-items: center; position: relative;
+}
+.sh-ritual__connectors {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  pointer-events: none; z-index: 0; overflow: visible;
+}
+.sh-ritual__connectors path {
+  fill: none; stroke: rgba(201, 168, 106, .45);
+  stroke-width: 1; stroke-dasharray: 2 6; stroke-linecap: round;
+}
+.sh-ritual__col { display: grid; gap: clamp(22px, 3.4vw, 44px); position: relative; z-index: 1; }
+.sh-ritual__center { position: relative; z-index: 1; }
+.sh-ritual__center img { width: 100%; object-fit: contain; }
+
+.sh-ritual__item { display: flex; align-items: center; gap: 16px; }
+.sh-ritual__col--left  .sh-ritual__item { flex-direction: row-reverse; text-align: right; }
+.sh-ritual__item > .sh-icon {
+  width: 52px; height: 52px; padding: 13px; flex: none;
+  border: 1px solid rgba(201, 168, 106, .45); border-radius: 50%;
+  color: var(--sh-gold); background: rgba(23, 30, 15, .45); backdrop-filter: blur(4px);
+}
+.sh-ritual__item h3 {
+  font-family: var(--sh-serif) !important;
+  font-size: 1.06rem; margin-bottom: 6px; color: var(--sh-gold);
+}
+.sh-ritual__item p { font-size: .8rem; line-height: 1.65; color: var(--sh-muted-light); max-width: 26ch; }
+.sh-ritual__col--left .sh-ritual__item p { margin-left: auto; }
+
+/* ============================================================
+   11. MINDFUL RITUAL — "Transform Your Daily Bath"
+   ============================================================ */
+.sh-mindful {
+  position: relative; overflow: hidden; color: var(--sh-light);
+  padding-block: clamp(78px, 9vw, 130px); background: var(--sh-green-900);
+}
+.sh-mindful__bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; }
+.sh-mindful::after {
+  content: ""; position: absolute; inset: 0; z-index: 1;
+  background: linear-gradient(95deg, rgba(14, 20, 9, .84) 0%, rgba(14, 20, 9, .55) 48%, rgba(14, 20, 9, .42) 100%);
+}
+.sh-mindful > .sh-wrap { position: relative; z-index: 2; }
+.sh-mindful__grid {
+  display: grid; grid-template-columns: 1fr 1.45fr;
+  gap: clamp(38px, 5vw, 80px); align-items: center;
+}
+.sh-mindful__title { font-size: clamp(1.8rem, 3.2vw, 2.7rem); margin-bottom: 22px; }
+.sh-mindful__text {
+  font-size: .9rem; line-height: 1.8; color: var(--sh-muted-light);
+  max-width: 34ch; margin-bottom: 32px;
+}
+
+.sh-steps { position: relative; display: grid; grid-template-columns: repeat(4, 1fr); gap: clamp(10px, 1.6vw, 24px); }
+/* Anchored to the icon band, not the full grid: the arc's y coordinates are in
+   px against a 96-tall viewBox, so stretching it over a variable-height grid
+   (text wraps differently at every breakpoint) would drift off the icons. */
+.sh-steps__arc { position: absolute; left: 0; right: 0; top: 0; height: 96px; pointer-events: none; z-index: 0; }
+.sh-steps__arc path {
+  fill: none; stroke: rgba(201, 168, 106, .42);
+  stroke-width: 1; stroke-dasharray: 5 8; stroke-linecap: round;
+}
+.sh-step { position: relative; z-index: 1; text-align: center; display: grid; justify-items: center; gap: 10px; }
+/* Gentle wave — matches the mockup's staggered icon baseline */
+.sh-step:nth-child(odd)  { transform: translateY(-16px); }
+.sh-step:nth-child(even) { transform: translateY(16px); }
+.sh-step > .sh-icon {
+  width: 62px; height: 62px; padding: 17px;
+  border: 1px solid rgba(201, 168, 106, .5); border-radius: 50%;
+  color: var(--sh-gold); background: rgba(20, 27, 12, .5); backdrop-filter: blur(4px);
+}
+.sh-step__n { font-size: .62rem; letter-spacing: .2em; color: var(--sh-gold); }
+.sh-step h3 { font-family: var(--sh-serif) !important; font-size: 1.12rem; }
+.sh-step p { font-size: .75rem; line-height: 1.6; color: var(--sh-muted-light); max-width: 18ch; }
+
+/* ============================================================
+   12. COLLECTION
+   ============================================================ */
+.sh-collection { background: var(--sh-cream); color: var(--sh-ink); padding-block: clamp(70px, 8vw, 110px); }
+.sh-collection__head { text-align: center; margin-bottom: clamp(30px, 4vw, 52px); }
+.sh-collection__head .sh-eyebrow { color: var(--sh-gold-2); margin-bottom: 12px; }
+.sh-collection__title { font-size: clamp(1.75rem, 3.2vw, 2.7rem); color: var(--sh-ink); }
+
+.sh-collection__viewport { position: relative; }
+.sh-collection__slide { padding-inline: 8px; }
+.sh-card { position: relative; display: block; border-radius: 10px; overflow: hidden; }
+.sh-card img {
+  width: 100%; aspect-ratio: 4 / 3; object-fit: cover;
+  transition: transform .7s cubic-bezier(.22, .61, .36, 1);
+}
+.sh-card:hover img { transform: scale(1.06); }
+.sh-card::after {
+  content: ""; position: absolute; inset: 0;
+  background: linear-gradient(to top, rgba(15, 20, 10, .86) 0%, rgba(15, 20, 10, .3) 42%, transparent 68%);
+}
+.sh-card__body { position: absolute; left: 0; right: 0; bottom: 0; z-index: 2; padding: 18px 20px; color: var(--sh-light); }
+.sh-card__body h3 { font-family: var(--sh-serif) !important; font-size: 1.15rem; margin-bottom: 5px; }
+.sh-card__cta { display: inline-flex; align-items: center; gap: 7px; font-size: .68rem; letter-spacing: .1em; color: var(--sh-muted-light); }
+.sh-card__cta .sh-icon { width: 13px; height: 13px; transition: transform .3s ease; }
+.sh-card:hover .sh-card__cta { color: var(--sh-gold); }
+.sh-card:hover .sh-card__cta .sh-icon { transform: translateX(4px); }
+
+.sh-collection__arrow {
+  position: absolute; top: 50%; transform: translateY(-50%); z-index: 4;
+  width: 42px; height: 42px; border-radius: 50%;
+  display: grid; place-items: center;
+  background: #fff; color: var(--sh-ink);
+  box-shadow: 0 3px 16px rgba(36, 29, 21, .16);
+  transition: background .3s ease, color .3s ease;
+}
+.sh-collection__arrow:hover { background: var(--sh-green-800); color: var(--sh-light); }
+.sh-collection__arrow .sh-icon { width: 17px; height: 17px; }
+.sh-collection__arrow--prev { left: calc(-1 * clamp(8px, 2.6vw, 46px)); }
+.sh-collection__arrow--next { right: calc(-1 * clamp(8px, 2.6vw, 46px)); }
+
+.sh-collection__strip {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 18px; margin-top: clamp(40px, 5vw, 66px);
+  padding-top: clamp(28px, 3.4vw, 42px); border-top: 1px solid rgba(36, 29, 21, .12);
+}
+.sh-collection__strip-item { display: flex; align-items: center; justify-content: center; gap: 13px; }
+.sh-collection__strip-item > .sh-icon {
+  width: 40px; height: 40px; padding: 9px; flex: none;
+  border: 1px solid rgba(36, 29, 21, .18); border-radius: 50%; color: var(--sh-green-700);
+}
+.sh-collection__strip-item b { display: block; font-size: .74rem; font-weight: 600; }
+.sh-collection__strip-item small { display: block; font-size: .7rem; color: var(--sh-muted-dark); margin-top: 2px; }
+
+/* ============================================================
+   13. FOOTER
+   ============================================================ */
+.sh-footer { background: var(--sh-green-900); color: var(--sh-light); padding-block: clamp(56px, 6vw, 82px) 0; }
+.sh-footer__grid {
+  display: grid; grid-template-columns: 1.3fr 1.05fr .8fr .8fr;
+  gap: clamp(30px, 4vw, 56px); align-items: start;
+}
+.sh-footer__title {
+  font-size: .68rem; letter-spacing: .22em; text-transform: uppercase;
+  color: var(--sh-gold); margin-bottom: 16px; font-weight: 600;
+}
+.sh-footer__text { font-size: .82rem; line-height: 1.75; color: var(--sh-muted-light); margin-bottom: 20px; max-width: 32ch; }
+
+.sh-news { display: flex; border: 1px solid var(--sh-hairline); border-radius: 4px; overflow: hidden; max-width: 320px; }
+.sh-news input {
+  flex: 1; min-width: 0; padding: 12px 14px; background: transparent;
+  border: 0; color: var(--sh-light); font-size: .8rem;
+}
+.sh-news input::placeholder { color: rgba(244, 239, 230, .45); }
+.sh-news input:focus { outline: none; }
+.sh-news button {
+  width: 44px; display: grid; place-items: center;
+  background: var(--sh-gold); color: var(--sh-green-900); transition: background .3s ease;
+}
+.sh-news button:hover { background: var(--sh-light); }
+.sh-news .sh-icon { width: 16px; height: 16px; }
+
+.sh-social { display: flex; gap: 10px; margin-top: 24px; }
+.sh-social a {
+  width: 34px; height: 34px; display: grid; place-items: center;
+  border: 1px solid var(--sh-hairline); border-radius: 50%; color: var(--sh-muted-light);
+}
+.sh-social a:hover { border-color: var(--sh-gold); color: var(--sh-gold); }
+.sh-social .sh-icon { width: 15px; height: 15px; }
+
+.sh-footer__brand { text-align: center; display: grid; justify-items: center; gap: 12px; }
+.sh-footer__brand .sh-logo { flex-direction: column; gap: 8px; }
+.sh-footer__brand .sh-logo__text { justify-items: center; text-align: center; }
+.sh-footer__tagline { font-size: .8rem; color: var(--sh-muted-light); max-width: 30ch; }
+.sh-footer__copy { font-size: .72rem; color: rgba(244, 239, 230, .5); }
+
+.sh-footer__links { display: grid; gap: 11px; }
+.sh-footer__links a { font-size: .82rem; color: var(--sh-muted-light); }
+.sh-footer__links a:hover { color: var(--sh-gold); }
+
+.sh-footer__bottom {
+  margin-top: clamp(38px, 4vw, 56px); padding-block: 20px;
+  border-top: 1px solid var(--sh-hairline);
+  display: flex; justify-content: center; align-items: center;
+  font-size: .7rem; letter-spacing: .12em; text-transform: uppercase; color: rgba(244, 239, 230, .45);
+}
+.sh-totop {
+  position: fixed; right: 26px; bottom: 26px; z-index: 60;
+  width: 42px; height: 42px; border-radius: 50%;
+  display: grid; place-items: center;
+  background: var(--sh-cream); color: var(--sh-green-900);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, .25);
+  opacity: 0; visibility: hidden; transition: opacity .3s ease, visibility .3s ease, background .3s ease;
+}
+.sh-totop.is-visible { opacity: 1; visibility: visible; }
+.sh-totop:hover { background: var(--sh-gold); }
+.sh-totop .sh-icon { width: 17px; height: 17px; }
+
+/* ============================================================
+   14. THIRD-PARTY WIDGET DE-CONFLICTION (homepage only)
+   theme.liquid hardcodes a WhatsApp bubble (z-index 9999) and a chat widget
+   (z-index 99999), both position:fixed bottom-corner. Left alone they sit on
+   top of our back-to-top button and, on mobile, the hero trust bar.
+   ============================================================ */
+body.template-index #hov-chat-widget,
+body.template-index .whatsapp-icon { bottom: 92px; }
+body.template-index .sh-totop { right: 88px; }
+
+@media (max-width: 576px) {
+  /* .menu_toolbar is a 50px fixed bottom bar below 576px */
+  body.template-index #hov-chat-widget,
+  body.template-index .whatsapp-icon { bottom: 116px; }
+  body.template-index .sh-footer__bottom { padding-bottom: 66px; }
+}
+
+/* ============================================================
+   15. RESPONSIVE
+   ============================================================ */
+@media (max-width: 1180px) {
+  .sh-hero__badge { bottom: 150px; }
+  .sh-collection__arrow--prev { left: 6px; }
+  .sh-collection__arrow--next { right: 6px; }
+}
+
+@media (max-width: 1024px) {
+  .sh-nav { display: none; }
+  .sh-actions .sh-burger { display: inline-flex; }
+  .sh-header__inner { grid-template-columns: auto 1fr; }
+  .sh-hero__copy { max-width: 64%; }
+  .sh-hero__pager { display: none; }
+  .sh-story__grid, .sh-mindful__grid { grid-template-columns: 1fr; }
+  /* Single column: the copy now sits ON the photo, so rotate the scrim to a
+     bottom-weighted vertical gradient or the text loses contrast. */
+  .sh-story { min-height: var(--sh-story-h-sm, 460px); }
+  .sh-story__scrim {
+    background: linear-gradient(to top,
+      rgba(27, 36, 17, .95) 0%, rgba(27, 36, 17, .88) 42%, rgba(27, 36, 17, .55) 100%);
+  }
+  .sh-story__media { min-height: 140px; }
+  .sh-story__seal { position: relative; bottom: auto; left: auto; margin-top: 20px; }
+  .sh-mindful__text { max-width: 52ch; }
+  .sh-footer__grid { grid-template-columns: 1fr 1fr; }
+  .sh-footer__brand { grid-column: 1 / -1; order: -1; margin-bottom: 12px; }
+}
+
+@media (max-width: 768px) {
+  .sh-hero__pin { height: 100svh; }
+  .sh-hero__content { padding-bottom: 190px; }
+  .sh-hero__copy { max-width: 100%; }
+  .sh-hero__title { font-size: clamp(2rem, 8vw, 2.6rem); }
+  .sh-hero__scroll, .sh-hero__badge { display: none; }
+  /* Drop backdrop-filter entirely on phones — a full-width blur over an
+     animating canvas is the single most expensive thing on mobile GPUs.
+     The opaque background is visually near-identical at this size. */
+  .sh-hero__trust {
+    grid-template-columns: 1fr 1fr; gap: 12px 0; bottom: 18px; border-radius: 16px;
+    backdrop-filter: none; background: rgba(23, 30, 15, .94);
+  }
+  .sh-hero__trust-item { padding-inline: 10px; }
+  .sh-hero__trust-item + .sh-hero__trust-item::before { display: none; }
+
+  .sh-story { min-height: var(--sh-story-h-sm, 420px); text-align: center; }
+  .sh-story__eyebrow { justify-content: center; }
+  .sh-story__text { margin-inline: auto; }
+  .sh-story__media { flex-direction: column; gap: 18px; min-height: 0; }
+  .sh-story__play { width: 60px; height: 60px; }
+  .sh-story__seal { width: clamp(66px, 18vw, 82px); margin-inline: auto; }
+  .sh-hero__trust-item > .sh-icon { width: 34px; height: 34px; padding: 8px; }
+
+  .sh-ritual__side { display: none; }
+  .sh-ritual__cols { grid-template-columns: 1fr; gap: 26px; }
+  .sh-ritual__center, .sh-ritual__connectors { display: none; }
+  .sh-ritual__col--left .sh-ritual__item { flex-direction: row; text-align: left; }
+  .sh-ritual__col--left .sh-ritual__item p { margin-left: 0; }
+  .sh-ritual__item p { max-width: none; }
+
+  .sh-steps { grid-template-columns: 1fr 1fr; gap: 30px 14px; }
+  .sh-steps__arc { display: none; }
+  .sh-step:nth-child(odd), .sh-step:nth-child(even) { transform: none; }
+  .sh-step p { max-width: 22ch; }
+
+  .sh-collection__strip { grid-template-columns: 1fr 1fr; gap: 22px 10px; }
+  .sh-collection__strip-item { justify-content: flex-start; }
+
+  .sh-footer__grid { grid-template-columns: 1fr; text-align: center; justify-items: center; }
+  .sh-footer__text, .sh-news { margin-inline: auto; }
+  .sh-footer__links { justify-items: center; }
+  .sh-social { justify-content: center; }
+  .sh-totop { right: 16px; bottom: 16px; }
+  body.template-index .sh-totop { right: 76px; }
+}
+
+/* ============================================================
+   16. REDUCED MOTION
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  .sh-announce--marquee .sh-announce__track { animation: none; }
+  .sh-story__seal svg { animation: none; }
+  .sh-card:hover img { transform: none; }
+  /* Reveals must resolve to visible, never stay at opacity:0 */
+  .sh [data-reveal] { opacity: 1 !important; transform: none !important; transition: none !important; }
+  .sh * { scroll-behavior: auto !important; }
+}
+
+/* ============================================================
+   17. SLICK STRUCTURAL BASE
+   Deliberately duplicated. theme.liquid:92 loads slick.css with
+   media="print" onload="this.media='all'", i.e. ASYNCHRONOUSLY — if the
+   carousel initialises before that swap lands, the slides collapse. This is
+   a race-condition safety net, not redundancy.
+   ============================================================ */
+.sh .slick-slider { position: relative; display: block; -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent; touch-action: pan-y; user-select: none; }
+.sh .slick-list { position: relative; overflow: hidden; display: block; margin: 0; padding: 0; }
+.sh .slick-list:focus { outline: none; }
+.sh .slick-track { position: relative; left: 0; top: 0; display: block; margin-left: auto; margin-right: auto; }
+.sh .slick-track::before, .sh .slick-track::after { content: ""; display: table; }
+.sh .slick-track::after { clear: both; }
+.sh .slick-slide { float: left; height: 100%; min-height: 1px; display: none; outline: none; }
+.sh .slick-slide img { display: block; }
+.sh .slick-initialized .slick-slide { display: block; }
+.sh .slick-dots { display: none; }

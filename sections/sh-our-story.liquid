@@ -1,0 +1,133 @@
+{%- comment -%}
+  SHUDHI — Our Story
+
+  Full-bleed banner: the photo covers the whole band, a left-to-right gradient
+  scrim keeps the copy legible over it, and the play button + circular seal sit
+  over the photo on the right.
+
+  The heading relies on `.sh-story h2 { color: inherit; text-transform: none }`
+  in shudhi-home.css to undo two global bare-element rules
+  (houseofveda-modern.css:55 sets an explicit dark colour; timber.scss.liquid:814
+  force-capitalises). Without that rule the title renders as a near-invisible
+  ghost in Title Case — do not remove it.
+{%- endcomment -%}
+
+{%- assign s = section.settings -%}
+{%- assign seal_id = 'sh-seal-' | append: section.id -%}
+{%- assign scrim = s.scrim | divided_by: 100.0 -%}
+
+<section class="sh sh-story" id="our-story"
+         style="--sh-green-900:{{ s.bg }};--sh-story-scrim:{{ scrim }};--sh-story-h:{{ s.min_height }}px;">
+
+  {%- comment -%} Full-bleed photo. Swapping this in the customizer is all it
+      takes to change the band — no code change. {%- endcomment -%}
+  {%- if s.image != blank -%}
+    <img class="sh-story__bg" src="{{ s.image | image_url: width: 2000 }}"
+         alt="{{ s.image.alt | default: s.title_l1 | escape }}"
+         width="2000" height="1000" loading="lazy" decoding="async">
+  {%- else -%}
+    <img class="sh-story__bg" src="{{ 'Our story.webp' | asset_url }}"
+         alt="{{ s.title_l1 | escape }}" width="2000" height="1000" loading="lazy" decoding="async">
+  {%- endif -%}
+
+  <div class="sh-story__scrim"></div>
+
+  <div class="sh-wrap">
+    <div class="sh-story__grid">
+
+      <div class="sh-story__copy"{% if s.animate %} data-reveal{% endif %}>
+        {%- if s.eyebrow != blank -%}
+          <div class="sh-story__eyebrow sh-eyebrow">
+            {{ s.eyebrow }}{% render 'sh-icon', name: 'leaf' %}
+          </div>
+        {%- endif -%}
+
+        <h2 class="sh-story__title sh-serif">
+          {{ s.title_l1 }}{% if s.title_l2 != blank %}<br>{{ s.title_l2 }}{% endif %}
+        </h2>
+
+        {%- if s.body != blank -%}<p class="sh-story__text">{{ s.body }}</p>{%- endif -%}
+
+        {%- if s.cta_label != blank -%}
+          <a href="{{ s.cta_link | default: '#rituals' }}" class="sh-btn sh-btn--ghost">
+            {{ s.cta_label }} {% render 'sh-icon', name: 'arrow-right' %}
+          </a>
+        {%- endif -%}
+      </div>
+
+      <div class="sh-story__media">
+
+        {%- comment -%}
+          With a video attached this is a real link with a real label. Without
+          one it is decorative and aria-hidden — no focusable dead link, and no
+          affordance promised to keyboard or screen-reader users that does not
+          exist.
+        {%- endcomment -%}
+        {%- if s.show_play -%}
+          {%- if s.video_link != blank -%}
+            <a href="{{ s.video_link }}" class="sh-story__play"
+               aria-label="{{ s.play_label | default: 'Play the Shudhi Herbals story' }}">
+              {% render 'sh-icon', name: 'play' %}
+            </a>
+          {%- else -%}
+            <span class="sh-story__play" aria-hidden="true">
+              {% render 'sh-icon', name: 'play' %}
+            </span>
+          {%- endif -%}
+        {%- endif -%}
+
+        {%- if s.seal_number != blank -%}
+          <div class="sh-story__seal">
+            <span class="sh-story__seal-num">{{ s.seal_number }}</span>
+            <svg viewBox="0 0 100 100" aria-hidden="true" focusable="false">
+              <defs>
+                <path id="{{ seal_id }}" fill="none"
+                      d="M50,50 m-38,0 a38,38 0 1,1 76,0 a38,38 0 1,1 -76,0"/>
+              </defs>
+              <text><textPath href="#{{ seal_id }}" startOffset="0">{{ s.seal_text }} · {{ s.seal_text }} · </textPath></text>
+            </svg>
+          </div>
+        {%- endif -%}
+
+      </div>
+
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "SH · Our Story",
+  "class": "index-section",
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Our Story" },
+    { "type": "text", "id": "title_l1", "label": "Heading line 1", "default": "Rooted in Tradition." },
+    { "type": "text", "id": "title_l2", "label": "Heading line 2", "default": "Crafted for Today." },
+    { "type": "textarea", "id": "body", "label": "Body text", "default": "Inspired by 4 generations of herbal wisdom, Shudhi Herbals brings ancient Ayurvedic recipes into your modern self-care rituals." },
+    { "type": "text", "id": "cta_label", "label": "Button text", "default": "Know our story" },
+    { "type": "url", "id": "cta_link", "label": "Button link" },
+
+    { "type": "header", "content": "Media" },
+    { "type": "image_picker", "id": "image", "label": "Background image",
+      "info": "Fills the whole band. Defaults to \"Our story.webp\" in Assets." },
+    { "type": "range", "id": "scrim", "label": "Dark overlay strength", "min": 40, "max": 100, "step": 5, "default": 90, "unit": "%",
+      "info": "Keeps the copy legible over the photo. Raise it if you swap in a lighter image." },
+    { "type": "range", "id": "min_height", "label": "Band height", "min": 300, "max": 640, "step": 20, "default": 440, "unit": "px" },
+
+    { "type": "header", "content": "Play button" },
+    { "type": "checkbox", "id": "show_play", "label": "Show play button", "default": true },
+    { "type": "url", "id": "video_link", "label": "Video link",
+      "info": "Optional. With no link the button is decorative and hidden from screen readers." },
+    { "type": "text", "id": "play_label", "label": "Play button accessible label", "default": "Play the Shudhi Herbals story" },
+
+    { "type": "header", "content": "Seal" },
+    { "type": "text", "id": "seal_number", "label": "Seal number", "default": "4" },
+    { "type": "text", "id": "seal_text", "label": "Seal circular text", "default": "Generations of herbal wisdom" },
+
+    { "type": "header", "content": "Appearance" },
+    { "type": "checkbox", "id": "animate", "label": "Animate on scroll", "default": true },
+    { "type": "color", "id": "bg", "label": "Background", "default": "#1b2411" }
+  ],
+  "presets": [ { "name": "SH · Our Story" } ]
+}
+{% endschema %}

@@ -6185,6 +6185,94 @@
           "trending_collection_handle": "trending-this-week",
           "popular_searches": "Organic Tea, Honey, Detox, Weight Loss, Immunity, Ayurvedic, Digestive, Calming, Women's Wellness, Energy"
         }
+      },
+      "sh-announcement": {
+        "type": "sh-announcement",
+        "blocks": {
+          "m1": {
+            "type": "message",
+            "settings": {
+              "text": "Free shipping on orders over ₹999"
+            }
+          },
+          "m2": {
+            "type": "message",
+            "settings": {
+              "text": "Handmade in small batches · 100% natural"
+            }
+          },
+          "m3": {
+            "type": "message",
+            "settings": {
+              "text": "Cruelty free · Rooted in Ayurveda"
+            }
+          }
+        },
+        "block_order": [
+          "m1",
+          "m2",
+          "m3"
+        ],
+        "settings": {
+          "enabled": true,
+          "style": "marquee",
+          "speed": 28,
+          "fallback_text": "Free shipping on orders over ₹999",
+          "bg": "#1b2411",
+          "fg": "#c9a86a"
+        }
+      },
+      "sh-header": {
+        "type": "sh-header",
+        "settings": {
+          "logo": "",
+          "brand_name": "SHUDHI",
+          "brand_sub": "HERBALS",
+          "menu": "",
+          "overlay": true,
+          "solid_after": 90,
+          "use_asset_logo": true
+        }
+      },
+      "sh-footer": {
+        "type": "sh-footer",
+        "blocks": {
+          "q1": {
+            "type": "column",
+            "settings": {
+              "heading": "Quick Links",
+              "menu": "",
+              "links": "Shop All | /collections/all\nOur Story | #our-story\nIngredients | #ritual-benefits\nRituals | #rituals\nBlog | /blogs/news"
+            }
+          },
+          "q2": {
+            "type": "column",
+            "settings": {
+              "heading": "Customer Care",
+              "menu": "",
+              "links": "Contact Us | /pages/contactus\nFAQs | /pages/faqs\nShipping & Delivery | /policies/shipping-policy\nReturns & Refunds | /policies/refund-policy"
+            }
+          }
+        },
+        "block_order": [
+          "q1",
+          "q2"
+        ],
+        "settings": {
+          "news_title": "Join our wellness circle",
+          "news_body": "Be the first to know about new rituals, offers & herbal wisdom.",
+          "news_placeholder": "Your email address",
+          "instagram": "",
+          "facebook": "",
+          "pinterest": "",
+          "youtube": "",
+          "brand_name": "SHUDHI",
+          "brand_sub": "HERBALS",
+          "tagline": "Purify your skin. Cleanse your aura.",
+          "copyright": "© 2025 Shudhi Herbals. All rights reserved.",
+          "bottom_note": "Made with intention · Rooted in Ayurveda",
+          "bg": "#1b2411"
+        }
       }
     },
     "content_for_index": [
