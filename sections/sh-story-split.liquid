@@ -47,7 +47,11 @@
           guessed one would describe an image the merchant never uploaded.
         {%- endcomment -%}
         {%- assign img_h = 1400 | divided_by: s.image.aspect_ratio | round -%}
-        <img class="sh-split__photo"
+        {%- comment -%} data-parallax rides the same `animate` checkbox as the copy's
+            reveal below. Only on the real photo: the placeholder branch is a flat
+            tint with nothing to parallax, and moving it would expose the 30px of
+            slack for no payoff. {%- endcomment -%}
+        <img class="sh-split__photo"{% if s.animate %} data-parallax{% endif %}
              src="{{ s.image | image_url: width: 1400 }}"
              {%- comment -%} No fallback to the eyebrow. image.alt is nil until a
                  merchant fills it in, and "Our Beginning" describes the band,
@@ -84,8 +88,7 @@
         <p class="sh-split__text">{{ s.body }}</p>
       {%- endif -%}
 
-      {%- comment -%} Both halves required, the same rule sh-story-hero.liquid:69
-          applies to its secondary CTA. A label with no destination used to fall
+      {%- comment -%} Both halves required. A label with no destination used to fall
           back to href="#", and an empty fragment means "top of the document" —
           so a reader who reached this band and pressed the link was thrown back
           to the hero, losing their place with no announcement (WCAG 2.4.4).

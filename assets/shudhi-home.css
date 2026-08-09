@@ -207,8 +207,16 @@
 .sh-btn--outline:hover { border-color: var(--sh-accent); color: var(--sh-accent); }
 .sh-btn--ghost   { padding: 0; color: var(--sh-accent); letter-spacing: .2em; }
 .sh-btn--ghost:hover { color: var(--sh-light); }
-.sh-btn--ghost .sh-icon { transition: transform .3s ease; }
-.sh-btn--ghost:hover .sh-icon { transform: translateX(5px); }
+/* The arrow slides on BOTH variants, written as one pair so the 5px and the .3s
+   stay in one place. It cannot fight `.sh-btn--solid:hover`'s translateY(-2px)
+   (:204): that transform lands on the <a>/<button>, this one on the <svg> inside
+   it — two elements, two transforms, so they compose (the arrow rises with the
+   button and slides within it) rather than one overwriting the other. The
+   ::before cross-fade (:197-205) animates opacity only and is untouched.
+   All four solid buttons in the theme render an arrow-right, so none is left
+   carrying a transition for an icon it does not have. */
+.sh-btn--ghost .sh-icon, .sh-btn--solid .sh-icon { transition: transform .3s ease; }
+.sh-btn--ghost:hover .sh-icon, .sh-btn--solid:hover .sh-icon { transform: translateX(5px); }
 
 /* Circular play button */
 .sh-play {
@@ -808,6 +816,13 @@ a.sh-story__play:hover {
 /* ============================================================
    10. RITUAL BENEFITS — "It's a Ritual."
    ============================================================ */
+/* houseofveda-modern.css:55 colours h1..h6 to var(--hov-dark) (#1F2A24) site-wide.
+   An explicit colour on the element beats the light colour inherited from
+   .sh-ritual, so the heading rendered bark-green on the dark green band.
+   Same defence as .sh-story (:685) and .sh-split (:1498);
+   `.sh-ritual h2` (0,1,1) beats a bare `h2` (0,0,1), so no !important is needed. */
+.sh-ritual h2 { color: inherit; }
+
 .sh-ritual {
   position: relative; overflow: hidden; color: var(--sh-light);
   padding-block: clamp(78px, 10vw, 138px); background: var(--sh-green-900);
@@ -1120,6 +1135,20 @@ a.sh-story__play:hover {
   position: absolute; inset: 0; width: 100%; height: 100%;
   object-fit: cover; z-index: 0;
 }
+/* Parallax slack. The image is translated up to 15px each way, so it has to be
+   30px taller than its box or a strip of the section's own background shows at
+   one edge. The section is already overflow:hidden (:1111) and the bg is inset
+   against that same box, so nothing new is needed to clip it.
+   Written as [data-parallax] deliberately: `.sh img { height: auto }` (:115) is
+   (0,1,1) and out-specifies a bare .sh-story-hero__bg (0,1,0) — which is why the
+   height:100% above is inert and the box is actually filled by inset:0. The
+   attribute takes this to (0,2,0), which beats it. Same trap the .sh-logo__img
+   comment at :334 documents. `bottom: auto` is stated rather than left to the
+   over-constrained-box rules, so the intent is readable.
+   No will-change: this is the LCP element on Our Story and a permanent
+   compositor layer is a cost paid before anyone has scrolled. The translate3d
+   the JS writes promotes it on first use instead. */
+.sh-story-hero__bg[data-parallax] { top: -15px; bottom: auto; height: calc(100% + 30px); }
 /* Left-weighted so the copy column stays legible while the right side of the
    photo — the product, in the reference — stays open. Relative-colour syntax
    with a fixed-hue @supports fallback below, so the strength stays driven by
@@ -1166,6 +1195,49 @@ a.sh-story__play:hover {
   font-style: normal; color: var(--sh-gold);
   font-family: var(--sh-serif) !important;
 }
+
+/* Split-line reveal. Each line is a mask; the span inside starts below the mask's
+   own bottom edge and slides up into place.
+
+   The masks need vertical breathing room. .sh-serif sets line-height 1.06 —
+   TIGHTER than Cormorant's content area — so glyphs already overflow their line
+   box at both ends, and a bare overflow:hidden would shave the top of "R" and the
+   descender of the "y" in "Today.". .14em of padding restores it and an equal
+   negative margin hands the space straight back, so the two lines land exactly
+   where the <br> used to put them.
+
+   display:flex on the h1 is what makes that pull-back safe: adjacent NEGATIVE
+   margins collapse between block siblings — line 1's -.14em and line 2's would
+   resolve to one -.14em and the second line would sit .14em high — and flex items
+   never collapse margins.
+
+   No font-family re-declaration here, unlike the em rule above. The TYPOGRAPHY
+   DEFENCE block (:141) lists b, strong, em, label, button, input, select and
+   textarea; <span> is NOT among them, so these wrappers inherit the serif. */
+.sh-story-hero__title   { display: flex; flex-direction: column; }
+.sh-story-hero__line    { overflow: hidden; padding-block: .14em; margin-block: -.14em; }
+.sh-story-hero__line-in { display: block; }
+
+/* Keyed off [data-reveal] on the COPY BLOCK, not a second one on the h1:
+     - `animate` is one merchant checkbox and it hangs off .sh-story-hero__copy.
+       Keyed here, unchecking it leaves the headline flat with no second Liquid
+       conditional to keep in sync.
+     - A [data-reveal] on the h1 would pick up `.sh [data-reveal]`'s own opacity:0
+       (:226) INSIDE a parent already fading from 0, and the two fades multiply —
+       the same double dip .sh-split__copy cancels at :1570.
+     - It adds no new way for the page to stay blank. These spans keep opacity 1
+       and are only ever TRANSLATED, so the single class the observer already
+       toggles governs both.
+   120%, not 100%: the mask is 1.06em of line box plus .14em of padding, and
+   overflow clips at the PADDING box, so the span has to clear that extra strip. */
+.sh-story-hero__copy[data-reveal] .sh-story-hero__line-in {
+  transform: translateY(120%);
+  transition: transform .9s cubic-bezier(.22, .61, .36, 1);
+}
+.sh-story-hero__copy[data-reveal].is-in .sh-story-hero__line-in { transform: none; }
+/* 120ms behind line one — the two read as one gesture. Sibling combinator rather
+   than :nth-child(2), so nothing changes if a third line is ever added. */
+.sh-story-hero__line + .sh-story-hero__line > .sh-story-hero__line-in { transition-delay: .12s; }
 
 /* Rule + flourish under the headline, mirroring the eyebrow's rule + leaf. */
 .sh-story-hero__rule { display: flex; align-items: center; gap: 12px; margin: 26px 0 24px; color: var(--sh-gold); }
@@ -1363,6 +1435,19 @@ a.sh-story__play:hover {
   .sh-card:hover img { transform: none; }
   /* Reveals must resolve to visible, never stay at opacity:0 */
   .sh [data-reveal] { opacity: 1 !important; transform: none !important; transition: none !important; }
+  /* Covers the split-line masks too: the rule above kills the transition on the
+     [data-reveal] container, but the translateY(120%) lives on the spans inside
+     it, so without this the headline would sit permanently below its masks. */
+  .sh-story-hero__line-in { transform: none !important; transition: none !important; }
+  /* Insurance only — parallax() bails on the media query and never writes a
+     transform. This catches its one gap: the query is read once at boot (the same
+     trade counters() makes), so a mid-session OS toggle would otherwise leave the
+     last offset frozen in an inline style. An !important author rule beats a
+     non-important inline style. */
+  .sh [data-parallax] { transform: none !important; }
+  /* Both properties, not just the transition: with only the transition killed, a
+     hover would SNAP the arrow 5px sideways — louder than the motion it replaces. */
+  .sh-btn .sh-icon { transform: none !important; transition: none !important; }
   .sh * { scroll-behavior: auto !important; }
 }
 
@@ -1499,12 +1584,24 @@ a.sh-story__play:hover {
   grid-column: var(--sh-split-media-col);
   grid-row: 1;
   position: relative; align-self: stretch;
+  /* Clips the parallax slack below. NOT redundant with .sh-split's own
+     overflow:hidden (:1447): at <=767px the grid stacks, the media box's bottom
+     edge lands mid-section with the copy underneath it, and a 15px-oversized
+     photo would spill over that copy — under the feather, above the text. */
+  overflow: hidden;
   min-height: var(--sh-split-media-h, clamp(320px, 38vw, 520px));
 }
 .sh-split__photo {
   position: absolute; inset: 0; width: 100%; height: 100%;
   object-fit: cover;
 }
+/* Parallax slack — see .sh-story-hero__bg[data-parallax] for the full note on why
+   this needs the attribute to reach (0,2,0) and beat `.sh img { height: auto }`.
+   min_height is untouched: the photo is absolutely positioned, so it feeds nothing
+   into --sh-split-h (:1463) or --sh-split-media-h, and calc(100% + 30px) resolves
+   against whatever height the grid stretched the media box to. --sh-split-feather
+   is untouched too: ::after is inset against the MEDIA box, not the photo. */
+.sh-split__photo[data-parallax] { top: -15px; bottom: auto; height: calc(100% + 30px); }
 /* Stand-in until final photography lands. Tinted FROM the surface — the band's
    own colour with a low-alpha ink wash over it — so it reads as an intentional
    panel at any `bg` the merchant picks, rather than a grey hole that has to be

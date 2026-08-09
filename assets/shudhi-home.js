@@ -15,6 +15,13 @@
 
   var FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
+  /* Module scope, not closure-local. boot() re-runs on shopify:section:load, so
+     re-binding scroll/resize per boot would stack one listener per section edit
+     in the theme editor. But the element LIST still has to be refreshed every
+     boot — a re-rendered section brings new nodes and leaves the old ones
+     detached. So: list is module state, binding is a one-time flag. */
+  var pxEls = [], pxBound = false;
+
   /* ---------------------------------------------------------------
      Sticky header: solid background once past the hero's top region
      --------------------------------------------------------------- */
@@ -329,6 +336,81 @@
     }
   }
 
+  /* ---------------------------------------------------------------
+     Scroll parallax — hero background and split-band photography
+     --------------------------------------------------------------- */
+  /* Opt-in via [data-parallax], written by the Liquid behind each section's
+     `animate` checkbox. transform is the ONLY property written: nothing here can
+     reflow, and nothing here can gate visibility — an element that never receives
+     a transform simply sits where the CSS put it. The 30px of vertical slack the
+     offset needs is in the CSS, on the same attribute. */
+  function parallax() {
+    /* Re-collected every boot; see the pxEls note at the top of the file. */
+    pxEls = document.querySelectorAll('.sh [data-parallax]');
+    if (!pxEls.length || pxBound) return;
+
+    /* Read once, the same trade counters() makes above. */
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    /* matchMedia, not innerWidth. The split stacks at max-width:767px, which the
+       engine resolves against the viewport INCLUDING the scrollbar; innerWidth
+       excludes it on desktop Windows and Linux. The two disagree by ~15px, which
+       is exactly a band of widths where the CSS has already stacked but the JS
+       would still be translating the photo inside a short media box. */
+    var wide = window.matchMedia('(min-width: 768px)');
+
+    var MAX = 15;                  /* px each way — the house ceiling on parallax */
+    var ticking = false;
+    var vh = window.innerHeight;   /* cached; refreshed on resize */
+    var rects = [];
+
+    function paint() {
+      ticking = false;
+      if (!wide.matches) return;
+      var i, n = pxEls.length;
+
+      /* READ pass, then WRITE pass. Interleaving them forces a layout recalc per
+         element — the same rule scrollState() follows above. */
+      for (i = 0; i < n; i++) rects[i] = pxEls[i].parentNode.getBoundingClientRect();
+
+      for (i = 0; i < n; i++) {
+        var box = rects[i];
+        /* Zero-sized means detached — a section the editor re-rendered out from
+           under us before the next boot re-collected the list. */
+        if (!box.height || box.bottom < 0 || box.top > vh) continue;
+        /* -1 when the MASK's centre sits a full travel below the viewport's, +1
+           when it sits above. Measured on the mask, never on the oversized image,
+           so the image's own 30px of slack cannot feed back into its offset.
+           Clamped, so a band taller than the viewport cannot run past the budget. */
+        var p = (box.top + box.height / 2 - vh / 2) / ((vh + box.height) / 2);
+        if (p < -1) p = -1; else if (p > 1) p = 1;
+        pxEls[i].style.transform = 'translate3d(0,' + (p * MAX).toFixed(2) + 'px,0)';
+      }
+    }
+
+    function onScroll() {
+      if (ticking || !wide.matches) return;
+      ticking = true;
+      requestAnimationFrame(paint);
+    }
+
+    /* No 'change' listener on the media query: any width change that flips it
+       also fires resize, so one handler covers both. */
+    function onResize() {
+      vh = window.innerHeight;     /* iOS fires resize when the URL bar collapses */
+      if (wide.matches) { onScroll(); return; }
+      /* Below the breakpoint the effect is off and everything has to go BACK to
+         zero. A phone rotated out of landscape would otherwise keep whatever
+         offset the last wide frame wrote and sit 15px off-centre for good. */
+      for (var i = 0; i < pxEls.length; i++) pxEls[i].style.transform = '';
+    }
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onResize, { passive: true });
+    pxBound = true;
+    onResize();
+  }
+
   function boot() {
     scrollState();
     drawer();
@@ -338,6 +420,10 @@
     anchors();
     reveal();
     counters();
+    /* Last on purpose. boot() has no try/catch, so anything that throws before
+       reveal() leaves every [data-reveal] at opacity:0 for the life of the page.
+       Parked behind reveal() and counters(), parallax can never gate content. */
+    parallax();
   }
 
   if (document.readyState === 'loading') {
