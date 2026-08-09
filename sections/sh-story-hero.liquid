@@ -2,8 +2,8 @@
   SHUDHI — Story hero (Our Story page)
 
   The Our Story page's opening block: full-bleed photo, left-weighted scrim,
-  two-tone headline, the primary gold CTA and a secondary play link, with the
-  shared trust row over its lower edge.
+  two-tone headline and the primary gold CTA, with the shared trust row over its
+  lower edge.
 
   It replaces the flat sh-page-header band on this template only — sh-page-header
   is still what The Ritual and Contact open with, and is untouched.
@@ -25,12 +25,18 @@
 <section class="sh sh-story-hero"
          style="--sh-green-900:{{ s.bg }};--sh-story-hero-scrim:{{ scrim }};--sh-story-hero-h:{{ s.min_height }}px;">
 
+  {%- comment -%} data-parallax hangs off the same `animate` checkbox as the reveal
+      below, so one merchant switch governs every bit of motion in the band. The
+      30px of vertical slack the offset needs is in the CSS, keyed off the same
+      attribute — see .sh-story-hero__bg[data-parallax]. {%- endcomment -%}
   {%- if s.image != blank -%}
-    <img class="sh-story-hero__bg" src="{{ s.image | image_url: width: 2400 }}"
+    <img class="sh-story-hero__bg"{% if s.animate %} data-parallax{% endif %}
+         src="{{ s.image | image_url: width: 2400 }}"
          alt="{{ s.image.alt | default: s.title_l1 | escape }}"
          width="2400" height="1200" fetchpriority="high" decoding="async">
   {%- else -%}
-    <img class="sh-story-hero__bg" src="{{ 'Our story.webp' | asset_url }}"
+    <img class="sh-story-hero__bg"{% if s.animate %} data-parallax{% endif %}
+         src="{{ 'Our story.webp' | asset_url }}"
          alt="" width="2000" height="1000" fetchpriority="high" decoding="async">
   {%- endif -%}
 
@@ -45,10 +51,17 @@
         </div>
       {%- endif -%}
 
+      {%- comment -%} Each line is its own masked block rather than two lines split
+          by a <br>: the split-line reveal needs an overflow box to slide the words
+          up out of. The schema is untouched — title_l1/_em and title_l2/_em print
+          the same text in the same order — and the wrappers are inert markup when
+          `animate` is off, because the motion is keyed off the [data-reveal] on
+          .sh-story-hero__copy above, never off these spans. Line 2 stays
+          conditional; one line is a complete headline. {%- endcomment -%}
       <h1 class="sh-story-hero__title sh-serif">
-        {{ s.title_l1 }}{% if s.title_l1_em != blank %} <em>{{ s.title_l1_em }}</em>{% endif %}
+        <span class="sh-story-hero__line"><span class="sh-story-hero__line-in">{{ s.title_l1 }}{% if s.title_l1_em != blank %} <em>{{ s.title_l1_em }}</em>{% endif %}</span></span>
         {%- if s.title_l2 != blank or s.title_l2_em != blank -%}
-          <br>{{ s.title_l2 }}{% if s.title_l2_em != blank %} <em>{{ s.title_l2_em }}</em>{% endif %}
+          <span class="sh-story-hero__line"><span class="sh-story-hero__line-in">{{ s.title_l2 }}{% if s.title_l2_em != blank %} <em>{{ s.title_l2_em }}</em>{% endif %}</span></span>
         {%- endif -%}
       </h1>
 
@@ -65,15 +78,6 @@
               our_beginning instance carries in templates/page.our-story.json. {%- endcomment -%}
           <a href="{{ s.cta_link | default: '#our-beginning' }}" class="sh-btn sh-btn--solid">
             {{ s.cta_label }} {% render 'sh-icon', name: 'arrow-right' %}
-          </a>
-        {%- endif -%}
-
-        {%- comment -%} Rendered only with a destination. A play affordance with
-            nowhere to go is a dead link for keyboard and screen-reader users —
-            same rule sh-our-story applies to its own play button. {%- endcomment -%}
-        {%- if s.cta2_label != blank and s.cta2_link != blank -%}
-          <a href="{{ s.cta2_link }}" class="sh-discover">
-            {{ s.cta2_label }}<span class="sh-play">{% render 'sh-icon', name: 'play' %}</span>
           </a>
         {%- endif -%}
       </div>
@@ -114,9 +118,6 @@
     { "type": "textarea", "id": "body", "label": "Body text", "default": "Inspired by 4 generations of herbal wisdom, Shudhi Herbals brings ancient Ayurvedic recipes into your modern self-care rituals." },
     { "type": "text", "id": "cta_label", "label": "Primary button", "default": "Know our story" },
     { "type": "url", "id": "cta_link", "label": "Primary button link" },
-    { "type": "text", "id": "cta2_label", "label": "Secondary link", "default": "Explore our journey" },
-    { "type": "url", "id": "cta2_link", "label": "Secondary link URL",
-      "info": "The play link is hidden until this is set — a play button with no destination is a dead link." },
 
     { "type": "header", "content": "Generations seal" },
     { "type": "paragraph", "content": "The ring rotates slowly and the number counts up once, the first time it scrolls into view. Leave the number blank to hide the seal." },
