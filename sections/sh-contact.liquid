@@ -1,0 +1,154 @@
+{%- comment -%}
+  SHUDHI — Contact
+
+  Shopify's native {% form 'contact' %}, styled to the Shudhi system. Two
+  columns: the form on the left, the contact details on the right.
+
+  The details are section settings rather than hardcoded copy so the merchant
+  can fill them in without a code change — they ship as [PLACEHOLDER] and each
+  row is skipped entirely when its setting is blank, so an unfilled page shows
+  a short list rather than empty rows.
+
+  form.posted_successfully? replaces the form outright: Shopify redirects back
+  with ?contact_posted=true, and leaving the fields on screen next to a success
+  note invites a duplicate submit.
+{%- endcomment -%}
+
+{%- assign s = section.settings -%}
+
+<section class="sh sh-contact" id="contact"{% if s.bg != blank %} style="--sh-contact-bg:{{ s.bg }};"{% endif %}>
+  <div class="sh-wrap">
+    <div class="sh-contact__grid">
+
+      {%- comment -%} Form {%- endcomment -%}
+      <div class="sh-contact__form"{% if s.animate %} data-reveal{% endif %}>
+        {%- if s.form_title != blank -%}
+          <h2 class="sh-contact__title sh-serif">{{ s.form_title }}</h2>
+        {%- endif -%}
+
+        {%- form 'contact', class: 'sh-form' -%}
+          {%- if form.posted_successfully? -%}
+            <p class="sh-form__ok" role="status">
+              {% render 'sh-icon', name: 'leaf' %}
+              {{ s.success_text }}
+            </p>
+          {%- else -%}
+            {%- if form.errors -%}
+              <div class="sh-form__err" role="alert">
+                {{ form.errors | default_errors }}
+              </div>
+            {%- endif -%}
+
+            <div class="sh-form__row">
+              <label class="sh-field">
+                <span>{{ s.label_name }}</span>
+                <input type="text" name="contact[name]" required
+                       value="{{ form.name | default: customer.name }}">
+              </label>
+
+              <label class="sh-field">
+                <span>{{ s.label_email }}</span>
+                <input type="email" name="contact[email]" required autocomplete="email"
+                       value="{{ form.email | default: customer.email }}">
+              </label>
+            </div>
+
+            <label class="sh-field">
+              <span>{{ s.label_phone }}</span>
+              <input type="tel" name="contact[phone]" autocomplete="tel"
+                     value="{{ form.phone }}">
+            </label>
+
+            <label class="sh-field">
+              <span>{{ s.label_message }}</span>
+              <textarea name="contact[body]" rows="6" required>{{ form.body }}</textarea>
+            </label>
+
+            <button type="submit" class="sh-btn sh-btn--solid">
+              {{ s.submit_label }}{% render 'sh-icon', name: 'arrow-right' %}
+            </button>
+          {%- endif -%}
+        {%- endform -%}
+      </div>
+
+      {%- comment -%} Details {%- endcomment -%}
+      <aside class="sh-contact__info"{% if s.animate %} data-reveal{% endif %}>
+        {%- if s.info_title != blank -%}
+          <div class="sh-contact__eyebrow sh-eyebrow">{{ s.info_title }}</div>
+        {%- endif -%}
+
+        <dl class="sh-contact__list">
+          {%- if s.address != blank -%}
+            <div class="sh-contact__item">
+              {% render 'sh-icon', name: 'pin' %}
+              <div><dt>Visit</dt><dd>{{ s.address }}</dd></div>
+            </div>
+          {%- endif -%}
+
+          {%- if s.phone != blank -%}
+            <div class="sh-contact__item">
+              {% render 'sh-icon', name: 'phone' %}
+              <div>
+                <dt>Call</dt>
+                <dd><a href="tel:{{ s.phone | remove: ' ' | remove: '-' }}">{{ s.phone }}</a></dd>
+              </div>
+            </div>
+          {%- endif -%}
+
+          {%- if s.email != blank -%}
+            <div class="sh-contact__item">
+              {% render 'sh-icon', name: 'mail' %}
+              <div>
+                <dt>Email</dt>
+                <dd><a href="mailto:{{ s.email }}">{{ s.email }}</a></dd>
+              </div>
+            </div>
+          {%- endif -%}
+
+          {%- if s.hours != blank -%}
+            <div class="sh-contact__item">
+              {% render 'sh-icon', name: 'clock' %}
+              <div><dt>Hours</dt><dd>{{ s.hours }}</dd></div>
+            </div>
+          {%- endif -%}
+        </dl>
+
+        {%- if s.note != blank -%}
+          <p class="sh-contact__note">{{ s.note }}</p>
+        {%- endif -%}
+      </aside>
+
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "SH · Contact",
+  "class": "index-section",
+  "settings": [
+    { "type": "text", "id": "form_title", "label": "Form heading", "default": "Send us a message" },
+    { "type": "text", "id": "label_name", "label": "Name label", "default": "Name" },
+    { "type": "text", "id": "label_email", "label": "Email label", "default": "Email address" },
+    { "type": "text", "id": "label_phone", "label": "Phone label", "default": "Phone (optional)" },
+    { "type": "text", "id": "label_message", "label": "Message label", "default": "Your message" },
+    { "type": "text", "id": "submit_label", "label": "Button text", "default": "Send message" },
+    { "type": "textarea", "id": "success_text", "label": "Success message",
+      "default": "Thank you — your message is on its way. We usually reply within two working days." },
+
+    { "type": "header", "content": "Contact details",
+      "info": "Ship as [PLACEHOLDER]. Any row left empty is hidden on the page." },
+    { "type": "text", "id": "info_title", "label": "Heading", "default": "Get in touch" },
+    { "type": "textarea", "id": "address", "label": "Address", "default": "[PLACEHOLDER — street address, city, state, PIN]" },
+    { "type": "text", "id": "phone", "label": "Phone", "default": "[PLACEHOLDER — +91 00000 00000]" },
+    { "type": "text", "id": "email", "label": "Email", "default": "[PLACEHOLDER — hello@shudhiherbals.com]" },
+    { "type": "text", "id": "hours", "label": "Hours", "default": "[PLACEHOLDER — Mon–Sat, 10am–6pm IST]" },
+    { "type": "textarea", "id": "note", "label": "Footnote", "default": "For order and delivery questions, please include your order number." },
+
+    { "type": "header", "content": "Appearance" },
+    { "type": "color", "id": "bg", "label": "Background", "default": "#f2ece0" },
+    { "type": "checkbox", "id": "animate", "label": "Animate on scroll", "default": true }
+  ],
+  "presets": [ { "name": "SH · Contact" } ]
+}
+{% endschema %}

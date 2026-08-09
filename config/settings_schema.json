@@ -591,8 +591,23 @@
       {
         "type": "text",
         "id": "fonts_name_1",
-        "label": "Google Fonts Name",
-       
+        "label": "Google Fonts Name"
+      }
+    ]
+  },
+  {
+    "name": "Typography",
+    "settings": [
+      {
+        "type": "paragraph",
+        "content": "Body font for all paragraph, product-description and supporting copy across the store. Served self-hosted from Shopify's font library — no external Google Fonts request. Headings are set separately in assets/hov-typography.css and are not affected by this setting."
+      },
+      {
+        "type": "font_picker",
+        "id": "type_body_font",
+        "label": "Body font",
+        "default": "jost_n4",
+        "info": "Jost is the brand default. Any picker font works, but pick one that stays legible at 15–16px."
       }
     ]
   },

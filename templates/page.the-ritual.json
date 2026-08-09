@@ -1,0 +1,131 @@
+{
+  "sections": {
+    "page_header": {
+      "type": "sh-page-header",
+      "settings": {
+        "eyebrow": "The Ritual",
+        "title": "More than a soap. It's a Ritual.",
+        "body": "Every Shudhi bar is made to be used slowly — four mindful steps that turn a daily wash into a moment of reset.",
+        "bg": "#1b2411"
+      }
+    },
+    "mindful_ritual": {
+      "type": "sh-mindful-ritual",
+      "blocks": {
+        "s1": {
+          "type": "step",
+          "settings": {
+            "icon": "drop",
+            "title": "Wet",
+            "text": "Begin with mindful presence"
+          }
+        },
+        "s2": {
+          "type": "step",
+          "settings": {
+            "icon": "lotus",
+            "title": "Lather",
+            "text": "Let the herbs cleanse & purify"
+          }
+        },
+        "s3": {
+          "type": "step",
+          "settings": {
+            "icon": "wind",
+            "title": "Breathe",
+            "text": "Release negativity, embrace calm"
+          }
+        },
+        "s4": {
+          "type": "step",
+          "settings": {
+            "icon": "leaf",
+            "title": "Refresh",
+            "text": "Step out renewed, refreshed & grounded"
+          }
+        }
+      },
+      "block_order": [
+        "s1",
+        "s2",
+        "s3",
+        "s4"
+      ],
+      "settings": {
+        "title": "Transform Your Daily Bath into a Mindful Ritual",
+        "body": "Breathe. Pause. Purify. Let every shower be a moment to reset, release and reconnect with yourself.",
+        "cta_label": "Shop the ritual",
+        "cta_link": "/collections/all",
+        "animate": true
+      }
+    },
+    "ritual_benefits": {
+      "type": "sh-ritual-benefits",
+      "blocks": {
+        "b1": {
+          "type": "benefit",
+          "settings": {
+            "column": "left",
+            "icon": "sparkle",
+            "title": "Aura Cleansing",
+            "text": "Helps remove negative energy and uplift your aura."
+          }
+        },
+        "b2": {
+          "type": "benefit",
+          "settings": {
+            "column": "left",
+            "icon": "mortar",
+            "title": "Sacred Ayurveda",
+            "text": "Crafted with powerful herbs known for their purifying properties."
+          }
+        },
+        "b3": {
+          "type": "benefit",
+          "settings": {
+            "column": "left",
+            "icon": "leaf",
+            "title": "Cold Process Crafted",
+            "text": "Made slowly in small batches to retain natural goodness."
+          }
+        },
+        "b4": {
+          "type": "benefit",
+          "settings": {
+            "column": "right",
+            "icon": "drop",
+            "title": "Deep & Gentle Cleanse",
+            "text": "Cleanses deeply while nourishing your skin naturally."
+          }
+        },
+        "b5": {
+          "type": "benefit",
+          "settings": {
+            "column": "right",
+            "icon": "heart",
+            "title": "Made with Intention",
+            "text": "Handmade in small batches with love, care & mindfulness."
+          }
+        }
+      },
+      "block_order": [
+        "b1",
+        "b2",
+        "b3",
+        "b4",
+        "b5"
+      ],
+      "settings": {
+        "eyebrow": "More than a soap.",
+        "title": "It's a Ritual.",
+        "side_label": "Ritual Benefits",
+        "animate": true
+      }
+    }
+  },
+  "order": [
+    "page_header",
+    "mindful_ritual",
+    "ritual_benefits"
+  ]
+}

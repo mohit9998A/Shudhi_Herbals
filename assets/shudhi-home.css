@@ -26,6 +26,23 @@
   --sh-cream-2:   #e9e0cf;
   --sh-gold:      #c9a86a;   /* eyebrows, labels, rules, active pager */
   --sh-gold-2:    #b8934a;
+
+  /* ACCENT — the CTA/button ROLE, and the only token any solid CTA reads.
+     Deliberately NOT an alias of --sh-gold: --sh-gold is a hairline colour
+     (eyebrows, 1px rules, the spinning seal, the active pager) that only ever
+     paints thin strokes on dark, while this carries a solid fill that has to
+     hold AA-contrast text and needs its own hover step. Keeping them apart is
+     what lets the button theme move without dragging every gold hairline in
+     the theme along with it — and what keeps it out of the header, which reads
+     --sh-green-900 / --sh-light / --sh-gold and none of these.
+     Sampled from the reference mockup's "KNOW OUR STORY" button: a
+     left-to-right gradient, light champagne -> mid gold -> deep antique gold. */
+  --sh-accent:      #c4a35d;   /* solid CTA fill / gradient mid stop */
+  --sh-accent-soft: #dcc084;   /* gradient start — the light left edge */
+  --sh-accent-deep: #ac8940;   /* gradient end + hover fill */
+  --sh-accent-edge: #8a6a2c;   /* rim/outline, ONLY where gold meets a LIGHT surface */
+  --sh-accent-fg:   #1e1810;   /* text ON the accent fill — 7.3:1, 5.4:1 at the deep end */
+
   --sh-rose:      #c98d86;   /* hero fallback while frames load */
   --sh-ink:       #241d15;   /* body copy on light */
   --sh-light:     #f4efe6;   /* body copy on dark */
@@ -46,7 +63,26 @@
   --sh-max: 1280px;
   --sh-pad: clamp(20px, 5vw, 64px);
   --sh-radius: 12px;
-  --sh-header-h: 88px;
+
+  /* --sh-logo-h is the ONE knob; --sh-header-h is DERIVED from it.
+     :205 pulls the hero up by exactly -(--sh-header-h) while :208 only sets
+     min-height, and .sh-header has no block padding — so its used height is
+     max(token, tallest child) and the logo IS the tallest child. Hardcode the
+     two independently and a logo taller than the token makes the header outgrow
+     its own pull-up, showing a band of body background above the hero on the
+     homepage. Deriving makes that unrepresentable.
+     Invariant: the logo stays the tallest header child (nav ~26px, icons 20-26px).
+     Consumers: :205 pull-up, :208 min-height, :407 hero copy padding.
+     Breakpoint tiers override --sh-logo-h, NEVER --sh-header-h. */
+  /* All three tiers scaled to 70% of the lockup-era sizes (89/77/65) when the
+     header logo became the bare mark — a mark carries far more visual weight
+     per pixel than the mark-over-wordmark lockup those numbers were set for.
+     Scaled together on purpose: shrinking only the desktop tier would leave the
+     <=768 logo LARGER than the desktop one. Padding is deliberately unchanged,
+     so the bar loses exactly the height the logo does. */
+  --sh-logo-h: 62px;            /* rendered width = h x 1.4050 (562/400) ~= 87px */
+  --sh-header-pad-y: 12px;
+  --sh-header-h: calc(var(--sh-logo-h) + var(--sh-header-pad-y) * 2);   /* 86px */
 
   /* Layer bands. The theme hardcodes a WhatsApp bubble at z-index 9999
      (theme.liquid:481) and a chat widget at 99999 (houseofveda-modern.css),
@@ -56,8 +92,15 @@
   --sh-z-drawer: 100001;
 }
 
+/* Both tiers override the SOURCE token only. Overriding --sh-header-h directly
+   would break the derivation above and put the hero band back on small screens
+   only — a split repro that looks fine on the desktop you're testing on.
+   1024 first, then 768: equal specificity, so the narrower one must come later. */
+@media (max-width: 1024px) {
+  .sh, :root { --sh-logo-h: 54px; --sh-header-pad-y: 11px; }   /* ~76px wide, 76px bar */
+}
 @media (max-width: 768px) {
-  .sh, :root { --sh-header-h: 68px; }
+  .sh, :root { --sh-logo-h: 46px; --sh-header-pad-y: 11px; }   /* ~65px wide, 68px bar */
 }
 
 /* ============================================================
@@ -77,7 +120,13 @@
    a:hover in the theme is <= (0,1,1) and shudhi-home.css loads last, so
    `.sh a` above already governs the colour. */
 .sh a:hover { text-decoration: none; }
-.sh button {
+/* :not(.sh-btn) is load-bearing. `.sh button` is (0,1,1) and `.sh-btn--solid`
+   is only (0,1,0), so without the exclusion this reset out-specified our own
+   button component and every <button class="sh-btn"> — the contact form's
+   submit is the one in the theme — rendered with no background and no padding.
+   Excluding it here is narrower than prefixing all eight .sh-btn rules, and
+   .sh-btn re-declares the three resets it actually needs (below). */
+.sh button:not(.sh-btn) {
   font: inherit; color: inherit; background: none;
   border: 0; padding: 0; cursor: pointer;
 }
@@ -122,14 +171,41 @@
   display: inline-flex; align-items: center; gap: .7em;
   padding: 1.05em 1.7em; border-radius: 4px;
   font-size: .7rem; letter-spacing: .18em; text-transform: uppercase; font-weight: 500;
+  /* Carried over from the `.sh button` reset that :not(.sh-btn) now skips —
+     without these a <button class="sh-btn"> gets the UA's grey chrome. */
+  background: none; border: 0; cursor: pointer;
   transition: background .3s ease, color .3s ease, border-color .3s ease, transform .3s ease;
 }
 .sh-btn .sh-icon { width: 15px; height: 15px; flex: none; }
-.sh-btn--solid   { background: var(--sh-green-800); color: var(--sh-light); }
-.sh-btn--solid:hover { background: var(--sh-green-700); color: var(--sh-light); transform: translateY(-2px); }
+/* The reference's CTA is a left-to-right gold gradient, not a flat fill.
+   background-color sits UNDER background-image rather than using the `background`
+   shorthand, so any engine that drops the gradient still paints a gold button
+   instead of a transparent one. */
+.sh-btn--solid {
+  position: relative; isolation: isolate;
+  background-color: var(--sh-accent);
+  background-image: linear-gradient(100deg,
+    var(--sh-accent-soft) 0%, var(--sh-accent) 46%, var(--sh-accent-deep) 100%);
+  color: var(--sh-accent-fg);
+}
+/* Hover cross-fades a second gradient in on a pseudo-element instead of
+   swapping background-image on the button. background-image is not an
+   interpolable property in any shipping engine, so declaring two gradients and
+   transitioning between them would SNAP — every other hover in the theme
+   glides. z-index:-1 inside the isolated stacking context paints this above the
+   button's own background but below its label, so the text never dims. */
+.sh-btn--solid::before {
+  content: ""; position: absolute; inset: 0; z-index: -1;
+  border-radius: inherit;
+  background-image: linear-gradient(100deg,
+    var(--sh-accent) 0%, var(--sh-accent-deep) 100%);
+  opacity: 0; transition: opacity .3s ease;
+}
+.sh-btn--solid:hover { color: var(--sh-accent-fg); transform: translateY(-2px); }
+.sh-btn--solid:hover::before { opacity: 1; }
 .sh-btn--outline { border: 1px solid var(--sh-hairline); color: var(--sh-light); }
-.sh-btn--outline:hover { border-color: var(--sh-gold); color: var(--sh-gold); }
-.sh-btn--ghost   { padding: 0; color: var(--sh-gold); letter-spacing: .2em; }
+.sh-btn--outline:hover { border-color: var(--sh-accent); color: var(--sh-accent); }
+.sh-btn--ghost   { padding: 0; color: var(--sh-accent); letter-spacing: .2em; }
 .sh-btn--ghost:hover { color: var(--sh-light); }
 .sh-btn--ghost .sh-icon { transition: transform .3s ease; }
 .sh-btn--ghost:hover .sh-icon { transform: translateX(5px); }
@@ -144,7 +220,7 @@
 .sh-play .sh-icon { width: 12px; height: 12px; margin-left: 2px; fill: currentColor; stroke: none; }
 .sh-play--lg { width: 74px; height: 74px; background: rgba(27, 36, 17, .35); backdrop-filter: blur(3px); }
 .sh-play--lg .sh-icon { width: 22px; height: 22px; }
-a:hover > .sh-play, .sh-play:hover { background: var(--sh-gold); border-color: var(--sh-gold); color: var(--sh-green-900); }
+a:hover > .sh-play, .sh-play:hover { background: var(--sh-accent); border-color: var(--sh-accent); color: var(--sh-accent-fg); }
 
 /* Scroll reveal — the JS adds .is-in via IntersectionObserver */
 .sh [data-reveal] {
@@ -229,7 +305,12 @@ body.template-index .sh-header-sticky { margin-bottom: calc(-1 * var(--sh-header
    hard edge, and it cross-fades away as the solid bar arrives — so inner
    pages, which render .is-solid from scroll 0, never show it. */
 .sh-header::after {
-  content: ""; position: absolute; left: 0; right: 0; top: 0; height: 190px;
+  content: ""; position: absolute; left: 0; right: 0; top: 0;
+  /* Scales with the header instead of the old fixed 190px (190/88 = 2.159).
+     Vertically-centred nav text sits at a constant fraction of the gradient at
+     every header height, so growing the bar no longer drifts the type into a
+     weaker band — and it now self-corrects on mobile, which 190px never did. */
+  height: calc(var(--sh-header-h) * 2.16);
   z-index: -1; pointer-events: none;
   background: linear-gradient(to bottom,
     rgba(10, 14, 7, .42) 0%, rgba(10, 14, 7, .22) 45%, rgba(10, 14, 7, 0) 100%);
@@ -250,18 +331,33 @@ body.template-index .sh-header-sticky { margin-bottom: calc(-1 * var(--sh-header
 .sh-logo__text { display: grid; line-height: 1; }
 .sh-logo__text b { font-size: 1.02rem; letter-spacing: .3em; font-weight: 500; }
 .sh-logo__text small { font-size: .5rem; letter-spacing: .42em; opacity: .8; margin-top: 4px; }
-.sh-logo__img { max-height: 52px; width: auto; }
+/* max-height, NOT height: `.sh img { height: auto }` at :72 is (0,1,1) and
+   out-specifies a bare .sh-logo__img (0,1,0), so a `height` here would be
+   ignored and the logo would render at its full 327px intrinsic. Intrinsic
+   height is always > --sh-logo-h, so max-height binds and the used height is
+   exactly the token; width:auto + the width/height attrs scale it with no CLS.
+   This is the ONLY .sh-logo__img rule — a second one used to sit in the hero
+   block and silently win by source order. */
+.sh-logo__img { max-height: var(--sh-logo-h); width: auto; }
 
 /* Desktop nav */
-.sh-nav { display: flex; justify-content: center; gap: clamp(16px, 2.2vw, 34px); }
+.sh-nav { display: flex; justify-content: center; gap: clamp(19px, 2.6vw, 40px); }
+/* .sh a (:73) is also (0,1,1) but comes earlier, so this wins on source order —
+   no !important needed. It sets neither font-size, weight nor letter-spacing,
+   so those are uncontested; only `transition` is being overridden here. */
 .sh-nav a {
   position: relative; color: var(--sh-light);
-  font-size: .78rem; letter-spacing: .04em; padding-block: 6px; opacity: .9;
+  font-size: .9rem;              /* 14.4px, was .78rem/12.48px */
+  letter-spacing: .085em;        /* 1.22px, was .04em/0.5px */
+  font-weight: 500;              /* was unset -> inherited 400 */
+  text-transform: uppercase;
+  padding-block: 6px; opacity: .9;
+  transition: color .2s ease, opacity .2s ease;
 }
 .sh-nav a::after {
   content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 1px;
   background: currentColor; transform: scaleX(0); transform-origin: center;
-  transition: transform .3s ease;
+  transition: transform .2s ease;
 }
 .sh-nav a:hover,
 .sh-nav a:focus-visible,
@@ -269,7 +365,12 @@ body.template-index .sh-header-sticky { margin-bottom: calc(-1 * var(--sh-header
 .sh-nav a:hover::after, .sh-nav a[aria-current="page"]::after { transform: scaleX(1); }
 
 /* Actions */
-.sh-actions { display: flex; align-items: center; gap: clamp(12px, 1.6vw, 22px); color: var(--sh-light); }
+/* justify-content is a no-op at desktop (this sits in an `auto` track sized to
+   max-content) but load-bearing <=1024: the grid becomes `auto 1fr`, .sh-nav is
+   display:none, so .sh-actions lands in the 1fr track, stretches, and without
+   this its icons pack LEFT against the logo with dead space at the right edge. */
+.sh-actions { display: flex; align-items: center; justify-content: flex-end;
+              gap: clamp(12px, 1.6vw, 22px); color: var(--sh-light); }
 .sh-actions button, .sh-actions a { display: inline-flex; position: relative; opacity: .92; }
 .sh-actions button:hover, .sh-actions a:hover { opacity: 1; color: var(--sh-gold); }
 .sh-actions .sh-icon { width: 20px; height: 20px; }
@@ -285,6 +386,11 @@ body.template-index .sh-header-sticky { margin-bottom: calc(-1 * var(--sh-header
    A bare `.sh-burger` (0,1,0) loses to it, which is why the hamburger was
    showing at desktop widths alongside the full nav. */
 .sh-actions .sh-burger { display: none; }
+/* The burger is the only nav affordance <=1024, so it reads a size up from the
+   utility icons. (0,3,0) beats `.sh-actions .sh-icon` (0,2,0) above. Stroke
+   needs no change: sh-icon.liquid defaults sw to 1.4 where the other three
+   explicitly pass 1.1. */
+.sh-actions .sh-burger .sh-icon { width: 26px; height: 26px; }
 
 /* Search opens the theme's existing predictive overlay (window.hovSOOpen) —
    no panel of our own, so there is nothing to style here. */
@@ -309,7 +415,8 @@ body.template-index .sh-header-sticky { margin-bottom: calc(-1 * var(--sh-header
 .sh-drawer__top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 34px; }
 .sh-drawer__nav { display: grid; gap: 4px; }
 .sh-drawer__nav a {
-  padding: 13px 0; font-size: 1rem; letter-spacing: .02em;
+  padding: 15px 0; font-size: 1rem; letter-spacing: .05em;
+  font-weight: 500; text-transform: uppercase;
   border-bottom: 1px solid var(--sh-hairline);
 }
 .sh-drawer__nav a:hover { color: var(--sh-gold); }
@@ -326,8 +433,6 @@ body.template-index .sh-header-sticky { margin-bottom: calc(-1 * var(--sh-header
 .sh-hero h1 { color: inherit; text-transform: none; }
 
 .sh-hero { position: relative; background: var(--sh-hero-bg, var(--sh-rose)); }
-/* Logo image — constrained so it works in both nav states. */
-.sh-logo__img { max-height: 56px; width: auto; }
 /* contain: layout paint keeps any layout/paint work triggered inside the pin
    scoped to this subtree instead of the whole document — the canvas repaints
    on every scrub frame, so that isolation is worth having. */
@@ -415,7 +520,9 @@ body.template-index .sh-header-sticky { margin-bottom: calc(-1 * var(--sh-header
   color: var(--sh-gold); font-size: .82rem; letter-spacing: .04em; margin-bottom: 16px; font-weight: 500;
 }
 .sh-hero__text {
-  font-size: .93rem; line-height: 1.75; color: var(--sh-muted-light);
+  /* 1rem, not .93rem — the 16px floor for body copy. The 40ch cap means this
+     re-wraps within the same box rather than widening the column. */
+  font-size: 1rem; line-height: 1.7; color: var(--sh-muted-light);
   max-width: 40ch; margin-bottom: 32px;
 }
 .sh-hero__cta { display: flex; align-items: center; gap: clamp(18px, 3vw, 34px); flex-wrap: wrap; }
@@ -489,49 +596,72 @@ body.template-index .sh-header-sticky { margin-bottom: calc(-1 * var(--sh-header
 .sh-hero__badge b { display: block; font-size: .76rem; font-weight: 600; }
 .sh-hero__badge small { display: block; font-size: .66rem; color: var(--sh-muted-light); }
 
-/* Trust bar */
+/* ------------------------------------------------------------
+   TRUST BAR — shared component (snippets/sh-trust-row.liquid)
+   `.sh-trust` is the skin and the grid; the per-section modifier next to it
+   (.sh-hero__trust, .sh-story-hero__trust) does nothing but position it. Every
+   section that renders the snippet therefore picks up the glass treatment from
+   this one block — there is no per-page copy of it.
+   ------------------------------------------------------------ */
+.sh-trust {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  /* Real frosted glass: a neutral-warm smoke rather than the green-tinted one
+     this used to carry, so it reads as glass over the photo instead of as a
+     tinted panel.
+     Alpha stays at .5 rather than dropping to .35. Over the band the bar
+     actually occupies it makes no difference (title 12:1, subtext 7:1 either
+     way), but over the brightest hero frames .35 drops the .68rem subtext to
+     2.0:1 against .5's 2.8:1 — neither is AA there, and .35 is meaningfully
+     worse for no visible gain in glassiness. Reaching AA on the brightest
+     frames needs ~.72, which is no longer glass.
+     `background` is a flat colour, so it doubles as the no-blur fallback —
+     nothing here is transparent on its own. */
+  background: rgba(20, 18, 12, .5);
+  -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, .12); border-radius: 14px;
+  /* Soft outer glow + a 1px inner top highlight, so the bar lifts off the
+     photo instead of ending on a hard edge. */
+  box-shadow: 0 18px 46px rgba(0, 0, 0, .34),
+              inset 0 1px 0 rgba(255, 255, 255, .07);
+  padding: 16px clamp(12px, 2vw, 26px);
+}
 .sh-hero__trust {
   position: absolute; left: 50%; bottom: 26px; z-index: 6;
   transform: translateX(-50%);
   width: min(1180px, calc(100% - 2 * var(--sh-pad)));
-  display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-  /* Real frosted glass. This blurs against a canvas whose pixels change every
-     scrub frame, so it can never be cached — which is why it gets switched off
-     while scrubbing (below) rather than being permanently weakened. */
-  background: rgba(23, 30, 15, .5);
-  -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
-  border: 1px solid rgba(244, 239, 230, .26); border-radius: 14px;
-  padding: 16px clamp(12px, 2vw, 26px);
-  transform: translateX(-50%);
 }
 
 /* While the hero is actively scrubbing, drop the blur and compensate with
-   opacity. The alphas are chosen so the swap is not visible — and it only ever
-   happens mid-scroll, when nobody is studying the bar. */
+   opacity: this blurs against a canvas whose pixels change every scrub frame,
+   so it can never be cached. The alphas are chosen so the swap is not visible —
+   and it only ever happens mid-scroll, when nobody is studying the bar. */
 .sh-hero.is-scrubbing .sh-hero__trust,
 .sh-hero.is-scrubbing .sh-hero__badge {
   -webkit-backdrop-filter: none; backdrop-filter: none;
-  background: rgba(23, 30, 15, .88);
+  background: rgba(20, 18, 12, .88);
 }
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  .sh-hero__trust, .sh-hero__badge { background: rgba(23, 30, 15, .9); }
+  .sh-trust, .sh-hero__badge { background: rgba(20, 18, 12, .9); }
 }
-.sh-hero__trust-item {
+.sh-trust__item {
   display: flex; align-items: center; gap: 13px;
   padding-inline: clamp(10px, 1.6vw, 24px); position: relative; color: var(--sh-light);
 }
-.sh-hero__trust-item + .sh-hero__trust-item::before {
+.sh-trust__item + .sh-trust__item::before {
   content: ""; position: absolute; left: 0; top: 50%; transform: translateY(-50%);
   width: 1px; height: 32px; background: var(--sh-hairline);
 }
-.sh-hero__trust-item > .sh-icon {
+/* Circle and glyph both on the accent role — literal rgba because the ring is
+   a translucent tint of it and custom properties cannot be alpha-adjusted here
+   without relative-colour syntax. Keep in step with --sh-accent (#c4a35d). */
+.sh-trust__item > .sh-icon {
   width: 40px; height: 40px; padding: 9px; flex: none;
-  border: 1px solid rgba(201, 168, 106, .5); border-radius: 50%; color: var(--sh-gold);
+  border: 1px solid rgba(196, 163, 93, .55); border-radius: 50%; color: var(--sh-accent);
 }
-.sh-hero__trust-item b {
+.sh-trust__item b {
   display: block; font-size: .68rem; letter-spacing: .13em; text-transform: uppercase; font-weight: 600;
 }
-.sh-hero__trust-item small { display: block; font-size: .68rem; color: var(--sh-muted-light); margin-top: 3px; }
+.sh-trust__item small { display: block; font-size: .68rem; color: var(--sh-muted-light); margin-top: 3px; }
 
 /* ============================================================
    9. OUR STORY
@@ -547,80 +677,133 @@ body.template-index .sh-header-sticky { margin-bottom: calc(-1 * var(--sh-header
 .sh-story h2 { color: inherit; text-transform: none; }
 
 .sh-story {
+  /* Section-scoped tokens, deliberately NOT on :root. This band is the theme's
+     only light editorial surface, and its green/gold pair sits a shade off the
+     global --sh-green-900 / --sh-gold ramp, so promoting these would drag other
+     sections with them. Sampled from the approved design.
+     --sh-story-bg is overridden inline from the `bg` setting; the value here is
+     the fallback and the documentation of what that setting expects. */
+  --sh-story-bg:       #f6ede1;   /* cream panel, and what the photo fades into */
+  --sh-story-ink:      #1b2a12;   /* heading, CTA, seal text + number — 13.1:1 on cream */
+  --sh-story-body:     #474a3d;   /* paragraph — 7.8:1 */
+  --sh-story-gold:     #b8965c;   /* seal ring + dots. DECORATIVE ONLY — 2.4:1 */
+  --sh-story-gold-ink: #7a5d2e;   /* the same gold dark enough to be READ — 5.3:1 */
+
   position: relative; overflow: hidden;
-  background: var(--sh-green-900); color: var(--sh-light);
-  padding-block: clamp(56px, 6vw, 92px);
-  min-height: var(--sh-story-h, 440px);
-  display: flex; align-items: center;
+  background: var(--sh-story-bg); color: var(--sh-story-ink);
 }
-/* Full-bleed photo: runs to all four edges of the band, as in the mockup. */
-.sh-story__bg {
-  position: absolute; inset: 0; width: 100%; height: 100%;
-  object-fit: cover; z-index: 0;
-}
-/* Gradient scrim so the copy stays legible over any photo that gets swapped in.
-   Strength is schema-controlled via --sh-story-scrim. */
-.sh-story__scrim {
-  position: absolute; inset: 0; z-index: 1; pointer-events: none;
-  background: linear-gradient(100deg,
-    rgb(from var(--sh-green-900) r g b / var(--sh-story-scrim, .92)) 0%,
-    rgb(from var(--sh-green-900) r g b / calc(var(--sh-story-scrim, .92) * .9)) 30%,
-    rgb(from var(--sh-green-900) r g b / calc(var(--sh-story-scrim, .92) * .42)) 56%,
-    rgb(from var(--sh-green-900) r g b / 0) 80%);
-}
-/* Fallback for engines without relative colour syntax — same intent, fixed hue. */
-@supports not (background: rgb(from #000 r g b / 50%)) {
-  .sh-story__scrim {
-    background: linear-gradient(100deg,
-      rgba(27, 36, 17, .94) 0%, rgba(27, 36, 17, .86) 30%,
-      rgba(27, 36, 17, .4) 56%, rgba(27, 36, 17, 0) 80%);
-  }
-}
-.sh-story > .sh-wrap { position: relative; z-index: 2; }
 
 .sh-story__grid {
-  display: grid; grid-template-columns: 1fr 1.05fr;
-  gap: clamp(24px, 4vw, 64px); align-items: center;
+  display: grid;
+  grid-template-columns: minmax(0, 46%) minmax(0, 54%);
+  align-items: center;
+  position: relative;                       /* anchors the seal */
+  min-height: var(--sh-story-h, 560px);
 }
-.sh-story__eyebrow { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
-.sh-story__eyebrow .sh-icon { width: 14px; height: 14px; }
-/* ~2.5x the paragraph, matching the mockup's proportion (was ~3.2x). */
-.sh-story__title { font-size: clamp(1.55rem, 2.6vw, 2.3rem); margin-bottom: 20px; }
-.sh-story__text {
-  font-size: .93rem; line-height: 1.8; color: var(--sh-muted-light);
-  max-width: 40ch; margin-bottom: 28px;
+
+/* Re-creates .sh-wrap's left gutter without putting the grid inside it — a
+   max-width wrapper would stop the photo short of the viewport edge, and the
+   design calls for a full bleed. The box is right-aligned within its column and
+   capped at the wrap's share of the width, so past --sh-max the copy lines up
+   with every other section, and below it the plain --sh-pad gutter takes over.
+   No 100vw anywhere: that would ignore the scrollbar and shift the whole band. */
+.sh-story__copy {
+  margin-left: auto; width: 100%;
+  max-width: calc(var(--sh-max) * .46);
+  padding: clamp(48px, 6vw, 86px) var(--sh-pad);
 }
-/* Now purely a positioning anchor for the overlays — no longer an image box. */
+
 .sh-story__media {
   position: relative; align-self: stretch;
-  display: grid; place-items: center; min-height: 180px;
+  min-height: var(--sh-story-media-h, clamp(340px, 40vw, 560px));
 }
+.sh-story__photo {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  object-fit: cover;
+  /* Stated rather than merely absent. The previous build darkened this photo
+     with a scrim element and the approved design shows it untreated, so the
+     no-treatment case is written down where a future tint would have to
+     overwrite it deliberately. */
+  filter: none; opacity: 1;
+}
+/* Feathers the photo's left edge into the cream panel. Fading a colour to the
+   `transparent` KEYWORD is safe: every current engine interpolates gradients in
+   premultiplied alpha, so there is no grey midpoint to design around, and it
+   keeps this in step with --sh-story-bg automatically. */
+.sh-story__media::after {
+  content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none;
+  background: linear-gradient(to right, var(--sh-story-bg) 0%, transparent 17%);
+}
+
+.sh-story__eyebrow { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
+.sh-story__eyebrow .sh-icon { width: 14px; height: 14px; }
+/* .sh-eyebrow (0,1,0) carries the dark-surface gold; this (0,2,0) swaps in the
+   light-surface one. --sh-gold is 1.95:1 on cream — it only ever passed because
+   the band used to be dark green. */
+.sh-story .sh-eyebrow { color: var(--sh-story-gold-ink); }
+
+.sh-story__title { font-size: clamp(1.75rem, 3.1vw, 2.8rem); margin-bottom: 20px; }
+.sh-story__text {
+  /* 16px floor for body copy, capped at 42ch so the measure stays readable. */
+  font-size: 1rem; line-height: 1.75; color: var(--sh-story-body);
+  max-width: 42ch; margin-bottom: 30px;
+}
+/* .sh-btn--ghost is gold-on-dark by default and lands at 2.0:1 here. */
+.sh-story .sh-btn--ghost { color: var(--sh-story-ink); }
+.sh-story .sh-btn--ghost:hover { color: var(--sh-story-gold-ink); }
+/* The global focus ring is --sh-gold, 1.95:1 on cream — under the 3:1 WCAG
+   1.4.11 asks of a focus indicator. Colour only; width/offset are untouched.
+   `.sh a:focus-visible` at :235 is ALSO (0,2,1), so this wins on source order
+   alone — it must stay below that rule. */
+.sh-story a:focus-visible { outline-color: var(--sh-story-ink); }
+
+/* Centred in the photo column, which is where it sat before — the seal is on
+   the seam, so the two cannot collide. */
 .sh-story__play {
+  position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+  z-index: 2;
   width: 72px; height: 72px; border-radius: 50%;
-  border: 1px solid rgba(244, 239, 230, .75);
-  display: grid; place-items: center; color: var(--sh-light);
-  background: rgba(27, 36, 17, .18); backdrop-filter: blur(2px);
+  display: grid; place-items: center;
+  /* Inverted with the section: a cream ring was legible only because the photo
+     underneath was darkened. A light disc with a dark glyph holds on an
+     untreated photo whether that photo is bright or busy. */
+  background: rgba(255, 255, 255, .82);
+  border: 1px solid rgba(27, 42, 18, .16);
+  color: var(--sh-story-ink);
+  -webkit-backdrop-filter: blur(2px); backdrop-filter: blur(2px);
+  box-shadow: 0 6px 24px rgba(27, 42, 18, .2);
   transition: background .3s ease, border-color .3s ease, color .3s ease, transform .3s ease;
 }
 .sh-story__play .sh-icon { width: 20px; height: 20px; margin-left: 3px; fill: currentColor; stroke: none; }
+/* Re-states the centring translate: transform is one property, so a bare
+   scale() here would drop the translate and snap the button to the corner. */
 a.sh-story__play:hover {
-  background: var(--sh-gold); border-color: var(--sh-gold);
-  color: var(--sh-green-900); transform: scale(1.06);
+  background: var(--sh-accent); border-color: var(--sh-accent);
+  color: var(--sh-accent-fg); transform: translate(-50%, -50%) scale(1.06);
 }
+
+/* Seal — no fill, gold hairline ring, dark green type. Sits ON the seam at the
+   46% column boundary, half over cream and half over the photo's feathered
+   edge, as in the approved design. */
 .sh-story__seal {
-  position: absolute; left: 0; bottom: 6%;
-  width: clamp(72px, 7vw, 98px); aspect-ratio: 1;
+  position: absolute; left: 47%; top: 50%; transform: translate(-50%, -50%);
+  z-index: 3;
+  width: clamp(126px, 14vw, 186px); aspect-ratio: 1;
   display: grid; place-items: center;
-  border-radius: 50%; background: rgba(38, 51, 26, .82); backdrop-filter: blur(3px);
-  border: 1px solid rgba(201, 168, 106, .45); color: var(--sh-gold);
+}
+.sh-story__seal svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+/* stroke-width is in viewBox units: 1 of 200, so it renders as a true ~0.9px
+   hairline at every size the clamp above produces. */
+.sh-story__seal-ring { fill: none; stroke: var(--sh-story-gold); stroke-width: 1; }
+.sh-story__seal-dot  { fill: var(--sh-story-gold); }
+.sh-story__seal-arc  {
+  fill: var(--sh-story-ink); font-size: 9.5px; letter-spacing: .16em;
+  text-transform: uppercase;
 }
 .sh-story__seal-num {
   font-family: var(--sh-serif) !important;
-  font-size: clamp(1.1rem, 1.7vw, 1.5rem); line-height: 1; color: var(--sh-light);
+  font-size: clamp(2rem, 3.4vw, 3.1rem); line-height: 1; color: var(--sh-story-ink);
 }
-.sh-story__seal svg { position: absolute; inset: 0; width: 100%; height: 100%; animation: sh-spin 34s linear infinite; }
-.sh-story__seal text { font-size: 7.2px; letter-spacing: .22em; fill: var(--sh-gold); text-transform: uppercase; }
-@keyframes sh-spin { to { transform: rotate(360deg); } }
 
 /* ============================================================
    10. RITUAL BENEFITS — "It's a Ritual."
@@ -758,7 +941,9 @@ a.sh-story__play:hover {
   box-shadow: 0 3px 16px rgba(36, 29, 21, .16);
   transition: background .3s ease, color .3s ease;
 }
-.sh-collection__arrow:hover { background: var(--sh-green-800); color: var(--sh-light); }
+/* Followed the button role rather than the green scale: this rule read
+   --sh-green-800, which WAS the solid-button fill, so it moves with it. */
+.sh-collection__arrow:hover { background: var(--sh-accent); color: var(--sh-accent-fg); }
 .sh-collection__arrow .sh-icon { width: 17px; height: 17px; }
 .sh-collection__arrow--prev { left: calc(-1 * clamp(8px, 2.6vw, 46px)); }
 .sh-collection__arrow--next { right: calc(-1 * clamp(8px, 2.6vw, 46px)); }
@@ -815,6 +1000,11 @@ a.sh-story__play:hover {
 .sh-footer__brand { text-align: center; display: grid; justify-items: center; gap: 12px; }
 .sh-footer__brand .sh-logo { flex-direction: column; gap: 8px; }
 .sh-footer__brand .sh-logo__text { justify-items: center; text-align: center; }
+/* The footer renders the same asset as the header but must not shout: this is a
+   sign-off, not the primary brand mark. Overrides `.sh-logo__img`'s
+   max-height: var(--sh-logo-h) — that rule is (0,1,0) and this is (0,2,0), so
+   no !important, and the header's own size token stays untouched. */
+.sh-footer__brand .sh-logo__img { max-height: 72px; }
 .sh-footer__tagline { font-size: .8rem; color: var(--sh-muted-light); max-width: 30ch; }
 .sh-footer__copy { font-size: .72rem; color: rgba(244, 239, 230, .5); }
 
@@ -884,6 +1074,189 @@ a.sh-story__play:hover {
 }
 
 /* ============================================================
+   14b. PAGE HEADER — standalone pages (Our Story, The Ritual, Contact)
+   Same --sh-green-900 as the solid header directly above it, so the two read as
+   one field. Padding is asymmetric: the top pad clears the header, the bottom
+   is tighter so the band hands off to the section below.
+   ============================================================ */
+.sh-pagehead {
+  background: var(--sh-green-900); color: var(--sh-light);
+  padding-block: clamp(46px, 6vw, 76px) clamp(36px, 4.5vw, 58px);
+  text-align: center;
+}
+.sh-pagehead__eyebrow { display: inline-flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+.sh-pagehead__eyebrow .sh-icon { width: 15px; height: 15px; }
+/* Same two global bare-element rules the .sh-story h2 comment describes:
+   houseofveda-modern.css:55 colours every h1-h6 and timber.scss.liquid:814
+   force-capitalises them. (0,1,1) beats a bare h1 (0,0,1), so no !important. */
+.sh-pagehead h1 { color: inherit; text-transform: none; }
+.sh-pagehead__title { font-size: clamp(2rem, 4vw, 3.1rem); }
+.sh-pagehead__text {
+  font-size: 1rem; line-height: 1.7; color: var(--sh-muted-light);
+  max-width: 56ch; margin-inline: auto; margin-top: 18px;
+}
+
+/* ============================================================
+   14bb. STORY HERO — the Our Story page's opening block
+   Same full-bleed photo + scrim construction as .sh-story, but built as a page
+   hero rather than a mid-page band: it carries the <h1>, and the shared trust
+   row sits over its lower edge exactly as it does on the homepage.
+
+   No padding-top for the header here. The negative pull-up that slides the
+   homepage hero under the transparent nav is scoped to
+   `body.template-index .sh-header-sticky`, so on this template the header is
+   in normal flow and the hero already starts below it.
+   ============================================================ */
+.sh-story-hero {
+  position: relative; overflow: hidden;
+  background: var(--sh-green-900); color: var(--sh-light);
+  display: flex; align-items: center;
+  min-height: var(--sh-story-hero-h, 620px);
+  /* Bottom pad reserves the strip the absolutely-positioned trust row occupies
+     (its own height plus its 26px offset), so the copy can never sit under it. */
+  padding-block: clamp(54px, 7vw, 96px) calc(clamp(54px, 7vw, 96px) + 108px);
+}
+.sh-story-hero__bg {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  object-fit: cover; z-index: 0;
+}
+/* Left-weighted so the copy column stays legible while the right side of the
+   photo — the product, in the reference — stays open. Relative-colour syntax
+   with a fixed-hue @supports fallback below, so the strength stays driven by
+   one schema value. (.sh-story used to be built the same way; it is now a light
+   split layout with no scrim at all, so this is the only remaining instance.) */
+.sh-story-hero__scrim {
+  position: absolute; inset: 0; z-index: 1; pointer-events: none;
+  background: linear-gradient(100deg,
+    rgb(from var(--sh-green-900) r g b / var(--sh-story-hero-scrim, .8)) 0%,
+    rgb(from var(--sh-green-900) r g b / calc(var(--sh-story-hero-scrim, .8) * .82)) 34%,
+    rgb(from var(--sh-green-900) r g b / calc(var(--sh-story-hero-scrim, .8) * .34)) 60%,
+    rgb(from var(--sh-green-900) r g b / 0) 82%);
+}
+@supports not (background: rgb(from #000 r g b / 50%)) {
+  .sh-story-hero__scrim {
+    background: linear-gradient(100deg,
+      rgba(27, 36, 17, .86) 0%, rgba(27, 36, 17, .7) 34%,
+      rgba(27, 36, 17, .29) 60%, rgba(27, 36, 17, 0) 82%);
+  }
+}
+.sh-story-hero > .sh-wrap { position: relative; z-index: 2; }
+.sh-story-hero__copy { max-width: 620px; }
+
+/* Same two leaked bare-element rules the .sh-story h2 comment describes —
+   houseofveda-modern.css:55 colours every h1-h6 and timber.scss.liquid:814
+   force-capitalises them. (0,1,1) beats a bare h1 (0,0,1). */
+.sh-story-hero h1 { color: inherit; text-transform: none; }
+
+/* Eyebrow: label, leaf, then a rule that runs out to the right, as in the
+   reference. The <i> is the rule — a plain element so the flex gap spaces it. */
+.sh-story-hero__eyebrow { display: flex; align-items: center; gap: 12px; margin-bottom: 26px; }
+.sh-story-hero__eyebrow .sh-icon { width: 14px; height: 14px; flex: none; }
+.sh-story-hero__eyebrow i { display: block; width: clamp(48px, 7vw, 86px); height: 1px; background: currentColor; opacity: .6; }
+
+.sh-story-hero__title { font-size: clamp(2.1rem, 4.4vw, 3.5rem); }
+/* The two-tone headline. Gold on the scrimmed photo measures 5.8:1 against the
+   cream's 11.5:1, so the emphasis is carried by hue AND contrast — and the gold
+   words are still legible on their own, not colour-coded information.
+   font-family is re-declared because the TYPOGRAPHY DEFENCE block lists `.sh em`
+   with `font-family: var(--sh-sans) !important` — declared on the <em> itself,
+   that beats the serif h1 inherits, and the gold words would render in Jost.
+   Same specificity (0,1,1) and both !important, so this wins on source order. */
+.sh-story-hero__title em {
+  font-style: normal; color: var(--sh-gold);
+  font-family: var(--sh-serif) !important;
+}
+
+/* Rule + flourish under the headline, mirroring the eyebrow's rule + leaf. */
+.sh-story-hero__rule { display: flex; align-items: center; gap: 12px; margin: 26px 0 24px; color: var(--sh-gold); }
+.sh-story-hero__rule i { display: block; width: clamp(90px, 13vw, 156px); height: 1px; background: currentColor; opacity: .75; }
+.sh-story-hero__rule .sh-icon { width: 13px; height: 13px; flex: none; }
+
+.sh-story-hero__text {
+  font-size: 1rem; line-height: 1.75; color: var(--sh-muted-light);
+  max-width: 44ch; margin-bottom: 34px;
+}
+.sh-story-hero__cta { display: flex; align-items: center; gap: clamp(18px, 3vw, 34px); flex-wrap: wrap; }
+
+.sh-story-hero__trust {
+  position: absolute; left: 50%; bottom: 26px; z-index: 6;
+  transform: translateX(-50%);
+  width: min(1180px, calc(100% - 2 * var(--sh-pad)));
+}
+
+/* ============================================================
+   14c. CONTACT
+   ============================================================ */
+.sh-contact {
+  background: var(--sh-contact-bg, var(--sh-cream)); color: var(--sh-ink);
+  padding-block: clamp(56px, 7vw, 96px);
+}
+.sh-contact__grid {
+  display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+  gap: clamp(34px, 5vw, 72px); align-items: start;
+}
+.sh-contact h2 { color: inherit; text-transform: none; }   /* same defence as above */
+.sh-contact__title { font-size: clamp(1.6rem, 2.8vw, 2.3rem); margin-bottom: 26px; }
+
+/* Form */
+.sh-form__row { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+.sh-field { display: grid; gap: 8px; margin-bottom: 18px; }
+.sh-field > span {
+  font-size: .68rem; letter-spacing: .16em; text-transform: uppercase;
+  font-weight: 500; color: var(--sh-muted-dark);
+}
+/* Bootstrap Reboot and the Herbyo form CSS both style bare inputs; (0,1,1) here
+   out-specifies them without !important, matching how .sh-news does it. */
+.sh-contact input,
+.sh-contact textarea {
+  width: 100%; padding: 13px 15px; border-radius: 4px;
+  border: 1px solid rgba(36, 29, 21, .2); background: rgba(255, 255, 255, .55);
+  color: var(--sh-ink); font-size: .92rem;
+  transition: border-color .2s ease, background .2s ease;
+}
+.sh-contact textarea { resize: vertical; min-height: 130px; }
+.sh-contact input:focus,
+.sh-contact textarea:focus {
+  outline: none; border-color: var(--sh-gold-2); background: #fff;
+}
+/* The only solid CTA in the theme that lands on a LIGHT surface. Gold on cream
+   is 2.0:1, so the fill alone does not give the control a 3:1 boundary
+   (WCAG 1.4.11); --sh-accent-edge on cream is 4.3:1 and does.
+   `outline` with a negative offset, not a border (which would grow the box by
+   2px) and not an inset box-shadow (which paints with the background, i.e.
+   UNDER the hover ::before, so the rim would vanish on hover). */
+.sh-contact .sh-btn--solid {
+  margin-top: 8px;
+  outline: 1px solid var(--sh-accent-edge);
+  outline-offset: -1px;
+}
+.sh-form__ok,
+.sh-form__err {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 16px 18px; border-radius: 4px; font-size: .92rem; line-height: 1.6;
+}
+.sh-form__ok  { background: rgba(65, 86, 42, .12); border: 1px solid rgba(65, 86, 42, .3); }
+.sh-form__ok .sh-icon { width: 18px; height: 18px; flex: none; color: var(--sh-green-600); margin-top: 2px; }
+.sh-form__err { background: rgba(160, 48, 32, .08); border: 1px solid rgba(160, 48, 32, .28); margin-bottom: 20px; }
+.sh-form__err ul { margin: 0; padding-left: 0; list-style: none; }
+
+/* Details */
+.sh-contact__eyebrow { color: var(--sh-gold-2); margin-bottom: 20px; }
+.sh-contact__list { display: grid; gap: 22px; margin: 0; }
+.sh-contact__item { display: flex; align-items: flex-start; gap: 14px; }
+.sh-contact__item > .sh-icon { width: 19px; height: 19px; flex: none; color: var(--sh-gold-2); margin-top: 2px; }
+.sh-contact__item dt {
+  font-size: .66rem; letter-spacing: .18em; text-transform: uppercase;
+  font-weight: 500; color: var(--sh-muted-dark); margin-bottom: 5px;
+}
+.sh-contact__item dd { margin: 0; font-size: .95rem; line-height: 1.65; }
+.sh-contact__item dd a:hover { color: var(--sh-gold-2); }
+.sh-contact__note {
+  margin-top: 28px; padding-top: 20px; border-top: 1px solid rgba(36, 29, 21, .15);
+  font-size: .86rem; line-height: 1.7; color: var(--sh-muted-dark);
+}
+
+/* ============================================================
    15. RESPONSIVE
    ============================================================ */
 @media (max-width: 1180px) {
@@ -898,17 +1271,26 @@ a.sh-story__play:hover {
   .sh-header__inner { grid-template-columns: auto 1fr; }
   .sh-hero__copy { max-width: 64%; }
   .sh-hero__pager { display: none; }
-  .sh-story__grid, .sh-mindful__grid { grid-template-columns: 1fr; }
-  /* Single column: the copy now sits ON the photo, so rotate the scrim to a
-     bottom-weighted vertical gradient or the text loses contrast. */
-  .sh-story { min-height: var(--sh-story-h-sm, 460px); }
-  .sh-story__scrim {
-    background: linear-gradient(to top,
-      rgba(27, 36, 17, .95) 0%, rgba(27, 36, 17, .88) 42%, rgba(27, 36, 17, .55) 100%);
+  .sh-mindful__grid { grid-template-columns: 1fr; }
+
+  /* Single column, photo first. The copy never sits ON the photo here — it
+     keeps its own cream panel below — so there is nothing to scrim. */
+  .sh-story__grid {
+    --sh-story-media-h: clamp(280px, 46vw, 400px);
+    grid-template-columns: 1fr; min-height: 0;
   }
-  .sh-story__media { min-height: 140px; }
-  .sh-story__seal { position: relative; bottom: auto; left: auto; margin-top: 20px; }
+  .sh-story__media { order: -1; }
+  /* Feather rotates with the stack: the seam is now horizontal. */
+  .sh-story__media::after {
+    background: linear-gradient(to bottom, transparent 76%, var(--sh-story-bg) 100%);
+  }
+  .sh-story__copy { margin-left: 0; max-width: none; padding-block: clamp(40px, 6vw, 64px); }
+  /* Re-centred on the new seam. `top` resolves against the grid's padding box
+     and the photo is row 1 at exactly --sh-story-media-h, so this lands the
+     seal's centre on the join without measuring anything at runtime. */
+  .sh-story__seal { left: 50%; top: var(--sh-story-media-h); }
   .sh-mindful__text { max-width: 52ch; }
+  .sh-contact__grid { grid-template-columns: 1fr; }
   .sh-footer__grid { grid-template-columns: 1fr 1fr; }
   .sh-footer__brand { grid-column: 1 / -1; order: -1; margin-bottom: 12px; }
 }
@@ -922,20 +1304,30 @@ a.sh-story__play:hover {
   /* Drop backdrop-filter entirely on phones — a full-width blur over an
      animating canvas is the single most expensive thing on mobile GPUs.
      The opaque background is visually near-identical at this size. */
-  .sh-hero__trust {
-    grid-template-columns: 1fr 1fr; gap: 12px 0; bottom: 18px; border-radius: 16px;
-    backdrop-filter: none; background: rgba(23, 30, 15, .94);
+  .sh-trust {
+    grid-template-columns: 1fr 1fr; gap: 12px 0; border-radius: 16px;
+    -webkit-backdrop-filter: none; backdrop-filter: none;
+    background: rgba(20, 18, 12, .94);
   }
-  .sh-hero__trust-item { padding-inline: 10px; }
-  .sh-hero__trust-item + .sh-hero__trust-item::before { display: none; }
+  .sh-hero__trust { bottom: 18px; }
+  .sh-trust__item { padding-inline: 10px; }
+  .sh-trust__item + .sh-trust__item::before { display: none; }
 
-  .sh-story { min-height: var(--sh-story-h-sm, 420px); text-align: center; }
+  /* Copy sits fully over the photo at this width, so the scrim rotates to a
+     bottom-weighted vertical one — same fix as .sh-story below. */
+  .sh-story-hero { min-height: 0; padding-bottom: calc(clamp(54px, 7vw, 96px) + 168px); }
+  .sh-story-hero__scrim {
+    background: linear-gradient(to top,
+      rgba(20, 27, 12, .94) 0%, rgba(20, 27, 12, .84) 46%, rgba(20, 27, 12, .5) 100%);
+  }
+  .sh-story-hero__text { max-width: 52ch; }
+
+  .sh-story__copy { text-align: center; }
   .sh-story__eyebrow { justify-content: center; }
   .sh-story__text { margin-inline: auto; }
-  .sh-story__media { flex-direction: column; gap: 18px; min-height: 0; }
   .sh-story__play { width: 60px; height: 60px; }
-  .sh-story__seal { width: clamp(66px, 18vw, 82px); margin-inline: auto; }
-  .sh-hero__trust-item > .sh-icon { width: 34px; height: 34px; padding: 8px; }
+  .sh-story__seal { width: clamp(104px, 30vw, 132px); }
+  .sh-trust__item > .sh-icon { width: 34px; height: 34px; padding: 8px; }
 
   .sh-ritual__side { display: none; }
   .sh-ritual__cols { grid-template-columns: 1fr; gap: 26px; }
@@ -952,6 +1344,9 @@ a.sh-story__play:hover {
   .sh-collection__strip { grid-template-columns: 1fr 1fr; gap: 22px 10px; }
   .sh-collection__strip-item { justify-content: flex-start; }
 
+  /* Name/email side by side is too tight below this width. */
+  .sh-form__row { grid-template-columns: 1fr; gap: 0; }
+
   .sh-footer__grid { grid-template-columns: 1fr; text-align: center; justify-items: center; }
   .sh-footer__text, .sh-news { margin-inline: auto; }
   .sh-footer__links { justify-items: center; }
@@ -965,7 +1360,6 @@ a.sh-story__play:hover {
    ============================================================ */
 @media (prefers-reduced-motion: reduce) {
   .sh-announce--marquee .sh-announce__track { animation: none; }
-  .sh-story__seal svg { animation: none; }
   .sh-card:hover img { transform: none; }
   /* Reveals must resolve to visible, never stay at opacity:0 */
   .sh [data-reveal] { opacity: 1 !important; transform: none !important; transition: none !important; }
@@ -989,3 +1383,768 @@ a.sh-story__play:hover {
 .sh .slick-slide img { display: block; }
 .sh .slick-initialized .slick-slide { display: block; }
 .sh .slick-dots { display: none; }
+
+
+/* ============================================================
+   OUR STORY PAGE COMPONENTS (18-21)
+   Appended after the blocks above rather than filed between 14c and 15
+   because each one carries its own breakpoint and reduced-motion rules, and
+   several of them have to beat a shared rule on source order alone:
+     - .sh-split__copy[data-reveal] cancels .sh [data-reveal] (:226) at equal
+       specificity, so it MUST come later in the file.
+     - the light-band focus rings re-colour .sh a:focus-visible (:235), also
+       (0,2,1), same requirement.
+     - the reduced-motion rules extend section 16 rather than replacing it.
+   Filing them earlier would silently invert all three.
+   ============================================================ */
+
+/* Anchor landing offset. Both components take an author-set `anchor_id`, and the
+   Our Story hero and both split bands link to one. .sh-header-sticky is
+   `position: sticky; top: 0` on EVERY template (:275), and shudhi-home.js:246
+   scrolls with `block: 'start'`, which puts the band's top edge at y=0 — i.e.
+   underneath the header. --sh-header-h is already re-derived per breakpoint
+   (:96), so this self-corrects at 86/76/68px. Attribute-scoped so it costs
+   nothing on the instances that carry no id. */
+.sh-split[id], .sh-fgrid[id] { scroll-margin-top: var(--sh-header-h); }
+/* ============================================================
+   18. STORY SPLIT — sections/sh-story-split.liquid
+   Full-bleed image/text band, instantiated twice on Our Story.
+   ============================================================ */
+
+/* Two stylesheets clobber headings site-wide — houseofveda-modern.css:55 colours
+   h1..h6 to #1F2A24 and timber.scss.liquid:814 sets text-transform:capitalize —
+   the same pair documented at :667 for .sh-story. On this band `capitalize` is
+   not merely cosmetic: it would render the merchant's "today." and "self-care."
+   as "Today." and "Self-care.", i.e. silently rewrite authored copy.
+   `.sh-split h2` (0,1,1) beats a bare `h2` (0,0,1), so no !important is needed. */
+.sh-split h2 { color: inherit; text-transform: none; }
+
+.sh-split {
+  /* The light-surface token set is re-declared rather than referenced. The names
+     are the theme's, but their only declaration lives on `.sh-story`
+     (shudhi-home.css:679) — section-scoped, deliberately not on :root — so
+     `var(--sh-story-ink)` resolves to nothing outside that band. Same names and
+     identical values on purpose: if these are ever promoted to :root, this block
+     collapses into a harmless no-op instead of a competing vocabulary.
+     --sh-split-bg is overridden inline from the `bg` setting; the value here is
+     the fallback and the documentation of what that setting expects. */
+  --sh-story-ink:      #1b2a12;   /* heading + link rest state — 13.1:1 on cream */
+  --sh-story-body:     #474a3d;   /* paragraph — 7.8:1 */
+  --sh-story-gold-ink: #7a5d2e;   /* the gold dark enough to be READ — 5.3:1 */
+  --sh-split-bg:       #f6ede1;
+
+  /* Geometry, flipped as a SET by data-media-position. Routing the mirror
+     through variables rather than a parallel block of overrides is what lets the
+     <=767px stack reset four values instead of re-specifying every rule the
+     mirrored layout touched — and it keeps the two instances' only structural
+     difference in one place. */
+  --sh-split-cols:      minmax(0, 46%) minmax(0, 54%);
+  --sh-split-media-col: 1;
+  --sh-split-copy-col:  2;
+  --sh-split-copy-mi:   0 auto;   /* margin-inline: pins the copy to the seam */
+  --sh-split-feather:   to left;  /* the photo edge that meets the panel */
+
+  position: relative; overflow: hidden;
+  background: var(--sh-split-bg); color: var(--sh-story-ink);
+}
+
+.sh-split[data-media-position="right"] {
+  --sh-split-cols:      minmax(0, 54%) minmax(0, 46%);
+  --sh-split-media-col: 2;
+  --sh-split-copy-col:  1;
+  --sh-split-copy-mi:   auto 0;
+  --sh-split-feather:   to right;
+}
+
+.sh-split__grid {
+  display: grid;
+  grid-template-columns: var(--sh-split-cols);
+  align-items: center;
+  min-height: var(--sh-split-h, 520px);
+}
+
+/* Re-creates .sh-wrap's gutter without putting the grid inside it — a max-width
+   wrapper would stop the photo short of the viewport edge and the design calls
+   for a full bleed. Same trick as .sh-story__copy (:710), generalised to work
+   from either side.
+
+   The cap is the copy column's own share of --sh-max, i.e. 54%. Derivation, for
+   media on the left: the column starts at .46W, so the box's outer edge lands at
+   .46W + M and .sh-wrap's outer edge at (W + 1280)/2; equating them gives
+   M = .04W + 640, which is exactly .54 x --sh-max at W = --sh-max. So the copy
+   is flush with every other section's gutter at 1280 and creeps inward by
+   .04(W - 1280) past it — the identical tolerance .sh-story already ships.
+   Below --sh-max the cap is never reached and plain --sh-pad governs.
+   No 100vw anywhere: that ignores the scrollbar and would shift the whole band. */
+/* grid-row:1 on BOTH children is what makes the mirror work, and it is not
+   redundant with grid-column. Auto-placement walks a cursor forward only: DOM
+   order is media-then-copy, so in the media-right instance the copy asks for
+   column 1 after the cursor has already reached column 2, the cursor cannot go
+   backwards, and CSS Grid §8.5 sends it to an implicit ROW 2 — the photo takes
+   the right 46% of one row and the copy the left 54% of the next, with two
+   empty quadrants between them. Only the right-hand mirror breaks, which is why
+   "Our Beginning" looks correct and "Why We Started" does not.
+   Released back to auto in the <=767px stack, where both share column 1 and
+   pinning them to the same row would overlap them instead. */
+.sh-split__copy {
+  grid-column: var(--sh-split-copy-col);
+  grid-row: 1;
+  margin-inline: var(--sh-split-copy-mi);
+  width: 100%;
+  max-width: calc(var(--sh-max) * .54);
+  padding: clamp(48px, 6vw, 86px) var(--sh-pad);
+}
+
+.sh-split__media {
+  grid-column: var(--sh-split-media-col);
+  grid-row: 1;
+  position: relative; align-self: stretch;
+  min-height: var(--sh-split-media-h, clamp(320px, 38vw, 520px));
+}
+.sh-split__photo {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  object-fit: cover;
+}
+/* Stand-in until final photography lands. Tinted FROM the surface — the band's
+   own colour with a low-alpha ink wash over it — so it reads as an intentional
+   panel at any `bg` the merchant picks, rather than a grey hole that has to be
+   re-tuned per instance. background-color under background-image, not the
+   shorthand, so the var still paints if the gradient is ever dropped. */
+.sh-split__photo--blank {
+  background-color: var(--sh-split-bg);
+  background-image: linear-gradient(135deg, rgba(27, 42, 18, .10), rgba(27, 42, 18, .04));
+}
+/* Feathers the photo's inner edge into the panel, mirrored by --sh-split-feather.
+   Fading a colour to the `transparent` KEYWORD is safe: every current engine
+   interpolates gradients in premultiplied alpha, so there is no grey midpoint to
+   design around, and it tracks --sh-split-bg automatically — which is what lets
+   the same rule serve the cream instance and the beige one. */
+.sh-split__media::after {
+  content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none;
+  background: linear-gradient(var(--sh-split-feather), var(--sh-split-bg) 0%, transparent 17%);
+}
+
+/* .sh-eyebrow (0,1,0) carries the dark-surface gold; this (0,2,0) swaps in the
+   light-surface one. --sh-gold is 1.95:1 on cream. */
+.sh-split .sh-eyebrow { color: var(--sh-story-gold-ink); }
+.sh-split__eyebrow { margin-bottom: 20px; }
+
+/* 1.1 rather than .sh-serif's 1.06: these headings are full sentences that wrap
+   to two or three lines, where 1.06 closes the leading up into a block. */
+.sh-split__title {
+  font-size: clamp(1.85rem, 3.2vw, 2.9rem); line-height: 1.1; margin-bottom: 20px;
+}
+/* The gold tail. --sh-story-gold-ink, never --sh-gold: this is running text that
+   has to be READ, and --sh-gold measures 1.95:1 on cream — it fails AA outright.
+   The dark gold is 5.3:1, so the emphasis is carried by hue AND contrast.
+   Italic is real, not synthesised: engo-header-fonts.liquid:55 requests
+   Cormorant Garamond ital 400 and 500, and .sh-serif sets weight 500.
+   font-family is re-declared because the TYPOGRAPHY DEFENCE block lists `.sh em`
+   with `font-family: var(--sh-sans) !important` — declared on the <em> itself,
+   that beats the serif the h2 inherits, and the gold words would render in Jost.
+   Same specificity (0,1,1) and both !important, so this wins on source order. */
+.sh-split__title em {
+  font-style: italic; color: var(--sh-story-gold-ink);
+  font-family: var(--sh-serif) !important;
+}
+
+.sh-split__text {
+  /* 16px floor for body copy, capped at 46ch so the measure stays readable. */
+  font-size: 1rem; line-height: 1.75; color: var(--sh-story-body);
+  max-width: 46ch; margin-bottom: 30px;
+}
+
+/* .sh-btn--ghost is gold-on-dark by default and lands at 2.0:1 here. */
+.sh-split .sh-btn--ghost { color: var(--sh-story-ink); }
+.sh-split .sh-btn--ghost:hover { color: var(--sh-story-gold-ink); }
+/* The global focus ring is --sh-gold, 1.95:1 on cream — under the 3:1 WCAG
+   1.4.11 asks of a focus indicator. Colour only; width/offset are untouched.
+   `.sh a:focus-visible` at :235 is ALSO (0,2,1), so this wins on source order
+   alone — it must stay below that rule. */
+.sh-split a:focus-visible { outline-color: var(--sh-story-ink); }
+
+/* Staggered reveal, no second observer. shudhi-home.js:253 only ever toggles
+   .is-in on the element carrying data-reveal, so the container keeps the hook
+   and hands the motion down to its children: one observer entry, four staggered
+   arrivals. The container's own opacity/transform from :226 is cancelled here —
+   `.sh-split__copy[data-reveal]` and `.sh [data-reveal]` are both (0,2,0), so
+   this wins on source order — otherwise the two fades multiply and the copy
+   arrives through a 0.25-alpha double dip.
+   Children are addressed with `> *`, so a blank eyebrow or a missing link
+   shortens the ramp instead of leaving a hole in it. */
+.sh-split__copy[data-reveal] { opacity: 1; transform: none; transition: none; }
+.sh-split__copy[data-reveal] > * {
+  opacity: 0; transform: translateY(20px);
+  transition: opacity .7s cubic-bezier(.22, .61, .36, 1),
+              transform .7s cubic-bezier(.22, .61, .36, 1);
+}
+.sh-split__copy[data-reveal].is-in > * { opacity: 1; transform: none; }
+/* 90ms apart, 270ms total — the brief's ~450ms ceiling. n+4 caps the ramp so a
+   longer copy block can never run the last item off the end of the viewport. */
+.sh-split__copy[data-reveal] > *:nth-child(2)   { transition-delay: .09s; }
+.sh-split__copy[data-reveal] > *:nth-child(3)   { transition-delay: .18s; }
+.sh-split__copy[data-reveal] > *:nth-child(n+4) { transition-delay: .27s; }
+
+@media (max-width: 767px) {
+  /* Single column, photo first — which is why the markup is media-then-copy in
+     both variants: the stack needs no reordering, only the mirror switched off.
+     Resetting the grid-column vars is load-bearing, not tidiness: leaving
+     --sh-split-media-col at 2 in a one-column grid would place the photo in an
+     IMPLICIT second column and shear the band in half.
+     Qualified with [data-media-position] to reach (0,2,0) — a bare `.sh-split`
+     (0,1,0) would lose to the "right" block above. */
+  .sh-split[data-media-position] {
+    --sh-split-cols: minmax(0, 1fr);
+    --sh-split-media-col: 1;
+    --sh-split-copy-col: 1;
+    --sh-split-copy-mi: 0;
+    --sh-split-media-h: clamp(260px, 56vw, 380px);
+  }
+  .sh-split__grid { min-height: 0; }
+  /* Both items are in column 1 now, so the grid-row:1 pin above would stack
+     them in the SAME cell — measured, the copy is not merely overlapped but
+     painted over entirely by .sh-split__media::after (z-index:1 over a
+     non-positioned sibling), so the text vanishes. Handing the rows back to
+     auto-placement is what restores the photo-then-copy stack.
+     (0,1,0), equal to the base rules it undoes — this must stay BELOW them. */
+  .sh-split__media, .sh-split__copy { grid-row: auto; }
+  .sh-split__copy { max-width: none; padding-block: clamp(40px, 8vw, 64px); }
+  /* Feather rotates with the stack: the seam is horizontal now, so the gradient
+     direction var no longer applies and the stops move with it. */
+  .sh-split__media::after {
+    background: linear-gradient(to bottom, transparent 74%, var(--sh-split-bg) 100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* :1365 neutralises [data-reveal] elements, but the motion here lives on their
+     CHILDREN, which carry no such attribute — without this they would still
+     slide, and would sit at opacity:0 for good if the observer never fired. */
+  .sh-split__copy[data-reveal] > * {
+    opacity: 1 !important; transform: none !important; transition: none !important;
+  }
+  .sh-split .sh-btn--ghost .sh-icon { transition: none; }
+}
+
+/* ============================================================
+   19. FEATURE GRID — sections/sh-feature-grid.liquid
+   One component, three bands on the Our Story page: "Our Philosophy"
+   (3-up, ringed icons, descriptions), "Handmade With Purpose" (6-up, bare
+   icons, labels only) and "More Than a Soap" (6-up, bare icons, descriptions).
+
+   The dark/light flip is the seven custom properties below and NOTHING else —
+   no rule in this block is written twice per scheme. Anything that needs to
+   change colour reads a token; adding a scheme means adding one more override
+   list, not auditing every selector.
+   ============================================================ */
+.sh-fgrid {
+  --sh-fgrid-ink:    var(--sh-light);        /* h2, h3 */
+  --sh-fgrid-muted:  var(--sh-muted-light);  /* descriptions */
+  --sh-fgrid-accent: var(--sh-gold);         /* eyebrow, icon glyph, gold heading tail */
+  --sh-fgrid-rule:   rgba(244, 239, 230, .18);
+  --sh-fgrid-ring:   rgba(201, 168, 106, .45);
+  --sh-fgrid-scrim:  rgba(20, 27, 12, .88);
+  /* Overridden inline from the section's `bg` colour setting; the value here is
+     the fallback and the documentation of what that setting expects. Scheme and
+     surface are deliberately separate knobs — the scheme picks a contrast
+     family, the colour picks the paint. */
+  --sh-fgrid-bg:     var(--sh-green-900);
+
+  /* Two gaps, because the dividers hang in them: the vertical hairline is
+     centred in the column gap, the horizontal one in the row gap. A single
+     `gap` would put the one-column divider 38px from the item it belongs to. */
+  --sh-fgrid-gap-x: clamp(16px, 2.6vw, 38px);
+  --sh-fgrid-gap-y: clamp(34px, 4vw, 54px);
+
+  position: relative; overflow: hidden;
+  background: var(--sh-fgrid-bg); color: var(--sh-fgrid-ink);
+  padding-block: clamp(66px, 8vw, 118px);
+}
+
+/* The --sh-story-* trio is declared INSIDE the `.sh-story` rule
+   (shudhi-home.css:686-690), deliberately not on :root, so none of it resolves
+   here — each var() carries the literal from that block as its fallback. If
+   those tokens are ever promoted to :root the fallbacks go quiet on their own,
+   and until then the light band still paints the audited colours. */
+.sh-fgrid[data-scheme="light"] {
+  --sh-fgrid-ink:    var(--sh-story-ink, #1b2a12);    /* 13.1:1 on the beige */
+  --sh-fgrid-muted:  var(--sh-story-body, #474a3d);   /* 7.8:1 */
+  /* The accent paints TEXT here (eyebrow, gold heading tail), so it must be the
+     readable gold, not --sh-gold: --sh-gold is 1.95:1 on cream and fails AA.
+     --sh-story-gold-ink is the same hue dark enough to be read — 5.3:1. */
+  --sh-fgrid-accent: var(--sh-story-gold-ink, #7a5d2e);
+  --sh-fgrid-rule:   rgba(27, 42, 18, .16);
+  --sh-fgrid-ring:   rgba(122, 93, 46, .34);
+  --sh-fgrid-scrim:  rgba(233, 224, 207, .9);
+  --sh-fgrid-bg:     var(--sh-cream-2);
+}
+
+/* Blur + scale, not blur alone. A blur samples past the element's own edges, so
+   a photo filling its box feathers its outer ~3σ toward transparent and the band
+   colour shows through as a halo on all four sides. Scaling past that halo
+   pushes it outside the section's overflow:hidden box: 3σ here is ~18px, and
+   the 12% scale clears it even on a 400px-wide phone (6% per side = 24px). */
+.sh-fgrid__bg {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  object-fit: cover; z-index: 0;
+  filter: blur(6px); transform: scale(1.12);
+}
+/* Only rendered alongside a photo — with no image the section background is
+   already the flat colour and a scrim over it would just dilute it. */
+.sh-fgrid__scrim {
+  position: absolute; inset: 0; z-index: 1; pointer-events: none;
+  background: var(--sh-fgrid-scrim);
+}
+.sh-fgrid > .sh-wrap { position: relative; z-index: 2; }
+
+/* Same two leaked bare-element rules documented at .sh-story h2:
+   houseofveda-modern.css:55 gives every h1-h6 an explicit colour and
+   timber.scss.liquid:814 force-capitalises them. An explicit colour on the
+   element beats one inherited from the section, so this states the colour
+   rather than clearing it — and states it as the token, which is what keeps
+   the scheme swap down to one place. (0,1,1) beats a bare h2 (0,0,1). */
+.sh-fgrid h2, .sh-fgrid h3 { color: var(--sh-fgrid-ink); text-transform: none; }
+
+.sh-fgrid__head { text-align: center; margin-bottom: clamp(32px, 4.4vw, 58px); }
+/* .sh-eyebrow (0,1,0) carries the dark-surface gold; this (0,2,0) hands it the
+   scheme token so the light band gets the readable one. */
+.sh-fgrid .sh-eyebrow { color: var(--sh-fgrid-accent); }
+/* On the two eyebrow-only bands the eyebrow IS the <h2> (see the section's own
+   comment), which drags it into two rules written for real headings:
+   `.sh h1..h6` (:145) forces the SERIF face at (0,1,1), and `.sh-fgrid h2`
+   above sets text-transform:none at (0,1,1) — between them the label would
+   render as sentence-case Cormorant instead of a spaced uppercase Jost kicker.
+   Both are restated here at (0,2,0), which out-specifies them; the font-family
+   also needs !important to answer the one at :145. Inert on the <div> path. */
+.sh .sh-fgrid__eyebrow {
+  font-family: var(--sh-sans) !important;
+  text-transform: uppercase;
+  /* .sh-eyebrow never declares a line-height, so the <div> path inherits body's
+     1.65 while the <h2> path is caught by houseofveda-modern.css:58's
+     `h1..h6 { line-height: 1.3 }` — measured 18.48px vs 14.56px, which shifted
+     the grid up 3.92px on exactly the two bands that promote their eyebrow.
+     `inherit` restores the div's value and keeps the two paths pixel-identical. */
+  line-height: inherit;
+}
+/* Spacing hangs off the heading, not the eyebrow: two of the three bands are
+   eyebrow-only and a margin-bottom on the eyebrow would leave phantom space
+   under them. */
+.sh-fgrid__eyebrow + .sh-fgrid__title { margin-top: 14px; }
+.sh-fgrid__title { font-size: clamp(1.9rem, 3.4vw, 3rem); }
+/* The gold tail. font-family is re-declared for the reason spelled out at
+   .sh-story-hero__title em: the TYPOGRAPHY DEFENCE block lists `.sh em` with
+   `font-family: var(--sh-sans) !important`, declared on the <em> itself, which
+   beats the serif the h2 inherits. Same specificity (0,1,1), both !important,
+   so this wins on source order — it must stay below :145. */
+.sh-fgrid__title em {
+  font-style: normal; color: var(--sh-fgrid-accent);
+  font-family: var(--sh-serif) !important;
+}
+
+.sh-fgrid__grid {
+  display: grid;
+  grid-template-columns: repeat(var(--sh-fgrid-cols, 3), minmax(0, 1fr));
+  gap: var(--sh-fgrid-gap-y) var(--sh-fgrid-gap-x);
+}
+/* The column count is a value, not a layout. Every breakpoint below re-points
+   this one property at the same (0,1,0) specificity and wins on source order,
+   so no override ever needs !important to beat the grid-template-columns
+   declaration above. */
+.sh-fgrid--cols-3 { --sh-fgrid-cols: 3; }
+.sh-fgrid--cols-6 { --sh-fgrid-cols: 6; }
+
+.sh-fgrid__item {
+  position: relative;
+  display: grid; justify-items: center; align-content: start;
+  gap: 12px; text-align: center;
+  padding-inline: clamp(2px, 1vw, 14px);
+}
+
+/* Divider — a 1px pseudo hung in the middle of the column gap, so it is
+   independent of the item's own padding and stays put when the items wrap.
+   Grid stretches every item in a row to the row's height, so the hairlines
+   line up without measuring anything.
+   Two background declarations on purpose: color-mix() is unsupported before
+   Safari 16.2, which this theme still serves, and an unsupported function makes
+   the whole declaration invalid at parse time — so the rgba token above it is
+   what those engines keep. Newer engines take the second and track currentColor,
+   which is already the scheme's ink. */
+.sh-fgrid__item::after {
+  content: ""; position: absolute; z-index: 0; pointer-events: none;
+  top: 12%; bottom: 12%; right: calc(var(--sh-fgrid-gap-x) / -2);
+  width: 1px;
+  background: var(--sh-fgrid-rule);
+  background: color-mix(in srgb, currentColor 18%, transparent);
+}
+/* No trailing rule off the end of the run, in any layout. */
+.sh-fgrid__item:last-child::after { display: none; }
+/* …nor off the right edge of a wrapped row. Only the 3-up needs this: max_blocks
+   is 6, so in the 6-up layout the end of row one IS the last child. */
+.sh-fgrid--cols-3 .sh-fgrid__item:nth-child(3n)::after { display: none; }
+
+.sh-fgrid__icon {
+  display: inline-grid; place-items: center;
+  color: var(--sh-fgrid-accent);
+  transition: transform .3s ease;
+}
+.sh-fgrid__icon .sh-icon { width: clamp(26px, 2.6vw, 34px); height: clamp(26px, 2.6vw, 34px); }
+/* Ringed variant — the 3-up philosophy band. The ring is a hairline of the
+   scheme's gold, kept as its own token because the neutral divider rule and a
+   gold ring are not the same colour on either surface. */
+.sh-fgrid--ring .sh-fgrid__icon {
+  width: clamp(72px, 7.4vw, 90px); aspect-ratio: 1;
+  border: 1px solid var(--sh-fgrid-ring); border-radius: 50%;
+}
+/* Transform only — no width, no border, nothing that reflows the row. Capped at
+   1.08 because a ringed icon at 90px would otherwise visibly crowd its
+   neighbours' hairlines. */
+.sh-fgrid__item:hover .sh-fgrid__icon { transform: scale(1.08); }
+
+.sh-fgrid__label { font-size: clamp(1rem, 1.2vw, 1.12rem); line-height: 1.32; }
+.sh-fgrid__text {
+  font-size: .85rem; line-height: 1.7; color: var(--sh-fgrid-muted);
+  max-width: 30ch;
+}
+/* A 6-up column is half the width of a 3-up one at the same viewport, so the
+   label steps down with it — a measure fix, not a decorative one. */
+.sh-fgrid--cols-6 .sh-fgrid__label { font-size: clamp(.92rem, 1vw, 1rem); }
+.sh-fgrid--cols-6 .sh-fgrid__text { font-size: .8rem; max-width: 24ch; }
+
+/* Reveal stagger. Pure CSS on top of the shared observer (shudhi-home.js:253
+   adds .is-in once per element) — no second observer, no per-item JS. 80ms a
+   step over six blocks tops out at 400ms, inside the ~450ms the house style
+   allows before the last card reads as late rather than staggered. */
+.sh-fgrid__item[data-reveal]:nth-child(2) { transition-delay:  80ms; }
+.sh-fgrid__item[data-reveal]:nth-child(3) { transition-delay: 160ms; }
+.sh-fgrid__item[data-reveal]:nth-child(4) { transition-delay: 240ms; }
+.sh-fgrid__item[data-reveal]:nth-child(5) { transition-delay: 320ms; }
+.sh-fgrid__item[data-reveal]:nth-child(6) { transition-delay: 400ms; }
+
+/* 6 -> 3. Both tiers below re-point --sh-fgrid-cols at (0,1,0) and win on
+   source order alone; the 599 tier must therefore stay after this one. */
+@media (max-width: 989px) {
+  .sh-fgrid--cols-6 { --sh-fgrid-cols: 3; }
+  .sh-fgrid--cols-6 .sh-fgrid__item:nth-child(3n)::after { display: none; }
+}
+
+@media (max-width: 599px) {
+  .sh-fgrid--cols-6 { --sh-fgrid-cols: 2; }
+  .sh-fgrid--cols-3 { --sh-fgrid-cols: 1; }
+
+  /* The 989 tier is still in force here, so item 3 — now the START of a row in
+     the 2-up — has to have its hairline handed back before item 2/4/6 lose
+     theirs. :not(:last-child) is what keeps that undo from resurrecting the
+     trailing rule the base block suppressed; without it the (0,4,1) selector
+     would out-rank the (0,2,1) :last-child rule above. */
+  .sh-fgrid--cols-6 .sh-fgrid__item:nth-child(3n):not(:last-child)::after { display: block; }
+  .sh-fgrid--cols-6 .sh-fgrid__item:nth-child(2n)::after { display: none; }
+
+  /* At one column a vertical hairline between items is meaningless — it rotates
+     into the row gap and becomes the rule between stacked items. Same undo, same
+     reason, and :last-child still ends the run. */
+  .sh-fgrid--cols-3 .sh-fgrid__item:nth-child(3n):not(:last-child)::after { display: block; }
+  .sh-fgrid--cols-3 .sh-fgrid__item::after {
+    top: auto; bottom: calc(var(--sh-fgrid-gap-y) / -2);
+    left: 50%; right: auto; transform: translateX(-50%);
+    width: min(180px, 46%); height: 1px;
+  }
+
+  .sh-fgrid--ring .sh-fgrid__icon { width: 68px; }
+  .sh-fgrid__text, .sh-fgrid--cols-6 .sh-fgrid__text { max-width: 30ch; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sh-fgrid__icon { transition: none; }
+  .sh-fgrid__item:hover .sh-fgrid__icon { transform: none; }
+  /* The stagger needs no entry here: §16 already sets
+     `.sh [data-reveal] { transition: none !important }`, and `transition` is a
+     shorthand — it resets transition-delay to 0s along with the rest, and the
+     delays above are non-!important at lower weight. */
+}
+/* ============================================================
+   20. RITUAL FLOW — sections/sh-ritual-steps.liquid
+   Namespaced sh-flow because .sh-steps / .sh-step are already
+   sh-mindful-ritual's (:887-907).
+   ============================================================ */
+.sh-flow {
+  /* The light-surface palette is declared ON .sh-story (:686-690) and
+     deliberately not on :root, so var(--sh-story-ink) resolves to nothing
+     anywhere else. Re-declared here at identical values rather than promoted —
+     promoting is exactly what the comment at :680 refused, and it would hand
+     the dark bands a light ink they have no use for. */
+  --sh-story-ink:      #1b2a12;   /* heading, label, number — 11.5:1 on #e9e0cf */
+  --sh-story-body:     #474a3d;   /* description — 6.9:1 */
+  --sh-story-gold-ink: #7a5d2e;   /* eyebrow + step icons — 4.7:1 */
+
+  /* Overridden inline from the `bg` setting; the value here documents what that
+     setting expects. It is read by three things — the band, the step card and
+     the number badge — and they MUST stay identical: the card and the badge are
+     what hide the connector line, and any drift between them shows up as a
+     visible seam through the row. */
+  --sh-flow-bg: var(--sh-cream-2);
+  --sh-flow-hairline: rgba(27, 42, 18, .18);
+  --sh-flow-bw: 1px;              /* card hairline; the badge and line align to it */
+  --sh-flow-badge: 34px;
+  --sh-flow-gap: clamp(10px, 1.3vw, 20px);
+
+  background: var(--sh-flow-bg); color: var(--sh-story-ink);
+  padding-block: clamp(70px, 8vw, 110px);
+}
+
+.sh-flow__grid {
+  display: grid;
+  /* The intro is a fixed measure, not a fraction: it holds ~24 characters of
+     serif heading and reads the same whether there are four steps or six. */
+  grid-template-columns: minmax(0, 300px) minmax(0, 1fr);
+  gap: clamp(30px, 4vw, 68px);
+  align-items: center;
+}
+
+/* .sh-eyebrow (0,1,0) carries the dark-surface gold; this (0,2,0) swaps in the
+   light-surface one — --sh-gold is 1.7:1 on this beige. Same trade as :743. */
+.sh-flow__intro .sh-eyebrow { color: var(--sh-story-gold-ink); margin-bottom: 16px; }
+
+/* Colour and text-transform stated, never inherited: houseofveda-modern.css:55
+   gives h1..h6 an explicit `color: var(--hov-dark)` and timber.scss.liquid:814
+   capitalises them, and an explicit declaration on the element beats anything
+   inherited from .sh-flow. Same trap .sh-story h2 (:677) documents. */
+.sh-flow__title {
+  font-size: clamp(1.5rem, 2.4vw, 2.1rem);
+  color: var(--sh-story-ink); text-transform: none;
+  margin-bottom: 26px;
+}
+
+/* The second solid CTA in the theme to land on a LIGHT surface, so it inherits
+   the fix from .sh-contact .sh-btn--solid (:1228): gold on beige is ~2:1, which
+   gives the control no 3:1 boundary (WCAG 1.4.11). outline with a negative
+   offset — a border would grow the box, an inset shadow would paint under the
+   hover ::before and vanish on hover. */
+.sh-flow .sh-btn--solid { outline: 1px solid var(--sh-accent-edge); outline-offset: -1px; }
+
+/* The global ring is --sh-gold, 1.7:1 here. `.sh a:focus-visible` at :235 is
+   ALSO (0,2,1), so this wins on source order alone and must stay below it.
+   Colour only; width and offset are the shared ones. */
+.sh-flow a:focus-visible { outline-color: var(--sh-story-ink); }
+
+/* padding-top reserves the half-badge that overhangs the first row of cards, so
+   the badges cannot collide with the intro or get clipped. */
+.sh-flow__track { position: relative; padding-top: calc(var(--sh-flow-badge) / 2); }
+
+/* One rule for the whole row, not a segment per gap. It is drawn at the cards'
+   top-border height and the opaque cards cover it, so what survives is the gaps
+   — the card border reads as the same line continuing across each card, and the
+   badge interrupts it. Nothing here is announced: aria-hidden in the markup.
+
+   The inset is the geometry that keeps it from jutting past the outer badges:
+   with n equal columns and n-1 gaps, the outer column's centre sits
+   (100% - (n-1)*gap) / n / 2 from the edge, so both ends terminate under an
+   opaque disc. Divided twice by a plain number rather than by (2 * n) — calc()
+   only reliably accepts a bare number as the divisor.
+   `top` resolves against the track's PADDING box, so it is measured from the
+   outer edge and the reserve above is exactly the offset to the card tops. */
+.sh-flow__line {
+  position: absolute; z-index: 0; height: var(--sh-flow-bw);
+  top: calc(var(--sh-flow-badge) / 2);
+  left:  calc((100% - (var(--sh-flow-n, 6) - 1) * var(--sh-flow-gap)) / var(--sh-flow-n, 6) / 2);
+  right: calc((100% - (var(--sh-flow-n, 6) - 1) * var(--sh-flow-gap)) / var(--sh-flow-n, 6) / 2);
+  background: var(--sh-flow-hairline);
+}
+
+.sh-flow__steps {
+  display: grid;
+  /* Column count from the block count, matching the connector inset above.
+     The 6 fallback is what renders if the variable is ever missing — without it
+     the whole declaration is invalid at computed-value time and the steps
+     collapse into one column. */
+  grid-template-columns: repeat(var(--sh-flow-n, 6), minmax(0, 1fr));
+  column-gap: var(--sh-flow-gap);
+  /* Only used once the row wraps at <=989px: a second row's badges hang half
+     out of their cards and would otherwise touch the row above. */
+  row-gap: calc(var(--sh-flow-badge) / 2 + 26px);
+}
+
+.sh-flow__step {
+  /* Positioned + z-index so the card paints over the connector deterministically
+     — the line is an absolutely positioned earlier sibling, which without this
+     would paint above the card's non-positioned content. The opaque background
+     is the other half of that: see --sh-flow-bg above. */
+  position: relative; z-index: 1;
+  background: var(--sh-flow-bg);
+  border: var(--sh-flow-bw) solid var(--sh-flow-hairline);
+  border-radius: var(--sh-radius);
+  display: grid; justify-items: center; text-align: center; gap: 9px;
+  padding: calc(var(--sh-flow-badge) / 2 + 20px) 12px 22px;
+}
+
+/* Straddles the card's top border rather than sitting inside it. top is
+   -1 border-width because the badge's containing block is the card's PADDING
+   box: at top:0 the centre would land one hairline BELOW the border the
+   connector is drawn along, and the illusion needs all three collinear.
+   The background must stay fully opaque — any alpha and the line shows through
+   the number. */
+.sh-flow__num {
+  position: absolute; left: 50%; top: calc(var(--sh-flow-bw) * -1);
+  transform: translate(-50%, -50%);
+  width: var(--sh-flow-badge); height: var(--sh-flow-badge); border-radius: 50%;
+  display: grid; place-items: center;
+  background: var(--sh-flow-bg);
+  border: var(--sh-flow-bw) solid var(--sh-flow-hairline);
+  color: var(--sh-story-ink);
+}
+/* Scoped through .sh-flow purely for specificity: the badge is a <span>, and
+   `.sh span` (0,1,1) forces the sans face at !important. (0,2,0) beats it. */
+.sh-flow .sh-flow__num {
+  font-family: var(--sh-serif) !important;
+  font-size: 1rem; line-height: 1; font-weight: 500;
+}
+
+/* --sh-story-gold (2.4:1) is enough behind the seal's 1px ring but not for
+   1.4px icon strokes that have to be recognisable at 26px, so these take the
+   readable gold even though they are not text. */
+.sh-flow__step > .sh-icon { width: 26px; height: 26px; color: var(--sh-story-gold-ink); }
+
+.sh-flow__label { font-size: 1.08rem; color: var(--sh-story-ink); text-transform: none; }
+.sh-flow__text  { font-size: .78rem; line-height: 1.6; color: var(--sh-story-body); }
+
+/* Left-to-right stagger. .sh [data-reveal] (:226) already owns the transition;
+   these add only the delay and land later at equal specificity (0,2,0). 80ms a
+   step puts the last card at 400ms — under the ~450ms ceiling, past which the
+   row stops reading as one gesture and starts reading as six animations. */
+.sh-flow__step:nth-child(2) { transition-delay: .08s; }
+.sh-flow__step:nth-child(3) { transition-delay: .16s; }
+.sh-flow__step:nth-child(4) { transition-delay: .24s; }
+.sh-flow__step:nth-child(5) { transition-delay: .32s; }
+.sh-flow__step:nth-child(6) { transition-delay: .40s; }
+
+/* 989/599 rather than the house 1024/768 tiers, because the breaking point here
+   is set by the cards, not the viewport: six of them stop holding a two-word
+   label plus a three-line description well above 1024. */
+@media (max-width: 989px) {
+  .sh-flow__grid { grid-template-columns: 1fr; gap: clamp(26px, 5vw, 44px); }
+  .sh-flow__steps { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  /* Hidden, not shortened. A single horizontal thread across a wrapped grid
+     claims step 3 connects to step 4 along a row that no longer exists. */
+  .sh-flow__line { display: none; }
+}
+
+@media (max-width: 599px) {
+  .sh-flow__steps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .sh-flow__title { margin-bottom: 22px; }
+  .sh-flow__text { font-size: .75rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* :1365 already zeroes this through the `transition` shorthand on
+     .sh [data-reveal]. Restated against the class so the stagger cannot come
+     back if that rule is ever narrowed to opacity/transform longhands — a
+     delay is motion the same way the movement it delays is. */
+  .sh-flow__step { transition-delay: 0s !important; }
+}
+/* ============================================================
+   21. GENERATIONS SEAL — snippets/sh-gen-seal.liquid
+
+   The dark-hero twin of the cream seal in §9 (.sh-story__seal, :788). Same
+   200x200 geometry, different palette: on --sh-green-900 the ring, dots, arc
+   label and number are all --sh-gold. The cream original has to split that gold
+   in two (--sh-story-gold decorative at 2.4:1, --sh-story-gold-ink readable at
+   5.3:1) because neither job can be done by one token on cream; on dark green
+   --sh-gold does both.
+   ============================================================ */
+
+/* Anchors to its nearest positioned ancestor. Rendered as a direct child of
+   sections/sh-story-hero.liquid that is the section itself (:1110,
+   position:relative) — inside .sh-wrap it would anchor to the wrap instead
+   (:1143), and inside anything carrying [data-reveal] it would re-anchor
+   mid-reveal as that element's transform resolves to none (:226/:231).
+
+   z-index clears the scrim (:1128, z-index 1) and the copy wrap (:1143,
+   z-index 2) so the gold hairlines are never painted over, and stays under the
+   trust row (:1181, z-index 6) so a wider seal can never cover a badge.
+   pointer-events:none because the whole thing is decorative: at narrow desktop
+   widths it drifts towards the CTA row and must not swallow a click. */
+.sh-gen {
+  position: absolute; top: 12%; right: 4%; z-index: 3;
+  width: clamp(120px, 12vw, 180px); aspect-ratio: 1;
+  display: grid; place-items: center;
+  pointer-events: none;
+}
+
+/* The <svg> IS the rotating group — the number sits outside it as a sibling
+   precisely so it can stay upright (see the snippet's markup comment).
+   Rotating the svg BOX rather than an inner <g> also avoids transform-origin on
+   an SVG child, which means nothing useful without `transform-box: view-box`;
+   this box is square (aspect-ratio above), so the CSS default 50% 50% lands
+   exactly on the viewBox's 100,100. 90s is slow enough to read as drift rather
+   than spin — no will-change, a permanently promoted layer is not worth one
+   degree every quarter second. */
+.sh-gen__ring {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  animation: sh-gen-spin 90s linear infinite;
+}
+@keyframes sh-gen-spin { to { transform: rotate(360deg); } }
+
+/* stroke-width is in viewBox units — 1 of 200 — so it stays a true sub-pixel
+   hairline at every width the clamp above produces, exactly as :797 does. */
+.sh-gen__ring-c { fill: none; stroke: var(--sh-gold); stroke-width: 1; }
+.sh-gen__dot    { fill: var(--sh-gold); }
+.sh-gen__arc    {
+  fill: var(--sh-gold); font-size: 9.5px; letter-spacing: .16em;
+  text-transform: uppercase;
+}
+
+/* The `.sh` prefix is load-bearing. `.sh span` at :140 declares
+   `font-family: var(--sh-sans) !important` at (0,1,1); a bare `.sh-gen__num`
+   is (0,1,0) and would LOSE even though it is also !important — which is
+   exactly what happens to .sh-story__seal-num at :803, where the seal's number
+   renders in Jost rather than the serif it asks for. (0,2,0) wins.
+   position:relative puts the digit in the same paint order as the absolutely
+   positioned ring, so it can never end up beneath it. */
+.sh .sh-gen__num {
+  position: relative;
+  font-family: var(--sh-serif) !important;
+  font-size: clamp(2rem, 3.4vw, 3.1rem); line-height: 1;
+  color: var(--sh-gold);
+}
+
+/* Below this width the hero reads as one stacked column and a floating seal
+   starts landing on the headline. The purely geometric collision is later
+   (~810px, where the 620px copy cap plus the seal's 120px floor stop fitting
+   side by side) but the headline hits that cap first and its ragged right edge
+   reaches the seal before the box does, so the switch is made at the tablet
+   edge instead of at the arithmetic.
+
+   .sh-story-hero is display:flex (:1113), so a seal returned to normal flow
+   becomes a second flex ITEM and would line up beside the copy. Pinning the
+   wrap to a full line is what pushes the seal onto a line of its own; with no
+   seal present both declarations are inert (one item, already 100% wide). */
+@media (max-width: 989px) {
+  .sh-story-hero { flex-wrap: wrap; }
+  .sh-story-hero > .sh-wrap { flex: 1 0 100%; }
+
+  /* relative, NOT static. .sh-gen__ring is position:absolute/inset:0 against
+     this box; going static hands that job to the next positioned ancestor,
+     which is .sh-story-hero itself (:1110) — the 200x200 seal then scales to
+     the whole hero band and a viewport-wide gold ring rotates across the
+     headline. relative keeps it in normal flow, so the flex-wrap trick above
+     still drops it onto its own line, while it stays the containing block.
+     inset:auto is required, not tidiness. Of the base rule's two offsets
+     (position:absolute; top:12%; right:4%, ~30 lines above), `right` is the one
+     that bites today: under relative it becomes a real 16-40px leftward shift,
+     measured across 390-989px, and the seal stops being centred. `top` happens
+     to resolve to auto right now only because .sh-story-hero sets min-height
+     (:1114) rather than height, so its height is indefinite — give the hero a
+     definite height and the same declaration pushes the seal down 78px. Both
+     are cancelled rather than just `right`, so that stays true either way. */
+  .sh-gen {
+    position: relative; inset: auto;
+    width: clamp(104px, 26vw, 140px);
+    margin: clamp(26px, 5vw, 40px) auto 0;
+  }
+}
+
+/* The ring is the only motion this component owns. The count-up belongs to the
+   orchestrator's JS and has to check the media query itself — CSS cannot stop
+   a script writing textContent. */
+@media (prefers-reduced-motion: reduce) {
+  .sh-gen__ring { animation: none; }
+}

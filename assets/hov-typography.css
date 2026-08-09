@@ -13,7 +13,15 @@
   /* Shudhi Herbals typography — body/UI = Jost (geometric sans), headings = Cormorant
      Garamond (high-contrast serif). This is the working fallback for the brand's
      Guffie/Brokman; swap in the self-hosted @font-face below once the licensed files
-     are in assets/. Loaded via snippets/engo-header-fonts.liquid. */
+     are in assets/.
+
+     --hov-font-primary is the DEFAULT only. layout/theme.liquid redeclares it from
+     settings.type_body_font (Theme settings > Typography), which serves the face from
+     Shopify's font library, so changing the body font is a theme setting and not a
+     code edit. The value here is what renders if that setting is ever cleared.
+
+     --font-heading is NOT settings-driven: headings stay on Cormorant Garamond,
+     still loaded by snippets/engo-header-fonts.liquid. */
   --hov-font-primary: 'Jost', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   --font-heading: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
 }
@@ -102,3 +110,64 @@ select:focus-visible, textarea:focus-visible, [tabindex]:focus-visible,
 .hov-testi__role {
   font-weight: 500;
 }
+
+/* ── Body-text reading rhythm ────────────────────────────────────────────────
+   Open leading, normal tracking, a 16px floor and regular weight for paragraph
+   copy sitewide.
+
+   The size floor is applied to text-bearing LEAF elements (<p>, <li>, <td>) and
+   never to `body` or to a prose wrapper. timber.scss sizes headings in `em`
+   (h1 = em(24px) = 1.714em against $baseFontSize 14px), so raising the font-size
+   of any ancestor scales every heading inside it. Headings must stay exactly as
+   they are, and a leaf-element floor is the only way to lift body copy without
+   touching them.
+
+   This file loads after engo-customizes.css and houseofveda-modern.css, so each
+   selector below matches or exceeds the specificity of the rule it supersedes and
+   wins on source order — no !important required.
+
+   Colour is deliberately absent from the global rule: paragraphs also sit on the
+   dark forest-green footer, hero and Our Story bands, where forcing a charcoal
+   would make them invisible. It is corrected per-surface further down. */
+p {
+  font-size: 16px;
+  line-height: 1.65;
+  font-weight: 400;
+}
+
+/* Long-form prose — product descriptions, journal/blog bodies, rich text.
+   A little more leading than UI copy, since these run in wide columns. */
+.rte p, .rte li, .rte td,
+.desc.product-desc p, .desc.product-desc li, .desc.product-desc td,
+.tab-pd-details .product-desc p,
+.article-page .content-single-blog .post-details .content-post-default p,
+.article-page .content-single-blog .post-details .content-post-default li {
+  font-size: 16px;
+  line-height: 1.7;
+  font-weight: 400;
+  letter-spacing: normal;
+}
+
+/* Colour, on the two light-surface prose blocks only — both were failing the
+   brief's "soft off-black on cream" test from opposite directions:
+     product description  #a8a8a8  — 2.6:1 on white, fails WCAG 1.4.3 AA
+     journal body         #000     — the hard black the brief asks to soften
+   Both become the brand charcoal-green already used for body copy everywhere
+   else (~14:1 on white, ~12:1 on the #FBF0DC ivory). */
+.tab-pd-details .product-desc p,
+.article-page .content-single-blog .post-details .content-post-default p {
+  color: var(--shudhi-text, #1F2A24);
+}
+
+/* ── [OPT-IN] Measure limit for prose in wide containers ─────────────────────
+   Product descriptions and journal bodies currently run the full width of their
+   container, which is well past a comfortable 65-75 character line on a large
+   screen. Left commented because switching it on re-flows those two blocks —
+   a layout change, not a typography one, so it is the merchant's call.
+   The homepage hero and Our Story copy already cap at 40ch and need nothing.
+
+.tab-pd-details .product-desc p,
+.article-page .content-single-blog .post-details .content-post-default p {
+  max-width: 72ch;
+}
+   ── */

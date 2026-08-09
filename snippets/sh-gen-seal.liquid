@@ -1,0 +1,102 @@
+{%- comment -%}
+  SHUDHI — "generations" seal, dark-hero variant
+
+  The same mark sections/sh-our-story.liquid draws inline at :106-133, rebuilt as
+  a snippet for the DARK Our Story hero. It is a separate namespace on purpose,
+  not a refactor: that seal paints --sh-story-gold hairlines with --sh-story-ink
+  type, a pair chosen for the cream band and both of which sink into
+  --sh-green-900. Here the ring, dots, arc label and number are all --sh-gold —
+  a dark green field is the one surface in the theme where --sh-gold is
+  legitimately readable, the same call the hero headline's gold words already
+  make (shudhi-home.css:1158). sh-our-story ships on the homepage and is
+  deliberately left untouched.
+
+  Usage — as a DIRECT child of <section class="sh sh-story-hero">, after .sh-wrap:
+    {% render 'sh-gen-seal', uid: section.id, number: 4 %}
+
+  Params:
+    number      — the figure in the middle (default 4)
+    text_top    — upper arc label (default "Generations"). Reads WITH the number
+                  rather than repeating it: "4 · Generations · of herbal wisdom",
+                  which is also the wording the homepage seal already ships.
+    text_bottom — lower arc label (default "of herbal wisdom")
+    uid         — unique suffix for the two <path> ids. SVG ids are
+                  document-global, so two seals sharing a uid would both bend
+                  their labels along the FIRST seal's arcs. `section` is out of
+                  scope inside a rendered snippet, so the caller has to pass it.
+
+  Where it is rendered matters twice over:
+    - .sh-gen is absolutely positioned against its nearest positioned ancestor.
+      As a child of the section that is the section (shudhi-home.css:1110);
+      drop it inside .sh-wrap and it anchors to that instead (:1143).
+    - never inside an element carrying data-reveal. That element holds
+      `transform: translateY(26px)` until .is-in lands (shudhi-home.css:226),
+      and a transformed ancestor becomes the containing block for absolutely
+      positioned descendants — the seal would visibly jump anchors the moment
+      the copy reveals.
+
+  Top arc is drawn left->right over the top (sweep 1) and the bottom arc
+  left->right under the bottom (sweep 0), so both run in the reading direction
+  and the lower glyphs stay upright — one continuous circle would set the bottom
+  half upside down.
+{%- endcomment -%}
+
+{%- assign num     = number      | default: 4 -%}
+{%- assign arc_top = text_top    | default: 'Generations' -%}
+{%- assign arc_bot = text_bottom | default: 'of herbal wisdom' -%}
+{%- comment -%} Resolved BEFORE the append: `'sh-gen-' | append: nil` returns the
+    non-blank string "sh-gen-", so a `default` filter chained after the append
+    would never fire. The fallback keeps the ids valid for a single unnamed
+    instance; it is not a substitute for passing uid when there could be two. {%- endcomment -%}
+{%- assign seal_uid = uid | default: 1 -%}
+{%- assign gid = 'sh-gen-' | append: seal_uid -%}
+
+{%- comment -%}
+  Decorative in full. Its only textual content is the number and the label, and
+  the hero paragraph already states the fact in a sentence ("Inspired by 4
+  generations of herbal wisdom…") — a screen reader announcing a bare "4" on top
+  of that adds noise, not information. No sr-only restatement here for the same
+  reason.
+{%- endcomment -%}
+<div class="sh-gen" aria-hidden="true">
+
+  {%- comment -%}
+    The <svg> IS the rotating group (90s linear, CSS). The number is deliberately
+    a SIBLING of it, not a child: anything inside rides the rotation and would
+    spend most of the cycle upside down.
+  {%- endcomment -%}
+  <svg class="sh-gen__ring" viewBox="0 0 200 200" aria-hidden="true" focusable="false">
+    <defs>
+      <path id="{{ gid }}-t" fill="none" d="M26,100 A74,74 0 0 1 174,100"/>
+      <path id="{{ gid }}-b" fill="none" d="M26,100 A74,74 0 0 0 174,100"/>
+    </defs>
+
+    <circle class="sh-gen__ring-c" cx="100" cy="100" r="92"/>
+    <circle class="sh-gen__dot" cx="34" cy="100" r="2.6"/>
+    <circle class="sh-gen__dot" cx="166" cy="100" r="2.6"/>
+
+    {%- if arc_top != blank -%}
+      <text class="sh-gen__arc">
+        <textPath href="#{{ gid }}-t" startOffset="50%" text-anchor="middle">{{ arc_top }}</textPath>
+      </text>
+    {%- endif -%}
+    {%- if arc_bot != blank -%}
+      <text class="sh-gen__arc">
+        <textPath href="#{{ gid }}-b" startOffset="50%" text-anchor="middle">{{ arc_bot }}</textPath>
+      </text>
+    {%- endif -%}
+  </svg>
+
+  {%- comment -%}
+    data-count-to is the hook the count-up JS binds to; the element's own text is
+    the REAL number, not "0". If the script never runs — no JS, an observer that
+    never fires because the seal is already on screen, a broken bundle — the seal
+    still reads "4" instead of freezing on a nonsense "0". The script resets it
+    to 0 itself immediately before it animates, which is the one moment a 0 is
+    ever correct.
+  {%- endcomment -%}
+  {%- if num != blank -%}
+    <span class="sh-gen__num" data-count-to="{{ num }}">{{ num }}</span>
+  {%- endif -%}
+
+</div>

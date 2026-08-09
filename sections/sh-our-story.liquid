@@ -1,97 +1,138 @@
 {%- comment -%}
   SHUDHI — Our Story
 
-  Full-bleed banner: the photo covers the whole band, a left-to-right gradient
-  scrim keeps the copy legible over it, and the play button + circular seal sit
-  over the photo on the right.
+  Light editorial split: a solid cream panel carries the copy on the left, an
+  UNTINTED photo bleeds to the right viewport edge, and the "generations" seal
+  straddles the seam between them.
+
+  This replaced a full-bleed banner build — one photo stretched across the whole
+  band under a dark green scrim, with light text laid on top. That is a hero
+  pattern, not a content/media pattern, and it is the reason the colours were
+  inverted. No settings combination could have fixed it: the scrim was painted
+  FROM the `bg` colour and the photo was a section-level background sitting
+  behind the text, so both the layout and the palette had to change structurally.
+  The `scrim` setting is gone with it — the approved design shows the photo at
+  full natural brightness, so there is nothing left for it to control.
+
+  The grid is deliberately NOT wrapped in .sh-wrap: a max-width wrapper would
+  stop the photo short of the viewport edge. The copy column re-creates the
+  wrap's left gutter itself instead — see .sh-story__copy in shudhi-home.css.
+
+  Rendered on the homepage AND on the Our Story page; both instances share this
+  design.
 
   The heading relies on `.sh-story h2 { color: inherit; text-transform: none }`
   in shudhi-home.css to undo two global bare-element rules
   (houseofveda-modern.css:55 sets an explicit dark colour; timber.scss.liquid:814
-  force-capitalises). Without that rule the title renders as a near-invisible
-  ghost in Title Case — do not remove it.
+  force-capitalises). Do not remove it.
 {%- endcomment -%}
 
 {%- assign s = section.settings -%}
 {%- assign seal_id = 'sh-seal-' | append: section.id -%}
-{%- assign scrim = s.scrim | divided_by: 100.0 -%}
 
 <section class="sh sh-story" id="our-story"
-         style="--sh-green-900:{{ s.bg }};--sh-story-scrim:{{ scrim }};--sh-story-h:{{ s.min_height }}px;">
+         style="--sh-story-bg:{{ s.bg }};--sh-story-h:{{ s.min_height }}px;">
 
-  {%- comment -%} Full-bleed photo. Swapping this in the customizer is all it
-      takes to change the band — no code change. {%- endcomment -%}
-  {%- if s.image != blank -%}
-    <img class="sh-story__bg" src="{{ s.image | image_url: width: 2000 }}"
-         alt="{{ s.image.alt | default: s.title_l1 | escape }}"
-         width="2000" height="1000" loading="lazy" decoding="async">
-  {%- else -%}
-    <img class="sh-story__bg" src="{{ 'Our story.webp' | asset_url }}"
-         alt="{{ s.title_l1 | escape }}" width="2000" height="1000" loading="lazy" decoding="async">
-  {%- endif -%}
+  <div class="sh-story__grid">
 
-  <div class="sh-story__scrim"></div>
+    <div class="sh-story__copy"{% if s.animate %} data-reveal{% endif %}>
+      {%- if s.eyebrow != blank -%}
+        <div class="sh-story__eyebrow sh-eyebrow">
+          {{ s.eyebrow }}{% render 'sh-icon', name: 'leaf' %}
+        </div>
+      {%- endif -%}
 
-  <div class="sh-wrap">
-    <div class="sh-story__grid">
+      <h2 class="sh-story__title sh-serif">
+        {{ s.title_l1 }}{% if s.title_l2 != blank %}<br>{{ s.title_l2 }}{% endif %}
+      </h2>
 
-      <div class="sh-story__copy"{% if s.animate %} data-reveal{% endif %}>
-        {%- if s.eyebrow != blank -%}
-          <div class="sh-story__eyebrow sh-eyebrow">
-            {{ s.eyebrow }}{% render 'sh-icon', name: 'leaf' %}
-          </div>
-        {%- endif -%}
+      {%- if s.body != blank -%}<p class="sh-story__text">{{ s.body }}</p>{%- endif -%}
 
-        <h2 class="sh-story__title sh-serif">
-          {{ s.title_l1 }}{% if s.title_l2 != blank %}<br>{{ s.title_l2 }}{% endif %}
-        </h2>
+      {%- if s.cta_label != blank -%}
+        <a href="{{ s.cta_link | default: '#rituals' }}" class="sh-btn sh-btn--ghost">
+          {{ s.cta_label }} {% render 'sh-icon', name: 'arrow-right' %}
+        </a>
+      {%- endif -%}
+    </div>
 
-        {%- if s.body != blank -%}<p class="sh-story__text">{{ s.body }}</p>{%- endif -%}
+    {%- comment -%} Right column. The photo carries NO tint, filter or overlay —
+        the only thing painted over it is the feather in ::after, which fades the
+        cream panel into its left edge. {%- endcomment -%}
+    <div class="sh-story__media">
+      {%- if s.image != blank -%}
+        <img class="sh-story__photo" src="{{ s.image | image_url: width: 1800 }}"
+             alt="{{ s.image.alt | default: s.title_l1 | escape }}"
+             width="1800" height="1200" loading="lazy" decoding="async">
+      {%- else -%}
+        <img class="sh-story__photo" src="{{ 'Our story.webp' | asset_url }}"
+             alt="{{ s.title_l1 | escape }}" width="2000" height="1000" loading="lazy" decoding="async">
+      {%- endif -%}
 
-        {%- if s.cta_label != blank -%}
-          <a href="{{ s.cta_link | default: '#rituals' }}" class="sh-btn sh-btn--ghost">
-            {{ s.cta_label }} {% render 'sh-icon', name: 'arrow-right' %}
+      {%- comment -%}
+        With a video attached this is a real link with a real label. Without one
+        it is decorative and aria-hidden — no focusable dead link, and no
+        affordance promised to keyboard or screen-reader users that does not
+        exist.
+      {%- endcomment -%}
+      {%- if s.show_play -%}
+        {%- if s.video_link != blank -%}
+          <a href="{{ s.video_link }}" class="sh-story__play"
+             aria-label="{{ s.play_label | default: 'Play the Shudhi Herbals story' }}">
+            {% render 'sh-icon', name: 'play' %}
           </a>
+        {%- else -%}
+          <span class="sh-story__play" aria-hidden="true">
+            {% render 'sh-icon', name: 'play' %}
+          </span>
         {%- endif -%}
-      </div>
+      {%- endif -%}
+    </div>
 
-      <div class="sh-story__media">
+    {%- comment -%}
+      Seal. Two concentric ideas: a gold hairline ring with a dot at each side,
+      and the curved label set on real <textPath> arcs — not rotated spans — so
+      it stays crisp at any size with no JS.
 
-        {%- comment -%}
-          With a video attached this is a real link with a real label. Without
-          one it is decorative and aria-hidden — no focusable dead link, and no
-          affordance promised to keyboard or screen-reader users that does not
-          exist.
-        {%- endcomment -%}
-        {%- if s.show_play -%}
-          {%- if s.video_link != blank -%}
-            <a href="{{ s.video_link }}" class="sh-story__play"
-               aria-label="{{ s.play_label | default: 'Play the Shudhi Herbals story' }}">
-              {% render 'sh-icon', name: 'play' %}
-            </a>
-          {%- else -%}
-            <span class="sh-story__play" aria-hidden="true">
-              {% render 'sh-icon', name: 'play' %}
-            </span>
+      The whole thing is aria-hidden. Its only textual content is the number and
+      the label, and the body copy above already states "4 generations of herbal
+      wisdom" in a sentence; exposing a bare "4" to a screen reader adds noise,
+      not information.
+
+      Top arc is drawn left->right over the top (sweep 1) and the bottom arc
+      left->right under the bottom (sweep 0). Both therefore travel in the
+      reading direction, which is what keeps the bottom glyphs upright — a
+      single continuous circle would render the bottom half upside down.
+    {%- endcomment -%}
+    {%- if s.seal_number != blank or s.seal_text != blank -%}
+      <div class="sh-story__seal" aria-hidden="true">
+        <svg viewBox="0 0 200 200" focusable="false">
+          <defs>
+            <path id="{{ seal_id }}-t" fill="none" d="M26,100 A74,74 0 0 1 174,100"/>
+            <path id="{{ seal_id }}-b" fill="none" d="M26,100 A74,74 0 0 0 174,100"/>
+          </defs>
+
+          <circle class="sh-story__seal-ring" cx="100" cy="100" r="92"/>
+          <circle class="sh-story__seal-dot" cx="34" cy="100" r="2.6"/>
+          <circle class="sh-story__seal-dot" cx="166" cy="100" r="2.6"/>
+
+          {%- if s.seal_text != blank -%}
+            <text class="sh-story__seal-arc">
+              <textPath href="#{{ seal_id }}-t" startOffset="50%" text-anchor="middle">{{ s.seal_text }}</textPath>
+            </text>
           {%- endif -%}
-        {%- endif -%}
+          {%- if s.seal_text_bottom != blank -%}
+            <text class="sh-story__seal-arc">
+              <textPath href="#{{ seal_id }}-b" startOffset="50%" text-anchor="middle">{{ s.seal_text_bottom }}</textPath>
+            </text>
+          {%- endif -%}
+        </svg>
 
         {%- if s.seal_number != blank -%}
-          <div class="sh-story__seal">
-            <span class="sh-story__seal-num">{{ s.seal_number }}</span>
-            <svg viewBox="0 0 100 100" aria-hidden="true" focusable="false">
-              <defs>
-                <path id="{{ seal_id }}" fill="none"
-                      d="M50,50 m-38,0 a38,38 0 1,1 76,0 a38,38 0 1,1 -76,0"/>
-              </defs>
-              <text><textPath href="#{{ seal_id }}" startOffset="0">{{ s.seal_text }} · {{ s.seal_text }} · </textPath></text>
-            </svg>
-          </div>
+          <span class="sh-story__seal-num">{{ s.seal_number }}</span>
         {%- endif -%}
-
       </div>
+    {%- endif -%}
 
-    </div>
   </div>
 </section>
 
@@ -108,11 +149,9 @@
     { "type": "url", "id": "cta_link", "label": "Button link" },
 
     { "type": "header", "content": "Media" },
-    { "type": "image_picker", "id": "image", "label": "Background image",
-      "info": "Fills the whole band. Defaults to \"Our story.webp\" in Assets." },
-    { "type": "range", "id": "scrim", "label": "Dark overlay strength", "min": 40, "max": 100, "step": 5, "default": 90, "unit": "%",
-      "info": "Keeps the copy legible over the photo. Raise it if you swap in a lighter image." },
-    { "type": "range", "id": "min_height", "label": "Band height", "min": 300, "max": 640, "step": 20, "default": 440, "unit": "px" },
+    { "type": "image_picker", "id": "image", "label": "Photo",
+      "info": "Fills the right-hand column and bleeds to the edge of the screen. Defaults to \"Our story.webp\" in Assets. Shown at full brightness — there is no overlay." },
+    { "type": "range", "id": "min_height", "label": "Minimum band height", "min": 300, "max": 640, "step": 20, "default": 560, "unit": "px" },
 
     { "type": "header", "content": "Play button" },
     { "type": "checkbox", "id": "show_play", "label": "Show play button", "default": true },
@@ -122,11 +161,14 @@
 
     { "type": "header", "content": "Seal" },
     { "type": "text", "id": "seal_number", "label": "Seal number", "default": "4" },
-    { "type": "text", "id": "seal_text", "label": "Seal circular text", "default": "Generations of herbal wisdom" },
+    { "type": "text", "id": "seal_text", "label": "Seal text — top arc", "default": "Generations" },
+    { "type": "text", "id": "seal_text_bottom", "label": "Seal text — bottom arc", "default": "of herbal wisdom",
+      "info": "Leave empty to set the whole label on the top arc only. Roughly 22 characters fit on each arc — longer runs off the end of the semicircle." },
 
     { "type": "header", "content": "Appearance" },
     { "type": "checkbox", "id": "animate", "label": "Animate on scroll", "default": true },
-    { "type": "color", "id": "bg", "label": "Background", "default": "#1b2411" }
+    { "type": "color", "id": "bg", "label": "Panel background", "default": "#f6ede1",
+      "info": "The solid colour behind the copy. It is also what the photo's left edge fades into, so keep the two in step." }
   ],
   "presets": [ { "name": "SH · Our Story" } ]
 }

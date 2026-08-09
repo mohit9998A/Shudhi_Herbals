@@ -1,7 +1,7 @@
 /* ============================================================================
    SHUDHI HERBALS — Homepage interactions
    Sticky nav state, mobile drawer (with focus trap), search panel, collection
-   carousel, back-to-top, scroll reveals, anchor scrolling.
+   carousel, back-to-top, scroll reveals, seal count-up, anchor scrolling.
 
    jQuery and slick are already loaded synchronously in <head> by
    layout/theme.liquid (lines 155-156). This file is deferred, so both are
@@ -238,7 +238,15 @@
       var hash = href.indexOf('#') >= 0 ? href.slice(href.indexOf('#')) : '';
       if (hash.length < 2) return;
 
-      var target = document.querySelector(hash);
+      /* getElementById, not querySelector. Section anchors are merchant-authored
+         now (sh-story-split / sh-feature-grid both expose an `anchor_id`), and
+         `handle` happily returns a digit-leading id like "4-generations" — which
+         is a legal HTML id but NOT a legal CSS selector, so querySelector('#4-…')
+         throws a SyntaxError. Thrown from a delegated listener it escapes before
+         the preventDefault below, so every click on that link would log an
+         uncaught error and hard-jump. getElementById has no such restriction and
+         is what the browser's own fragment navigation uses. */
+      var target = document.getElementById(decodeURIComponent(hash.slice(1)));
       // No target on this page? Let the browser navigate (that is how /#foo
       // reaches the homepage) rather than swallowing the click.
       if (!target) return;
@@ -273,6 +281,54 @@
     for (var j = 0; j < items.length; j++) io.observe(items[j]);
   }
 
+  /* ---------------------------------------------------------------
+     Count-up — snippets/sh-gen-seal.liquid's "4 generations" number
+     --------------------------------------------------------------- */
+  /* The markup ships the REAL number as its text content, not "0". That is the
+     load-bearing half of this: the seal has to read correctly when JS is absent,
+     blocked or still deferred, so the animated state is what we opt INTO, never
+     the state we start from. Every early return below therefore leaves the
+     rendered number exactly as Liquid printed it. */
+  function counters() {
+    var els = document.querySelectorAll('.sh [data-count-to]');
+    if (!els.length) return;
+
+    var still = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (still || !window.IntersectionObserver) return;
+
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (!entry.isIntersecting) return;
+        io.unobserve(entry.target);
+        run(entry.target);
+      });
+    }, { threshold: 0.5 });
+
+    for (var i = 0; i < els.length; i++) {
+      /* boot() re-runs on shopify:section:load. Editing any unrelated section
+         would otherwise hand this same element to a second observer and replay
+         the count. A re-rendered section brings a NEW element with no flag, so
+         genuine re-renders still animate. */
+      if (els[i].getAttribute('data-count-done')) continue;
+      els[i].setAttribute('data-count-done', '1');
+      io.observe(els[i]);
+    }
+
+    function run(el) {
+      var target = parseInt(el.getAttribute('data-count-to'), 10);
+      if (!isFinite(target)) return;               /* leave the printed value alone */
+      var DUR = 900, t0 = 0;
+      el.textContent = '0';
+      requestAnimationFrame(function tick(now) {
+        if (!t0) t0 = now;
+        var p = Math.min((now - t0) / DUR, 1);
+        /* easeOutCubic — the number decelerates into place instead of stopping dead. */
+        el.textContent = Math.round((1 - Math.pow(1 - p, 3)) * target);
+        if (p < 1) requestAnimationFrame(tick);
+      });
+    }
+  }
+
   function boot() {
     scrollState();
     drawer();
@@ -281,6 +337,7 @@
     toTop();
     anchors();
     reveal();
+    counters();
   }
 
   if (document.readyState === 'loading') {

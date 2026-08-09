@@ -14,9 +14,9 @@
         "t2": {
           "type": "trust",
           "settings": {
-            "icon": "heart-line",
-            "title": "Organic Certified",
-            "subtitle": "Pure & safe"
+            "icon": "flask-line",
+            "title": "Lab Tested",
+            "subtitle": "Every batch verified"
           }
         },
         "t3": {
@@ -75,14 +75,14 @@
         "title_l2": "Crafted for Today.",
         "body": "Inspired by 4 generations of herbal wisdom, Shudhi Herbals brings ancient Ayurvedic recipes into your modern self-care rituals.",
         "cta_label": "Know our story",
-        "scrim": 90,
-        "min_height": 440,
+        "min_height": 560,
         "show_play": true,
         "play_label": "Play the Shudhi Herbals story",
         "seal_number": "4",
-        "seal_text": "Generations of herbal wisdom",
+        "seal_text": "Generations",
         "animate": true,
-        "bg": "#1b2411"
+        "bg": "#f6ede1",
+        "seal_text_bottom": "of herbal wisdom"
       }
     },
     "ritual_benefits": {

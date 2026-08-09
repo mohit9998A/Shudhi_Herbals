@@ -33,18 +33,31 @@
     {%- comment -%} Logo {%- endcomment -%}
     {%- comment -%}
       Logo falls back in three steps: merchant upload -> the derived cream
-      transparent PNG -> the inline SVG lockup. shudhi-logo-light.png is
-      generated from Shudhilogo.jpeg (white background, dark green art, which
-      would render as a white box on the transparent nav and vanish on the
-      solid one). The cream monochrome version reads on both states.
+      transparent PNG -> the inline SVG lockup.
+
+      shudhi-logo-light.png is the MARK ONLY (no "SHUDHI HERBALS" wordmark),
+      derived from "SHUDHI HERBALS LOGO.jpg.jpeg" in the theme root. That source
+      is a 4500x4500 JPEG: white background, forest-green #335030 strokes and a
+      brown #785b3b dot, with the art filling only the middle 43% x 31%. Used
+      raw it would render as a white box on the transparent nav (JPEG carries no
+      alpha), vanish against the solid #1b2411 bar, and shrink to a third of its
+      proper size because the square whitespace counts toward the height cap.
+      The derived PNG is therefore trimmed to the ink bbox, keyed to
+      transparency, and flattened to cream --sh-light — which is the one
+      treatment that reads on BOTH header states. Regenerate it the same way if
+      the source artwork changes.
     {%- endcomment -%}
     <a href="{{ routes.root_url }}" class="sh-logo" aria-label="{{ shop.name | escape }} — home">
       {%- if s.logo != blank -%}
         <img class="sh-logo__img" src="{{ s.logo | image_url: width: 440 }}"
              alt="{{ shop.name | escape }}" width="440" height="327" loading="eager">
       {%- elsif s.use_asset_logo -%}
+        {%- comment -%} 562x400 = the PNG's real intrinsic size. It must match the
+            file exactly: --sh-logo-h caps the height and width is auto, so these
+            attributes are what reserves the box and keeps the nav from shifting
+            while the image decodes. {%- endcomment -%}
         <img class="sh-logo__img" src="{{ 'shudhi-logo-light.png' | asset_url }}"
-             alt="{{ shop.name | escape }}" width="440" height="327" loading="eager">
+             alt="{{ shop.name | escape }}" width="562" height="400" loading="eager">
       {%- else -%}
         {% render 'sh-icon', name: 'shudhi-mark', class: 'sh-logo__mark' %}
         <span class="sh-logo__text">
@@ -62,18 +75,24 @@
         {%- endfor -%}
       {%- else -%}
         {%- comment -%}
-          Built-in menu, used when no Shopify menu is selected. Matches the
-          approved design. NOTE: "Reviews" points at /pages/reviews, which 404s
-          until that page exists — build main-menu in Navigation and select it
-          in this section's settings for the durable fix.
+          Built-in menu. config/settings_data.json stores "menu": "", so the
+          linklist above is inert and THIS is what actually renders. Keep it in
+          sync with the drawer copy at :129 — the two are deliberately separate
+          so the drawer can diverge later, but today they must match.
+
+          Journal is a LABEL-only rename of the old "Blog"; the URL is untouched
+          so inbound links and SEO survive. Ingredients (#ritual-benefits) and
+          Reviews (#collection) were dropped from the top level: the benefits
+          grid now lives on /pages/the-ritual and the collection carousel is
+          reachable via Shop. Durable fix for all of this: build main-menu in
+          Navigation and select it in this section's settings.
         {%- endcomment -%}
         <a href="{{ routes.root_url }}">Home</a>
         <a href="{{ routes.all_products_collection_url }}">Shop</a>
-        <a href="{{ routes.root_url }}#our-story">Our Story</a>
-        <a href="{{ routes.root_url }}#ritual-benefits">Ingredients</a>
-        <a href="{{ routes.root_url }}#rituals">Rituals</a>
-        <a href="{{ routes.root_url }}#collection">Reviews</a>
-        <a href="{{ blog.url | default: '/blogs/news' }}">Blog</a>
+        <a href="/pages/our-story">Our Story</a>
+        <a href="/pages/the-ritual">The Ritual</a>
+        <a href="{{ blog.url | default: '/blogs/news' }}">Journal</a>
+        <a href="/pages/contact">Contact</a>
       {%- endif -%}
     </nav>
 
@@ -126,13 +145,13 @@
         <a href="{{ link.url }}">{{ link.title }}</a>
       {%- endfor -%}
     {%- else -%}
+      {%- comment -%} Must match the desktop fallback at :70. {%- endcomment -%}
       <a href="{{ routes.root_url }}">Home</a>
       <a href="{{ routes.all_products_collection_url }}">Shop</a>
-      <a href="{{ routes.root_url }}#our-story">Our Story</a>
-      <a href="{{ routes.root_url }}#ritual-benefits">Ingredients</a>
-      <a href="{{ routes.root_url }}#rituals">Rituals</a>
-      <a href="{{ routes.root_url }}#collection">Reviews</a>
-      <a href="{{ blog.url | default: '/blogs/news' }}">Blog</a>
+      <a href="/pages/our-story">Our Story</a>
+      <a href="/pages/the-ritual">The Ritual</a>
+      <a href="{{ blog.url | default: '/blogs/news' }}">Journal</a>
+      <a href="/pages/contact">Contact</a>
     {%- endif -%}
   </nav>
 </aside>
