@@ -70,6 +70,7 @@
     "color_main2": "#335030",
     "font_type": "normal_fonts",
     "fonts_name_1": "Barlow",
+    "type_body_font": "jost_n4",
     "enable_sticky_mobile": true,
     "bgmenu_mobile": "#ffffff",
     "hd_icon_search_mb": "",
@@ -6242,7 +6243,7 @@
             "settings": {
               "heading": "Quick Links",
               "menu": "",
-              "links": "Shop All | /collections/all\nOur Story | /#our-story\nIngredients | /#ritual-benefits\nRituals | /#rituals\nBlog | /blogs/news"
+              "links": "Shop All | /collections/all\nOur Story | /pages/our-story\nIngredients | /#ritual-benefits\nRituals | /#rituals\nBlog | /blogs/news"
             }
           },
           "q2": {
@@ -6250,7 +6251,7 @@
             "settings": {
               "heading": "Customer Care",
               "menu": "",
-              "links": "Contact Us | /pages/contactus\nFAQs | /pages/faqs\nShipping & Delivery | /policies/shipping-policy\nReturns & Refunds | /policies/refund-policy"
+              "links": "Contact Us | /pages/contact\nFAQs | /pages/faqs\nShipping & Delivery | /policies/shipping-policy\nReturns & Refunds | /policies/refund-policy"
             }
           }
         },
@@ -6266,10 +6267,11 @@
           "facebook": "",
           "pinterest": "",
           "youtube": "",
+          "use_asset_logo": true,
           "brand_name": "SHUDHI",
           "brand_sub": "HERBALS",
-          "tagline": "Purify your skin. Cleanse your aura.",
-          "copyright": "© 2025 Shudhi Herbals. All rights reserved.",
+          "tagline": "Purify your presence.",
+          "copyright": "© 2026 Shudhi Herbals. All rights reserved.",
           "bottom_note": "Made with intention · Rooted in Ayurveda",
           "bg": "#1b2411"
         }

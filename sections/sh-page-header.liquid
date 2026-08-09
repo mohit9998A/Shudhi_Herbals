@@ -1,0 +1,46 @@
+{%- comment -%}
+  SHUDHI — Page header
+
+  Shared opening band for the standalone pages (Our Story, The Ritual, Contact).
+  Its job is structural as much as visual: every sh-* section heads with an <h2>,
+  so without this a designed page would ship with no <h1> at all. Falls back to
+  page.title so a merchant never has to retype the heading.
+
+  Sits directly under the header, which renders .is-solid on every non-index
+  template — same --sh-green-900 as the bar above it, so the two read as one
+  continuous field with no seam.
+{%- endcomment -%}
+
+{%- assign s = section.settings -%}
+{%- assign heading = s.title | default: page.title -%}
+
+<section class="sh sh-pagehead"{% if s.bg != blank %} style="--sh-green-900:{{ s.bg }};"{% endif %}>
+  <div class="sh-wrap">
+    {%- if s.eyebrow != blank -%}
+      <div class="sh-pagehead__eyebrow sh-eyebrow">
+        {{ s.eyebrow }}{% render 'sh-icon', name: 'leaf' %}
+      </div>
+    {%- endif -%}
+
+    <h1 class="sh-pagehead__title sh-serif">{{ heading }}</h1>
+
+    {%- if s.body != blank -%}
+      <p class="sh-pagehead__text">{{ s.body }}</p>
+    {%- endif -%}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "SH · Page Header",
+  "class": "index-section",
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Shudhi Herbals" },
+    { "type": "text", "id": "title", "label": "Heading", "info": "Leave empty to use the page title." },
+    { "type": "textarea", "id": "body", "label": "Intro text" },
+    { "type": "header", "content": "Appearance" },
+    { "type": "color", "id": "bg", "label": "Background", "default": "#1b2411" }
+  ],
+  "presets": [ { "name": "SH · Page Header" } ]
+}
+{% endschema %}

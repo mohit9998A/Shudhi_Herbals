@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python -c \"import json,sys; d=json.load\\(open\\('templates/index.json'\\)\\); print\\(d.get\\('order'\\)\\); print\\({k:v.get\\('type'\\) for k,v in d['sections'].items\\(\\)}\\)\")"
+    ]
+  }
+}

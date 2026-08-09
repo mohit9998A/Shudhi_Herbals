@@ -95,34 +95,66 @@ button[type="submit"] {
   outline: none;
 }
 
+/* CTA colour comes from the shared accent ROLE defined in shudhi-home.css
+   (--sh-accent…), not from --hov-green. --hov-green also paints body links,
+   footer and focus rings, where gold would fail contrast; the button role is
+   the only thing that moved. Literal fallbacks so this file still renders
+   sanely if it is ever loaded without shudhi-home.css.
+   Text is dark on the gold fill — white on #c4a35d is 2.4:1 and fails AA. */
 .shop-button,
 button.shop-button,
 .enj-add-to-cart-btn,
 .engoj-btn-addtocart {
-  background: var(--hov-green);
-  color: #fff !important;
+  background: var(--sh-accent, #c4a35d);
+  color: var(--sh-accent-fg, #1e1810) !important;
 }
 
 .shop-button:hover,
 button.shop-button:hover,
 .enj-add-to-cart-btn:hover,
 .engoj-btn-addtocart:hover {
-  background: var(--hov-green-dk);
-  color: #fff !important;
-  box-shadow: 0 4px 16px rgba(123,174,35,.35);
+  background: var(--sh-accent-deep, #ac8940);
+  color: var(--sh-accent-fg, #1e1810) !important;
+  box-shadow: 0 4px 16px rgba(172,137,64,.35);
   transform: translateY(-1px);
 }
 
-/* Outline / secondary buttons */
+/* Outline / secondary buttons. These sit on white/ivory, where --sh-accent is
+   only 2.4:1 as text — --sh-accent-edge is the deep member of the same ramp and
+   measures 5.0:1 on white, so it is the light-surface variant of the role. */
 .btn-outline,
 .shop-button.btn-outline {
   background: transparent;
-  border: 1.5px solid var(--hov-green);
-  color: var(--hov-green) !important;
+  border: 1.5px solid var(--sh-accent-edge, #8a6a2c);
+  color: var(--sh-accent-edge, #8a6a2c) !important;
 }
 .btn-outline:hover {
-  background: var(--hov-green);
-  color: #fff !important;
+  background: var(--sh-accent, #c4a35d);
+  color: var(--sh-accent-fg, #1e1810) !important;
+}
+
+/* ---- Product page primary CTA: specificity override ----
+   engo-customizes.css.liquid paints Add-to-Cart from settings.color_main2 at
+   (0,5,0) — e.g. `.prod_sticky .content-page-detail .detail-info .btn-action
+   .shop-button` — which out-specifies the `.shop-button` rule above no matter
+   the load order. settings.color_main2 is NOT a button token: it also drives
+   link text, label chips, borders and headings across the legacy templates,
+   where gold on white would fail contrast. So the button role is re-pointed
+   here at matching specificity and later in the cascade, rather than the
+   setting being recoloured. Four prefixes because product-template.liquid can
+   render any of four layouts; all four hang the button off .btn-action.
+   The `color` is already handled by the !important rule above. */
+.prod_largeimg .content-page-detail .detail-info .btn-action .shop-button,
+.prod_extended .content-page-detail .detail-info .btn-action .shop-button,
+.product_sidebar .content-page-detail .detail-info .btn-action .shop-button,
+.prod_sticky .content-page-detail .detail-info .btn-action .shop-button {
+  background: var(--sh-accent, #c4a35d);
+}
+.prod_largeimg .content-page-detail .detail-info .btn-action .shop-button:hover,
+.prod_extended .content-page-detail .detail-info .btn-action .shop-button:hover,
+.product_sidebar .content-page-detail .detail-info .btn-action .shop-button:hover,
+.prod_sticky .content-page-detail .detail-info .btn-action .shop-button:hover {
+  background: var(--sh-accent-deep, #ac8940);
 }
 
 /* Shopify payment button */

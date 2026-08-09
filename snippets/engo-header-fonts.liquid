@@ -40,11 +40,16 @@
 {% endif %} {% endcomment %}
 
 {% comment %}
-  Unified site typography: Plus Jakarta Sans (body + headings + UI) loaded once,
-  plus Great Vibes for the cursive brand accent (.vibes-font). Replaces the old
-  WebFont.js/Barlow loader and the unused Marcellus/Grand Hotel/Pacifico/Lato/
-  Josefin/Libre Baskerville bundle. See assets/hov-typography.css for the rules.
+  Display + accent faces only: Cormorant Garamond (headings) and Great Vibes
+  (the cursive brand accent, .vibes-font). Replaces the old WebFont.js/Barlow
+  loader and the unused Marcellus/Grand Hotel/Pacifico/Lato/Josefin/Libre
+  Baskerville bundle. See assets/hov-typography.css for the rules.
+
+  The body font is NOT here. It now comes from Shopify's font library via the
+  font_picker in Theme settings > Typography, emitted as @font-face by
+  layout/theme.liquid — self-hosted on Shopify's CDN, so the body face costs no
+  third-party request. Jost was dropped from the URL below when that moved.
 {% endcomment %}
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Jost:wght@300;400;500;600;700&family=Great+Vibes&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Great+Vibes&display=swap">

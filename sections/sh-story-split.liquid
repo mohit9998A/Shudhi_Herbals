@@ -1,0 +1,140 @@
+{%- comment -%}
+  SHUDHI — Story split (image / text band)
+
+  A full-bleed photo on one side, an editorial column on the other. The Our Story
+  page instantiates this TWICE ("Our Beginning" left-media on cream, "Why We
+  Started" right-media on the warmer beige), so every difference between the two
+  is a setting: media_position, bg and the copy. Nothing about either instance is
+  hardcoded here.
+
+  Deliberately NOT wrapped in .sh-wrap. A max-width wrapper would stop the photo
+  short of the viewport edge; instead the copy box re-creates the wrap's gutter
+  itself, exactly as .sh-story does (shudhi-home.css:704-714). See the CSS block
+  for the arithmetic that keeps it aligned with every other section past --sh-max.
+
+  DOM order is media-then-copy in BOTH positions; the swap is done in CSS via
+  grid-column, driven by data-media-position on the root. That is what lets the
+  <=767px stack put the photo first without a second markup path — and it keeps
+  the reading order photo-then-prose for screen readers in both variants.
+
+  The headline is split into a plain part and an emphasised tail rather than
+  accepting HTML, the same bargain sh-story-hero.liquid:11 makes: the gold words
+  stay merchant-editable in the theme editor without opening a rich-text hole.
+  Unlike the hero, <em> here keeps its italics — the approved design sets
+  "today." / "self-care." in gold italic.
+
+  The id is a SETTING, never a literal: this section renders more than once per
+  page and a hardcoded id would be duplicated. It has to be author-set rather
+  than derived, because Shopify's own wrapper id for a JSON-template section is
+  `shopify-section-template--<theme_id>__<key>` — the theme id changes on every
+  duplicate/publish, so nothing in the theme can link to it reliably.
+{%- endcomment -%}
+
+{%- assign s = section.settings -%}
+
+<section class="sh sh-split"
+         {%- if s.anchor_id != blank %} id="{{ s.anchor_id | handle }}"{% endif %}
+         data-media-position="{{ s.media_position }}"
+         style="--sh-split-bg:{{ s.bg }};--sh-split-h:{{ s.min_height }}px;">
+
+  <div class="sh-split__grid">
+
+    <div class="sh-split__media">
+      {%- if s.image != blank -%}
+        {%- comment -%}
+          Height is derived from the asset's real aspect_ratio rather than
+          hardcoded: the attributes exist to declare the intrinsic ratio, and a
+          guessed one would describe an image the merchant never uploaded.
+        {%- endcomment -%}
+        {%- assign img_h = 1400 | divided_by: s.image.aspect_ratio | round -%}
+        <img class="sh-split__photo"
+             src="{{ s.image | image_url: width: 1400 }}"
+             {%- comment -%} No fallback to the eyebrow. image.alt is nil until a
+                 merchant fills it in, and "Our Beginning" describes the band,
+                 not the photograph — it would be an inaccurate alternative
+                 (WCAG 1.1.1) that also repeats the eyebrow two elements later.
+                 Empty alt matches the placeholder branch below, which treats
+                 the same slot as decorative. {%- endcomment -%}
+             alt="{{ s.image.alt | escape }}"
+             width="1400" height="{{ img_h }}"
+             loading="lazy" decoding="async">
+      {%- else -%}
+        {%- comment -%}
+          Final photography is not in yet. An empty <img> would render as a
+          broken-image glyph and read as a bug in review; this block is tinted
+          from the band's own surface colour so the composition, the feathered
+          seam and the copy alignment can all be judged on a page that still
+          looks finished. Silent by design — aria-hidden, no placeholder text.
+        {%- endcomment -%}
+        <div class="sh-split__photo sh-split__photo--blank" aria-hidden="true"></div>
+      {%- endif -%}
+    </div>
+
+    <div class="sh-split__copy"{% if s.animate %} data-reveal{% endif %}>
+
+      {%- if s.eyebrow != blank -%}
+        <div class="sh-split__eyebrow sh-eyebrow">{{ s.eyebrow }}</div>
+      {%- endif -%}
+
+      <h2 class="sh-split__title sh-serif">
+        {{ s.heading }}{% if s.heading_em != blank %} <em>{{ s.heading_em }}</em>{% endif %}
+      </h2>
+
+      {%- if s.body != blank -%}
+        <p class="sh-split__text">{{ s.body }}</p>
+      {%- endif -%}
+
+      {%- comment -%} Both halves required, the same rule sh-story-hero.liquid:69
+          applies to its secondary CTA. A label with no destination used to fall
+          back to href="#", and an empty fragment means "top of the document" —
+          so a reader who reached this band and pressed the link was thrown back
+          to the hero, losing their place with no announcement (WCAG 2.4.4).
+          Hiding the link is the honest failure mode; a dead one is not. {%- endcomment -%}
+      {%- if s.link_label != blank and s.link_url != blank -%}
+        <a class="sh-split__link sh-btn sh-btn--ghost" href="{{ s.link_url }}">
+          {{ s.link_label }} {% render 'sh-icon', name: 'arrow-right' %}
+        </a>
+      {%- endif -%}
+
+    </div>
+
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "SH · Story Split",
+  "class": "index-section",
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Our Beginning" },
+
+    { "type": "header", "content": "Headline" },
+    { "type": "paragraph", "content": "The heading is split in two: the plain part, then the tail shown in gold italic." },
+    { "type": "text", "id": "heading", "label": "Heading", "default": "From tradition to" },
+    { "type": "text", "id": "heading_em", "label": "Heading — gold italic tail", "default": "today." },
+
+    { "type": "header", "content": "Copy" },
+    { "type": "textarea", "id": "body", "label": "Body text", "default": "Our journey began with time-honored herbal rituals passed down through four generations. Inspired by ancient wisdom and family practices, we create products that bring balance and well-being to modern lives." },
+    { "type": "text", "id": "link_label", "label": "Link label",
+      "info": "Set this and the URL below together — neither renders on its own." },
+    { "type": "url", "id": "link_url", "label": "Link URL",
+      "info": "The link stays hidden until this is set — a labelled link with no destination jumps the reader back to the top of the page." },
+
+    { "type": "header", "content": "Media" },
+    { "type": "image_picker", "id": "image", "label": "Image",
+      "info": "Full-bleed to the viewport edge on its side. A neutral tinted panel stands in until one is picked." },
+    { "type": "select", "id": "media_position", "label": "Image side", "default": "left",
+      "info": "Below 768px the image is always shown first, whichever side is chosen.",
+      "options": [ { "value": "left", "label": "Left" }, { "value": "right", "label": "Right" } ] },
+    { "type": "range", "id": "min_height", "label": "Band height", "min": 380, "max": 760, "step": 20, "default": 520, "unit": "px" },
+
+    { "type": "header", "content": "Appearance" },
+    { "type": "text", "id": "anchor_id", "label": "Anchor id",
+      "info": "Optional. Lets another section link straight to this band with #your-id. Must be unique on the page." },
+    { "type": "checkbox", "id": "animate", "label": "Animate on scroll", "default": true },
+    { "type": "color", "id": "bg", "label": "Background", "default": "#f6ede1",
+      "info": "The panel colour, and the colour the photo's inner edge feathers into. Keep it light — the heading, body and link colours are tuned for a light surface." }
+  ],
+  "presets": [ { "name": "SH · Story Split" } ]
+}
+{% endschema %}

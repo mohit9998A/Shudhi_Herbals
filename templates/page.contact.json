@@ -1,0 +1,37 @@
+{
+  "sections": {
+    "page_header": {
+      "type": "sh-page-header",
+      "settings": {
+        "eyebrow": "Contact",
+        "title": "We'd love to hear from you",
+        "body": "Questions about a product, an order, or your ritual? Send us a note and we'll get back to you.",
+        "bg": "#1b2411"
+      }
+    },
+    "contact": {
+      "type": "sh-contact",
+      "settings": {
+        "form_title": "Send us a message",
+        "label_name": "Name",
+        "label_email": "Email address",
+        "label_phone": "Phone (optional)",
+        "label_message": "Your message",
+        "submit_label": "Send message",
+        "success_text": "Thank you — your message is on its way. We usually reply within two working days.",
+        "info_title": "Get in touch",
+        "address": "[PLACEHOLDER — street address, city, state, PIN]",
+        "phone": "[PLACEHOLDER — +91 00000 00000]",
+        "email": "[PLACEHOLDER — hello@shudhiherbals.com]",
+        "hours": "[PLACEHOLDER — Mon–Sat, 10am–6pm IST]",
+        "note": "For order and delivery questions, please include your order number.",
+        "bg": "#f2ece0",
+        "animate": true
+      }
+    }
+  },
+  "order": [
+    "page_header",
+    "contact"
+  ]
+}

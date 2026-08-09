@@ -1,0 +1,118 @@
+{%- comment -%}
+  SHUDHI — Ritual steps (closing band of the Our Story / The Ritual pages)
+
+  Intro column left, the six steps right, threaded by ONE hairline connector
+  rather than a segment per gap. The cards are painted in the band's own surface
+  colour, so that single rule is hidden wherever a card covers it and survives
+  only in the gaps — and because it is drawn at exactly the cards' top-border
+  height, the card border continues it across each card and the number badge
+  interrupts it. That is the whole "line passes behind the number" illusion; it
+  needs the card, the badge and the line to share --sh-flow-bg, which is why the
+  `bg` setting feeds a variable instead of a plain background declaration.
+
+  The number is {{ forloop.index }}, never a block setting: dragging steps into
+  a new order in the theme editor has to renumber them, and a `number` field
+  lets a merchant ship "1, 2, 2, 5". It is aria-hidden — the ordering is already
+  carried by the <ol>, and the <h3> label is what should be announced.
+
+  --sh-flow-n hands the real block count to CSS because two things derive from
+  it and must not disagree: the column count, and the connector's left/right
+  inset (computed from column width so the line stops dead centre under the
+  first and last badge instead of jutting into empty space). Delete a step in
+  the editor and both re-aim together.
+
+  Icons `bubbles`, `body` and `shower` are additions to snippets/sh-icon.liquid
+  landing in this same pass; `drop`, `lotus` and `heart` are original members.
+
+  Namespace is sh-flow, NOT sh-step*: sections/sh-mindful-ritual.liquid already
+  owns .sh-steps / .sh-step (shudhi-home.css:887-907).
+{%- endcomment -%}
+
+{%- assign s = section.settings -%}
+
+<section class="sh sh-flow"
+         style="--sh-flow-bg:{{ s.bg }};--sh-flow-n:{{ section.blocks.size }};">
+  <div class="sh-wrap">
+    <div class="sh-flow__grid">
+
+      <div class="sh-flow__intro"{% if s.animate %} data-reveal{% endif %}>
+        {%- if s.eyebrow != blank -%}
+          <div class="sh-eyebrow">{{ s.eyebrow }}</div>
+        {%- endif -%}
+        <h2 class="sh-flow__title sh-serif">{{ s.heading }}</h2>
+        {%- if s.button_label != blank -%}
+          <a class="sh-btn sh-btn--solid" href="{{ s.button_link | default: '/pages/the-ritual' }}">
+            {{ s.button_label }} {% render 'sh-icon', name: 'arrow-right' %}
+          </a>
+        {%- endif -%}
+      </div>
+
+      {%- comment -%} Guarded: with no blocks the CSS would hit repeat(0, …) and
+          divide the connector inset by zero. {%- endcomment -%}
+      {%- if section.blocks.size > 0 -%}
+        <div class="sh-flow__track">
+          {%- comment -%} A sibling of the list, not a child — <ol> only admits
+              <li>. Decorative: the sequence is in the markup, this only draws
+              it. {%- endcomment -%}
+          <span class="sh-flow__line" aria-hidden="true"></span>
+
+          {%- comment -%} role="list" restores what the reset takes away: .sh ol
+              is list-style:none (shudhi-home.css:113), which drops list
+              semantics in Safari/VoiceOver — and the ordering is the point of
+              this section. {%- endcomment -%}
+          <ol class="sh-flow__steps" role="list">
+            {%- for block in section.blocks -%}
+              <li class="sh-flow__step"{% if s.animate %} data-reveal{% endif %} {{ block.shopify_attributes }}>
+                <span class="sh-flow__num" aria-hidden="true">{{ forloop.index }}</span>
+                {% render 'sh-icon', name: block.settings.icon %}
+                <h3 class="sh-flow__label">{{ block.settings.label }}</h3>
+                <p class="sh-flow__text">{{ block.settings.description }}</p>
+              </li>
+            {%- endfor -%}
+          </ol>
+        </div>
+      {%- endif -%}
+
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "SH · Ritual Steps",
+  "class": "index-section",
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Transform Your Daily Ritual" },
+    { "type": "text", "id": "heading", "label": "Heading", "default": "A simple ritual for body, mind & soul." },
+    { "type": "text", "id": "button_label", "label": "Button label", "default": "Explore the ritual" },
+    { "type": "url", "id": "button_link", "label": "Button link", "info": "Falls back to /pages/the-ritual when empty." },
+
+    { "type": "header", "content": "Appearance" },
+    { "type": "checkbox", "id": "animate", "label": "Animate on scroll", "default": true },
+    { "type": "color", "id": "bg", "label": "Background", "default": "#e9e0cf",
+      "info": "Also fills the step cards and the number badges, which is what hides the connector line behind them. Keep it a solid, light tone." }
+  ],
+  "blocks": [
+    { "type": "step", "name": "Step", "settings": [
+      { "type": "paragraph", "content": "Steps are numbered automatically in the order they appear here." },
+      { "type": "select", "id": "icon", "label": "Icon", "default": "drop", "options": [
+        { "value": "drop", "label": "Drop" }, { "value": "bubbles", "label": "Bubbles" },
+        { "value": "body", "label": "Body" }, { "value": "lotus", "label": "Lotus" },
+        { "value": "shower", "label": "Shower" }, { "value": "heart", "label": "Heart" },
+        { "value": "leaf", "label": "Leaf" }, { "value": "sparkle", "label": "Sparkle" },
+        { "value": "hand", "label": "Hand" } ] },
+      { "type": "text", "id": "label", "label": "Label", "default": "Wet" },
+      { "type": "textarea", "id": "description", "label": "Description", "default": "Wet your skin and the soap gently." }
+    ] }
+  ],
+  "max_blocks": 6,
+  "presets": [ { "name": "SH · Ritual Steps", "blocks": [
+    { "type": "step", "settings": { "icon": "drop",    "label": "Wet",     "description": "Wet your skin and the soap gently." } },
+    { "type": "step", "settings": { "icon": "bubbles", "label": "Lather",  "description": "Rub the soap between hands to create a rich lather." } },
+    { "type": "step", "settings": { "icon": "body",    "label": "Cleanse", "description": "Massage all over your body with mindful care." } },
+    { "type": "step", "settings": { "icon": "lotus",   "label": "Pause",   "description": "Take a moment. Breathe. Feel refreshed." } },
+    { "type": "step", "settings": { "icon": "shower",  "label": "Rinse",   "description": "Rinse thoroughly with clean water." } },
+    { "type": "step", "settings": { "icon": "heart",   "label": "Renew",   "description": "Step out feeling balanced, clean & renewed." } }
+  ] } ]
+}
+{% endschema %}

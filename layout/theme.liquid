@@ -146,6 +146,39 @@
        JS must load everywhere. The hero engine stays index-only — no other
        template has a scroll-scrub canvas for it to drive. {%- endcomment -%}
    {{ 'shudhi-home.css' | asset_url | stylesheet_tag }}
+
+   {%- comment -%} Body font — Shopify font library, self-hosted on Shopify's CDN and
+       chosen in Theme settings > Typography. Replaces the Jost entry that used to ride
+       along on the external Google Fonts <link> in snippets/engo-header-fonts.liquid;
+       that link still loads Cormorant Garamond (headings) and Great Vibes (accent),
+       which are deliberately unchanged.
+
+       The :root override re-points --hov-font-primary, the one variable every body-text
+       rule in assets/hov-typography.css already reads, so nothing else has to change.
+       It must sit AFTER that stylesheet: both declare the variable on :root, so source
+       order breaks the specificity tie. Headings read --font-heading and never this. {%- endcomment -%}
+   {%- if settings.type_body_font -%}
+     {%- liquid
+       assign body_font = settings.type_body_font
+       assign body_font_i   = body_font | font_modify: 'style',  'italic'
+       assign body_font_300 = body_font | font_modify: 'weight', '300'
+       assign body_font_500 = body_font | font_modify: 'weight', '500'
+       assign body_font_600 = body_font | font_modify: 'weight', '600'
+       assign body_font_700 = body_font | font_modify: 'weight', '700'
+     -%}
+     <style>
+       {{ body_font | font_face: font_display: 'swap' }}
+       {%- if body_font_i %}{{ body_font_i | font_face: font_display: 'swap' }}{% endif -%}
+       {%- if body_font_300 %}{{ body_font_300 | font_face: font_display: 'swap' }}{% endif -%}
+       {%- if body_font_500 %}{{ body_font_500 | font_face: font_display: 'swap' }}{% endif -%}
+       {%- if body_font_600 %}{{ body_font_600 | font_face: font_display: 'swap' }}{% endif -%}
+       {%- if body_font_700 %}{{ body_font_700 | font_face: font_display: 'swap' }}{% endif -%}
+       :root {
+         --hov-font-primary: {{ body_font.family }}, {{ body_font.fallback_families }}, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+       }
+     </style>
+   {%- endif -%}
+
    <script src="{{ 'shudhi-home.js' | asset_url }}" defer></script>
    {%- if template.name == 'index' -%}
      <script src="{{ 'shudhi-hero.js' | asset_url }}" defer></script>

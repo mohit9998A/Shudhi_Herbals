@@ -1,0 +1,162 @@
+{%- comment -%}
+  SHUDHI — Story hero (Our Story page)
+
+  The Our Story page's opening block: full-bleed photo, left-weighted scrim,
+  two-tone headline, the primary gold CTA and a secondary play link, with the
+  shared trust row over its lower edge.
+
+  It replaces the flat sh-page-header band on this template only — sh-page-header
+  is still what The Ritual and Contact open with, and is untouched.
+
+  The headline is split into a plain part and an emphasised part per line rather
+  than accepting HTML, so the gold words stay merchant-editable in the theme
+  editor without opening a rich-text hole. `<em>` is restyled to normal weight
+  and gold in shudhi-home.css — it is used for the semantics (emphasis), not the
+  italics.
+
+  Trust badges come from snippets/sh-trust-row.liquid, the same component the
+  homepage hero renders, so the frosted-glass treatment is defined in exactly
+  one place.
+{%- endcomment -%}
+
+{%- assign s = section.settings -%}
+{%- assign scrim = s.scrim | divided_by: 100.0 -%}
+
+<section class="sh sh-story-hero"
+         style="--sh-green-900:{{ s.bg }};--sh-story-hero-scrim:{{ scrim }};--sh-story-hero-h:{{ s.min_height }}px;">
+
+  {%- if s.image != blank -%}
+    <img class="sh-story-hero__bg" src="{{ s.image | image_url: width: 2400 }}"
+         alt="{{ s.image.alt | default: s.title_l1 | escape }}"
+         width="2400" height="1200" fetchpriority="high" decoding="async">
+  {%- else -%}
+    <img class="sh-story-hero__bg" src="{{ 'Our story.webp' | asset_url }}"
+         alt="" width="2000" height="1000" fetchpriority="high" decoding="async">
+  {%- endif -%}
+
+  <div class="sh-story-hero__scrim"></div>
+
+  <div class="sh-wrap">
+    <div class="sh-story-hero__copy"{% if s.animate %} data-reveal{% endif %}>
+
+      {%- if s.eyebrow != blank -%}
+        <div class="sh-story-hero__eyebrow sh-eyebrow">
+          {{ s.eyebrow }}{% render 'sh-icon', name: 'leaf' %}<i></i>
+        </div>
+      {%- endif -%}
+
+      <h1 class="sh-story-hero__title sh-serif">
+        {{ s.title_l1 }}{% if s.title_l1_em != blank %} <em>{{ s.title_l1_em }}</em>{% endif %}
+        {%- if s.title_l2 != blank or s.title_l2_em != blank -%}
+          <br>{{ s.title_l2 }}{% if s.title_l2_em != blank %} <em>{{ s.title_l2_em }}</em>{% endif %}
+        {%- endif -%}
+      </h1>
+
+      <div class="sh-story-hero__rule"><i></i>{% render 'sh-icon', name: 'leaf' %}</div>
+
+      {%- if s.body != blank -%}<p class="sh-story-hero__text">{{ s.body }}</p>{%- endif -%}
+
+      <div class="sh-story-hero__cta">
+        {%- if s.cta_label != blank -%}
+          {%- comment -%} Falls back to the first band on THIS page. The old fallback was
+              #our-story, which is sh-our-story's id — that section lives on the homepage
+              (templates/index.json) and is not on this template, so clearing cta_link in
+              the editor produced a link to nothing. #our-beginning is the anchor_id the
+              our_beginning instance carries in templates/page.our-story.json. {%- endcomment -%}
+          <a href="{{ s.cta_link | default: '#our-beginning' }}" class="sh-btn sh-btn--solid">
+            {{ s.cta_label }} {% render 'sh-icon', name: 'arrow-right' %}
+          </a>
+        {%- endif -%}
+
+        {%- comment -%} Rendered only with a destination. A play affordance with
+            nowhere to go is a dead link for keyboard and screen-reader users —
+            same rule sh-our-story applies to its own play button. {%- endcomment -%}
+        {%- if s.cta2_label != blank and s.cta2_link != blank -%}
+          <a href="{{ s.cta2_link }}" class="sh-discover">
+            {{ s.cta2_label }}<span class="sh-play">{% render 'sh-icon', name: 'play' %}</span>
+          </a>
+        {%- endif -%}
+      </div>
+
+    </div>
+  </div>
+
+  {%- comment -%} Sibling of .sh-wrap, not a child of it: the seal is positioned
+      against the section's own box so it can sit out over the photo's open right
+      side, which the wrap's max-width would otherwise stop it short of. Hidden
+      entirely when the number is blank — an empty ring is not a design. {%- endcomment -%}
+  {%- if s.seal_number != blank -%}
+    {% render 'sh-gen-seal',
+       number: s.seal_number,
+       text_top: s.seal_text_top,
+       text_bottom: s.seal_text_bottom,
+       uid: section.id %}
+  {%- endif -%}
+
+  {% render 'sh-trust-row', blocks: section.blocks, class: 'sh-story-hero__trust' %}
+</section>
+
+{% schema %}
+{
+  "name": "SH · Story Hero",
+  "class": "index-section",
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Our Story" },
+
+    { "type": "header", "content": "Headline" },
+    { "type": "paragraph", "content": "Each line is split in two: the plain part, then the part shown in gold." },
+    { "type": "text", "id": "title_l1", "label": "Line 1", "default": "Rooted in" },
+    { "type": "text", "id": "title_l1_em", "label": "Line 1 — gold words", "default": "Tradition." },
+    { "type": "text", "id": "title_l2", "label": "Line 2", "default": "Crafted for" },
+    { "type": "text", "id": "title_l2_em", "label": "Line 2 — gold words", "default": "Today." },
+
+    { "type": "header", "content": "Copy" },
+    { "type": "textarea", "id": "body", "label": "Body text", "default": "Inspired by 4 generations of herbal wisdom, Shudhi Herbals brings ancient Ayurvedic recipes into your modern self-care rituals." },
+    { "type": "text", "id": "cta_label", "label": "Primary button", "default": "Know our story" },
+    { "type": "url", "id": "cta_link", "label": "Primary button link" },
+    { "type": "text", "id": "cta2_label", "label": "Secondary link", "default": "Explore our journey" },
+    { "type": "url", "id": "cta2_link", "label": "Secondary link URL",
+      "info": "The play link is hidden until this is set — a play button with no destination is a dead link." },
+
+    { "type": "header", "content": "Generations seal" },
+    { "type": "paragraph", "content": "The ring rotates slowly and the number counts up once, the first time it scrolls into view. Leave the number blank to hide the seal." },
+    { "type": "text", "id": "seal_number", "label": "Number", "default": "4" },
+    { "type": "text", "id": "seal_text_top", "label": "Top arc", "default": "Generations",
+      "info": "Reads with the number, not around it — \"4 · Generations · of herbal wisdom\"." },
+    { "type": "text", "id": "seal_text_bottom", "label": "Bottom arc", "default": "of herbal wisdom" },
+
+    { "type": "header", "content": "Media" },
+    { "type": "image_picker", "id": "image", "label": "Background image",
+      "info": "Fills the whole band. Defaults to \"Our story.webp\" in Assets." },
+    { "type": "range", "id": "scrim", "label": "Dark overlay strength", "min": 40, "max": 100, "step": 5, "default": 80, "unit": "%",
+      "info": "Keeps the copy legible over the photo. Raise it if you swap in a lighter image." },
+    { "type": "range", "id": "min_height", "label": "Band height", "min": 420, "max": 820, "step": 20, "default": 620, "unit": "px" },
+
+    { "type": "header", "content": "Appearance" },
+    { "type": "checkbox", "id": "animate", "label": "Animate on scroll", "default": true },
+    { "type": "color", "id": "bg", "label": "Background", "default": "#1b2411" }
+  ],
+  "blocks": [
+    { "type": "trust", "name": "Trust badge", "settings": [
+      { "type": "select", "id": "icon", "label": "Icon", "default": "leaf", "options": [
+        { "value": "leaf-line", "label": "Leaf (fine)" }, { "value": "heart-line", "label": "Heart (fine)" },
+        { "value": "hand-line", "label": "Hand (fine)" }, { "value": "rabbit-line", "label": "Rabbit (fine)" },
+        { "value": "flask-line", "label": "Flask (fine)" },
+        { "value": "leaf", "label": "Leaf" }, { "value": "heart", "label": "Heart" },
+        { "value": "hand", "label": "Hand" }, { "value": "rabbit", "label": "Rabbit" },
+        { "value": "lotus", "label": "Lotus" }, { "value": "drop", "label": "Drop" },
+        { "value": "sparkle", "label": "Sparkle" }, { "value": "plant", "label": "Plant" },
+        { "value": "badge", "label": "Badge" }, { "value": "recycle", "label": "Recycle" } ] },
+      { "type": "text", "id": "title", "label": "Title", "default": "100% Natural" },
+      { "type": "text", "id": "subtitle", "label": "Subtitle", "default": "No harsh chemicals" }
+    ] }
+  ],
+  "max_blocks": 4,
+  "presets": [ { "name": "SH · Story Hero", "blocks": [
+    { "type": "trust", "settings": { "icon": "leaf",       "title": "100% Natural",      "subtitle": "No harsh chemicals" } },
+    { "type": "trust", "settings": { "icon": "flask-line", "title": "Lab Tested",        "subtitle": "Every batch verified" } },
+    { "type": "trust", "settings": { "icon": "hand",       "title": "Handmade in India", "subtitle": "Small batch crafted" } },
+    { "type": "trust", "settings": { "icon": "rabbit",     "title": "Cruelty Free",      "subtitle": "Kind to you & nature" } }
+  ] } ]
+}
+{% endschema %}

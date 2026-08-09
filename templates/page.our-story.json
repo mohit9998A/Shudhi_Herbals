@@ -1,0 +1,366 @@
+{
+  "sections": {
+    "story_hero": {
+      "type": "sh-story-hero",
+      "blocks": {
+        "t1": {
+          "type": "trust",
+          "settings": {
+            "icon": "leaf",
+            "title": "100% Natural",
+            "subtitle": "No harsh chemicals"
+          }
+        },
+        "t2": {
+          "type": "trust",
+          "settings": {
+            "icon": "flask-line",
+            "title": "Lab Tested",
+            "subtitle": "Every batch verified"
+          }
+        },
+        "t3": {
+          "type": "trust",
+          "settings": {
+            "icon": "hand",
+            "title": "Handmade in India",
+            "subtitle": "Small batch crafted"
+          }
+        },
+        "t4": {
+          "type": "trust",
+          "settings": {
+            "icon": "rabbit",
+            "title": "Cruelty Free",
+            "subtitle": "Kind to you & nature"
+          }
+        }
+      },
+      "block_order": [
+        "t1",
+        "t2",
+        "t3",
+        "t4"
+      ],
+      "settings": {
+        "eyebrow": "Our Story",
+        "title_l1": "Rooted in",
+        "title_l1_em": "Tradition.",
+        "title_l2": "Crafted for",
+        "title_l2_em": "Today.",
+        "body": "Inspired by 4 generations of herbal wisdom, Shudhi Herbals brings ancient Ayurvedic recipes into your modern self-care rituals.",
+        "cta_label": "Know our story",
+        "cta_link": "#our-beginning",
+        "cta2_label": "Explore our journey",
+        "cta2_link": "/pages/the-ritual",
+        "seal_number": "4",
+        "seal_text_top": "Generations",
+        "seal_text_bottom": "of herbal wisdom",
+        "scrim": 80,
+        "min_height": 620,
+        "animate": true,
+        "bg": "#1b2411"
+      }
+    },
+    "our_beginning": {
+      "type": "sh-story-split",
+      "settings": {
+        "eyebrow": "Our Beginning",
+        "heading": "From tradition to",
+        "heading_em": "today.",
+        "body": "Our journey began with time-honored herbal rituals passed down through four generations. Inspired by ancient wisdom and family practices, we create products that bring balance and well-being to modern lives.",
+        "link_label": "Learn more",
+        "media_position": "left",
+        "min_height": 520,
+        "animate": true,
+        "bg": "#f6ede1",
+        "anchor_id": "our-beginning",
+        "link_url": "#our-philosophy"
+      }
+    },
+    "our_philosophy": {
+      "type": "sh-feature-grid",
+      "blocks": {
+        "p1": {
+          "type": "feature",
+          "settings": {
+            "icon": "leaf",
+            "title": "Purity",
+            "description": "We use only pure, natural ingredients—free from toxins and harsh chemicals."
+          }
+        },
+        "p2": {
+          "type": "feature",
+          "settings": {
+            "icon": "lotus",
+            "title": "Balance",
+            "description": "Inspired by Ayurveda, our formulations balance body, mind, and spirit."
+          }
+        },
+        "p3": {
+          "type": "feature",
+          "settings": {
+            "icon": "wheat",
+            "title": "Nature",
+            "description": "We honor nature's power with sustainable practices and eco-friendly choices."
+          }
+        }
+      },
+      "block_order": [
+        "p1",
+        "p2",
+        "p3"
+      ],
+      "settings": {
+        "eyebrow": "Our Philosophy",
+        "heading": "",
+        "heading_em": "",
+        "columns": "3",
+        "show_circle": true,
+        "show_description": true,
+        "scheme": "dark",
+        "bg": "#1b2411",
+        "animate": true,
+        "anchor_id": "our-philosophy"
+      }
+    },
+    "why_we_started": {
+      "type": "sh-story-split",
+      "settings": {
+        "eyebrow": "Why We Started",
+        "heading": "More than cleansing. A daily act of",
+        "heading_em": "self-care.",
+        "body": "Most soaps focus only on cleansing the skin. We wanted to create something more meaningful—a product that transforms an everyday shower into a mindful ritual of self-care.",
+        "link_label": "Our purpose",
+        "media_position": "right",
+        "min_height": 520,
+        "animate": true,
+        "bg": "#f6ede1",
+        "link_url": "#more-than-a-soap"
+      }
+    },
+    "handmade_purpose": {
+      "type": "sh-feature-grid",
+      "blocks": {
+        "h1": {
+          "type": "feature",
+          "settings": {
+            "icon": "mortar",
+            "title": "Small-batch production",
+            "description": ""
+          }
+        },
+        "h2": {
+          "type": "feature",
+          "settings": {
+            "icon": "hands-heart",
+            "title": "Handmade craftsmanship",
+            "description": ""
+          }
+        },
+        "h3": {
+          "type": "feature",
+          "settings": {
+            "icon": "sprout",
+            "title": "Premium ingredients",
+            "description": ""
+          }
+        },
+        "h4": {
+          "type": "feature",
+          "settings": {
+            "icon": "search",
+            "title": "Attention to detail",
+            "description": ""
+          }
+        },
+        "h5": {
+          "type": "feature",
+          "settings": {
+            "icon": "heart-check",
+            "title": "Quality over quantity",
+            "description": ""
+          }
+        },
+        "h6": {
+          "type": "feature",
+          "settings": {
+            "icon": "flower",
+            "title": "Made with love and intention",
+            "description": ""
+          }
+        }
+      },
+      "block_order": [
+        "h1",
+        "h2",
+        "h3",
+        "h4",
+        "h5",
+        "h6"
+      ],
+      "settings": {
+        "eyebrow": "Handmade With Purpose",
+        "heading": "",
+        "heading_em": "",
+        "columns": "6",
+        "show_circle": false,
+        "show_description": false,
+        "scheme": "light",
+        "bg": "#e9e0cf",
+        "animate": true
+      }
+    },
+    "more_than_soap": {
+      "type": "sh-feature-grid",
+      "blocks": {
+        "r1": {
+          "type": "feature",
+          "settings": {
+            "icon": "hands-heart",
+            "title": "Handmade in Small Batches",
+            "description": "Thoughtful craftsmanship in limited quantities."
+          }
+        },
+        "r2": {
+          "type": "feature",
+          "settings": {
+            "icon": "mortar",
+            "title": "Ayurvedic Herbal Ingredients",
+            "description": "Ancient herbs known for their healing properties."
+          }
+        },
+        "r3": {
+          "type": "feature",
+          "settings": {
+            "icon": "sun",
+            "title": "Aura Cleansing Ritual",
+            "description": "Purifies not just the skin, but your energy field."
+          }
+        },
+        "r4": {
+          "type": "feature",
+          "settings": {
+            "icon": "flask-line",
+            "title": "Lab Tested",
+            "description": "Safety and efficacy tested in trusted labs."
+          }
+        },
+        "r5": {
+          "type": "feature",
+          "settings": {
+            "icon": "face-sparkle",
+            "title": "Skin Nourishing Formula",
+            "description": "Nourishes deeply for healthy, glowing skin."
+          }
+        },
+        "r6": {
+          "type": "feature",
+          "settings": {
+            "icon": "meditate",
+            "title": "Mindful Everyday Self-Care",
+            "description": "Turn your daily routine into a moment of calm and intention."
+          }
+        }
+      },
+      "block_order": [
+        "r1",
+        "r2",
+        "r3",
+        "r4",
+        "r5",
+        "r6"
+      ],
+      "settings": {
+        "eyebrow": "More Than a Soap",
+        "heading": "It's a",
+        "heading_em": "Ritual.",
+        "columns": "6",
+        "show_circle": false,
+        "show_description": true,
+        "scheme": "dark",
+        "bg": "#1b2411",
+        "animate": true,
+        "anchor_id": "more-than-a-soap"
+      }
+    },
+    "daily_ritual": {
+      "type": "sh-ritual-steps",
+      "blocks": {
+        "s1": {
+          "type": "step",
+          "settings": {
+            "icon": "drop",
+            "label": "Wet",
+            "description": "Wet your skin and the soap gently."
+          }
+        },
+        "s2": {
+          "type": "step",
+          "settings": {
+            "icon": "bubbles",
+            "label": "Lather",
+            "description": "Rub the soap between hands to create a rich lather."
+          }
+        },
+        "s3": {
+          "type": "step",
+          "settings": {
+            "icon": "body",
+            "label": "Cleanse",
+            "description": "Massage all over your body with mindful care."
+          }
+        },
+        "s4": {
+          "type": "step",
+          "settings": {
+            "icon": "lotus",
+            "label": "Pause",
+            "description": "Take a moment. Breathe. Feel refreshed."
+          }
+        },
+        "s5": {
+          "type": "step",
+          "settings": {
+            "icon": "shower",
+            "label": "Rinse",
+            "description": "Rinse thoroughly with clean water."
+          }
+        },
+        "s6": {
+          "type": "step",
+          "settings": {
+            "icon": "heart",
+            "label": "Renew",
+            "description": "Step out feeling balanced, clean & renewed."
+          }
+        }
+      },
+      "block_order": [
+        "s1",
+        "s2",
+        "s3",
+        "s4",
+        "s5",
+        "s6"
+      ],
+      "settings": {
+        "eyebrow": "Transform Your Daily Ritual",
+        "heading": "A simple ritual for body, mind & soul.",
+        "button_label": "Explore the ritual",
+        "button_link": "/pages/the-ritual",
+        "animate": true,
+        "bg": "#e9e0cf"
+      }
+    }
+  },
+  "order": [
+    "story_hero",
+    "our_beginning",
+    "our_philosophy",
+    "why_we_started",
+    "handmade_purpose",
+    "more_than_soap",
+    "daily_ritual"
+  ]
+}

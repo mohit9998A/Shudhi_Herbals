@@ -46,14 +46,31 @@
         {%- endif -%}
       </div>
 
-      {%- comment -%} Centre brand lockup {%- endcomment -%}
+      {%- comment -%} Centre brand lockup.
+
+          Renders the SAME shudhi-logo-light.png the header does, so the two can
+          never drift apart — the inline `shudhi-mark` SVG that used to sit here
+          is a stylised approximation of the artwork, not the artwork itself.
+          Mirrors the header's use_asset_logo switch, so the text lockup remains
+          a one-click fallback rather than being deleted outright.
+
+          loading="lazy", unlike the header's eager copy: this is always below
+          the fold, and it is the same asset URL, so on the pages that render
+          both it is already in cache and costs no second request.
+      {%- endcomment -%}
       <div class="sh-footer__brand">
         <span class="sh-logo">
-          {% render 'sh-icon', name: 'shudhi-mark', class: 'sh-logo__mark' %}
-          <span class="sh-logo__text">
-            <b>{{ s.brand_name }}</b>
-            <small>{{ s.brand_sub }}</small>
-          </span>
+          {%- if s.use_asset_logo -%}
+            <img class="sh-logo__img" src="{{ 'shudhi-logo-light.png' | asset_url }}"
+                 alt="{{ shop.name | escape }}" width="562" height="400"
+                 loading="lazy" decoding="async">
+          {%- else -%}
+            {% render 'sh-icon', name: 'shudhi-mark', class: 'sh-logo__mark' %}
+            <span class="sh-logo__text">
+              <b>{{ s.brand_name }}</b>
+              <small>{{ s.brand_sub }}</small>
+            </span>
+          {%- endif -%}
         </span>
         {%- if s.tagline != blank -%}<p class="sh-footer__tagline">{{ s.tagline }}</p>{%- endif -%}
         {%- if s.copyright != blank -%}<p class="sh-footer__copy">{{ s.copyright }}</p>{%- endif -%}
@@ -92,7 +109,7 @@
           <div class="sh-footer__title">Quick Links</div>
           <div class="sh-footer__links">
             <a href="{{ routes.all_products_collection_url }}">Shop All</a>
-            <a href="{{ routes.root_url }}#our-story">Our Story</a>
+            <a href="/pages/our-story">Our Story</a>
             <a href="{{ routes.root_url }}#ritual-benefits">Ingredients</a>
             <a href="{{ routes.root_url }}#rituals">Rituals</a>
             <a href="{{ blog.url | default: '/blogs/news' }}">Blog</a>
@@ -101,7 +118,7 @@
         <div class="sh-footer__col">
           <div class="sh-footer__title">Customer Care</div>
           <div class="sh-footer__links">
-            <a href="/pages/contactus">Contact Us</a>
+            <a href="/pages/contact">Contact Us</a>
             <a href="/pages/faqs">FAQs</a>
             <a href="/policies/shipping-policy">Shipping &amp; Delivery</a>
             <a href="/policies/refund-policy">Returns &amp; Refunds</a>
@@ -146,10 +163,14 @@
     { "type": "url", "id": "youtube", "label": "YouTube" },
 
     { "type": "header", "content": "Brand" },
-    { "type": "text", "id": "brand_name", "label": "Brand name", "default": "SHUDHI" },
-    { "type": "text", "id": "brand_sub", "label": "Brand sub-line", "default": "HERBALS" },
-    { "type": "text", "id": "tagline", "label": "Tagline", "default": "Purify your skin. Cleanse your aura." },
-    { "type": "text", "id": "copyright", "label": "Copyright", "default": "© 2025 Shudhi Herbals. All rights reserved." },
+    { "type": "checkbox", "id": "use_asset_logo", "label": "Use the logo image", "default": true,
+      "info": "Renders shudhi-logo-light.png from Assets — the same logo as the header. Uncheck to fall back to the text lockup below." },
+    { "type": "text", "id": "brand_name", "label": "Brand name", "default": "SHUDHI",
+      "info": "Text lockup only — unused while \"Use the logo image\" is on." },
+    { "type": "text", "id": "brand_sub", "label": "Brand sub-line", "default": "HERBALS",
+      "info": "Text lockup only — unused while \"Use the logo image\" is on." },
+    { "type": "text", "id": "tagline", "label": "Tagline", "default": "Purify your presence." },
+    { "type": "text", "id": "copyright", "label": "Copyright", "default": "© 2026 Shudhi Herbals. All rights reserved." },
     { "type": "text", "id": "bottom_note", "label": "Bottom bar note", "default": "Made with intention · Rooted in Ayurveda" },
 
     { "type": "header", "content": "Appearance" },
@@ -164,7 +185,7 @@
   ],
   "max_blocks": 3,
   "presets": [ { "name": "SH · Footer", "blocks": [
-    { "type": "column", "settings": { "heading": "Quick Links",   "links": "Shop All | /collections/all\nOur Story | #our-story\nIngredients | #ritual-benefits\nRituals | #rituals\nBlog | /blogs/news" } },
+    { "type": "column", "settings": { "heading": "Quick Links",   "links": "Shop All | /collections/all\nOur Story | /pages/our-story\nIngredients | #ritual-benefits\nRituals | #rituals\nBlog | /blogs/news" } },
     { "type": "column", "settings": { "heading": "Customer Care", "links": "Contact Us | /pages/contactus\nFAQs | /pages/faqs\nShipping & Delivery | /policies/shipping-policy\nReturns & Refunds | /policies/refund-policy" } }
   ] } ]
 }

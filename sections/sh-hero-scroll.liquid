@@ -129,19 +129,10 @@
       </div>
     {%- endif -%}
 
-    {%- if section.blocks.size > 0 -%}
-      <div class="sh-hero__trust">
-        {%- for block in section.blocks -%}
-          <div class="sh-hero__trust-item" {{ block.shopify_attributes }}>
-            {% render 'sh-icon', name: block.settings.icon, sw: 1.1 %}
-            <div>
-              <b>{{ block.settings.title }}</b>
-              <small>{{ block.settings.subtitle }}</small>
-            </div>
-          </div>
-        {%- endfor -%}
-      </div>
-    {%- endif -%}
+    {%- comment -%} Shared component — see snippets/sh-trust-row.liquid. The
+        Our Story hero renders the same snippet, so the glass treatment is
+        defined once and never duplicated per page. {%- endcomment -%}
+    {% render 'sh-trust-row', blocks: section.blocks, class: 'sh-hero__trust' %}
 
   </div>
 </section>
@@ -200,6 +191,7 @@
       { "type": "select", "id": "icon", "label": "Icon", "default": "leaf", "options": [
         { "value": "leaf-line", "label": "Leaf (fine)" }, { "value": "heart-line", "label": "Heart (fine)" },
         { "value": "hand-line", "label": "Hand (fine)" }, { "value": "rabbit-line", "label": "Rabbit (fine)" },
+        { "value": "flask-line", "label": "Flask (fine)" },
         { "value": "leaf", "label": "Leaf" }, { "value": "heart", "label": "Heart" },
         { "value": "hand", "label": "Hand" }, { "value": "rabbit", "label": "Rabbit" },
         { "value": "lotus", "label": "Lotus" }, { "value": "drop", "label": "Drop" },
@@ -212,7 +204,7 @@
   "max_blocks": 4,
   "presets": [ { "name": "SH · Hero (scroll video)", "blocks": [
     { "type": "trust", "settings": { "icon": "leaf",   "title": "100% Natural",      "subtitle": "No harsh chemicals" } },
-    { "type": "trust", "settings": { "icon": "heart",  "title": "Organic Certified", "subtitle": "Pure & safe" } },
+    { "type": "trust", "settings": { "icon": "flask-line", "title": "Lab Tested", "subtitle": "Every batch verified" } },
     { "type": "trust", "settings": { "icon": "hand",   "title": "Handmade in India", "subtitle": "Small batch crafted" } },
     { "type": "trust", "settings": { "icon": "rabbit", "title": "Cruelty Free",      "subtitle": "Kind to you & nature" } }
   ] } ]

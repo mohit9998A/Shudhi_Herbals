@@ -1,0 +1,31 @@
+{%- comment -%}
+  SHUDHI — Trust badge row (100% Natural / Lab Tested / Handmade / Cruelty Free)
+
+  Shared component. Rendered by sh-hero-scroll (homepage) and sh-story-hero
+  (Our Story). It carries markup only — the frosted-glass treatment lives on
+  `.sh-trust` in shudhi-home.css, so a change there lands on every page at once
+  and there is no per-page override to keep in sync.
+
+  Usage:
+    {% render 'sh-trust-row', blocks: section.blocks, class: 'sh-hero__trust' %}
+
+  Params:
+    blocks — section.blocks; only blocks of type "trust" are rendered
+    class  — optional positioning modifier set alongside .sh-trust
+{%- endcomment -%}
+
+{%- if blocks != blank and blocks.size > 0 -%}
+  <div class="sh-trust{% if class != blank %} {{ class }}{% endif %}">
+    {%- for block in blocks -%}
+      {%- if block.type == 'trust' -%}
+        <div class="sh-trust__item" {{ block.shopify_attributes }}>
+          {% render 'sh-icon', name: block.settings.icon, sw: 1.1 %}
+          <div>
+            <b>{{ block.settings.title }}</b>
+            <small>{{ block.settings.subtitle }}</small>
+          </div>
+        </div>
+      {%- endif -%}
+    {%- endfor -%}
+  </div>
+{%- endif -%}

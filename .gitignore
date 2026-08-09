@@ -14,3 +14,8 @@ node_modules/
 # Secrets / env
 .env
 .env.*
+
+# Tooling output
+.playwright-mcp/
+
+.claude.md

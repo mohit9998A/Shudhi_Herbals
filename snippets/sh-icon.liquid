@@ -8,6 +8,9 @@
   sparkle, mortar, plant, bottle, recycle, badge, search, user, cart, menu,
   close, arrow-right, arrow-up, chevron-left, chevron-right, play, instagram,
   facebook, pinterest, youtube
+  Fine-line trust-bar set: leaf-line, heart-line, hand-line, rabbit-line, flask-line
+  Our Story set: wheat, sprout, flower, sun, hands-heart, heart-check
+  Bath-ritual set: meditate, body, face-sparkle, shower, bubbles
 {%- endcomment -%}
 {%- assign n = name | default: 'leaf' -%}
 {%- comment -%} Optional `sw` overrides stroke weight, for the finer line art
@@ -45,6 +48,33 @@
 {%- when 'heart-line' -%}<path d="M12 20.2c-.2 0-6.6-3.9-6.6-8.6a3.4 3.4 0 0 1 6.6-1.2 3.4 3.4 0 0 1 6.6 1.2c0 4.7-6.4 8.6-6.6 8.6Z"/><path d="M12 3.4v3"/>
 {%- when 'hand-line' -%}<path d="M12 20.4c-3.6 0-6.4-2-6.4-4.6 0-2.2 2-3.6 4-3.6"/><path d="M12 20.4c3.6 0 6.4-2 6.4-4.6 0-2.2-2-3.6-4-3.6"/><path d="M12 20.4V9.6"/><circle cx="12" cy="6.4" r="2.2"/>
 {%- when 'rabbit-line' -%}<path d="M9.3 11.6c-1.5-.4-2.4-2-2-4.2.4-2.2 1.7-3.2 2.6-2.9.9.3 1.2 2 .8 4.2-.2 1.2-.8 2.4-1.4 2.9Z"/><path d="M13.5 11.6c1.5-.4 2.4-2 2-4.2-.4-2.2-1.7-3.2-2.6-2.9-.9.3-1.2 2-.8 4.2.2 1.2.8 2.4 1.4 2.9Z"/><path d="M16 16.6a4.6 4.6 0 1 1-9.2 0 4.6 4.6 0 0 1 9.2 0Z"/><path d="M9.9 18.6c.8.7 2.4.7 3.2 0"/>
+{%- comment -%} Conical lab flask with a fill line — the "Lab Tested" trust badge.
+    Drawn on the same 24x24 grid and vertical extent (y 3.6-20.4) as the other
+    -line icons, and inherits stroke-width / colour / caps from the shared <svg>
+    wrapper above, so it carries no styling of its own. {%- endcomment -%}
+{%- when 'flask-line' -%}<path d="M9.1 3.6h5.8"/><path d="M10.1 3.6v5.9L6.2 20.4h11.6L13.9 9.5V3.6"/><path d="M8.1 15.2h7.8"/>
+{%- comment -%} Our Story / The Ritual set — botanical glyphs. Drawn on the same
+    24x24 grid and vertical extent (y 3.6-20.4) as the -line icons above so a row
+    of six shares a baseline, and carrying no fill/stroke/stroke-width of their
+    own: everything is inherited from the shared <svg> wrapper, which is what
+    lets the same glyph render at sw:1.1 in the trust bar and 1.4 in a feature
+    grid. Each is kept to a handful of long strokes — these read at 26-40px,
+    where a sixth segment turns to mush. {%- endcomment -%}
+{%- when 'wheat' -%}<path d="M12 20.4V8.9"/><path d="M12 15.6c-2.8 0-4.2-1.6-4.2-3.5 2.8 0 4.2 1.6 4.2 3.5Zm0-4.6c-2.8 0-4.2-1.6-4.2-3.5 2.8 0 4.2 1.6 4.2 3.5Z"/><path d="M12 15.6c2.8 0 4.2-1.6 4.2-3.5-2.8 0-4.2 1.6-4.2 3.5Zm0-4.6c2.8 0 4.2-1.6 4.2-3.5-2.8 0-4.2 1.6-4.2 3.5Z"/><path d="M12 8.9c-1.5-1-2.3-2.5-2.3-4.3 1.5 1 2.3 2.5 2.3 4.3Zm0 0c1.5-1 2.3-2.5 2.3-4.3-1.5 1-2.3 2.5-2.3 4.3Z"/>
+{%- when 'sprout' -%}<path d="M12 20.4v-8.8"/><path d="M12 11.6C12 8 9.7 5.7 6.1 5.7c0 3.6 2.3 5.9 5.9 5.9Z"/><path d="M12 11.6c0-3.6 2.3-5.9 5.9-5.9 0 3.6-2.3 5.9-5.9 5.9Z"/>
+{%- when 'flower' -%}<circle cx="12" cy="8.2" r="2.8"/><circle cx="16.2" cy="11.2" r="2.8"/><circle cx="14.6" cy="16.2" r="2.8"/><circle cx="9.4" cy="16.2" r="2.8"/><circle cx="7.8" cy="11.2" r="2.8"/><circle cx="12" cy="12.6" r="1.8"/>
+{%- when 'sun' -%}<circle cx="12" cy="12" r="4.2"/><path d="M12 3.8v2M12 18.2v2M3.8 12h2M18.2 12h2M6.2 6.2l1.4 1.4M16.4 16.4l1.4 1.4M17.8 6.2l-1.4 1.4M7.6 16.4l-1.4 1.4"/>
+{%- when 'hands-heart' -%}<path d="M4.6 12.4c0 4.2 3.3 7.6 7.4 7.6s7.4-3.4 7.4-7.6"/><path d="M8.9 12.8c1.3.5 2.4 1.5 3.1 2.8m3.1-2.8c-1.3.5-2.4 1.5-3.1 2.8"/><path d="M12 10.3c-.2 0-3.4-2-3.4-4.2a1.8 1.8 0 0 1 3.4-.7 1.8 1.8 0 0 1 3.4.7c0 2.2-3.2 4.2-3.4 4.2Z"/>
+{%- when 'heart-check' -%}<path d="M12 20.4c-.3 0-8-4.6-8-10.2a4.4 4.4 0 0 1 8-1.4 4.4 4.4 0 0 1 8 1.4c0 5.6-7.7 10.2-8 10.2Z"/><path d="m8.8 12.6 2.2 2.2 4.2-4.4"/>
+{%- comment -%} Bath-ritual set — the figure glyphs. Same grid, same one-stroke
+    language; both figures put the crown of the head on y 3.6 and the ground on
+    y 19.8-20.4, so a seated and a standing one in the same step row read as the
+    same person rather than two scales. {%- endcomment -%}
+{%- when 'meditate' -%}<circle cx="12" cy="5.6" r="2"/><path d="M12 7.8v3.8"/><path d="M4.6 19.8c0-2 3.3-3.6 7.4-3.6s7.4 1.6 7.4 3.6Z"/><path d="M10.8 11.6c-2.4 1-4 3.4-4.4 6.2m7.2-6.2c2.4 1 4 3.4 4.4 6.2"/>
+{%- when 'body' -%}<circle cx="12" cy="5.7" r="2.1"/><path d="M9.2 17.1c-1.1-.8-1.8-2.2-1.8-3.7 0-2.6 2-4.6 4.6-4.6s4.6 2 4.6 4.6c0 1.5-.7 2.9-1.8 3.7"/><path d="m9.2 17.1-.6 3.3m6.2-3.3.6 3.3"/>
+{%- when 'face-sparkle' -%}<path d="M14.6 20.4v-3.1c2.9-1.2 5-4.1 5-7.4 0-3.4-2.8-6.1-6.2-6.1-3.6 0-6.5 2.9-6.5 6.4 0 1.5-1.5 2.6-1.5 3.5 0 .7 1 1.1 1.9 1.2"/><path d="M7.6 16.4c.3 1.4.6 1.7 2 2-1.4.3-1.7.6-2 2-.3-1.4-.6-1.7-2-2 1.4-.3 1.7-.6 2-2Z"/>
+{%- when 'shower' -%}<path d="M12 3.6v3.8"/><path d="M6.6 11.8c0-2.4 2.4-4.4 5.4-4.4s5.4 2 5.4 4.4Z"/><path d="M9 15.4v2.8m3-2.8v4.4m3-4.4v2.8"/>
+{%- when 'bubbles' -%}<circle cx="9.4" cy="13.8" r="5.2"/><circle cx="16.4" cy="8.6" r="3.6"/><circle cx="16.4" cy="16.6" r="2.6"/>
 {%- when 'menu' -%}<path d="M4 7h16M4 12h16M4 17h16"/>
 {%- when 'close' -%}<path d="M6 6l12 12M18 6 6 18"/>
 {%- when 'arrow-right' -%}<path d="M4 12h16M14 6l6 6-6 6"/>
@@ -52,6 +82,11 @@
 {%- when 'chevron-left' -%}<path d="M15 6l-6 6 6 6"/>
 {%- when 'chevron-right' -%}<path d="M9 6l6 6-6 6"/>
 {%- when 'play' -%}<path d="M8 5v14l11-7-11-7Z"/>
+{%- comment -%} Contact details set — same 24x24 grid and thin-line weight as above {%- endcomment -%}
+{%- when 'pin' -%}<path d="M12 21s6.4-5.6 6.4-10.2A6.4 6.4 0 0 0 5.6 10.8C5.6 15.4 12 21 12 21Z"/><circle cx="12" cy="10.6" r="2.4"/>
+{%- when 'phone' -%}<path d="M8.4 4.2 10.6 8l-1.9 2c.9 1.9 2.4 3.4 4.3 4.3l2-1.9 3.8 2.2-.6 2.6c-.2.7-.8 1.2-1.6 1.2C10.4 20.4 3.6 13.6 3.6 6.4c0-.8.5-1.4 1.2-1.6l2.6-.6Z"/>
+{%- when 'mail' -%}<rect x="3.2" y="5.4" width="17.6" height="13.2" rx="2.2"/><path d="m3.8 7 8.2 5.6L20.2 7"/>
+{%- when 'clock' -%}<circle cx="12" cy="12" r="8.4"/><path d="M12 7.2V12l3.2 2"/>
 {%- when 'instagram' -%}<rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1"/>
 {%- when 'facebook' -%}<path d="M14 9h3V5h-3c-2 0-3 1.5-3 3.5V11H8v4h3v6h4v-6h3l1-4h-4V9c0-.6.4-1 1-1Z"/>
 {%- when 'pinterest' -%}<path d="M12 3a9 9 0 0 0-3 17.5c-.1-1 0-2.3.2-3.3l1.2-5s-.3-.6-.3-1.5c0-1.4.8-2.4 1.8-2.4.9 0 1.3.6 1.3 1.4 0 .9-.6 2.2-.9 3.4-.2 1 .5 1.8 1.5 1.8 1.8 0 3-2.3 3-5 0-2-1.4-3.6-4-3.6a4.5 4.5 0 0 0-4.7 4.5c0 .9.3 1.5.7 2 .2.2.2.3.1.5l-.2.9c0 .3-.2.4-.5.2-1.3-.5-1.9-2-1.9-3.6C6 7.7 8.3 5 12.3 5c3.2 0 5.7 2.3 5.7 5.4 0 3.2-2 5.8-4.9 5.8-1 0-1.9-.5-2.2-1.1l-.6 2.3c-.2.8-.7 1.8-1.1 2.5A9 9 0 1 0 12 3Z"/>
