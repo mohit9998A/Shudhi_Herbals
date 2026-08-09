@@ -58,7 +58,12 @@
 
       <div class="sh-story-hero__cta">
         {%- if s.cta_label != blank -%}
-          <a href="{{ s.cta_link | default: '#our-story' }}" class="sh-btn sh-btn--solid">
+          {%- comment -%} Falls back to the first band on THIS page. The old fallback was
+              #our-story, which is sh-our-story's id — that section lives on the homepage
+              (templates/index.json) and is not on this template, so clearing cta_link in
+              the editor produced a link to nothing. #our-beginning is the anchor_id the
+              our_beginning instance carries in templates/page.our-story.json. {%- endcomment -%}
+          <a href="{{ s.cta_link | default: '#our-beginning' }}" class="sh-btn sh-btn--solid">
             {{ s.cta_label }} {% render 'sh-icon', name: 'arrow-right' %}
           </a>
         {%- endif -%}
