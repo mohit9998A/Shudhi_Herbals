@@ -8,6 +8,35 @@
 
   The connector SVG uses preserveAspectRatio="none" over a 1000x400 viewBox,
   so coordinates map proportionally to whatever the grid's real size is.
+
+  ---------------------------------------------------------------------------
+  THE LIVING SCENE
+  ---------------------------------------------------------------------------
+  snippets/sh-ritual-scene.liquid draws a transparent water-and-light layer in
+  register with the background photograph. Behaviour is assets/sh-ritual-scene.js
+  and the motion is shudhi-home.css §26. Three things about it belong here:
+
+  1. IT RENDERS ONLY ON THE DEFAULT-ASSET BRANCH. Every coordinate in that
+     snippet is a pixel in "Its a ritual.webp" at its exact 1536x1024
+     proportions. A merchant image of unknown shape makes all of them wrong, so
+     s.bg_image != blank switches the scene off rather than drawing water in
+     the wrong place. The schema says so where the merchant can read it.
+
+  2. THE <img> DIMENSIONS ARE 1536x1024, NOT 2000x1200. They used to say the
+     latter. Both are geometrically inert — the element is absolutely
+     positioned at width/height 100% and object-fit:cover scales against the
+     DECODED intrinsic size — but the wrong pair is a trap, because the next
+     person to author scene coordinates will read them and land 30% wrong on x.
+
+  3. THIS SECTION NO LONGER USES [data-reveal], AND THAT IS A FIX.
+     shudhi-home.css:234 gives [data-reveal] a base rule of opacity:0. Carrying
+     it on the heading and the four cards meant that anything stopping
+     shudhi-home.js from adding .is-in — a 404, an exception earlier in boot() —
+     left this band rendering as a photograph with nothing on it. The section
+     root now carries data-ritual-reveal instead, and sh-ritual-scene.js arms it
+     only when it has an IntersectionObserver in hand to reveal with. The
+     resting state below is the finished state. Same trade, and the same
+     reasoning, as snippets/sh-soap-plate.liquid.
 {%- endcomment -%}
 
 {%- assign s = section.settings -%}
@@ -23,14 +52,32 @@
   {%- endif -%}
 {%- endfor -%}
 
-<section class="sh sh-ritual" id="ritual-benefits">
+{%- comment -%} The scene needs the built-in photograph. See note (1) above. {%- endcomment -%}
+{%- assign show_scene = false -%}
+{%- if s.scene and s.bg_image == blank -%}{%- assign show_scene = true -%}{%- endif -%}
+
+<section class="sh sh-ritual" id="ritual-benefits"
+  style="--sh-ritual-h: {{ s.height | default: 92 }};"
+  {%- if s.animate %} data-ritual-reveal{% endif -%}
+  {%- if s.scene_cursor %} data-ritual-cursor{% endif -%}>
 
   {%- if s.bg_image != blank -%}
     <img class="sh-ritual__bg" src="{{ s.bg_image | image_url: width: 2000 }}" alt=""
          width="2000" height="1200" loading="lazy" decoding="async">
   {%- else -%}
+    {%- comment -%} 1536x1024 is the file's real decoded size. See note (2). {%- endcomment -%}
     <img class="sh-ritual__bg" src="{{ 'Its a ritual.webp' | asset_url }}" alt=""
-         width="2000" height="1200" loading="lazy" decoding="async">
+         width="1536" height="1024" loading="lazy" decoding="async">
+  {%- endif -%}
+
+  {%- if show_scene -%}
+    {% render 'sh-ritual-scene',
+       uid: section.id,
+       cutout: s.center_image,
+       splash: s.splash,
+       motes: s.motes,
+       states: s.states,
+       cursor: s.scene_cursor %}
   {%- endif -%}
 
   {%- if s.side_label != blank -%}
@@ -39,23 +86,92 @@
 
   <div class="sh-wrap">
 
-    <div class="sh-ritual__head"{% if s.animate %} data-reveal{% endif %}>
-      {%- if s.eyebrow != blank -%}<div class="sh-eyebrow">{{ s.eyebrow }}</div>{%- endif -%}
-      <h2 class="sh-ritual__title sh-serif">{{ s.title }}</h2>
+    <div class="sh-ritual__head">
+      {%- if s.eyebrow != blank -%}
+        <div class="sh-eyebrow sh-ritual__eyebrow"><span class="sh-ritual__eyebrow-in">{{ s.eyebrow }}</span></div>
+      {%- endif -%}
+
+      {%- comment -%}
+        Split into WORDS, in Liquid, server-side. Three things this buys:
+
+        The accessible name is untouched — spans do not alter textContent, so
+        the h2 still reads "It's a Ritual.".
+
+        THE SEPARATOR IS {{ ' ' }} AND NOT A TYPED SPACE, and that is not a
+        style choice. The first version wrote `{%- unless forloop.last %} {%
+        endunless -%}`, relying on the literal space between those two tags
+        surviving. It does not: the words rendered welded together as
+        "It'sARitual." on the storefront. A space emitted as an EXPRESSION is a
+        text node the whitespace-control markers cannot reach, so it survives
+        whatever trims the source. Without it the words also run together for
+        assistive tech and for anyone copying the heading.
+
+        Nothing is gated. The spans render at their finished state and .is-armed
+        is what applies the pre-state, so a JS 404 leaves an ordinary heading.
+        A runtime split cannot offer that — there is always a window where the
+        h2 is mid-rewrite. sh-living-conversation.js:116 splits at runtime
+        because its text is swapped dynamically; this text is static.
+
+        Words rather than characters: on a three-word display line a
+        per-character stagger is either too fast to read as a stagger or long
+        enough to feel like a loading screen, and it multiplies the span count
+        fivefold for nothing. | escape is required — Liquid does not auto-escape.
+      {%- endcomment -%}
+      <h2 class="sh-ritual__title sh-serif">
+        {%- assign words = s.title | strip | split: ' ' -%}
+        {%- for w in words -%}
+          {%- unless forloop.first -%}{{ ' ' }}{%- endunless -%}
+          <span class="sh-ritual__w"><span class="sh-ritual__w-in">{{ w | escape }}</span></span>
+        {%- endfor -%}
+      </h2>
+
+      {%- if s.ornament -%}
+        <div class="sh-ritual__ornament" aria-hidden="true"><i></i><span></span><i></i></div>
+      {%- endif -%}
     </div>
 
     <div class="sh-ritual__cols">
 
-      {%- comment -%} Dotted connectors {%- endcomment -%}
+      {%- comment -%}
+        Dotted connectors, now indexed to their blocks.
+
+        The old generator looped (1..lc) and (1..rc) separately, so a path had
+        no link to the block it belonged to and no way to respond to it. This
+        is a single pass with per-column counters: li and ri reproduce
+        forloop.index0 WITHIN the filtered set, so the geometry below is
+        identical to what shipped.
+
+        Two paths per connector, same d. The dotted one is the content and is
+        always visible. The traced one is a gold charge that runs from the soap
+        out to the card while its benefit is active — it rests at
+        stroke-dashoffset 1, i.e. drawing nothing, which is legitimate for the
+        same reason §25:3656 parks the plate's sheen at opacity 0: it is the one
+        purely decorative mark here, and the dotted line it lies on is the thing
+        that carries meaning.
+
+        pathLength="1" normalises the dash units against the path's own length,
+        so dasharray:1 / dashoffset:1->0 draws exactly 0%->100% no matter how
+        preserveAspectRatio="none" squashes the viewBox. That is also why this
+        needs no getTotalLength() and therefore no JavaScript — the same reason
+        §24:3266 gives for not using anime's svg.createDrawable.
+      {%- endcomment -%}
       <svg class="sh-ritual__connectors" viewBox="0 0 1000 400" preserveAspectRatio="none"
            aria-hidden="true" focusable="false">
-        {%- for i in (1..lc) -%}
-          {%- assign y = forloop.index0 | times: 800 | plus: 400 | divided_by: lc | divided_by: 2 -%}
-          <path d="M430,200 Q385,{{ y }} 340,{{ y }}"/>
-        {%- endfor -%}
-        {%- for i in (1..rc) -%}
-          {%- assign y = forloop.index0 | times: 800 | plus: 400 | divided_by: rc | divided_by: 2 -%}
-          <path d="M570,200 Q615,{{ y }} 660,{{ y }}"/>
+        {%- assign li = 0 -%}
+        {%- assign ri = 0 -%}
+        {%- for b in section.blocks -%}
+          {%- if s.states -%}{%- assign st = b.settings.state | default: 'none' -%}{%- else -%}{%- assign st = 'none' -%}{%- endif -%}
+          {%- if b.settings.column == 'right' -%}
+            {%- assign y = ri | times: 800 | plus: 400 | divided_by: rc | divided_by: 2 -%}
+            {%- capture d %}M570,200 Q615,{{ y }} 660,{{ y }}{% endcapture -%}
+            {%- assign ri = ri | plus: 1 -%}
+          {%- else -%}
+            {%- assign y = li | times: 800 | plus: 400 | divided_by: lc | divided_by: 2 -%}
+            {%- capture d %}M430,200 Q385,{{ y }} 340,{{ y }}{% endcapture -%}
+            {%- assign li = li | plus: 1 -%}
+          {%- endif -%}
+          <path class="sh-ritual__conn" data-ritual="{{ st }}" d="{{ d }}"/>
+          <path class="sh-ritual__trace" data-ritual="{{ st }}" pathLength="1" d="{{ d }}"/>
         {%- endfor -%}
       </svg>
 
@@ -63,9 +179,10 @@
       <div class="sh-ritual__col sh-ritual__col--left">
         {%- for block in section.blocks -%}
           {%- unless block.settings.column == 'right' -%}
-            <div class="sh-ritual__item"{% if s.animate %} data-reveal{% endif %} {{ block.shopify_attributes }}>
+            <div class="sh-ritual__item"
+                 {%- if s.states and block.settings.state != 'none' %} data-ritual="{{ block.settings.state }}"{% endif %} {{ block.shopify_attributes }}>
               {% render 'sh-icon', name: block.settings.icon %}
-              <div>
+              <div class="sh-ritual__body">
                 <h3>{{ block.settings.title }}</h3>
                 <p>{{ block.settings.text }}</p>
               </div>
@@ -74,21 +191,24 @@
         {%- endfor -%}
       </div>
 
-      {%- comment -%} Centre product cut-out {%- endcomment -%}
-      <div class="sh-ritual__center">
-        {%- if s.center_image != blank -%}
-          <img src="{{ s.center_image | image_url: width: 800 }}" alt=""
-               width="800" height="800" loading="lazy" decoding="async">
-        {%- endif -%}
-      </div>
+      {%- comment -%}
+        The centre track. Empty by design: it is the gap the photograph's soap
+        bar shows through, and it is what pushes the two columns to the outside
+        so the connectors have somewhere to converge. It stays in the markup
+        because the three flow children are what place the columns in grid
+        tracks 1 and 3 — the connector svg is absolutely positioned and out of
+        flow, so it cannot do that job.
+      {%- endcomment -%}
+      <div class="sh-ritual__center" aria-hidden="true"></div>
 
       {%- comment -%} Right column {%- endcomment -%}
       <div class="sh-ritual__col sh-ritual__col--right">
         {%- for block in section.blocks -%}
           {%- if block.settings.column == 'right' -%}
-            <div class="sh-ritual__item"{% if s.animate %} data-reveal{% endif %} {{ block.shopify_attributes }}>
+            <div class="sh-ritual__item"
+                 {%- if s.states and block.settings.state != 'none' %} data-ritual="{{ block.settings.state }}"{% endif %} {{ block.shopify_attributes }}>
               {% render 'sh-icon', name: block.settings.icon %}
-              <div>
+              <div class="sh-ritual__body">
                 <h3>{{ block.settings.title }}</h3>
                 <p>{{ block.settings.text }}</p>
               </div>
@@ -101,6 +221,19 @@
   </div>
 </section>
 
+{%- comment -%}
+  Section-scoped and deferred, the same shape sections/sh-signature-product.liquid:180
+  uses, rather than a new global entry in layout/theme.liquid. Emitted only when
+  there is actually a job to do.
+
+  Note what does NOT depend on it: every drawn element, every ambient loop, all
+  four ritual states, the splash and the card tilt are pure CSS. Losing this
+  file costs the entrance and the cursor depth, and nothing else.
+{%- endcomment -%}
+{%- if s.animate or s.scene_cursor -%}
+  <script src="{{ 'sh-ritual-scene.js' | asset_url }}" defer></script>
+{%- endif -%}
+
 {% schema %}
 {
   "name": "SH · Ritual Benefits",
@@ -109,11 +242,19 @@
     { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "More than a soap." },
     { "type": "text", "id": "title", "label": "Heading", "default": "It's a Ritual." },
     { "type": "text", "id": "side_label", "label": "Vertical side label", "default": "Ritual Benefits" },
+    { "type": "checkbox", "id": "ornament", "label": "Divider under the heading", "default": true },
+    { "type": "range", "id": "height", "label": "Section height", "min": 60, "max": 100, "step": 4, "unit": "%", "default": 92, "info": "A floor, as a percentage of the screen. It is also what keeps the heading clear of the SHUDHI wordmark on the bar: the photograph pushes the bar further down the section as the section grows, so below about 88 the heading starts to sit on the brand mark. The band still grows past this for a fifth and sixth benefit, and ignores it on phones where the stacked cards are already taller." },
+
     { "type": "header", "content": "Images" },
-    { "type": "image_picker", "id": "bg_image", "label": "Background image", "info": "Defaults to \"Its a ritual.webp\" in Assets." },
-    { "type": "image_picker", "id": "center_image", "label": "Centre product cut-out", "info": "Optional. A transparent PNG works best." },
-    { "type": "header", "content": "Appearance" },
-    { "type": "checkbox", "id": "animate", "label": "Animate on scroll", "default": true }
+    { "type": "image_picker", "id": "bg_image", "label": "Background image", "info": "Defaults to \"Its a ritual.webp\" in Assets. Uploading your own turns the water and light overlay off, because that drawing is measured against the built-in photograph's exact proportions." },
+
+    { "type": "header", "content": "Motion" },
+    { "type": "checkbox", "id": "animate", "label": "Animate on scroll", "default": true, "info": "Runs the entrance — water first, then the soap's contact shadow, then the heading, then the benefit cards. The section is complete and readable before any of it runs, so turning this off, or losing the script, costs the animation and nothing else." },
+    { "type": "checkbox", "id": "scene", "label": "Water and light overlay", "default": true, "info": "Draws a transparent water, ripple and droplet layer in register with the background photograph. It renders only while Background image above is empty — every coordinate in the drawing is a pixel in the built-in photo, so a different image would put the water in the wrong place." },
+    { "type": "checkbox", "id": "scene_cursor", "label": "Cursor depth and light", "default": true, "info": "Moves the drawn water layers by up to 8px against the photograph as the pointer moves, and follows the pointer with a soft warm glow. Desktop pointers only — never bound on touch, on narrow viewports, or for visitors who have asked their system for reduced motion." },
+    { "type": "checkbox", "id": "splash", "label": "Soap splash on hover", "default": true, "info": "Hovering the heading or the soap bar for just over half a second sends a ring of droplets up around the bar. The half-second wait is deliberate: a pointer crossing the section on its way somewhere else never sets it off." },
+    { "type": "checkbox", "id": "states", "label": "Highlight the scene on card hover", "default": true, "info": "Hovering a benefit lights the part of the photograph it belongs to and draws a gold trace along its connector. Needs a browser that supports the CSS :has() selector; on older ones nothing happens and the cards behave exactly as they do today." },
+    { "type": "range", "id": "motes", "label": "Floating particles", "min": 0, "max": 24, "step": 4, "default": 16, "info": "Slow-drifting specks of light between the viewer and the photograph. Set to 0 to remove them. Above roughly 20 they stop reading as air and start reading as marks on the screen." }
   ],
   "blocks": [
     { "type": "benefit", "name": "Benefit", "settings": [
@@ -125,16 +266,23 @@
         { "value": "sparkle", "label": "Sparkle" }, { "value": "heart", "label": "Heart" },
         { "value": "hand", "label": "Hand" }, { "value": "mortar", "label": "Mortar" } ] },
       { "type": "text", "id": "title", "label": "Title", "default": "Aura Cleansing" },
-      { "type": "textarea", "id": "text", "label": "Description", "default": "Helps remove negative energy and uplift your aura." }
+      { "type": "textarea", "id": "text", "label": "Description", "default": "Helps remove negative energy and uplift your aura." },
+      { "type": "select", "id": "state", "label": "Scene highlight", "default": "none",
+        "info": "Which part of the photograph this benefit lights up on hover. Set here rather than read from the title, because titles are yours to change and this has to keep pointing at the right place when you do. Each highlight should be used once — two benefits sharing one leaves the second with nothing visible to do.",
+        "options": [
+          { "value": "none",      "label": "None" },
+          { "value": "aura",      "label": "Aura — the halo above the bar" },
+          { "value": "cleanse",   "label": "Cleanse — the waterline" },
+          { "value": "ayurveda",  "label": "Ayurveda — the leaf side" },
+          { "value": "intention", "label": "Intention — the warm side" } ] }
     ] }
   ],
   "max_blocks": 6,
   "presets": [ { "name": "SH · Ritual Benefits", "blocks": [
-    { "type": "benefit", "settings": { "column": "left",  "icon": "sparkle", "title": "Aura Cleansing",       "text": "Helps remove negative energy and uplift your aura." } },
-    { "type": "benefit", "settings": { "column": "left",  "icon": "mortar",  "title": "Sacred Ayurveda",      "text": "Crafted with powerful herbs known for their purifying properties." } },
-    { "type": "benefit", "settings": { "column": "left",  "icon": "leaf",    "title": "Cold Process Crafted", "text": "Made slowly in small batches to retain natural goodness." } },
-    { "type": "benefit", "settings": { "column": "right", "icon": "drop",    "title": "Deep & Gentle Cleanse","text": "Cleanses deeply while nourishing your skin naturally." } },
-    { "type": "benefit", "settings": { "column": "right", "icon": "heart",   "title": "Made with Intention",  "text": "Handmade in small batches with love, care & mindfulness." } }
+    { "type": "benefit", "settings": { "column": "left",  "icon": "sparkle", "state": "aura",      "title": "Aura Cleansing",       "text": "Helps remove negative energy and uplift your aura." } },
+    { "type": "benefit", "settings": { "column": "left",  "icon": "mortar",  "state": "ayurveda",  "title": "Sacred Ayurveda",      "text": "Crafted with powerful herbs known for their purifying properties." } },
+    { "type": "benefit", "settings": { "column": "right", "icon": "drop",    "state": "cleanse",   "title": "Deep & Gentle Cleanse","text": "Cleanses deeply while nourishing your skin naturally." } },
+    { "type": "benefit", "settings": { "column": "right", "icon": "heart",   "state": "intention", "title": "Made with Intention",  "text": "Handmade in small batches with love, care & mindfulness." } }
   ] } ]
 }
 {% endschema %}

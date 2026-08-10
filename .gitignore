@@ -14,8 +14,13 @@ node_modules/
 # Secrets / env
 .env
 .env.*
+.env.local
 
 # Tooling output
 .playwright-mcp/
 
-.claude.md
+claude.md
+.mcp.json
+
+Hero_section_final_video.mp4
+HeroSectionVideo.mp4

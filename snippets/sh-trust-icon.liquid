@@ -1,0 +1,223 @@
+{%- comment -%}
+  SHUDHI — Trust claim icons
+
+  The eight engraved-glass botanical glyphs in the homepage trust ribbon.
+  Called from sections/sh-trust-marquee.liquid. Styled in shudhi-home.css §26.
+
+  Parameters
+    mode  REQUIRED. 'defs' emits the shared gradients once; 'icon' emits one glyph.
+    gid   REQUIRED. The namespaced id prefix. See (1).
+    name  mode:'icon' only — one of the eight below. Unknown names fall back to 'natural'.
+
+  Names: lab · iso · batch · sls · paraben · toxin · cruelty · natural
+  Keep this list in step with the `icon` select in the section's schema — it is
+  the de-facto registry, same as snippets/sh-icon.liquid:7-14.
+
+  ---------------------------------------------------------------------------
+  FIVE THINGS HERE ARE LOAD-BEARING
+  ---------------------------------------------------------------------------
+
+  1. THE DEFS ARE EMITTED ONCE PER SECTION, NOT ONCE PER ICON. The marquee
+     duplicates its whole item list so translateX(-50%) can loop seamlessly, so
+     every glyph exists twice in the document. section.id namespacing does NOT
+     save us here the way it does in snippets/sh-soap-plate.liquid — both passes
+     are the SAME section, so both would emit the SAME gradient ids. Duplicate
+     *definitions* are invalid and the second is silently dropped; duplicate
+     *references* to one definition are perfectly legal. Hence mode:'defs' at the
+     section root and mode:'icon' everywhere else, both sharing `gid`.
+
+     Rejected the alternative of per-pass id suffixes (-p1/-p2): it doubles the
+     gradient payload, and the moment an ultrawide viewport needs a third pass
+     the suffix scheme regresses without anyone noticing.
+
+  2. THE DEFS SVG IS HIDDEN WITH width/height:0 + position:absolute, NEVER
+     display:none. Hiding a <defs> host with display:none has historically broken
+     reference resolution in some engines; the zero-size absolute box is the
+     battle-tested sprite-hiding technique and costs nothing. The width="0"
+     height="0" attributes are belt-and-braces in case §26 fails to load.
+
+  3. NO <filter>. Not one. feGaussianBlur and feDropShadow force a per-frame CPU
+     raster, and these sit inside a subtree that animates continuously. Every
+     soft edge here is a multi-stop alpha ramp inside a gradient instead — same
+     look, composited, free. The same ban snippets/sh-soap-plate.liquid:60-65
+     documents, and for the same reason. Do not add one.
+
+  4. THE GLYPH IS ONLY THE GLYPH. The glass — translucent fill, specular arc,
+     depth ring, travelling sweep — is CSS on .sh-tmarquee__medallion, not SVG
+     here. Two reasons: sixteen instances of a fully-modelled glass icon would
+     put ~250 elements on a page that already carries the ~118-element soap
+     plate, and CSS pseudo-elements can be driven by :hover while SVG internals
+     three levels down cannot.
+
+  5. HOVER BRIGHTENS VIA OPACITY, NOT BY SWAPPING THE STROKE. §26 cannot write
+     `stroke: url(#…)` because a stylesheet cannot see section.id, which is the
+     whole of (1) by the back door. So the glyph rests at opacity .92 and goes to
+     1 on hover, and the rest of the lift comes from the medallion's own border
+     and background. Rule: every url(#…) in this component lives in THIS FILE.
+
+  ---------------------------------------------------------------------------
+  GEOMETRY CONTRACT
+  ---------------------------------------------------------------------------
+  All eight are drawn on a 0 0 32 32 grid and held to a vertical extent of
+  y ∈ [5, 27], so a mixed row shares an optical baseline and no glyph reads as
+  larger than its neighbours. Same contract snippets/sh-icon.liquid:57-63 keeps.
+
+  Stroke weight is set once on the <svg> and inherited — individual paths carry
+  no stroke-width of their own, so the whole set rescales from one number.
+  Paths that opt into the sage ramp say so with a presentation attribute; every
+  thing else inherits the gold ramp.
+
+  sls and paraben deliberately share one exclusion stroke, identical start and
+  end coordinates, so the pair reads as a matched set rather than two unrelated
+  "no" symbols.
+{%- endcomment -%}
+
+{%- if mode == 'defs' -%}
+
+  <svg class="sh-tmarquee__defs" width="0" height="0" aria-hidden="true" focusable="false">
+    <defs>
+      {%- comment -%} Champagne gold, lit from the upper left like every other
+          surface on this site. Three stops, not two: the middle one is what
+          stops a 22-unit stroke run reading as flat. {%- endcomment -%}
+      <linearGradient id="{{ gid }}-gold" x1="0.15" y1="0" x2="0.85" y2="1">
+        <stop offset="0"    stop-color="#d8bf8c"/>
+        <stop offset="0.48" stop-color="#b89a62"/>
+        <stop offset="1"    stop-color="#8a6a2c"/>
+      </linearGradient>
+
+      {%- comment -%} The secondary botanical tone. Carries liquid, foliage and
+          the two exclusion strokes, so the icons have a second colour without
+          a second hue. {%- endcomment -%}
+      <linearGradient id="{{ gid }}-sage" x1="0.2" y1="0" x2="0.8" y2="1">
+        <stop offset="0"    stop-color="#9aa886"/>
+        <stop offset="0.5"  stop-color="#7c8665"/>
+        <stop offset="1"    stop-color="#566047"/>
+      </linearGradient>
+
+      {%- comment -%} The specular highlight. Fades to nothing at both ends so
+          the reflection has no cut edge — this is the alpha ramp that stands in
+          for the blur filter banned in (3). {%- endcomment -%}
+      <linearGradient id="{{ gid }}-glass" x1="0" y1="0" x2="0.6" y2="1">
+        <stop offset="0"    stop-color="#ffffff" stop-opacity="0"/>
+        <stop offset="0.42" stop-color="#ffffff" stop-opacity="0.72"/>
+        <stop offset="1"    stop-color="#ffffff" stop-opacity="0"/>
+      </linearGradient>
+    </defs>
+  </svg>
+
+{%- else -%}
+
+  {%- assign n = name | default: 'natural' -%}
+  <svg class="sh-tmarquee__glyph" viewBox="0 0 32 32"
+       fill="none" stroke="url(#{{ gid }}-gold)" stroke-width="1.3"
+       stroke-linecap="round" stroke-linejoin="round"
+       aria-hidden="true" focusable="false">
+  {%- case n -%}
+
+  {%- comment -%} 01 — LAB TESTED. Erlenmeyer flask, a meniscus of liquid, one
+      droplet suspended above the liquid line. The droplet sits in the BODY, not
+      the neck: at neck width it read as a stopper. {%- endcomment -%}
+  {%- when 'lab' -%}
+    <path d="M12.4 5.6H19.6"/>
+    <path d="M13.5 6V12.6L8.4 22.8C7.2 25.2 8.9 27 11.3 27H20.7C23.1 27 24.8 25.2 23.6 22.8L18.5 12.6V6"/>
+    <path d="M9.9 20C12.5 18.9 19.5 18.9 22.1 20" stroke="url(#{{ gid }}-sage)"/>
+    <path d="M16 13.2C17 14.4 17.4 15 17.4 15.6C17.4 16.4 16.8 17 16 17C15.2 17 14.6 16.4 14.6 15.6C14.6 15 15 14.4 16 13.2Z" stroke="url(#{{ gid }}-sage)"/>
+    <path d="M11.6 21.4C11.9 19.6 12.6 17.6 13.3 16.2" stroke="url(#{{ gid }}-glass)" stroke-width="1.5"/>
+
+  {%- comment -%} 02 — ISO CERTIFIED. An engraved seal. The tick ring is one
+      dashed circle, not twelve paths: r 9.55 gives a circumference of exactly
+      60, so a 0.5/4.5 pattern repeats 12 times with no seam. No number, no
+      standard reference, no certifying body — see the section's schema note. {%- endcomment -%}
+  {%- when 'iso' -%}
+    <circle cx="16" cy="16" r="10.5"/>
+    <circle cx="16" cy="16" r="9.55" stroke-dasharray="0.5 4.5" opacity="0.7"/>
+    <circle cx="16" cy="16" r="7.8" opacity="0.85"/>
+    <path d="M11.9 16.2L14.7 19L20.3 13.2"/>
+    <path d="M8.6 11.2C9.7 9.2 11.4 7.6 13.5 6.7" stroke="url(#{{ gid }}-glass)" stroke-width="1.5"/>
+
+  {%- comment -%} 03 — HANDMADE IN SMALL BATCHES. Two open palms cupped around a
+      sprig, each an OPEN stroke ending in a thumb that hooks back inward.
+      OPEN STROKES, NOT CLOSED SILHOUETTES. Four closed-contour attempts each
+      turned into an object rather than a pair of hands — bowl-plus-arms read as
+      a hill, a deep-notch cradle as a pouch, tapered palms as two more leaves
+      (fatal next to two real ones), flat-topped palms as a gift box. A closed
+      shape at 30px is read as the thing it encloses. The rest of this set is
+      line art; the hands had to be too. The thumbs are what carry it. {%- endcomment -%}
+  {%- when 'batch' -%}
+    <path d="M16 25.8C12.4 25.8 9.4 23.2 8.9 19.7L8.4 16.2C8.3 15.3 9 14.5 9.9 14.5C10.7 14.5 11.4 15.1 11.5 15.9L12 19.2"/>
+    <path d="M16 25.8C19.6 25.8 22.6 23.2 23.1 19.7L23.6 16.2C23.7 15.3 23 14.5 22.1 14.5C21.3 14.5 20.6 15.1 20.5 15.9L20 19.2"/>
+    <path d="M16 22.6V8.4" stroke="url(#{{ gid }}-sage)"/>
+    <path d="M16 15.4C13.9 15.5 12.1 14.1 11.8 12C13.9 11.9 15.7 13.3 16 15.4Z" stroke="url(#{{ gid }}-sage)"/>
+    <path d="M16 12.6C18.1 12.7 19.9 11.3 20.2 9.2C18.1 9.1 16.3 10.5 16 12.6Z" stroke="url(#{{ gid }}-sage)"/>
+    <path d="M10.2 20.4C10.6 22 11.4 23.4 12.6 24.4" stroke="url(#{{ gid }}-glass)" stroke-width="1.5"/>
+
+  {%- comment -%} 04 — SLS & SLES FREE. A surfactant droplet with two orbiting
+      nodes, crossed by a drawn exclusion stroke that overshoots the glyph on
+      both sides so it reads as a deliberate mark rather than a "no" sign. {%- endcomment -%}
+  {%- when 'sls' -%}
+    <path d="M16 6.6C20.4 12.1 22.4 15.2 22.4 17.9C22.4 21.4 19.5 24.3 16 24.3C12.5 24.3 9.6 21.4 9.6 17.9C9.6 15.2 11.6 12.1 16 6.6Z"/>
+    {%- comment -%} The nodes sit on the diagonal OPPOSITE the exclusion stroke.
+        Placed along it — which is where they started — the two circles and the
+        line read as a single barbell, or worse, an arrow. {%- endcomment -%}
+    <circle cx="8.2" cy="10.2" r="2"/>
+    <circle cx="23.8" cy="22.4" r="2"/>
+    <path d="M5.4 25.4L26.6 8.8" stroke="url(#{{ gid }}-sage)" stroke-width="1.5"/>
+    <path d="M12.5 19.6C12.4 17.6 13.1 15.9 14.2 14.6" stroke="url(#{{ gid }}-glass)" stroke-width="1.5"/>
+
+  {%- comment -%} 05 — PARABEN FREE. An aromatic ring with two bond stubs. The
+      exclusion stroke is the SAME line as `sls` to the decimal, which is what
+      makes the two read as one pair. {%- endcomment -%}
+  {%- when 'paraben' -%}
+    <path d="M16 9L9.9 12.5V19.5L16 23L22.1 19.5V12.5Z"/>
+    <circle cx="16" cy="16" r="4.1" opacity="0.5"/>
+    <path d="M16 9V7.2"/>
+    <circle cx="16" cy="6.2" r="1.1"/>
+    <path d="M9.9 19.5L7.6 20.9"/>
+    <circle cx="6.6" cy="21.5" r="1.1"/>
+    <path d="M5.4 25.4L26.6 8.8" stroke="url(#{{ gid }}-sage)" stroke-width="1.5"/>
+    <path d="M11.4 17.8C11.3 15.6 12 13.7 13.3 12.3" stroke="url(#{{ gid }}-glass)" stroke-width="1.5"/>
+
+  {%- comment -%} 06 — TOXIN FREE. A botanical droplet inside a protective ring
+      left open at the top. One arc, not a dashed circle: the gap has to land at
+      a specific angle and a dash pattern cannot be aimed. {%- endcomment -%}
+  {%- when 'toxin' -%}
+    <path d="M12.44 6.23A10.4 10.4 0 1 0 19.56 6.23" opacity="0.9"/>
+    <path d="M16 9.4C19.2 13.4 20.6 15.7 20.6 17.7C20.6 20.3 18.6 22.3 16 22.3C13.4 22.3 11.4 20.3 11.4 17.7C11.4 15.7 12.8 13.4 16 9.4Z"/>
+    <path d="M16 20.8V16.6" stroke="url(#{{ gid }}-sage)"/>
+    <path d="M16 19.9C14.5 20 13.2 19 12.9 17.5C14.4 17.4 15.7 18.4 16 19.9Z" stroke="url(#{{ gid }}-sage)"/>
+    <path d="M16 18.7C17.5 18.8 18.8 17.8 19.1 16.3C17.6 16.2 16.3 17.2 16 18.7Z" stroke="url(#{{ gid }}-sage)"/>
+    <path d="M13.6 19C13.5 17.4 14 16 14.9 14.9" stroke="url(#{{ gid }}-glass)" stroke-width="1.5"/>
+
+  {%- comment -%} 07 — CRUELTY FREE. A sitting rabbit in profile: one contour
+      for head-and-body, two tapering ears, one dot for the eye. No cartoon
+      features, no whiskers, no aggressive iconography. {%- endcomment -%}
+  {%- when 'cruelty' -%}
+    <path d="M11.9 18.1C11.9 15.8 13.7 14 16 14C17.4 14 18.6 14.6 19.4 15.7C22.6 16.7 24.9 19.7 24.9 23.2C24.9 24.9 23.5 26.3 21.8 26.3H13.3C12 26.3 11 25.3 11 24C11 23 11.5 22.2 12.3 21.8C12 20.7 11.9 19.4 11.9 18.1Z"/>
+    <path d="M15.2 14.2C14 11.6 13.6 8.7 14.3 6.3C14.7 5 16 5.1 16.4 6.4C17.1 8.8 17 11.7 16.4 14.1"/>
+    <path d="M17 14.2C17.6 11.8 18.9 9.3 20.5 7.6C21.4 6.6 22.5 7.3 22.2 8.6C21.6 11.1 20.2 13.3 18.4 14.6"/>
+    <circle cx="14.2" cy="17.9" r="0.75" fill="url(#{{ gid }}-sage)" stroke="none"/>
+    <path d="M13.1 22.6C13.4 24 14.2 25.2 15.3 26" stroke="url(#{{ gid }}-glass)" stroke-width="1.5"/>
+
+  {%- comment -%} 08 — MADE WITH NATURAL INGREDIENTS. Two leaves rising from a
+      mound of earth on a ground line.
+      Three dead ends got us here. A FULL circle read as an apple — a round body
+      with a stem and leaves on top is a fruit whatever the caption says. A
+      CLOSED half-disc read as a bowl, because a straight edge exactly the width
+      of the arc is a rim. An arc bulging BELOW the ground line read as a bowl
+      again, for the same reason. Earth is a dome ABOVE a line that runs wider
+      than the dome on both sides.
+      Also the fallback for an unrecognised name — never an empty <svg>, same
+      as snippets/sh-icon.liquid:99. {%- endcomment -%}
+  {%- else -%}
+    <path d="M6.4 26.2H25.6"/>
+    <path d="M10.2 26.2C10.2 22.2 12.8 19.9 16 19.9C19.2 19.9 21.8 22.2 21.8 26.2"/>
+    <path d="M12.6 24.8C14 24 18 24 19.4 24.8" opacity="0.5"/>
+    <path d="M16 20.5V8.4" stroke="url(#{{ gid }}-sage)"/>
+    <path d="M16 16.4C13.3 16.5 10.9 14.6 10.4 11.8C13.1 11.5 15.5 13.4 16 16.4Z" stroke="url(#{{ gid }}-sage)"/>
+    <path d="M16 13.4C18.7 13.5 21.1 11.6 21.6 8.8C18.9 8.5 16.5 10.4 16 13.4Z" stroke="url(#{{ gid }}-sage)"/>
+    <path d="M11.4 24.8C11.6 23.2 12.4 21.8 13.6 20.9" stroke="url(#{{ gid }}-glass)" stroke-width="1.5"/>
+
+  {%- endcase -%}
+  </svg>
+
+{%- endif -%}

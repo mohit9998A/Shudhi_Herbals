@@ -1,0 +1,244 @@
+{%- comment -%}
+  SHUDHI — Signature Product
+
+  The homepage's product moment: a centred section header, an illustrated soap
+  still-life on the left signed with the "generations" seal, and a benefits column
+  on the right that ends in a Shop / Learn CTA pair. Sits directly under the hero.
+
+  The left column used to be a packshot — "Our collection.webp" in a 6:5 card. It
+  is now snippets/sh-soap-plate.liquid, an inline SVG. That change removed the
+  `image` setting from the schema below. A merchant who had picked a photo still
+  has that value stored in settings_data.json, but nothing reads it any more and
+  the picker is gone from the editor, so there is no way to tell from the UI that
+  the value was ever set. If a photo is ever wanted back here, the branch has to
+  be rebuilt — and it must NOT bring back the clip-path wipe with it; see note 3.
+
+  Four things here are deliberate and easy to undo by accident:
+
+  1. The seal is a SIBLING of the plate, not a child. snippets/sh-gen-seal.liquid
+     documents why: it is absolutely positioned, and any ancestor carrying
+     [data-reveal] holds `transform: translateY(26px)` until .is-in lands, which
+     makes that ancestor the containing block and visibly re-anchors the seal
+     mid-reveal. .sh-signature__media is positioned but never transformed, so it
+     is the one safe parent. Moving the seal inside the plate reintroduces the bug.
+
+     `transform` is not the only way to cause it. will-change, filter,
+     backdrop-filter, perspective and contain:paint all establish a containing
+     block for absolutely positioned descendants too, and all of them read as
+     harmless performance tweaks. shudhi-home.css:2344 carries the full list.
+
+  2. The seal is rendered from the shared snippet but REPAINTED for a light
+     surface in shudhi-home.css §22. The snippet is the dark-hero variant: its
+     ring, arc labels and number are all --sh-gold, which the snippet's own
+     comment notes is only legible on dark green (1.95:1 on this cream).
+
+  3. THE PLATE'S REVEAL FAILS OPEN, and that is the whole reason it is built the
+     way it is. The photo's entrance rested at `clip-path: inset(0 0 100% 0)` —
+     fully clipped — and only opened when shudhi-home.js added .is-in. Any failure
+     between parse and the observer firing therefore left a permanently blank
+     column, with nothing on screen to suggest anything was missing.
+
+     The plate inverts it: its resting state is the finished state, and
+     assets/sh-soap-plate.js opts INTO the entrance by adding .is-armed. Same
+     gesture, but JS off, a 404, or a throw earlier in boot all land on a
+     complete illustration. One residual hole remains — if shudhi-home.js throws
+     BEFORE reveal(), the plate is armed and never gets .is-in — and that is the
+     standing risk level of every [data-reveal] element in this theme, which
+     shudhi-home.js:423 already orders reveal() early to limit. Named here so it
+     reads as known rather than missed.
+
+  4. Both CTAs require label AND url together, the same bargain
+     sections/sh-story-split.liquid:91 makes. A labelled link with no destination
+     used to fall back to href="#", and an empty fragment means "top of the
+     document" — so a reader who reached this band and pressed it was thrown back
+     to the hero with no announcement (WCAG 2.4.4). Hiding the link is the honest
+     failure mode; a dead one is not.
+
+  Heading levels assume an <h1> already exists above — sections/sh-hero-scroll.liquid:100
+  renders one on the homepage. h2 (section) / h3 (product) / h4 (feature) follows
+  it without a skip. If this section is ever used on a template with no hero,
+  the outline needs revisiting.
+
+  Feature blocks lay out row-major in a 2-column grid, so the order they are
+  entered in is the order they read left-to-right, top-to-bottom. Unlike
+  sections/sh-ritual-benefits.liquid there is no per-block `column` setting: that
+  section reproduces a deliberately lopsided 3-left/2-right fan, this one is a
+  plain balanced grid where DOM order is the whole story.
+{%- endcomment -%}
+
+{%- assign s = section.settings -%}
+
+<section class="sh sh-signature" id="signature-product"
+         style="--sh-signature-bg:{{ s.bg }};">
+
+  <div class="sh-wrap">
+
+    <header class="sh-signature__head"{% if s.animate %} data-reveal{% endif %}>
+      {%- if s.eyebrow != blank -%}
+        <div class="sh-eyebrow">
+          {{ s.eyebrow }} {% render 'sh-icon', name: 'leaf' %}
+        </div>
+      {%- endif -%}
+
+      <h2 class="sh-signature__title sh-serif">{{ s.title }}</h2>
+
+      <div class="sh-signature__divider" aria-hidden="true">
+        <span></span>{% render 'sh-icon', name: 'leaf' %}<span></span>
+      </div>
+    </header>
+
+    <div class="sh-signature__grid">
+
+      <div class="sh-signature__media">
+
+        {%- comment -%} [data-reveal] lives on the plate, never on
+            .sh-signature__media — see note 1. The plate reserves its own box with
+            aspect-ratio in §25, before anything paints, so there is no load-time
+            reflow to guard against the way the old <img> needed intrinsic
+            width/height. Being vector, there is also no second request: the whole
+            illustration arrives in the document.
+
+            `uid` is required, not optional — note the parameter list at the top of
+            the snippet, and (1) in its header for what happens without it. {%- endcomment -%}
+        {% render 'sh-soap-plate',
+           uid: section.id,
+           animate: s.animate,
+           motion: s.plate_motion,
+           cursor: s.plate_cursor %}
+
+        {%- comment -%} uid is required, not optional: SVG ids are document-global and
+            sections/sh-our-story.liquid renders its own seal further down the same
+            page. Two seals sharing a uid would both bend their labels along the
+            FIRST one's arcs. `section` is out of scope inside a rendered snippet,
+            so the caller has to pass it. {%- endcomment -%}
+        {%- if s.seal_number != blank -%}
+          {% render 'sh-gen-seal',
+             uid: section.id,
+             number: s.seal_number,
+             text_top: s.seal_top,
+             text_bottom: s.seal_bottom %}
+        {%- endif -%}
+
+      </div>
+
+      <div class="sh-signature__content"{% if s.animate %} data-reveal{% endif %}>
+
+        {%- if s.sub_eyebrow != blank -%}
+          <div class="sh-eyebrow">{{ s.sub_eyebrow }}</div>
+        {%- endif -%}
+
+        <h3 class="sh-signature__name sh-serif">{{ s.product_name }}</h3>
+
+        <div class="sh-signature__rule" aria-hidden="true"></div>
+
+        {%- if s.body != blank -%}
+          <p class="sh-signature__text">{{ s.body }}</p>
+        {%- endif -%}
+
+        {%- if section.blocks.size > 0 -%}
+          <div class="sh-signature__features">
+            {%- for block in section.blocks -%}
+              <div class="sh-signature__feature" {{ block.shopify_attributes }}>
+                <span class="sh-signature__feature-icon">
+                  {% render 'sh-icon', name: block.settings.icon %}
+                </span>
+                <div>
+                  <h4>{{ block.settings.title }}</h4>
+                  <p>{{ block.settings.text }}</p>
+                </div>
+              </div>
+            {%- endfor -%}
+          </div>
+        {%- endif -%}
+
+        <div class="sh-signature__cta">
+          {%- if s.shop_label != blank and s.shop_link != blank -%}
+            <a class="sh-btn sh-btn--solid" href="{{ s.shop_link }}">
+              {{ s.shop_label }} {% render 'sh-icon', name: 'arrow-right' %}
+            </a>
+          {%- endif -%}
+          {%- if s.learn_label != blank and s.learn_link != blank -%}
+            <a class="sh-btn sh-btn--ghost" href="{{ s.learn_link }}">{{ s.learn_label }}</a>
+          {%- endif -%}
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+</section>
+
+{%- comment -%} Section-scoped and deferred, the same shape sections/sh-contact.liquid:414
+    uses, rather than a new global entry in layout/theme.liquid. Emitted only when
+    there is actually a job to do: with both switches off the file does nothing but
+    arm an element that has no entrance to run, so it is not worth the request.
+
+    Note what does NOT depend on this file — all of the artwork, and all of the
+    ambient motion, which is CSS. Losing this script costs the entrance and the
+    cursor parallax. Nothing else. See note 3. {%- endcomment -%}
+{%- if s.animate or s.plate_cursor -%}
+  <script src="{{ 'sh-soap-plate.js' | asset_url }}" defer></script>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "SH · Signature Product",
+  "class": "index-section",
+  "settings": [
+    { "type": "header", "content": "Section header" },
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Our Signature" },
+    { "type": "text", "id": "title", "label": "Heading", "default": "One Soap. Countless Benefits." },
+
+    { "type": "header", "content": "Product" },
+    { "type": "text", "id": "sub_eyebrow", "label": "Content eyebrow", "default": "Our Signature Soap" },
+    { "type": "text", "id": "product_name", "label": "Product name", "default": "Shudhi Herbals Soap" },
+    { "type": "textarea", "id": "body", "label": "Body text", "default": "A handcrafted herbal soap made with time-honored Ayurvedic ingredients to gently cleanse, nourish, and balance your skin and aura. Free from harsh chemicals, full of nature's goodness." },
+
+    { "type": "header", "content": "Illustration" },
+    { "type": "paragraph", "content": "The left column is a drawn soap still-life, not a photograph, so there is nothing to upload here." },
+    { "type": "checkbox", "id": "plate_motion", "label": "Ambient motion", "default": true,
+      "info": "The slow drift of the leaves, particles and light. Separate from \"Animate on scroll\" below, which controls the entrance only." },
+    { "type": "checkbox", "id": "plate_cursor", "label": "Follow cursor", "default": true,
+      "info": "Desktop pointers only. Ignored on touch devices and for visitors who have asked for reduced motion." },
+
+    { "type": "header", "content": "Seal" },
+    { "type": "text", "id": "seal_number", "label": "Seal number", "default": "4",
+      "info": "Leave empty to hide the seal entirely." },
+    { "type": "text", "id": "seal_top", "label": "Seal text — top arc", "default": "Inspired by" },
+    { "type": "text", "id": "seal_bottom", "label": "Seal text — bottom arc", "default": "Generations of herbal wisdom",
+      "info": "Roughly 28 characters fit on each arc at this size — longer runs off the end of the semicircle." },
+
+    { "type": "header", "content": "Buttons" },
+    { "type": "paragraph", "content": "Each button needs its label and its link set together — neither renders on its own." },
+    { "type": "text", "id": "shop_label", "label": "Primary button label", "default": "Shop Now" },
+    { "type": "url", "id": "shop_link", "label": "Primary button link" },
+    { "type": "text", "id": "learn_label", "label": "Secondary link label", "default": "Learn More" },
+    { "type": "url", "id": "learn_link", "label": "Secondary link URL" },
+
+    { "type": "header", "content": "Appearance" },
+    { "type": "checkbox", "id": "animate", "label": "Animate on scroll", "default": true },
+    { "type": "color", "id": "bg", "label": "Background", "default": "#f6ede1",
+      "info": "Keep it light — the heading, body, seal and divider colours are tuned for a light surface, and the illustration's warm ivory is tuned against this value." }
+  ],
+  "blocks": [
+    { "type": "feature", "name": "Feature", "settings": [
+      { "type": "select", "id": "icon", "label": "Icon", "default": "leaf", "options": [
+        { "value": "leaf", "label": "Leaf" }, { "value": "lotus", "label": "Lotus" },
+        { "value": "drop", "label": "Drop" }, { "value": "plant", "label": "Plant" },
+        { "value": "sparkle", "label": "Sparkle" }, { "value": "heart", "label": "Heart" },
+        { "value": "hand", "label": "Hand" }, { "value": "mortar", "label": "Mortar" } ] },
+      { "type": "text", "id": "title", "label": "Title", "default": "Cleanses Deeply" },
+      { "type": "textarea", "id": "text", "label": "Description", "default": "Removes impurities without stripping natural moisture." }
+    ] }
+  ],
+  "max_blocks": 6,
+  "presets": [ { "name": "SH · Signature Product", "blocks": [
+    { "type": "feature", "settings": { "icon": "leaf",    "title": "Cleanses Deeply",  "text": "Removes impurities without stripping natural moisture." } },
+    { "type": "feature", "settings": { "icon": "sparkle", "title": "Gentle & Safe",    "text": "Suitable for all skin types, including sensitive skin." } },
+    { "type": "feature", "settings": { "icon": "drop",    "title": "Nourishes Skin",   "text": "Herbal ingredients restore and maintain skin health." } },
+    { "type": "feature", "settings": { "icon": "mortar",  "title": "Ayurvedic Care",   "text": "Ancient herbs known for their therapeutic benefits." } },
+    { "type": "feature", "settings": { "icon": "lotus",   "title": "Balances Aura",    "text": "Purifies your energy and uplifts your mood." } },
+    { "type": "feature", "settings": { "icon": "heart",   "title": "Mindful Ritual",   "text": "Transforms everyday showers into moments of self-care." } }
+  ] } ]
+}
+{% endschema %}

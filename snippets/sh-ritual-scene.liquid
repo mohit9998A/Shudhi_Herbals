@@ -1,0 +1,439 @@
+{%- comment -%}
+  SHUDHI — Ritual Scene
+
+  A drawn water-and-light layer registered on top of assets/Its a ritual.webp.
+  Rendered by sections/sh-ritual-benefits.liquid. Behaviour lives in
+  assets/sh-ritual-scene.js; the loops and states are CSS, in shudhi-home.css §26.
+
+  Parameters
+    uid      required. Pass section.id. Namespaces every gradient id.
+    cutout   optional image. Drawn INSIDE the registered svg, on the bar's own
+             photo coordinates, so it needs no positioning of its own.
+    splash   the soap-hover burst
+    motes    integer 0-24, the HTML particle count
+    states   the four per-card scene highlights
+    cursor   emit the torch element
+
+  ---------------------------------------------------------------------------
+  SIX THINGS ARE LOAD-BEARING
+  ---------------------------------------------------------------------------
+
+  1. REGISTRATION IS BY CONSTRUCTION, NOT BY MEASUREMENT.
+
+     object-fit:cover with the default object-position:50% 50%, and
+     preserveAspectRatio="xMidYMid slice", are THE SAME ALGORITHM: scale by
+     max(boxW/intrinsicW, boxH/intrinsicH), then centre on both axes.
+
+     So an svg carrying viewBox="0 0 1536 1024" + xMidYMid slice, positioned
+     with box rules identical to .sh-ritual__bg, puts one SVG user unit on one
+     photo pixel at every viewport and every aspect ratio. Drift is not
+     minimised here, it is impossible. Every coordinate below is a pixel in
+     that photograph and can be read straight off it.
+
+     1536x1024 is the file's DECODED size, read from its VP8 header. The <img>
+     in the section used to declare 2000x1200, which is geometrically inert
+     (CSS fully determines the box) but is a trap: authoring from those numbers
+     lands 30% wrong on x. They are corrected in the section.
+
+     Three things this depends on, all of which must hold:
+       - object-position stays at its 50% 50% default. Nothing sets it. If a
+         focal point is ever wanted, the img's object-position and this
+         preserveAspectRatio alignment keyword must move together — they are
+         one knob written twice.
+       - the photo never carries a transform. Overscanning it to allow a
+         parallax would make cover recompute against the enlarged box and shift
+         it under this overlay by exactly the overscan.
+       - the scene renders only on the default-asset branch. A merchant image
+         of unknown proportions makes every coordinate below wrong, so the
+         section gates this render on s.bg_image == blank.
+
+  2. THE CROP CONTRACT. slice COVERS the box, so part of the photo is always
+     cut away. For a box of ratio R = W/H:
+
+         R >= 1.5  ->  visible band is y in 512 +/- 768/R, full x
+         R <  1.5  ->  visible band is x in 768 +/- 512R, full y
+
+     The worst realistic desktop case is the widest viewport with the shortest
+     section: 1920 x ~660 gives R = 2.91 -> y in [248, 776].
+
+         EVERY COORDINATE HERE SATISFIES y IN [250, 775].
+         ANYTHING THAT MUST ALWAYS BE VISIBLE SATISFIES y IN [310, 715].
+
+     This is why the photo's own sun bloom (y 60), pond ripple epicentre
+     (y 778) and lotus (y 840) are not referenced by anything below: all three
+     are cropped away at 1920, and the lotus is present at 1440 and gone at
+     1920, which is the worst kind of bug to ship. The rings at (776, 560)
+     expand from the bar's contact point instead — being NEW disturbances they
+     need no pixel-exact agreement with the photo's static ripples, so the one
+     place registration precision would have been hardest is designed out.
+
+     §26 sets display:none below 990px, matching where the connectors already
+     go, so the mobile x-crop (x in [631, 905] at 375x1400) never applies.
+
+  3. TWO SVGS, ONE ON EACH SIDE OF THE SCRIM. .sh-ritual::after darkens the
+     photo. Art belonging to the scene must be darkened with it; art between
+     the viewer and the scene must not. So __scene sits at z1 under the scrim
+     and __air at z3 above it. §26 renumbers the scrim to z2 and .sh-wrap to
+     z4 to make room — without that, ::after is the last generated child of
+     .sh-ritual and paints over any equal-index sibling.
+
+  4. ONE TRANSFORM JOB PER ELEMENT.
+       .sh-ritual__stage    translateY ..... the entrance lift
+       [data-ritual-depth]  translate3d .... cursor parallax, written by JS
+       .sh-ritual__layer    opacity ........ the staggered fade
+       the leaf elements    the ambient loop
+     Putting any two on one element silently drops one.
+
+  5. NO <filter>, NO mix-blend-mode. Both cost a CPU raster per frame and
+     defeat layer flattening. Every soft edge here is a multi-stop alpha ramp
+     inside a gradient. This is the same rule snippets/sh-soap-plate.liquid
+     states, and the cursor torch in §26 is the effect most constrained by it.
+
+  6. IDS ARE NAMESPACED AND EVERY url(#..) LIVES HERE. Two sections on one page
+     would otherwise share one set of gradient ids, and the second would paint
+     with the first's fills. Nothing in the stylesheet may reference these.
+
+  Element budget: scene ~24 nodes, air ~31, plus {{ motes }} HTML motes.
+  Against snippets/sh-soap-plate.liquid's ~118 for a much smaller box.
+{%- endcomment -%}
+
+{%- assign u = uid -%}
+{%- assign mote_count = motes | default: 16 -%}
+
+{%- comment -%}
+  ---- IN-SCENE LAYER (z1, under the scrim) --------------------------------
+  Depth order back to front, and the nth-child index of each .sh-ritual__depth
+  is what §26's entrance stagger keys off — reordering these reorders the
+  entrance.
+{%- endcomment -%}
+<svg class="sh-ritual__scene" viewBox="0 0 1536 1024" preserveAspectRatio="xMidYMid slice"
+     aria-hidden="true" focusable="false">
+  <defs>
+    {%- comment -%}
+      Four stops, not two. A two-stop ramp leaves a visible edge where it meets
+      the photo because the falloff is linear in alpha; the extra stops put the
+      knee where the eye looks for it. This is what replaces feGaussianBlur.
+    {%- endcomment -%}
+    <radialGradient id="sh-ritual-{{ u }}-bloom">
+      <stop offset="0"    stop-color="#fff3d8" stop-opacity=".20"/>
+      <stop offset=".38"  stop-color="#ffeccb" stop-opacity=".11"/>
+      <stop offset=".70"  stop-color="#f6e3bd" stop-opacity=".035"/>
+      <stop offset="1"    stop-color="#f6e3bd" stop-opacity="0"/>
+    </radialGradient>
+
+    <radialGradient id="sh-ritual-{{ u }}-bead">
+      <stop offset="0"   stop-color="#ffffff" stop-opacity=".85"/>
+      <stop offset=".55" stop-color="#e6f3ee" stop-opacity=".42"/>
+      <stop offset="1"   stop-color="#cfe6dc" stop-opacity="0"/>
+    </radialGradient>
+
+    {%- comment -%}
+      The contact shadow is the only dark mark in the scene. It is what sells
+      the bar as resting ON the water rather than pasted over it, and it is
+      also the element that carries the entrance's "soap settles" beat — the
+      bar itself is raster and cannot move, so what moves is its shadow.
+    {%- endcomment -%}
+    <radialGradient id="sh-ritual-{{ u }}-contact">
+      <stop offset="0"   stop-color="#0b1206" stop-opacity=".46"/>
+      <stop offset=".62" stop-color="#0b1206" stop-opacity=".18"/>
+      <stop offset="1"   stop-color="#0b1206" stop-opacity="0"/>
+    </radialGradient>
+
+    <radialGradient id="sh-ritual-{{ u }}-bounce">
+      <stop offset="0"   stop-color="#ffe9bd" stop-opacity=".30"/>
+      <stop offset=".70" stop-color="#f0d7a4" stop-opacity=".08"/>
+      <stop offset="1"   stop-color="#f0d7a4" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <g class="sh-ritual__stage">
+
+    {%- comment -%} 1 — caustic bloom. y 290-710, soft-edged so the band edge
+        never resolves into a boundary. The atmosphere layer: lowest depth,
+        because atmosphere does not slide. {%- endcomment -%}
+    <g class="sh-ritual__depth" data-ritual-depth="0.12">
+      {%- comment -%}
+        --e is this layer's entrance delay, and it is set HERE rather than
+        derived from :nth-child in §26. The air layer below renders its groups
+        conditionally on the splash and states settings, so a positional
+        selector would re-time the whole sequence the moment a merchant
+        switched one of them off. An explicit value cannot drift.
+      {%- endcomment -%}
+      <g class="sh-ritual__layer" style="--e:0s">
+        <ellipse class="sh-ritual__bloom" cx="776" cy="500" rx="420" ry="210"
+                 fill="url(#sh-ritual-{{ u }}-bloom)"/>
+      </g>
+    </g>
+
+    {%- comment -%} 2 — the splash arc's inner rim. Traces the water already in
+        the photograph, clipped to y 310-690 so nothing reaches the crop edge.
+        A highlight, not an outline: it brightens what is there rather than
+        drawing a second arc beside it. {%- endcomment -%}
+    <g class="sh-ritual__depth" data-ritual-depth="0.35">
+      <g class="sh-ritual__layer" style="--e:.12s">
+        <path class="sh-ritual__arc"
+              d="M470,330 C452,430 470,548 546,626 C620,700 700,690 776,690
+                 C852,690 932,700 1006,626 C1082,548 1100,430 1082,330"
+              fill="none" stroke="#dff0e8" stroke-opacity=".22" stroke-width="2.5"
+              stroke-linecap="round"/>
+        <path class="sh-ritual__arc sh-ritual__arc--in" style="--d:-8s"
+              d="M524,360 C510,442 528,536 588,598 C648,658 712,650 776,650
+                 C840,650 904,658 964,598 C1024,536 1042,442 1028,360"
+              fill="none" stroke="#ffffff" stroke-opacity=".13" stroke-width="1.6"
+              stroke-linecap="round"/>
+      </g>
+    </g>
+
+    {%- comment -%} 3 — contact shadow, bounce light and the ambient rings.
+        .sh-ritual__rise is the entrance's soap beat: 12px of travel over 900ms
+        under .is-armed, which reads as the bar arriving and coming to rest.
+        Rings span y 505-615, comfortably inside the core band. {%- endcomment -%}
+    <g class="sh-ritual__depth" data-ritual-depth="0.5">
+      <g class="sh-ritual__layer" style="--e:.38s">
+        <g class="sh-ritual__rise">
+          <ellipse cx="778" cy="548" rx="152" ry="27" fill="url(#sh-ritual-{{ u }}-contact)"/>
+          <ellipse cx="778" cy="527" rx="118" ry="17" fill="url(#sh-ritual-{{ u }}-bounce)"/>
+          {%- if cutout != blank -%}
+            {%- comment -%}
+              The optional cut-out, and it goes INSIDE the registered svg rather
+              than beside it as an absolutely positioned <img>. That is the whole
+              trick: x/y/width/height here are the photographed bar's own pixels
+              (599,225 to 952,532), so the cut-out inherits the same crop law as
+              everything else in this file and lands exactly on the bar it is
+              replacing, at every viewport, with no positioning maths.
+
+              It sits inside .sh-ritual__rise so it settles together with the
+              contact shadow underneath it — a bar arriving apart from its own
+              shadow is the one thing that would break the illusion.
+
+              meet, not slice: a cut-out whose proportions differ from the bar's
+              1.15:1 should letterbox inside that rect rather than be cropped by
+              it. Sizing is therefore forgiving; POSITION is not, which is why
+              the info text on this setting says to match the built-in framing.
+            {%- endcomment -%}
+            <image class="sh-ritual__cutout"
+                   href="{{ cutout | image_url: width: 800 }}"
+                   x="599" y="225" width="353" height="307"
+                   preserveAspectRatio="xMidYMid meet"/>
+          {%- endif -%}
+        </g>
+        {%- comment -%} Three rings, one keyframe, three negative delays. The
+            delays are what make them a sequence rather than a chord.
+        {%- endcomment -%}
+        <ellipse class="sh-ritual__ring-amb" style="--d:0s"
+                 cx="776" cy="560" rx="62"  ry="21" fill="none"
+                 stroke="#cfe6dc" stroke-opacity=".26" stroke-width="1.4"/>
+        <ellipse class="sh-ritual__ring-amb" style="--d:-6.3s"
+                 cx="776" cy="560" rx="112" ry="38" fill="none"
+                 stroke="#cfe6dc" stroke-opacity=".18" stroke-width="1.2"/>
+        <ellipse class="sh-ritual__ring-amb" style="--d:-12.6s"
+                 cx="776" cy="560" rx="164" ry="55" fill="none"
+                 stroke="#cfe6dc" stroke-opacity=".12" stroke-width="1"/>
+      </g>
+    </g>
+
+    {%- comment -%} 4 — suspended beads. The photograph's droplets hang in the
+        air around the splash rather than falling, so these bob and pulse
+        instead of dropping. Seeded from the index with prime multipliers, the
+        same deterministic scatter snippets/sh-living-conversation.liquid uses
+        for its dust — stable across renders, so a merchant editing copy never
+        sees the water rearrange itself. {%- endcomment -%}
+    <g class="sh-ritual__depth" data-ritual-depth="0.7">
+      <g class="sh-ritual__layer" style="--e:.26s">
+        {%- for i in (1..9) -%}
+          {%- assign bx = i | times: 137 | modulo: 620 | plus: 462 -%}
+          {%- assign by = i | times: 211 | modulo: 330 | plus: 336 -%}
+          {%- assign br = i | times: 53  | modulo: 3   | plus: 2 -%}
+          {%- assign bd = i | times: 71  | modulo: 13 -%}
+          {%- assign bo = i | times: 31  | modulo: 10 | plus: 10 -%}
+          <circle class="sh-ritual__bead" cx="{{ bx }}" cy="{{ by }}" r="{{ br }}"
+                  fill="url(#sh-ritual-{{ u }}-bead)"
+                  style="--d:-{{ bd }}s; --o:.{{ bo }}" opacity=".{{ bo }}"/>
+        {%- endfor -%}
+      </g>
+    </g>
+
+  </g>
+</svg>
+
+{%- comment -%}
+  ---- VIEWER-SIDE LAYER (z3, above the scrim) -----------------------------
+  Everything here reads at full strength because it is between the viewer and
+  the scene: the nearest beads, the four state glows, and the splash.
+{%- endcomment -%}
+<svg class="sh-ritual__air" viewBox="0 0 1536 1024" preserveAspectRatio="xMidYMid slice"
+     aria-hidden="true" focusable="false">
+  <defs>
+    <radialGradient id="sh-ritual-{{ u }}-drop">
+      <stop offset="0"   stop-color="#ffffff" stop-opacity=".92"/>
+      <stop offset=".5"  stop-color="#eaf6f0" stop-opacity=".5"/>
+      <stop offset="1"   stop-color="#d6ece1" stop-opacity="0"/>
+    </radialGradient>
+
+    {%- if states -%}
+      {%- comment -%} One gradient per ritual state. Tints are chosen from what
+          the photograph already contains at that spot — violet-ivory for the
+          light above the bar, cool green for the waterline, leaf green for the
+          herb side, warm amber for the sunlit side. None of them is a hue the
+          brand palette does not already imply, and none is saturated enough to
+          read as neon. {%- endcomment -%}
+      <radialGradient id="sh-ritual-{{ u }}-glow-aura">
+        <stop offset="0"   stop-color="#e8dcff" stop-opacity=".10"/>
+        <stop offset=".45" stop-color="#efe6f6" stop-opacity=".05"/>
+        <stop offset="1"   stop-color="#efe6f6" stop-opacity="0"/>
+      </radialGradient>
+      <radialGradient id="sh-ritual-{{ u }}-glow-cleanse">
+        <stop offset="0"   stop-color="#cfe6dc" stop-opacity=".12"/>
+        <stop offset=".45" stop-color="#dcefe7" stop-opacity=".055"/>
+        <stop offset="1"   stop-color="#dcefe7" stop-opacity="0"/>
+      </radialGradient>
+      <radialGradient id="sh-ritual-{{ u }}-glow-ayurveda">
+        <stop offset="0"   stop-color="#c8d9a4" stop-opacity=".11"/>
+        <stop offset=".45" stop-color="#d8e5bd" stop-opacity=".05"/>
+        <stop offset="1"   stop-color="#d8e5bd" stop-opacity="0"/>
+      </radialGradient>
+      <radialGradient id="sh-ritual-{{ u }}-glow-intention">
+        <stop offset="0"   stop-color="#f2d9a8" stop-opacity=".11"/>
+        <stop offset=".45" stop-color="#f6e6c6" stop-opacity=".05"/>
+        <stop offset="1"   stop-color="#f6e6c6" stop-opacity="0"/>
+      </radialGradient>
+    {%- endif -%}
+  </defs>
+
+  <g class="sh-ritual__stage">
+
+    {%- if states -%}
+      {%- comment -%} The four glows. All rest at opacity 0 and are raised by
+          §26's :has() rules — no attribute is ever written to the DOM, so
+          there is no state to go stale across a shopify:section:load. All four
+          sit inside the core crop band. {%- endcomment -%}
+      <g class="sh-ritual__depth" data-ritual-depth="0.5">
+        {%- comment -%} cy 405 / ry 145 spans y 260-550, not the y 210-590 a
+            taller halo would want. The bar runs 225-532 and the crop contract
+            cuts everything above 250, so a glow centred on the bar's TOP edge
+            would have its brightest part sliced off on a wide monitor and read
+            as a band across the middle instead of a halo. Crowning the
+            VISIBLE part of the bar is the version that survives the crop.
+        {%- endcomment -%}
+        <ellipse class="sh-ritual__glow sh-ritual__glow--aura"      cx="776" cy="405" rx="300" ry="145" fill="url(#sh-ritual-{{ u }}-glow-aura)"/>
+        <ellipse class="sh-ritual__glow sh-ritual__glow--cleanse"   cx="776" cy="560" rx="340" ry="120" fill="url(#sh-ritual-{{ u }}-glow-cleanse)"/>
+        <ellipse class="sh-ritual__glow sh-ritual__glow--ayurveda"  cx="620" cy="470" rx="250" ry="200" fill="url(#sh-ritual-{{ u }}-glow-ayurveda)"/>
+        <ellipse class="sh-ritual__glow sh-ritual__glow--intention" cx="900" cy="500" rx="250" ry="200" fill="url(#sh-ritual-{{ u }}-glow-intention)"/>
+      </g>
+    {%- endif -%}
+
+    {%- comment -%} Nearest beads — fewer, larger, brighter, faster. {%- endcomment -%}
+    <g class="sh-ritual__depth" data-ritual-depth="0.85">
+      <g class="sh-ritual__layer" style="--e:.3s">
+        {%- for i in (1..6) -%}
+          {%- assign ax = i | times: 181 | modulo: 500 | plus: 520 -%}
+          {%- assign ay = i | times: 97  | modulo: 270 | plus: 364 -%}
+          {%- assign ar = i | times: 41  | modulo: 3   | plus: 3 -%}
+          {%- assign ad = i | times: 59  | modulo: 11 -%}
+          {%- assign ao = i | times: 43  | modulo: 8   | plus: 14 -%}
+          <circle class="sh-ritual__bead sh-ritual__bead--near" cx="{{ ax }}" cy="{{ ay }}" r="{{ ar }}"
+                  fill="url(#sh-ritual-{{ u }}-drop)"
+                  style="--d:-{{ ad }}s; --o:.{{ ao }}" opacity=".{{ ao }}"/>
+        {%- endfor -%}
+      </g>
+    </g>
+
+    {%- if splash -%}
+      <g class="sh-ritual__depth" data-ritual-depth="0.5">
+
+        {%- comment -%} Three expanding rings. transform-box and transform-origin
+            are set together in §26 and must stay that way: without the first, a
+            length origin on an SVG child resolves against a box that differs by
+            engine version, and every ring would scale from the section's
+            top-left corner instead of the bar's contact point. {%- endcomment -%}
+        <ellipse class="sh-ritual__ring" style="--d:0s"    cx="776" cy="560" rx="210" ry="72" fill="none" stroke="#e8f5ee" stroke-opacity=".5" stroke-width="1.6"/>
+        <ellipse class="sh-ritual__ring" style="--d:.18s"  cx="776" cy="560" rx="270" ry="92" fill="none" stroke="#e8f5ee" stroke-opacity=".34" stroke-width="1.3"/>
+        <ellipse class="sh-ritual__ring" style="--d:.36s"  cx="776" cy="560" rx="330" ry="112" fill="none" stroke="#e8f5ee" stroke-opacity=".2" stroke-width="1.1"/>
+
+        {%- comment -%} Sixteen sparks in polar coordinates with NO trigonometry.
+            A static rotate() on the wrapper places the spark; one shared
+            keyframe translates the child along -Y, so "up" becomes radially
+            outward. The wrapper holds the static transform and the circle holds
+            the animated one, which is the one-job-per-element rule applied to
+            the smallest thing in the file.
+
+            137 is the golden angle, so 16 samples spread evenly and never
+            repeat. Restricting them to +/-110deg matches the photograph's water
+            arc being open at the top. Throw is 60-99 units, so every spark
+            lands in y 431-629 — inside the core band. {%- endcomment -%}
+        {%- for i in (1..16) -%}
+          {%- assign sa = i | times: 137 | modulo: 220 | minus: 110 -%}
+          {%- assign sr = i | times: 53  | modulo: 40  | plus: 60 -%}
+          {%- assign sd = i | times: 47  | modulo: 340 -%}
+          {%- assign ss = i | times: 29  | modulo: 5   | plus: 3 -%}
+          <g transform="rotate({{ sa }} 776 530)">
+            <circle class="sh-ritual__spark" cx="776" cy="530" r="{{ ss }}"
+                    fill="url(#sh-ritual-{{ u }}-drop)"
+                    style="--r:{{ sr }}px; --d:{{ sd }}ms"/>
+          </g>
+        {%- endfor -%}
+
+        {%- comment -%} Rim flash along the bar's LOWER front edge. Not the top:
+            the bar spans y 225-532 and y 225-250 is outside the crop band, so a
+            top-edge highlight would be invisible on a wide monitor. {%- endcomment -%}
+        <path class="sh-ritual__rim" d="M612,524 C660,540 892,540 940,524"
+              fill="none" stroke="#fff6de" stroke-opacity="0" stroke-width="2.2"
+              stroke-linecap="round"/>
+
+        {%- comment -%} The hit target, at the bar's exact photo coordinates.
+            Because it lives in the registered svg it tracks the bar at every
+            viewport for free — no rect maths, no resize handler. The svg is
+            pointer-events:none in §26 and this rect is the single exception.
+        {%- endcomment -%}
+        <rect class="sh-ritual__hit" x="599" y="225" width="353" height="307" fill="transparent"/>
+      </g>
+    {%- endif -%}
+
+  </g>
+</svg>
+
+{%- if mote_count > 0 -%}
+  {%- comment -%}
+    ---- MOTES (z3) --------------------------------------------------------
+    HTML, deliberately, not more <circle>s in the svg above. A continuously
+    transforming node inside an svg repaints THAT WHOLE SVG every frame, and
+    these two svgs are full-bleed. As HTML each mote is auto-promoted to its own
+    compositor layer and 16 of them cost effectively nothing.
+
+    Positioned in viewport percentages rather than photo coordinates, and
+    correctly so: these are air between the viewer and the scene, not part of
+    it. y is held to 22-79% so a mote never drifts under the heading or a card.
+    Each carries --o twice over, on the element and in the keyframe, so the
+    pulse is proportional — a mote authored at .12 must not brighten to the same
+    value as one at .23, or the scatter flattens into a row of identical dots.
+  {%- endcomment -%}
+  <div class="sh-ritual__motes" aria-hidden="true">
+    {%- for i in (1..mote_count) -%}
+      {%- assign mx = i | times: 137 | modulo: 92 | plus: 4 -%}
+      {%- assign my = i | times: 53  | modulo: 58 | plus: 22 -%}
+      {%- assign md = i | times: 71  | modulo: 23 -%}
+      {%- assign mo = i | times: 31  | modulo: 12 | plus: 12 -%}
+      {%- assign ms = i | modulo: 3 | plus: 4 -%}
+      <i class="sh-ritual__mote"
+         style="--x:{{ mx }}%; --y:{{ my }}%; --s:{{ ms }}px; --d:-{{ md }}s; --o:.{{ mo }}"></i>
+    {%- endfor -%}
+  </div>
+{%- endif -%}
+
+{%- if cursor -%}
+  {%- comment -%}
+    ---- TORCH (z3) --------------------------------------------------------
+    A FIXED-SIZE element with a FIXED gradient that is only ever translated.
+
+    The obvious implementation writes the pointer position into
+    radial-gradient(.. at var(--x) var(--y) ..) on a full-section element. That
+    repaints roughly a million pixels every frame — the per-frame raster cost
+    this file's rule 5 exists to forbid, arriving through a door rule 5 does not
+    name. This way the gradient is painted once and the layer is moved on the
+    compositor. .sh-ritual is already overflow:hidden, so it clips for free.
+
+    Honest limitation: without mix-blend-mode:screen this is a warm haze rather
+    than additive light. §26 holds its peak alpha at .17 for that reason.
+  {%- endcomment -%}
+  <div class="sh-ritual__torch" aria-hidden="true"></div>
+{%- endif -%}

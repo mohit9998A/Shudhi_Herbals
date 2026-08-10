@@ -1,0 +1,527 @@
+{%- comment -%}
+  SHUDHI — Soap Plate
+
+  The homepage Signature Product band's left column: a handcrafted soap bar under
+  soft upper-left studio light, inside an asymmetric floating botanical ecosystem.
+  Replaces the "Our collection.webp" packshot that used to sit here.
+
+  Called from sections/sh-signature-product.liquid. Styled in shudhi-home.css §25.
+  Animated by assets/sh-soap-plate.js — but only as an enhancement; see (3).
+
+  Parameters
+    uid      REQUIRED. Pass section.id. See (1).
+    animate  emits [data-reveal] so the shared observer drives the entrance
+    motion   false emits [data-plate-still], which §25 uses to stop every loop
+    cursor   false omits every [data-plate-depth], so the JS finds nothing to bind
+
+  ---------------------------------------------------------------------------
+  SEVEN THINGS HERE ARE LOAD-BEARING
+  ---------------------------------------------------------------------------
+
+  1. EVERY id IS NAMESPACED FROM `uid`, and uid is required rather than optional.
+     SVG ids are document-global. This section ships a preset so it can be added
+     twice, and sections/sh-our-story.liquid renders a seal on the same page. Two
+     plates sharing ids would BOTH resolve every url(#…) against the FIRST one's
+     <defs> — and because the art is identical, it would look perfectly correct
+     until someone tuned them differently, at which point one plate would silently
+     change colour. Note the `default` runs BEFORE the append: `'sh-plate-' |
+     append: nil` returns the non-blank string "sh-plate-", so a `default` chained
+     after the append could never fire. Same trap snippets/sh-gen-seal.liquid:47
+     documents.
+
+  2. EVERY url(#…) LIVES IN THIS FILE, never in §25. A stylesheet cannot see
+     section.id, so a gradient referenced from CSS cannot be namespaced, and
+     would reintroduce (1) by the back door. Paint that varies goes in a
+     presentation attribute here; paint that is constant can go in CSS.
+
+  3. THE RESTING STATE IS THE FINISHED STATE. Nothing here starts hidden. The
+     entrance is opted INTO by a class the JS adds (.is-armed), never a
+     pre-state the JS has to clear. The photo this replaces got that backwards —
+     it rested at `clip-path: inset(0 0 100% 0)`, so any failure between parse
+     and the observer firing left a permanently empty column. JS off, a 404 on
+     sh-soap-plate.js, an exception earlier in boot: all of them land here on a
+     complete, visible illustration.
+
+     The sheen obeys this too. It is parked at x -280…-69, entirely clear of the
+     bar, so with no animation running there is no stray bright band sitting on
+     the soap.
+
+  4. FOUR NESTING LEVELS, ONE JOB EACH — because an element cannot hold two
+     transforms and the second one silently wins:
+
+         .sh-plate__stage    translateY .......... entrance lift
+         .sh-plate__depth    translate3d ......... cursor parallax (JS writes this)
+         .sh-plate__layer    opacity ............. staggered reveal
+         .sh-plate__leaf-*   rotate/translate .... the ambient loop
+
+     Where a static placement transform is also needed, it goes on a WRAPPER
+     around the animated element, never on it. The neem is the worked example.
+
+  5. NO <filter>. Not one. feGaussianBlur and feDropShadow force a per-frame CPU
+     raster, and this subtree animates continuously — six loops, always running
+     while on screen. Every soft edge here is a multi-stop alpha ramp inside a
+     gradient instead: same look, composited, free. Adding a filter or a
+     mix-blend-mode anywhere inside also defeats the single flattened layer the
+     ~118 elements currently collapse into. Do not add one.
+
+  6. THE MOBILE CROP CONTRACT: keep every coordinate inside y ∈ [130, 820].
+     preserveAspectRatio is `slice`, so the box is COVERED, not fitted. The worst
+     case is the square crop at ≤989px: a 760×950 viewBox covering a square loses
+     (950 − 760) / 2 = 95 units off the top AND bottom, leaving y ∈ [95, 855]
+     visible. The band above is that, plus 35 units of margin. A coordinate
+     outside it vanishes on phones and on nothing else, which is exactly the kind
+     of bug that ships. Horizontal is never cropped — the viewBox is the narrower
+     ratio — so x is unconstrained.
+
+  7. THE SEAL'S CORNER IS RESERVED. §25 pins .sh-gen at bottom:10%/left:1.5%,
+     landing on viewBox x 11–114, y 752–855. Nothing in the artwork may enter it.
+     The tulsi is the only cluster that comes close and is held at x ≥ 208.
+
+  ---------------------------------------------------------------------------
+  LAYOUT — measured, not eyeballed. Numbers are viewBox units.
+  ---------------------------------------------------------------------------
+    soap bar     x 154–596, y 430–604 (58% of frame width) — the hero
+    neem         x 546–652, y 311–466, tucked BEHIND the bar's top-right
+    herb sprig   x 152–236, y 268–436 — upper left, faintest thing in the frame
+    bud          x 314–354, y 240–366 — off-centre left, breaks the top void
+    droplet      x 646–674, y 486–528 — right edge, below the neem
+    tulsi        x 208–292, y 615–806 — FOREGROUND, crosses the bar's lower left
+    low herb     x 556–668, y 668–760 — foreground counterweight, bottom right
+    seal (HTML)  x  11–114, y 752–855 — see (7)
+
+  The bar's centre sits at 49% width / 54% height. Deliberately not the middle:
+  the copy column to the right is top-weighted, so the illustration's mass sits
+  low and left of centre to balance it across the gutter rather than mirror it.
+
+  Element budget: ~118 elements including <defs>. That is roughly 4× the largest
+  SVG this theme otherwise ships. The nine neem leaflets are <use> references to
+  one <path> for exactly that reason — do not inline them. If this ever needs to
+  pass 200, it wants to be a raster instead.
+
+  Light: a single key from the upper left, everywhere, no exceptions. The top face
+  is brightest, the front face mid, the right end darkest because it is turned
+  away. The bevel highlight runs the back and left edges only. Background
+  botanicals are painted lighter and flatter than foreground ones — aerial
+  perspective, and it is what separates the depth layers when parallax is off.
+{%- endcomment -%}
+
+{%- assign plate_uid = uid | default: 'plate' -%}
+{%- assign gid = 'sh-plate-' | append: plate_uid -%}
+
+{%- comment -%} data-plate-reveal, NOT data-reveal, and the difference is the
+    whole of (3). [data-reveal] would hand the entrance to the shared observer in
+    shudhi-home.js — which works, but couples the plate to a SECOND script: with
+    this file's JS present and shudhi-home.js failing, the plate would arm itself
+    and then wait forever for an .is-in that never arrives, i.e. an invisible
+    column again, by a new route. Owning the entrance end to end means exactly one
+    script can fail, and if it does, nothing was ever hidden. {%- endcomment -%}
+<div class="sh-plate"
+     {% if animate %}data-plate-reveal{% endif %}{% unless motion %} data-plate-still{% endunless %}>
+
+  <svg class="sh-plate__svg"
+       viewBox="0 0 760 950"
+       preserveAspectRatio="xMidYMid slice"
+       aria-hidden="true" focusable="false">
+
+    <defs>
+      {%- comment -%} ---- Soap material ---------------------------------- {%- endcomment -%}
+      {%- comment -%} The top face carries the key. Three stops, not two: the
+          middle one is what stops a 460-unit-wide face reading as flat vinyl. {%- endcomment -%}
+      <linearGradient id="{{ gid }}-top" x1="0.12" y1="0" x2="0.88" y2="1">
+        <stop offset="0"    stop-color="#f4e9d3"/>
+        <stop offset="0.46" stop-color="#e0cca6"/>
+        <stop offset="1"    stop-color="#c8ac80"/>
+      </linearGradient>
+
+      <linearGradient id="{{ gid }}-front" x1="0.1" y1="0" x2="0.7" y2="1">
+        <stop offset="0"   stop-color="#cdb289"/>
+        <stop offset="1"   stop-color="#a08657"/>
+      </linearGradient>
+
+      {%- comment -%} Turned furthest from the key, so it is the darkest plane in
+          the whole illustration. Everything else is lighter than this. {%- endcomment -%}
+      <linearGradient id="{{ gid }}-end" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0"   stop-color="#a68a58"/>
+        <stop offset="1"   stop-color="#896f46"/>
+      </linearGradient>
+
+      {%- comment -%} Ambient occlusion — the dark crease where the bar meets its
+          own shadow. Tight and weak. This is the one that sells contact; the
+          broad shadow below only sells distance. {%- endcomment -%}
+      <radialGradient id="{{ gid }}-ao" cx="0.5" cy="0.5" r="0.5">
+        <stop offset="0"    stop-color="#6b5836" stop-opacity="0.32"/>
+        <stop offset="0.55" stop-color="#6b5836" stop-opacity="0.15"/>
+        <stop offset="1"    stop-color="#6b5836" stop-opacity="0"/>
+      </radialGradient>
+
+      {%- comment -%} Four stops, because a two-stop radial has a visible hard
+          shoulder at this size and that shoulder is exactly what a drop-shadow
+          filter would have been hired to hide. {%- endcomment -%}
+      <radialGradient id="{{ gid }}-shadow" cx="0.5" cy="0.5" r="0.5">
+        <stop offset="0"    stop-color="#7a5d2e" stop-opacity="0.24"/>
+        <stop offset="0.40" stop-color="#7a5d2e" stop-opacity="0.14"/>
+        <stop offset="0.72" stop-color="#7a5d2e" stop-opacity="0.05"/>
+        <stop offset="1"    stop-color="#7a5d2e" stop-opacity="0"/>
+      </radialGradient>
+
+      {%- comment -%} The atmosphere behind everything. Its outer stop is the
+          section's own cream AT OPACITY 0, so the glow dissolves into whatever
+          the merchant sets `bg` to instead of floating as a lighter card on top
+          of it. That one value is why the schema needs no colour setting. {%- endcomment -%}
+      <radialGradient id="{{ gid }}-glow" cx="0.5" cy="0.5" r="0.5">
+        <stop offset="0"    stop-color="#fdf7ec" stop-opacity="0.9"/>
+        <stop offset="0.52" stop-color="#f5ead6" stop-opacity="0.45"/>
+        <stop offset="1"    stop-color="#f6ede1" stop-opacity="0"/>
+      </radialGradient>
+
+      {%- comment -%} Transparent at BOTH ends. A sheen with an opaque edge reads
+          as a moving rectangle, not as light. {%- endcomment -%}
+      <linearGradient id="{{ gid }}-sheen" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0"    stop-color="#ffffff" stop-opacity="0"/>
+        <stop offset="0.45" stop-color="#fff8e8" stop-opacity="0.34"/>
+        <stop offset="0.55" stop-color="#fff8e8" stop-opacity="0.34"/>
+        <stop offset="1"    stop-color="#ffffff" stop-opacity="0"/>
+      </linearGradient>
+
+      {%- comment -%} ---- Botanical material ------------------------------ {%- endcomment -%}
+      {%- comment -%} Two greens, and the difference between them IS the depth
+          cue. -leaf-b is lighter, warmer and lower-contrast: haze. It is what
+          keeps the neem sitting behind the soap when parallax is off, on touch,
+          and under reduced motion — i.e. most of the time. {%- endcomment -%}
+      <linearGradient id="{{ gid }}-leaf-a" x1="0" y1="0" x2="0.85" y2="1">
+        <stop offset="0" stop-color="#7c8d5e"/>
+        <stop offset="1" stop-color="#4d6036"/>
+      </linearGradient>
+
+      <linearGradient id="{{ gid }}-leaf-b" x1="0" y1="0" x2="0.85" y2="1">
+        <stop offset="0" stop-color="#a9b48d"/>
+        <stop offset="1" stop-color="#8a9a6b"/>
+      </linearGradient>
+
+      <radialGradient id="{{ gid }}-drop" cx="0.36" cy="0.30" r="0.72">
+        <stop offset="0"    stop-color="#ffffff" stop-opacity="0.92"/>
+        <stop offset="0.42" stop-color="#eef3e6" stop-opacity="0.46"/>
+        <stop offset="1"    stop-color="#b9c39c" stop-opacity="0.30"/>
+      </radialGradient>
+
+      {%- comment -%} ---- Reusable geometry -------------------------------- {%- endcomment -%}
+      {%- comment -%} One neem leaflet, drawn once, used nine times. This single
+          decision is most of the element budget above. {%- endcomment -%}
+      <path id="{{ gid }}-leaflet" d="M0 0 C8 -4.4 21 -3.6 30 0 C21 3.6 8 4.4 0 0 Z"/>
+
+      {%- comment -%} One tulsi leaf: blade plus midrib. A <g>, not a <path>,
+          because the midrib is a stroke and the blade is a fill. {%- endcomment -%}
+      <g id="{{ gid }}-tulsi">
+        <path class="sh-plate__blade" d="M0 0 C11 -19 35 -27 56 -21 C46 3 21 11 0 0 Z"/>
+        <path class="sh-plate__midrib" d="M2 -1 C18 -7 38 -13 54 -20"/>
+      </g>
+
+      {%- comment -%} Clips the sheen to the top face. Byte-identical to the top
+          face path below — if one is edited the other must be too, or the light
+          runs off the edge of the solid. {%- endcomment -%}
+      <clipPath id="{{ gid }}-topclip">
+        <path d="M188 540 C300 534 460 536 596 540 C585 505 573 470 562 436
+                 C450 430 290 431 154 436 C165 470 177 505 188 540 Z"/>
+      </clipPath>
+    </defs>
+
+    <g class="sh-plate__stage">
+
+      {%- comment -%} ================= L0 · ground ========================= {%- endcomment -%}
+      {%- comment -%} Depth 0.1: it is the atmosphere, and atmosphere does not
+          slide. Anything above ~0.15 here reads as the background peeling. {%- endcomment -%}
+      <g class="sh-plate__depth"{% if cursor %} data-plate-depth="0.1"{% endif %}>
+        <g class="sh-plate__layer">
+          <ellipse cx="378" cy="512" rx="372" ry="312" fill="url(#{{ gid }}-glow)"/>
+          {%- comment -%} Unrotated, unlike the bar above it. A shadow lies on the
+              ground plane; tilting it with the object is the classic tell. Sits
+              just under the bar's lowest edge at y≈604. {%- endcomment -%}
+          <ellipse cx="365" cy="638" rx="288" ry="40" fill="url(#{{ gid }}-shadow)"/>
+          <ellipse cx="368" cy="626" rx="212" ry="22" fill="url(#{{ gid }}-ao)"/>
+        </g>
+      </g>
+
+      {%- comment -%} ================= L1 · botanicals behind ============== {%- endcomment -%}
+      <g class="sh-plate__depth"{% if cursor %} data-plate-depth="0.25"{% endif %}>
+        <g class="sh-plate__layer">
+
+          {%- comment -%} A small herb sprig, upper left. The quietest thing in the
+              frame and deliberately so — it exists to stop the left edge going
+              dead above the tulsi, nothing more.
+
+              Leaflets, not bare ellipses. Two lone ellipses on a line read as
+              pins or a dandelion clock, not foliage: a leaf needs a visible
+              attachment angle to the stem before the eye files it as a plant. {%- endcomment -%}
+          <g class="sh-plate__sway" style="--sh-plate-o:158px 436px; --sh-plate-d:-11s;">
+            <path class="sh-plate__stem sh-plate__stem--far"
+                  d="M158 436 C176 386 198 334 224 288"/>
+            <g fill="url(#{{ gid }}-leaf-b)">
+              <use href="#{{ gid }}-leaflet" transform="translate(174 392) rotate(-118) scale(0.8)"/>
+              <use href="#{{ gid }}-leaflet" transform="translate(174 392) rotate(-16)  scale(0.72)"/>
+              <use href="#{{ gid }}-leaflet" transform="translate(196 344) rotate(-116) scale(0.7)"/>
+              <use href="#{{ gid }}-leaflet" transform="translate(196 344) rotate(-18)  scale(0.62)"/>
+              <use href="#{{ gid }}-leaflet" transform="translate(224 288) rotate(-62)  scale(0.6)"/>
+            </g>
+          </g>
+
+          {%- comment -%} Neem sprig, tucked behind the bar's top-right corner.
+              Pinnate: a rachis with leaflets in opposite pairs, scaling down
+              toward the tip, plus one terminal leaflet on the axis. The rachis
+              runs up-right at about -56°, so leaflets sit at roughly -106° and
+              -6° — near-vertical on the left, near-horizontal on the right. That
+              asymmetry is real neem, not a mistake.
+
+              The placement translate is on a WRAPPER, not on the animated group —
+              rule (4). Putting it on .sh-plate__leaf-b would work until the
+              keyframe in §25 overwrote it and the whole sprig jumped back to its
+              authored coordinates. {%- endcomment -%}
+          <g transform="translate(-10 150)">
+            <g class="sh-plate__leaf-b" style="--sh-plate-o:556px 306px; --sh-plate-d:-4s;">
+              <path class="sh-plate__stem sh-plate__stem--far"
+                    d="M556 306 C588 268 618 218 646 170"/>
+              <g fill="url(#{{ gid }}-leaf-b)">
+                <use href="#{{ gid }}-leaflet" transform="translate(570 288) rotate(-110) scale(0.95)"/>
+                <use href="#{{ gid }}-leaflet" transform="translate(570 288) rotate(-3)   scale(0.95)"/>
+                <use href="#{{ gid }}-leaflet" transform="translate(584 269) rotate(-108) scale(0.89)"/>
+                <use href="#{{ gid }}-leaflet" transform="translate(584 269) rotate(-5)   scale(0.89)"/>
+                <use href="#{{ gid }}-leaflet" transform="translate(598 249) rotate(-106) scale(0.83)"/>
+                <use href="#{{ gid }}-leaflet" transform="translate(598 249) rotate(-7)   scale(0.83)"/>
+                <use href="#{{ gid }}-leaflet" transform="translate(611 228) rotate(-104) scale(0.77)"/>
+                <use href="#{{ gid }}-leaflet" transform="translate(611 228) rotate(-9)   scale(0.77)"/>
+                <use href="#{{ gid }}-leaflet" transform="translate(646 170) rotate(-57)  scale(0.72)"/>
+              </g>
+            </g>
+          </g>
+
+        </g>
+      </g>
+
+      {%- comment -%} ================= L2 · the soap ======================= {%- endcomment -%}
+      {%- comment -%} Depth 0.5 → ~4px of cursor travel, which is the 3–5px the
+          brief asks for. The hero object moving least is the point: it is what
+          the parallax is measured against. {%- endcomment -%}
+      <g class="sh-plate__depth"{% if cursor %} data-plate-depth="0.5"{% endif %}>
+        <g class="sh-plate__layer">
+          <g class="sh-plate__float">
+            {%- comment -%} One rotation for the whole solid, about the bar's own
+                centre (375,517). An oblique projection with depth vector
+                (-34,-104): back is up and slightly LEFT, so the RIGHT end is the
+                one we see. Faces are painted far-to-near — end, front, top — so
+                seams never need a stroke to hide a gap.
+
+                The lean is 18° off vertical, not the 32° this started at. At 32°
+                the top face overhung the front face by 52 units and the
+                silhouette turned a hard corner at the front-left, which read as a
+                notch in the solid — the bar looked like a doorstop. Depth also
+                went from 82 units to 104: at 442 units for a 90mm bar the scale
+                is 4.9 u/mm, so a 60mm depth seen from ~35° above wants roughly
+                this, and the shallower version read as a tile. {%- endcomment -%}
+            <g transform="rotate(-6.5 375 517)">
+
+              <path fill="url(#{{ gid }}-end)"
+                    d="M596 540 C585 505 573 470 562 436 L562 492
+                       C570 522 582 552 596 578 Z"/>
+
+              <path fill="url(#{{ gid }}-front)"
+                    d="M188 540 C300 534 460 536 596 540 L596 578
+                       C596 590 587 598 573 599 C450 604 300 603 208 599
+                       C194 598 186 590 186 578 Z"/>
+
+              <path fill="url(#{{ gid }}-top)"
+                    d="M188 540 C300 534 460 536 596 540 C585 505 573 470 562 436
+                       C450 430 290 431 154 436 C165 470 177 505 188 540 Z"/>
+
+              {%- comment -%} Bevel. Back and left edges ONLY — they are the two
+                  turned toward the key. Running it the whole way round is what
+                  makes a soap bar look like a sticker. {%- endcomment -%}
+              <path class="sh-plate__bevel"
+                    d="M188 540 C177 505 165 470 154 436 C290 431 450 430 562 436"/>
+
+              {%- comment -%} The pressed wordmark. Read the matrix rather than
+                  guessing at it: (1.42, 0) keeps x along the horizontal front
+                  edge at the bar's scale, and (0.628, 0.9585) lays y down the
+                  receding depth axis with its foreshortening already baked in.
+
+                  Debossed, not embossed: soap branding is pressed IN, so with a
+                  key from the upper left the shadow falls on the near-upper wall
+                  and the highlight on the far-lower one. Inverting that pair is
+                  the difference between "stamped" and "stuck on".
+
+                  textLength is identical on all three copies and pinned with
+                  lengthAdjust, so Cormorant arriving late re-cuts the glyphs
+                  without ever letting the mark grow past the bar. Measured: the
+                  mark occupies about 65% of the top face's width. {%- endcomment -%}
+              <g class="sh-plate__mark">
+                <text transform="matrix(1.42 0 0.311 0.951 373.6 486.4)" text-anchor="middle"
+                      textLength="188" lengthAdjust="spacingAndGlyphs"
+                      fill="#8a6a2c" fill-opacity="0.50">SHUDHI</text>
+                <text transform="matrix(1.42 0 0.311 0.951 376.4 489.8)" text-anchor="middle"
+                      textLength="188" lengthAdjust="spacingAndGlyphs"
+                      fill="#f7ecd5" fill-opacity="0.55">SHUDHI</text>
+                <text transform="matrix(1.42 0 0.311 0.951 375 488)" text-anchor="middle"
+                      textLength="188" lengthAdjust="spacingAndGlyphs"
+                      fill="#b09468" fill-opacity="0.75">SHUDHI</text>
+              </g>
+
+              {%- comment -%} A single bead left on the face. One, not a scatter:
+                  it says the bar has been used, which is the whole difference
+                  between a still life and a packshot.
+
+                  Set back at x 544–568, in the empty quarter between the mark's
+                  right edge (513) and the face's (596). It was at 483 and
+                  overlapped the mark by 30 units, which made it read as a full
+                  stop after "SHUDHI" rather than as water. {%- endcomment -%}
+              <g class="sh-plate__bead">
+                <ellipse cx="556" cy="456" rx="12.1" ry="8.5"
+                         fill="url(#{{ gid }}-drop)" transform="rotate(-18 556 456)"/>
+                <ellipse cx="552.6" cy="452.8" rx="3.6" ry="2.1"
+                         fill="#ffffff" fill-opacity="0.75" transform="rotate(-18 553 453)"/>
+              </g>
+
+              {%- comment -%} A parallelogram, not a skewed <rect>. skewX shears
+                  as a function of y, so a rect this far down the viewBox was
+                  translated hundreds of units sideways as a side effect and blew
+                  the soap group's bbox out to 1090 units — which is the box a
+                  promoted compositor layer gets sized to. The lean is baked into
+                  the path instead: 210 units of height against 34/104 of run,
+                  matching the depth vector.
+
+                  The geometry sits ON the face (x 154–343), not parked off to the
+                  left, so getBBox stays inside the bar and the promoted layer
+                  stays small. Authoring it off-frame instead cost 270 units of
+                  empty bbox for nothing.
+
+                  It is invisible at rest because §25 gives it opacity:0, and the
+                  keyframe ramps opacity as well as position. That satisfies (3)
+                  without the off-frame parking: with no animation running — still
+                  mode, reduced motion, JS absent — there is no bright band on the
+                  soap, because there is no opacity. Nothing is hidden that a
+                  reader needed; the sheen is the one purely decorative mark in
+                  the piece. {%- endcomment -%}
+              <g clip-path="url(#{{ gid }}-topclip)">
+                <path class="sh-plate__sheen" fill="url(#{{ gid }}-sheen)"
+                      d="M154 410 L274 410 L343 620 L223 620 Z"/>
+              </g>
+
+            </g>
+          </g>
+        </g>
+      </g>
+
+      {%- comment -%} ================= L3 · mid ============================ {%- endcomment -%}
+      <g class="sh-plate__depth"{% if cursor %} data-plate-depth="0.75"{% endif %}>
+        <g class="sh-plate__layer">
+
+          {%- comment -%} Bud, off-centre left. Sits in what would otherwise be
+              the frame's one genuinely dead region — the void above the bar and
+              between the bare stem and the neem. Off-centre because dead centre
+              would split the top of the composition in half. {%- endcomment -%}
+          <g class="sh-plate__leaf-b" style="--sh-plate-o:330px 366px; --sh-plate-d:-9s;">
+            <path class="sh-plate__stem" d="M330 366 C333 344 336 322 334 300"/>
+            {%- comment -%} A closed bud: two overlapping sepals with a lighter
+                one in front, then the gold tip. Drawn larger than a real one at
+                this scale — at the previous size it was a 30-unit sliver reading
+                as a stray mark rather than a form. {%- endcomment -%}
+            <path fill="url(#{{ gid }}-leaf-a)"
+                  d="M334 300 C322 286 322 264 334 248 C346 264 346 286 334 300 Z"/>
+            <path fill="url(#{{ gid }}-leaf-b)" fill-opacity="0.9"
+                  d="M334 300 C328 288 328 268 334 254 C340 268 340 288 334 300 Z"/>
+            <ellipse cx="334" cy="245" rx="4" ry="4.6" fill="#c9a86a" fill-opacity="0.78"/>
+            <use href="#{{ gid }}-leaflet" fill="url(#{{ gid }}-leaf-a)"
+                 transform="translate(332 330) rotate(-152) scale(0.66)"/>
+            <use href="#{{ gid }}-leaflet" fill="url(#{{ gid }}-leaf-a)"
+                 transform="translate(333 344) rotate(-24) scale(0.6)"/>
+          </g>
+
+          {%- comment -%} A free droplet catching the key, mid-air, right of the
+              bar. Balances the bead ON the bar without repeating it, and holds
+              the right edge between the neem above and the herb below. {%- endcomment -%}
+          <g class="sh-plate__drift" style="--sh-plate-d:-14s;">
+            <path fill="url(#{{ gid }}-drop)"
+                  d="M660 486 C669 498 674 507 674 514 C674 522 668 528 660 528
+                     C652 528 646 522 646 514 C646 507 651 498 660 486 Z"/>
+            <ellipse cx="656" cy="515" rx="3" ry="4" fill="#ffffff" fill-opacity="0.62"/>
+          </g>
+
+        </g>
+      </g>
+
+      {%- comment -%} ================= L4 · foreground ===================== {%- endcomment -%}
+      {%- comment -%} Depth 1.0 → the full 8px. Nearest the viewer, so it moves
+          most and is painted in the saturated green. Both clusters sit LOW —
+          bottom-left and bottom-right — which is what stops the composition
+          reading as a wreath around the soap. {%- endcomment -%}
+      <g class="sh-plate__depth"{% if cursor %} data-plate-depth="1"{% endif %}>
+        <g class="sh-plate__layer">
+
+          {%- comment -%} Tulsi, lower left. Opposite leaves on one stem, the near
+              one larger. Two things are placed rather than drawn here:
+
+              The cluster is held at x ≥ 208. Everything left of that is the
+              seal's corner — see (7). The clearance is about 94 units and it is
+              the only reason the seal reads as a signature on the composition
+              rather than a sticker over it. Moving the tulsi left closes it.
+
+              The topmost leaf deliberately crosses the bar's lower-left corner at
+              (193,602). Foreground overlapping the hero is what makes the depth
+              read at all when parallax is off — which is most of the time, on
+              touch and under reduced motion. It clears the wordmark by ~120
+              units.
+
+              The three loops are -a, -b, -a with co-prime periods and unrelated
+              negative delays: a matched pair breathing in sync reads mechanical. {%- endcomment -%}
+          <g fill="url(#{{ gid }}-leaf-a)">
+            <path class="sh-plate__stem" d="M274 806 C256 760 240 704 232 648"/>
+
+            <g class="sh-plate__leaf-a" style="--sh-plate-o:232px 648px; --sh-plate-d:-2s;">
+              <use href="#{{ gid }}-tulsi" transform="translate(232 648) rotate(-34) scale(1.05)"/>
+            </g>
+            <g class="sh-plate__leaf-b" style="--sh-plate-o:256px 716px; --sh-plate-d:-7.5s;">
+              <use href="#{{ gid }}-tulsi" transform="translate(256 716) rotate(158) scale(0.92)"/>
+            </g>
+            <g class="sh-plate__leaf-a" style="--sh-plate-o:246px 690px; --sh-plate-d:-12s;">
+              <use href="#{{ gid }}-tulsi" transform="translate(246 690) rotate(-16) scale(0.7)"/>
+            </g>
+          </g>
+
+          {%- comment -%} Low herb cluster, bottom right. Three blades from one
+              base — the counterweight to the tulsi, deliberately smaller and set
+              higher so the two do not read as a symmetric pair. {%- endcomment -%}
+          <g class="sh-plate__sway" style="--sh-plate-o:604px 760px; --sh-plate-d:-5.5s;"
+             fill="url(#{{ gid }}-leaf-a)">
+            <path d="M604 760 C596 726 600 696 616 670 C624 702 620 734 604 760 Z"/>
+            <path d="M604 760 C582 738 570 714 570 688 C592 704 604 732 604 760 Z"
+                  fill-opacity="0.82"/>
+            <path d="M604 760 C620 742 640 730 662 728 C648 746 626 758 604 760 Z"
+                  fill-opacity="0.7"/>
+          </g>
+
+        </g>
+      </g>
+
+      {%- comment -%} ================= L5 · particles ====================== {%- endcomment -%}
+      {%- comment -%} Depth 0.4, not 1.0 — the brief asks that particles react
+          minimally, and dust that tracks the cursor hard stops reading as dust.
+          Seven, scattered off-grid, none of them landing on the bar, all inside
+          the y-band in (6). {%- endcomment -%}
+      <g class="sh-plate__depth"{% if cursor %} data-plate-depth="0.4"{% endif %}>
+        {%- comment -%} Each mote states its opacity TWICE, and both are needed.
+            The presentation attribute is the resting value — what shows with no
+            animation at all, which is the still case. --sh-plate-op is the same
+            number where the keyframe can reach it, so the pulse scales each mote
+            against its own value instead of driving them all to a common peak
+            and flattening the scatter into a row of matching dots. {%- endcomment -%}
+        <g class="sh-plate__layer sh-plate__motes" fill="#a98d5c">
+          <circle class="sh-plate__drift" style="--sh-plate-d:-3s;    --sh-plate-op:.22" cx="306" cy="322" r="2.4" opacity="0.22"/>
+          <circle class="sh-plate__drift" style="--sh-plate-d:-17s;   --sh-plate-op:.18" cx="470" cy="250" r="1.8" opacity="0.18"/>
+          <circle class="sh-plate__drift" style="--sh-plate-d:-8.5s;  --sh-plate-op:.20" cx="152" cy="372" r="3"   opacity="0.20"/>
+          <circle class="sh-plate__drift" style="--sh-plate-d:-21s;   --sh-plate-op:.26" cx="688" cy="618" r="2.2" opacity="0.26"/>
+          <circle class="sh-plate__drift" style="--sh-plate-d:-12.5s; --sh-plate-op:.16" cx="392" cy="208" r="1.6" opacity="0.16"/>
+          <circle class="sh-plate__drift" style="--sh-plate-d:-6s;    --sh-plate-op:.19" cx="546" cy="706" r="2.6" opacity="0.19"/>
+          <circle class="sh-plate__drift" style="--sh-plate-d:-19s;   --sh-plate-op:.24" cx="252" cy="790" r="2"   opacity="0.24"/>
+        </g>
+      </g>
+
+    </g>
+  </svg>
+</div>

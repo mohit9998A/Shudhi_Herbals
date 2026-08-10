@@ -241,7 +241,8 @@ a:hover > .sh-play, .sh-play:hover { background: var(--sh-accent); border-color:
 /* Focus. hov-typography.css:65 sets a forest-green ring — invisible on our
    dark green bands. Gold reads on both light and dark surfaces. */
 .sh a:focus-visible, .sh button:focus-visible,
-.sh input:focus-visible, .sh [tabindex]:focus-visible {
+.sh input:focus-visible, .sh select:focus-visible,
+.sh textarea:focus-visible, .sh [tabindex]:focus-visible {
   outline: 2px solid var(--sh-gold);
   outline-offset: 3px;
   border-radius: 2px;
@@ -649,7 +650,7 @@ body.template-index .sh-header-sticky { margin-bottom: calc(-1 * var(--sh-header
   background: rgba(20, 18, 12, .88);
 }
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  .sh-trust, .sh-hero__badge { background: rgba(20, 18, 12, .9); }
+  .sh-trust, .sh-hero__badge, .sh-ritual__item, .sh-steps { background: rgba(20, 18, 12, .9); }
 }
 .sh-trust__item {
   display: flex; align-items: center; gap: 13px;
@@ -823,18 +824,121 @@ a.sh-story__play:hover {
    `.sh-ritual h2` (0,1,1) beats a bare `h2` (0,0,1), so no !important is needed. */
 .sh-ritual h2 { color: inherit; }
 
+/* THE STACK IS NUMBERED FOR THE SCRIM, AND THE SCRIM SITS IN THE MIDDLE.
+
+   §26 draws two SVG overlays on this band, and they belong on opposite sides
+   of ::after. Art that is part of the scene — caustics, the water rim, the
+   bar's contact shadow — must be darkened along with the photograph. Art
+   between the viewer and the scene — the nearest droplets, the state glows,
+   the splash — must not be.
+
+   ::after is the last generated child of .sh-ritual, so at an equal z-index it
+   paints over any sibling. It therefore has to be given a number of its own
+   with room on both sides, which is why .sh-wrap and __side moved from 2 to 4.
+   Changing any of these five numbers in isolation will bury a layer. */
 .sh-ritual {
   position: relative; overflow: hidden; color: var(--sh-light);
-  padding-block: clamp(78px, 10vw, 138px); background: var(--sh-green-900);
+  /* Asymmetric, unlike every other band in this file, and for a reason the
+     others do not have: the heading has to fit in the strip of scene ABOVE the
+     soap bar, and cover puts the bar's top edge at roughly 155px once the
+     floor below is in force. Head content is about 98px (eyebrow, rule, h2,
+     ornament), so the top inset has to stay under ~50px for the heading to
+     land in that strip instead of across the bar's face. The bottom inset is
+     untouched — it is what keeps the lower cards off the pond edge. */
+  padding-block: clamp(20px, 2.2vw, 34px) clamp(78px, 10vw, 138px);
+  background: var(--sh-green-900);
+  /* A floor, not a fixed height: the band still grows for a fifth and sixth
+     benefit rather than clipping them. svh, not vh, so the mobile URL bar
+     collapsing does not resize the section under a running entrance.
+
+     THE CONTENT STAYS TOP-ANCHORED, and that is the whole reason this is a
+     plain min-height rather than a centred flex column. The photograph carries
+     the soap bar in its upper middle, and object-fit:cover pushes the bar
+     DOWN the section as the section grows. Centring the copy moved the heading
+     down by the same amount, so the heading sat on the SHUDHI wordmark at
+     every height — the two tracked each other and the overlap could not be
+     tuned out. Top-anchored, the heading's bottom edge is fixed by
+     padding-block while the wordmark keeps descending, and they separate.
+
+     The second term is a floor on that separation, and it carries a vw
+     component because the requirement is not a constant: a wider section
+     crops the photograph harder, which scales the bar up and lifts its top
+     edge toward the heading. Solving "bar's top edge sits BELOW the heading"
+     against the cover geometry —
+
+         barTop = (225 - band0) * scale,  scale = W/1536,
+         band0  = (1024 - H/scale) / 2
+
+     — calc(300px + 38vw) holds barTop at a near-constant ~155px across the
+     whole desktop range (154 at 1280, 155 at 1440, 156 at 1920, 158 at 2560),
+     which clears a ~130px heading everywhere with room to spare. The earlier
+     calc(400px + 24vw) only cleared the WORDMARK; it left barTop at 104px at
+     1440 and 72px at 1920, so the heading printed across the bar's face.
+
+     The same taller box is what stops the bar dominating the composition, and
+     it widens the visible crop band at every width, so the authored art in §26
+     sits further inside the contract than before rather than closer to it.
+
+     svh, not vh, so the mobile URL bar collapsing does not resize the section
+     under a running entrance. The mobile block at :1449 drops this to 0 —
+     stacked cards are already taller than any of it. */
+  min-height: max(calc(var(--sh-ritual-h, 92) * 1svh), calc(300px + 38vw));
 }
-.sh-ritual__bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; }
+/* THE COMPOUND SELECTOR IS THE WHOLE POINT OF THIS RULE.
+
+   :115 sets `.sh img { height: auto }` at (0,1,1). A bare `.sh-ritual__bg` is
+   (0,1,0) and LOSES, so this element used to compute to height:auto.
+
+   It is tempting to think inset:0 rescues that — with top and bottom both
+   pinned, an auto height is normally solved from the containing block. That
+   rule does not apply to REPLACED elements: CSS 2.1 10.6.5 resolves an <img>'s
+   auto height from its intrinsic ratio and then simply over-constrains and
+   drops `bottom`. So the photo was sized width/1.5 and anchored to the top,
+   not covered and centred.
+
+   On desktop that was invisible: at 1440 the intrinsic height came out at
+   960px against a ~700px section, so it overflowed and overflow:hidden clipped
+   the bottom — full-bleed by accident, but showing photo y 0-749 rather than
+   the centred band. On a phone it was plainly wrong: a 390px-wide section
+   rendered a 260px-tall photo with flat green under it.
+
+   §26's overlays are <svg>, which :115 does not touch, so they took height:100%
+   and cropped by the real cover rule while the photo did not. Fixing this is
+   what makes the two agree — registration is only meaningful once the
+   photograph is actually doing what the overlay assumes.
+
+   The same (0,1,0)-vs-(0,1,1) collision exists on the other full-bleed photos
+   in this file (:730, :938, :1245, :1655, :1845) and is NOT fixed here, to
+   keep this change to the band it belongs to. */
+.sh-ritual .sh-ritual__bg {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  object-fit: cover; object-position: 50% 50%; z-index: 0;
+}
+/* FIVE STOPS, AND THE MIDDLE ONE IS WHERE THE SOAP IS.
+
+   The original three-stop ramp (.72 -> .55 at 45% -> .82) was written when the
+   photo was top-anchored and clipped, which put the bar low in the frame under
+   the lighter middle. Once cover was fixed the bar moved UP into the .72 band
+   and read muddy olive with the embossed wordmark almost gone.
+
+   So the ramp now opens to .34 across roughly 18-52% of the height, which is
+   where the bar sits at every width once the min-height floor below is in
+   force. The .72 is kept at the very top so the header still has something to
+   sit against, and the bottom is taken further to .86 so the two lower cards
+   keep their contrast against the brighter pond. */
 .sh-ritual::after {
-  content: ""; position: absolute; inset: 0; z-index: 1;
-  background: linear-gradient(to bottom, rgba(14, 20, 9, .72), rgba(14, 20, 9, .55) 45%, rgba(14, 20, 9, .82));
+  content: ""; position: absolute; inset: 0; z-index: 2;
+  background: linear-gradient(to bottom,
+    rgba(14, 20, 9, .72) 0%,
+    rgba(14, 20, 9, .46) 18%,
+    rgba(14, 20, 9, .34) 38%,
+    rgba(14, 20, 9, .42) 52%,
+    rgba(14, 20, 9, .68) 76%,
+    rgba(14, 20, 9, .86) 100%);
 }
-.sh-ritual > .sh-wrap { position: relative; z-index: 2; }
+.sh-ritual > .sh-wrap { position: relative; z-index: 4; }
 .sh-ritual__side {
-  position: absolute; left: 26px; top: 50%; z-index: 2;
+  position: absolute; left: 26px; top: 50%; z-index: 4;
   transform: translateY(-50%) rotate(180deg); writing-mode: vertical-rl;
   font-size: .62rem; letter-spacing: .38em; text-transform: uppercase; color: var(--sh-muted-light);
 }
@@ -855,11 +959,33 @@ a.sh-story__play:hover {
   stroke-width: 1; stroke-dasharray: 2 6; stroke-linecap: round;
 }
 .sh-ritual__col { display: grid; gap: clamp(22px, 3.4vw, 44px); position: relative; z-index: 1; }
+/* Empty by design — the gap the photograph's soap bar shows through, and what
+   pushes the two columns far enough apart for the connectors to have somewhere
+   to converge. It stays in the markup because the three FLOW children are what
+   place the columns in grid tracks 1 and 3; the connector svg is absolutely
+   positioned and out of flow, so it cannot do that job. */
 .sh-ritual__center { position: relative; z-index: 1; }
-.sh-ritual__center img { width: 100%; object-fit: contain; }
 
-.sh-ritual__item { display: flex; align-items: center; gap: 16px; }
-.sh-ritual__col--left  .sh-ritual__item { flex-direction: row-reverse; text-align: right; }
+/* Frosted panel per benefit. The band's photo is busy behind the copy — leaves,
+   water and highlights run straight under the .8rem description — so each item
+   carries its own glass plate rather than relying on the section's gradient.
+   Tokens are the hero trust bar's (:614) verbatim: same smoke, blur, hairline
+   and lift, so the two glass surfaces on the homepage read as one material.
+   `background` is a flat colour and doubles as the no-blur fallback. */
+.sh-ritual__item {
+  display: flex; align-items: center; gap: 16px;
+  padding: 14px clamp(14px, 1.4vw, 20px);
+  background: rgba(20, 18, 12, .5);
+  -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, .12); border-radius: 14px;
+  box-shadow: 0 18px 46px rgba(0, 0, 0, .34),
+              inset 0 1px 0 rgba(255, 255, 255, .07);
+}
+/* Both columns read icon-first, left-aligned. The left column used to mirror
+   inward with flex-direction:row-reverse and text-align:right, which put two
+   different reading axes on one row of the page — the eye had to reverse
+   direction crossing the soap. The matching overrides in §15's mobile block
+   went with it; they existed only to undo this rule. */
 .sh-ritual__item > .sh-icon {
   width: 52px; height: 52px; padding: 13px; flex: none;
   border: 1px solid rgba(201, 168, 106, .45); border-radius: 50%;
@@ -870,7 +996,23 @@ a.sh-story__play:hover {
   font-size: 1.06rem; margin-bottom: 6px; color: var(--sh-gold);
 }
 .sh-ritual__item p { font-size: .8rem; line-height: 1.65; color: var(--sh-muted-light); max-width: 26ch; }
-.sh-ritual__col--left .sh-ritual__item p { margin-left: auto; }
+
+/* Hairline / diamond / hairline under the heading. Built from three empty
+   elements rather than a glyph so it inherits the gold and scales with the
+   band instead of with the font stack. */
+.sh-ritual__ornament {
+  display: flex; align-items: center; justify-content: center; gap: 12px;
+  margin-top: 18px;
+}
+.sh-ritual__ornament i {
+  display: block; width: clamp(34px, 5vw, 62px); height: 1px;
+  background: linear-gradient(to right, transparent, rgba(201, 168, 106, .55));
+}
+.sh-ritual__ornament i:last-child { transform: scaleX(-1); }
+.sh-ritual__ornament span {
+  display: block; width: 5px; height: 5px; flex: none;
+  border: 1px solid rgba(201, 168, 106, .7); transform: rotate(45deg);
+}
 
 /* ============================================================
    11. MINDFUL RITUAL — "Transform Your Daily Bath"
@@ -899,11 +1041,41 @@ a.sh-story__play:hover {
   max-width: 34ch; margin-bottom: 32px;
 }
 
-.sh-steps { position: relative; display: grid; grid-template-columns: repeat(4, 1fr); gap: clamp(10px, 1.6vw, 24px); }
+/* One frosted plate behind all four steps, not one per step: the arc joins them
+   into a single sequence, so a shared surface is what that reads as. Tokens are
+   the hero trust bar's (:614) verbatim so every glass surface on the page is the
+   same material; only the radius opens up (18px) for the larger plate.
+
+   The padding is held in variables because .sh-steps__arc is positioned against
+   this element. Absolute insets resolve against the PADDING box, so `top/left/
+   right: 0` would pin the arc to the plate's edge while the icons sit inside the
+   padding — the arc would float above them and run wider than the columns.
+   Feeding the same two values back to the arc keeps it on the content box, i.e.
+   exactly where it was before the plate existed.
+
+   --pad-y (34px) also has to clear the wave: .sh-step alternates translateY
+   +/-16px, which paints outside the layout box the plate is sized from, so
+   anything under 16px would let the icons hang off the glass. */
+.sh-steps {
+  --sh-steps-pad-x: clamp(14px, 1.6vw, 24px);
+  --sh-steps-pad-y: 34px;
+  position: relative; display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: clamp(10px, 1.6vw, 24px);
+  padding: var(--sh-steps-pad-y) var(--sh-steps-pad-x);
+  background: rgba(20, 18, 12, .5);
+  -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, .12); border-radius: 18px;
+  box-shadow: 0 18px 46px rgba(0, 0, 0, .34),
+              inset 0 1px 0 rgba(255, 255, 255, .07);
+}
 /* Anchored to the icon band, not the full grid: the arc's y coordinates are in
    px against a 96-tall viewBox, so stretching it over a variable-height grid
    (text wraps differently at every breakpoint) would drift off the icons. */
-.sh-steps__arc { position: absolute; left: 0; right: 0; top: 0; height: 96px; pointer-events: none; z-index: 0; }
+.sh-steps__arc {
+  position: absolute; height: 96px; pointer-events: none; z-index: 0;
+  top: var(--sh-steps-pad-y);
+  left: var(--sh-steps-pad-x); right: var(--sh-steps-pad-x);
+}
 .sh-steps__arc path {
   fill: none; stroke: rgba(201, 168, 106, .42);
   stroke-width: 1; stroke-dasharray: 5 8; stroke-linecap: round;
@@ -1106,9 +1278,33 @@ a.sh-story__play:hover {
    force-capitalises them. (0,1,1) beats a bare h1 (0,0,1), so no !important. */
 .sh-pagehead h1 { color: inherit; text-transform: none; }
 .sh-pagehead__title { font-size: clamp(2rem, 4vw, 3.1rem); }
-.sh-pagehead__text {
+/* The `.sh` prefix is the whole fix for the off-centre lede, and it is not
+   optional. The reset at :112 is `.sh p { margin: 0 }` — (0,1,1), against a bare
+   .sh-pagehead__text at (0,1,0) — and it is the `margin` SHORTHAND, so it zeroed
+   all four sides. Both the `margin-inline: auto` and the `margin-top: 18px`
+   below have therefore never applied on any page using this section: the
+   paragraph rendered flush-left in the wrap, 190px off the centre of the h1
+   above it, with no gap under the heading. Source order could not save it —
+   specificity decides, and (0,2,0) is what beats (0,1,1). Verified in the
+   browser: computed margin-left and margin-top were both 0px before this
+   change, 326.4px and 18px after. Same fix .sh .sh-contact__eyebrow (:2841) and
+   .sh .sh-gen__num (:2181) already make against the same reset. */
+.sh .sh-pagehead__text {
   font-size: 1rem; line-height: 1.7; color: var(--sh-muted-light);
-  max-width: 56ch; margin-inline: auto; margin-top: 18px;
+  /* 56ch -> 52ch. At 1rem in Jost the `0` glyph is ~9.3px, so this is ~484px:
+     both live ledes (Contact 95 chars, The Ritual 110) stay at TWO lines and
+     lose the ragged 68/27 split, which `balance` then evens to ~48/47.
+     Shared rule, deliberately: sections/sh-page-header.liquid ships on
+     page.contact.json and page.the-ritual.json. Our Story is NOT one of them —
+     it uses .sh-story-hero__text (:1292), left-aligned at 44ch, which does not
+     want balancing. The comment at :1137 naming three pages predates that split.
+     `balance` over `pretty`: pretty only fixes orphans on long body copy;
+     balance equalises line LENGTHS, which is the job for a centred 2-3 line
+     lede. It is a no-op above the UA line cap (~6 lines in Chromium/WebKit,
+     ~10 in Gecko) and is ignored where unsupported, so it can only ever equal
+     or improve today's rendering — never regress it. */
+  max-width: 52ch; margin-inline: auto; margin-top: 18px;
+  text-wrap: balance;
 }
 
 /* ============================================================
@@ -1257,78 +1453,6 @@ a.sh-story__play:hover {
 }
 
 /* ============================================================
-   14c. CONTACT
-   ============================================================ */
-.sh-contact {
-  background: var(--sh-contact-bg, var(--sh-cream)); color: var(--sh-ink);
-  padding-block: clamp(56px, 7vw, 96px);
-}
-.sh-contact__grid {
-  display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
-  gap: clamp(34px, 5vw, 72px); align-items: start;
-}
-.sh-contact h2 { color: inherit; text-transform: none; }   /* same defence as above */
-.sh-contact__title { font-size: clamp(1.6rem, 2.8vw, 2.3rem); margin-bottom: 26px; }
-
-/* Form */
-.sh-form__row { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
-.sh-field { display: grid; gap: 8px; margin-bottom: 18px; }
-.sh-field > span {
-  font-size: .68rem; letter-spacing: .16em; text-transform: uppercase;
-  font-weight: 500; color: var(--sh-muted-dark);
-}
-/* Bootstrap Reboot and the Herbyo form CSS both style bare inputs; (0,1,1) here
-   out-specifies them without !important, matching how .sh-news does it. */
-.sh-contact input,
-.sh-contact textarea {
-  width: 100%; padding: 13px 15px; border-radius: 4px;
-  border: 1px solid rgba(36, 29, 21, .2); background: rgba(255, 255, 255, .55);
-  color: var(--sh-ink); font-size: .92rem;
-  transition: border-color .2s ease, background .2s ease;
-}
-.sh-contact textarea { resize: vertical; min-height: 130px; }
-.sh-contact input:focus,
-.sh-contact textarea:focus {
-  outline: none; border-color: var(--sh-gold-2); background: #fff;
-}
-/* The only solid CTA in the theme that lands on a LIGHT surface. Gold on cream
-   is 2.0:1, so the fill alone does not give the control a 3:1 boundary
-   (WCAG 1.4.11); --sh-accent-edge on cream is 4.3:1 and does.
-   `outline` with a negative offset, not a border (which would grow the box by
-   2px) and not an inset box-shadow (which paints with the background, i.e.
-   UNDER the hover ::before, so the rim would vanish on hover). */
-.sh-contact .sh-btn--solid {
-  margin-top: 8px;
-  outline: 1px solid var(--sh-accent-edge);
-  outline-offset: -1px;
-}
-.sh-form__ok,
-.sh-form__err {
-  display: flex; align-items: flex-start; gap: 10px;
-  padding: 16px 18px; border-radius: 4px; font-size: .92rem; line-height: 1.6;
-}
-.sh-form__ok  { background: rgba(65, 86, 42, .12); border: 1px solid rgba(65, 86, 42, .3); }
-.sh-form__ok .sh-icon { width: 18px; height: 18px; flex: none; color: var(--sh-green-600); margin-top: 2px; }
-.sh-form__err { background: rgba(160, 48, 32, .08); border: 1px solid rgba(160, 48, 32, .28); margin-bottom: 20px; }
-.sh-form__err ul { margin: 0; padding-left: 0; list-style: none; }
-
-/* Details */
-.sh-contact__eyebrow { color: var(--sh-gold-2); margin-bottom: 20px; }
-.sh-contact__list { display: grid; gap: 22px; margin: 0; }
-.sh-contact__item { display: flex; align-items: flex-start; gap: 14px; }
-.sh-contact__item > .sh-icon { width: 19px; height: 19px; flex: none; color: var(--sh-gold-2); margin-top: 2px; }
-.sh-contact__item dt {
-  font-size: .66rem; letter-spacing: .18em; text-transform: uppercase;
-  font-weight: 500; color: var(--sh-muted-dark); margin-bottom: 5px;
-}
-.sh-contact__item dd { margin: 0; font-size: .95rem; line-height: 1.65; }
-.sh-contact__item dd a:hover { color: var(--sh-gold-2); }
-.sh-contact__note {
-  margin-top: 28px; padding-top: 20px; border-top: 1px solid rgba(36, 29, 21, .15);
-  font-size: .86rem; line-height: 1.7; color: var(--sh-muted-dark);
-}
-
-/* ============================================================
    15. RESPONSIVE
    ============================================================ */
 @media (max-width: 1180px) {
@@ -1362,7 +1486,6 @@ a.sh-story__play:hover {
      seal's centre on the join without measuring anything at runtime. */
   .sh-story__seal { left: 50%; top: var(--sh-story-media-h); }
   .sh-mindful__text { max-width: 52ch; }
-  .sh-contact__grid { grid-template-columns: 1fr; }
   .sh-footer__grid { grid-template-columns: 1fr 1fr; }
   .sh-footer__brand { grid-column: 1 / -1; order: -1; margin-bottom: 12px; }
 }
@@ -1403,21 +1526,44 @@ a.sh-story__play:hover {
 
   .sh-ritual__side { display: none; }
   .sh-ritual__cols { grid-template-columns: 1fr; gap: 26px; }
-  .sh-ritual__center, .sh-ritual__connectors { display: none; }
-  .sh-ritual__col--left .sh-ritual__item { flex-direction: row; text-align: left; }
-  .sh-ritual__col--left .sh-ritual__item p { margin-left: 0; }
+  /* .sh-ritual__connectors needs the extra class to actually win. :114's
+     `.sh img, .sh svg, .sh canvas { display: block }` is (0,1,1) and a bare
+     (0,1,0) class loses to it — a media query adds no specificity, so this
+     rule silently did nothing and the dotted connectors have been painting
+     across the stacked cards on every phone. __center is a div, has nothing
+     competing, and is left as it was. */
+  .sh-ritual__center { display: none; }
+  .sh-ritual .sh-ritual__connectors { display: none; }
+  /* The two rules that used to sit here — flex-direction:row and
+     margin-left:0 on the left column — existed only to undo §10's
+     row-reverse/text-align:right, which no longer exists. Both columns read
+     icon-first and left-aligned at every width now. */
   .sh-ritual__item p { max-width: none; }
+  /* The band is content-height on a phone: four stacked cards plus the heading
+     already exceed the desktop floor, and holding 92svh under them would open
+     a gap rather than fill one. */
+  .sh-ritual { min-height: 0; }
+  /* Same trade as .sh-trust (:1379): four stacked blurs over a full-width photo
+     is the expensive case on mobile GPUs. Opaque enough to be visually equal. */
+  .sh-ritual__item {
+    -webkit-backdrop-filter: none; backdrop-filter: none;
+    background: rgba(20, 18, 12, .82);
+  }
 
   .sh-steps { grid-template-columns: 1fr 1fr; gap: 30px 14px; }
+  /* Same trade as .sh-trust (:1379). The wave is off below, so the plate no
+     longer needs to clear it — pull --pad-y back to a normal inset. */
+  .sh-steps {
+    --sh-steps-pad-y: 22px;
+    -webkit-backdrop-filter: none; backdrop-filter: none;
+    background: rgba(20, 18, 12, .82);
+  }
   .sh-steps__arc { display: none; }
   .sh-step:nth-child(odd), .sh-step:nth-child(even) { transform: none; }
   .sh-step p { max-width: 22ch; }
 
   .sh-collection__strip { grid-template-columns: 1fr 1fr; gap: 22px 10px; }
   .sh-collection__strip-item { justify-content: flex-start; }
-
-  /* Name/email side by side is too tight below this width. */
-  .sh-form__row { grid-template-columns: 1fr; gap: 0; }
 
   .sh-footer__grid { grid-template-columns: 1fr; text-align: center; justify-items: center; }
   .sh-footer__text, .sh-news { margin-inline: auto; }
@@ -2244,4 +2390,2482 @@ a.sh-story__play:hover {
    a script writing textContent. */
 @media (prefers-reduced-motion: reduce) {
   .sh-gen__ring { animation: none; }
+}
+
+/* ============================================================
+   22. SIGNATURE PRODUCT — sections/sh-signature-product.liquid
+   The homepage's product band: centred header, photo + seal on the left,
+   benefits and CTAs on the right. Light cream surface.
+
+   Appended as a self-contained block with its own breakpoints and its own
+   reduced-motion rules, matching §18-§21 rather than extending the shared
+   §15/§16. Being last in the file is load-bearing in two places below, both
+   flagged where they occur.
+   ============================================================ */
+.sh-signature {
+  /* The light-surface trio is re-declared, not referenced. Its only declaration
+     is inside `.sh-story` (:687), deliberately not on :root, so
+     var(--sh-story-ink) resolves to nothing here. Same names and identical
+     values on purpose — the fourth site to make this trade after :1507 and
+     :1966, and like those it collapses into a harmless no-op if the tokens are
+     ever promoted. */
+  --sh-story-ink:      #1b2a12;   /* headings, product name, seal number — 13.1:1 on cream */
+  --sh-story-body:     #474a3d;   /* body + feature descriptions — 7.8:1 */
+  --sh-story-gold:     #b8965c;   /* seal ring + dots. DECORATIVE ONLY — 2.4:1 */
+  --sh-story-gold-ink: #7a5d2e;   /* the same gold dark enough to be READ — 5.3:1 */
+
+  /* Overridden inline from the section's `bg` setting; the value here is the
+     fallback and the documentation of what that setting expects. */
+  --sh-signature-bg: #f6ede1;
+
+  /* Two gaps, because the vertical hairline hangs in the column one: a single
+     `gap` would put the divider 40px from the item it separates. Same split
+     .sh-fgrid makes at :1773. */
+  --sh-signature-gap-x: clamp(16px, 2.4vw, 40px);
+
+  position: relative;
+  background: var(--sh-signature-bg); color: var(--sh-story-ink);
+  padding-block: clamp(66px, 8vw, 110px);
+}
+
+/* NOT overflow:hidden. Nothing in this band bleeds past the wrap, and the plate
+   crops its own artwork with preserveAspectRatio rather than spilling — but the
+   moment either changes, hiding overflow here is what would clip it. Left open
+   on purpose.
+
+   This used to read "the seal sits inside the photo's box". That premise died
+   with the photo: §25 replaced it with snippets/sh-soap-plate.liquid, and the
+   seal now hangs at the plate's BOTTOM-left. It is still a child of
+   .sh-signature__media and still clipped by nothing. */
+
+/* Colour and text-transform stated, never inherited. houseofveda-modern.css:55
+   gives h1..h6 an explicit `color: var(--hov-dark)` and timber.scss.liquid:814
+   capitalises them, and an explicit declaration on the element beats anything
+   inherited from .sh-signature. Same trap .sh-story h2 (:685) documents — h4 is
+   in the list too, which no earlier section needed. */
+.sh-signature h2,
+.sh-signature h3,
+.sh-signature h4 { color: inherit; text-transform: none; }
+
+/* .sh-eyebrow (0,1,0) carries the dark-surface gold; this (0,2,0) swaps in the
+   light-surface one. --sh-gold is 1.95:1 on this cream. Same trade as :751. */
+.sh-signature .sh-eyebrow { color: var(--sh-story-gold-ink); }
+/* The eyebrow prints a leaf beside its text; without this the glyph sits on the
+   text baseline instead of the cap-height centre. */
+.sh-signature .sh-eyebrow .sh-icon { width: 13px; height: 13px; vertical-align: -2px; }
+
+/* ---- Section header ---------------------------------------------------- */
+/* Centring lives on the head wrapper, not on a modifier class — the theme has
+   no `--center` variant on any class, and .sh-ritual__head (:841) and
+   .sh-fgrid__head (:1825) both do it this way. */
+.sh-signature__head {
+  text-align: center; max-width: 640px;
+  margin-inline: auto; margin-bottom: clamp(34px, 5vw, 62px);
+}
+.sh-signature__title {
+  font-size: clamp(1.85rem, 3.4vw, 3rem);
+  margin-top: 14px;
+}
+.sh-signature__divider {
+  display: flex; align-items: center; justify-content: center; gap: 12px;
+  color: var(--sh-story-gold); margin-top: 18px;
+}
+.sh-signature__divider span { width: 48px; height: 1px; background: currentColor; opacity: .6; }
+.sh-signature__divider .sh-icon { width: 15px; height: 15px; }
+
+/* ---- Split grid -------------------------------------------------------- */
+.sh-signature__grid {
+  display: grid;
+  grid-template-columns: minmax(300px, 46%) 1fr;
+  gap: clamp(2rem, 5vw, 4rem);
+  align-items: start;
+}
+
+/* The seal's containing block. position:relative and NEVER a transform: the
+   snippet anchors .sh-gen against its nearest positioned ancestor, and a
+   transformed one would re-anchor it mid-reveal. Every element in this column
+   that moves keeps its transform one level deeper for exactly that reason —
+   formerly .sh-signature__frame, now .sh-plate and its inner layers (§25).
+
+   `transform` is not the only property that does this, and the others are the
+   dangerous ones because they read as pure optimisations. ALL of these create a
+   containing block for absolutely positioned descendants, and any one of them
+   here re-anchors the seal:
+
+       transform · will-change: transform · filter · backdrop-filter
+       perspective · contain: paint (or layout/strict/content)
+
+   §25 promotes six layers with will-change, all of them INSIDE .sh-plate. None
+   on this element. If a future pass wants to promote the column itself for
+   scroll performance, the seal has to move out of it first. */
+.sh-signature__media { position: relative; }
+
+/* .sh-signature__frame and .sh .sh-signature__photo used to live here: a 6/5
+   card with a rounded overflow:hidden clip, and an object-fit:cover <img>
+   filling it. Both are gone. The left column is now
+   snippets/sh-soap-plate.liquid — an inline SVG, not a raster — and it owns its
+   own box in §25.
+
+   The 6/5 ratio went with them, deliberately. It was measured off a design where
+   this column held a landscape packshot; against six feature rows and a CTA pair
+   in the copy column it left the band visibly bottom-heavy. The plate is 4/5
+   portrait instead, and crops rather than letterboxes when the column narrows. */
+
+/* ---- Seal, repainted for a light surface -------------------------------- */
+/* snippets/sh-gen-seal.liquid is the DARK-hero variant: §21 paints its ring,
+   dots, arcs and number all in --sh-gold, which that block's header explains is
+   only legible on dark green. On this cream it is 1.95:1. Repainted here to the
+   same pair .sh-story__seal (:788) already uses on the cream band — the
+   decorative gold for the ring and dots, the readable one for the arc type. */
+.sh-signature .sh-gen {
+  /* The base rule (:2220) pins top:12%/right:4% for the hero's right-hand seal;
+     the reference puts this one inside the photo's top-left corner. `right`
+     must be cancelled explicitly or both offsets apply and the seal stretches. */
+  top: 4%; left: 4%; right: auto;
+  width: clamp(104px, 10.5vw, 150px);
+}
+.sh-signature .sh-gen__ring-c { stroke: var(--sh-story-gold); }
+.sh-signature .sh-gen__dot    { fill:   var(--sh-story-gold); }
+.sh-signature .sh-gen__arc    {
+  fill: var(--sh-story-gold-ink);
+  /* 8.6px, not §21's 9.5px. The bottom arc here reads "Generations of herbal
+     wisdom" — 28 characters against the hero seal's 16 — and at 9.5px with
+     .16em tracking that runs past the end of the semicircle. */
+  font-size: 8.6px;
+}
+/* Ties with `.sh .sh-gen__num` (:2256) at (0,2,0), so this wins on source order
+   alone — §22 being last in the file is the whole mechanism. Colour only: the
+   font-family !important war on that rule is left exactly as it is. */
+.sh-signature .sh-gen__num { color: var(--sh-story-ink); }
+
+/* ---- Copy column ------------------------------------------------------- */
+.sh-signature__name {
+  font-size: clamp(1.6rem, 2.8vw, 2.3rem);
+  /* .sh-serif's 1.06 closes the leading too far on a name that can wrap. */
+  line-height: 1.12;
+  margin: 12px 0 0;
+}
+.sh-signature__rule {
+  width: 64px; height: 2px; background: var(--sh-story-gold-ink);
+  margin: 18px 0 22px;
+}
+.sh-signature__text {
+  /* 16px floor for body copy, capped at 46ch so the measure stays readable —
+     the same pair .sh-split__text uses. */
+  font-size: 1rem; line-height: 1.75; color: var(--sh-story-body);
+  max-width: 46ch; margin: 0 0 30px;
+}
+
+/* ---- Feature list ------------------------------------------------------ */
+.sh-signature__features {
+  display: grid; grid-template-columns: 1fr 1fr;
+  column-gap: var(--sh-signature-gap-x);
+  margin-bottom: clamp(28px, 3.4vw, 40px);
+}
+.sh-signature__feature {
+  position: relative;
+  display: flex; gap: 14px; align-items: flex-start;
+  padding: 18px 0;
+  /* border-TOP removed from the first row, not border-bottom removed from the
+     last. A trailing-edge rule has to know how many items sit in the final row,
+     which changes with the block count: at five features a
+     `:nth-last-child(-n+2)` strips the border from the last item of row two AND
+     the lone item of row three, leaving one hairline dangling under a gap. The
+     first row is always the first two items, whatever the count. */
+  border-top: 1px solid rgba(27, 42, 18, .14);
+}
+.sh-signature__feature:nth-child(-n+2) { border-top: none; }
+
+/* The column hairline, hung in the middle of the column gap so it is
+   independent of the items' own padding — .sh-fgrid__item::after (:1874) does
+   the same. Only on first-column items, and only when a second-column
+   neighbour actually exists: at an odd block count the last item is alone on
+   its row and :last-child suppresses a divider pointing at nothing.
+   Deliberately a plain rgba() and not color-mix(): the theme still serves
+   pre-16.2 Safari, where an unsupported function invalidates the whole
+   declaration — the one color-mix() in this file (:1874) carries a fallback
+   declaration above it for exactly that reason. */
+.sh-signature__feature:nth-child(odd):not(:last-child)::after {
+  content: ""; position: absolute; pointer-events: none;
+  top: 18%; bottom: 18%; right: calc(var(--sh-signature-gap-x) / -2);
+  width: 1px; background: rgba(27, 42, 18, .14);
+}
+
+.sh-signature__feature-icon {
+  flex: none; display: grid; place-items: center;
+  width: 42px; height: 42px; border-radius: 50%;
+  border: 1px solid var(--sh-story-gold);
+  color: var(--sh-story-gold-ink);
+  transition: transform .3s ease, border-color .3s ease;
+}
+.sh-signature__feature-icon .sh-icon { width: 18px; height: 18px; }
+.sh-signature__feature:hover .sh-signature__feature-icon {
+  transform: scale(1.08); border-color: var(--sh-story-gold-ink);
+}
+.sh-signature__feature h4 { font-size: 1rem; margin: 2px 0 4px; }
+.sh-signature__feature p  {
+  font-size: .875rem; line-height: 1.6; color: var(--sh-story-body); margin: 0;
+}
+
+/* ---- CTAs -------------------------------------------------------------- */
+.sh-signature__cta { display: flex; align-items: center; gap: clamp(18px, 2.6vw, 30px); flex-wrap: wrap; }
+
+/* The theme's only non-gold solid CTA. .sh-btn--solid (:184) is a gold gradient
+   on four other buttons; the approved design puts a near-black fill here.
+   Scoped repaint rather than a fourth global variant — every existing
+   per-surface adaptation of this button (:1228, :2019) is a contextual
+   override, and this is the only consumer. background-image must be cleared
+   explicitly: the base sets it alongside background-color, so a colour alone
+   would sit under the gradient and never show. The ::before carries the hover
+   cross-fade and needs the same treatment or hovering restores the gold. */
+.sh-signature .sh-btn--solid {
+  background-color: var(--sh-story-ink);
+  background-image: none;
+  color: var(--sh-light);
+  /* Contains the shine sweep below. Does not clip the focus ring: an outline is
+     painted outside the border box and overflow only clips content. */
+  overflow: hidden;
+}
+.sh-signature .sh-btn--solid::before {
+  background-image: none;
+  background-color: #0f1a08;
+}
+.sh-signature .sh-btn--solid:hover { color: var(--sh-light); }
+
+/* One-time shine sweep. An animation, not a transition: a transition would run
+   backwards on hover-out and read as a second, unearned gesture. With no
+   fill-mode the band resets to its off-screen start when the animation ends,
+   so the next hover replays it cleanly.
+   ::after, because ::before is already the gradient cross-fade. Both sit at
+   z-index:-1 inside the base rule's `isolation: isolate` (:185), so this paints
+   above the fill and below the label, and beats ::before purely on paint order. */
+.sh-signature .sh-btn--solid::after {
+  content: ""; position: absolute; inset: 0; z-index: -1;
+  pointer-events: none;
+  background: linear-gradient(100deg,
+    transparent 42%, rgba(244, 239, 230, .28) 50%, transparent 58%);
+  transform: translateX(-120%);
+}
+.sh-signature .sh-btn--solid:hover::after { animation: sh-signature-shine .85s ease-out; }
+@keyframes sh-signature-shine { to { transform: translateX(120%); } }
+
+/* .sh-btn--ghost is gold-on-dark by default and lands at 2.0:1 here. Same swap
+   .sh-story .sh-btn--ghost (:759) makes. */
+.sh-signature .sh-btn--ghost { color: var(--sh-story-gold-ink); }
+.sh-signature .sh-btn--ghost:hover { color: var(--sh-story-ink); }
+
+/* .sh a:focus-visible (:243) rings in --sh-gold, which is 1.95:1 on this cream.
+   Same fix the other light bands make. */
+.sh-signature a:focus-visible { outline-color: var(--sh-story-ink); }
+
+/* ---- Motion ------------------------------------------------------------ */
+/* The copy column below is driven by the ONE shared IntersectionObserver in
+   shudhi-home.js:269 via the .is-in class. The plate in §25 rides that same
+   observer for its entrance, but adds a second one of its own for a job the
+   shared one cannot do — it unobserves after the first hit (:283), so it can
+   fire once and can never TOGGLE. Pausing ambient motion off-screen needs a
+   toggle. That is the whole justification; there is no other new observer. */
+
+/* The photo's clip-path wipe used to live here, with a companion rule fading
+   the seal in behind it. Both are deleted along with the photo.
+
+   Worth recording WHY, because the gesture itself was fine and someone will be
+   tempted to port it to the plate: its resting state was `inset(0 0 100% 0)` —
+   fully clipped, i.e. invisible — and it only opened when JS added .is-in. That
+   made it the one reveal in this theme that failed CLOSED. Any failure between
+   parse and the observer firing (script 404, an exception earlier in boot, a
+   blocked asset) left a permanently empty column with no way for the reader to
+   tell that anything was meant to be there. The only thing standing between a
+   reduced-motion visitor and that empty column was a single !important override
+   in the block at the bottom of this section.
+
+   §25 inverts it: the plate's resting state is the FINISHED state, and JS opts
+   INTO an entrance by adding .is-armed. Same gesture on screen, but every
+   failure path now lands on a complete, visible illustration. This is the same
+   bargain snippets/sh-gen-seal.liquid's count-up already makes — ship the real
+   value, animate as the enhancement (shudhi-home.js:294-298). */
+
+/* Copy column: the container's own fade is cancelled and the motion moves to
+   its children, so they arrive in sequence. Identical construction to
+   .sh-split__copy (:1663). */
+.sh-signature__content[data-reveal] { opacity: 1; transform: none; transition: none; }
+.sh-signature__content[data-reveal] > * {
+  opacity: 0; transform: translateY(20px);
+  transition: opacity .7s cubic-bezier(.22, .61, .36, 1),
+              transform .7s cubic-bezier(.22, .61, .36, 1);
+}
+.sh-signature__content[data-reveal].is-in > * { opacity: 1; transform: none; }
+/* 90ms apart, capped at 270ms. n+4 stops a longer copy block running the last
+   element off the end of the viewport — the same ceiling :1680 holds. */
+.sh-signature__content[data-reveal] > *:nth-child(2)   { transition-delay: .09s; }
+.sh-signature__content[data-reveal] > *:nth-child(3)   { transition-delay: .18s; }
+.sh-signature__content[data-reveal] > *:nth-child(n+4) { transition-delay: .27s; }
+
+/* The six features ride the same .is-in rather than carrying [data-reveal] of
+   their own — a nested reveal inside an already-revealing container would fight
+   the rule above for the same opacity. They start at .30s, just behind the
+   block they sit in, and step 60ms to land by .48s. */
+.sh-signature__content[data-reveal] .sh-signature__feature {
+  opacity: 0; transform: translateY(14px);
+  transition: opacity .6s cubic-bezier(.22, .61, .36, 1),
+              transform .6s cubic-bezier(.22, .61, .36, 1);
+  transition-delay: .30s;
+}
+.sh-signature__content[data-reveal].is-in .sh-signature__feature { opacity: 1; transform: none; }
+.sh-signature__content[data-reveal] .sh-signature__feature:nth-child(2)   { transition-delay: .36s; }
+.sh-signature__content[data-reveal] .sh-signature__feature:nth-child(3)   { transition-delay: .42s; }
+.sh-signature__content[data-reveal] .sh-signature__feature:nth-child(n+4) { transition-delay: .48s; }
+
+/* ---- Responsive -------------------------------------------------------- */
+@media (max-width: 989px) {
+  .sh-signature__grid { grid-template-columns: 1fr; }
+  .sh-signature__media { max-width: 520px; margin-inline: auto; }
+
+  /* §21's mobile rule (:2292) is a BARE .sh-gen and returns every seal on the
+     site to normal flow. It cannot reach this one: `.sh-signature .sh-gen`
+     above is (0,2,0) and beats it on specificity regardless of the media query,
+     which would leave the seal position:relative with a live top/left — a 4%
+     nudge off its flow position rather than a corner pin. Restated here at
+     matching specificity, later in source order, so the intent is explicit
+     rather than an accident of the cascade. */
+  .sh-signature .sh-gen {
+    position: relative; inset: auto;
+    width: clamp(96px, 24vw, 132px);
+    margin: clamp(20px, 4vw, 32px) auto 0;
+  }
+
+  .sh-signature__features { grid-template-columns: 1fr; }
+  /* One column: every item wants a rule except the first, and the vertical
+     hairline has no gap left to hang in. */
+  .sh-signature__feature:nth-child(2) { border-top: 1px solid rgba(27, 42, 18, .14); }
+  .sh-signature__feature:first-child  { border-top: none; }
+  .sh-signature__feature:nth-child(odd):not(:last-child)::after { content: none; }
+}
+
+@media (max-width: 599px) {
+  .sh-signature__divider span { width: 34px; }
+  .sh-signature__feature { padding: 15px 0; }
+  .sh-signature__cta { gap: 16px; }
+}
+
+/* ---- Reduced motion ---------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  /* :1437 neutralises [data-reveal] elements themselves, but every moving part
+     in this section lives on a CHILD that carries no such attribute — without
+     these they would sit at opacity:0 for good if the observer never fired.
+     Same gap .sh-split__copy > * covers at :1740. */
+  .sh-signature__content[data-reveal] > *,
+  .sh-signature__content[data-reveal] .sh-signature__feature {
+    opacity: 1 !important; transform: none !important;
+    transition: none !important; transition-delay: 0s !important;
+  }
+  /* The two rules that used to sit here existed only to rescue the photo's
+     fail-closed wipe — without them a reduced-motion visitor got an empty
+     column. Both are gone with the wipe. The plate needs no equivalent rescue:
+     its resting state is already the finished state, so reduced motion has
+     nothing to undo, only motion to decline. §25 holds that block. */
+  .sh-signature .sh-btn--solid:hover::after { animation: none; }
+  /* Both properties, not just the transition: killing the transition alone
+     would SNAP the icon to scale — louder than the motion it replaces. Same
+     call :1447 makes for the button arrow. */
+  .sh-signature__feature-icon { transition: none !important; }
+  .sh-signature__feature:hover .sh-signature__feature-icon { transform: none !important; }
+}
+
+/* ============================================================
+   23. CONTACT — sections/sh-contact.liquid
+   Replaces §14c, deleted along with its two entries in §15
+   (.sh-contact__grid at the 1024 tier, .sh-form__row at 768).
+
+   Filed down here, not tidied in place: three of these rule groups only work
+   BELOW the shared ones they answer.
+     - .sh-form__inner[data-reveal] cancels `.sh [data-reveal]` (:234) at equal
+       specificity (0,2,0), so it must come later in the file.
+     - the light-band focus rings re-colour `.sh …:focus-visible` (:243), also
+       (0,2,1) — same requirement.
+     - the reduced-motion rules EXTEND §16 rather than replacing it.
+   And the breakpoints had to come with it: a media query adds no specificity,
+   so a .sh-contact__grid declared down here would out-ORDER the identical
+   selector inside @media(max-width:1024px) up in §15, and the layout would
+   never stack on tablet.
+   ============================================================ */
+.sh-contact {
+  /* Light-surface token set, re-declared rather than referenced — their only
+     declaration lives on `.sh-story` (:687), section-scoped and deliberately
+     not on :root, so var(--sh-story-ink) resolves to nothing here. Same names,
+     identical values: if they are ever promoted to :root this collapses into a
+     no-op instead of a competing vocabulary. Same trade .sh-split makes. */
+  --sh-story-ink:      #1b2a12;   /* headings, dd text — 13.1:1 on cream */
+  --sh-story-body:     #474a3d;   /* labels, hints, body — 7.8:1 */
+  --sh-story-gold-ink: #7a5d2e;   /* the gold dark enough to be READ — 5.3:1 */
+  --sh-contact-bg:     #f2ece0;   /* overridden inline from the `bg` setting */
+
+  /* Control borders need 3:1 against the adjacent surface (WCAG 1.4.11). The
+     old rgba(36,29,21,.2) resolved to ~#cdc7bc on cream = 1.35:1, and the
+     rgba(255,255,255,.55) fill was ~1.1:1 against THAT — the inputs had no
+     qualifying boundary in either channel. .55 alpha of the ink green lands at
+     ~#7a7f6d = 3.4:1 and still reads as a soft olive hairline, not a box. */
+  --sh-contact-line:   rgba(27, 42, 18, .55);   /* control borders — 3.4:1 */
+  --sh-contact-rule:   rgba(27, 42, 18, .14);   /* decorative rules ONLY */
+  --sh-contact-field:  rgba(255, 255, 255, .62);
+  --sh-contact-err:    #8f2f1e;                 /* 6.7:1 on cream */
+
+  background: var(--sh-contact-bg);
+  color: var(--sh-story-ink);
+  padding-block: clamp(56px, 7vw, 96px);
+  /* The section carries id="contact" AND Shopify's own form posts to
+     /contact#contact_form, so both fragments land here. .sh-header-sticky is
+     position:sticky;top:0 on every template, so without this the landing target
+     sits under the bar. Same fix as .sh-split[id]. */
+  scroll-margin-top: var(--sh-header-h);
+}
+
+/* houseofveda-modern.css:55 colours every h1-h6 and timber.scss.liquid:814
+   force-capitalises them. (0,1,1) beats a bare h2 (0,0,1). */
+.sh-contact h2 { color: inherit; text-transform: none; }
+
+.sh-contact__grid {
+  display: grid;
+  /* Was 1.35fr/1fr. The details column was not narrow so much as unhoused — a
+     bare <dl> on the same cream as the form reads as leftover space rather than
+     a designed object. It now carries a panel, and the ratio moves to 1.1 so
+     that panel has room to have padding. */
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+  gap: clamp(34px, 4.6vw, 64px);
+  align-items: start;
+}
+/* An unconfigured page has no detail rows and no footnote, so sh-contact.liquid
+   withholds the whole aside rather than shipping an empty tinted box. Without
+   this the form would sit in a 1.1fr column with a dead 1fr beside it. The
+   max-width keeps the line length readable once it is the only column — the
+   form would otherwise run to the full 1280px wrap. */
+.sh-contact--solo .sh-contact__grid { grid-template-columns: minmax(0, 1fr); max-width: 680px; }
+
+.sh-contact__title { font-size: clamp(1.6rem, 2.8vw, 2.3rem); margin-bottom: 14px; }
+/* The success heading is the autofocus target. Clear the sticky bar, and give a
+   programmatic focus a calm ring rather than the UA default (or nothing). */
+.sh-contact [tabindex="-1"] { scroll-margin-top: calc(var(--sh-header-h) + 20px); }
+.sh-contact [tabindex="-1"]:focus { outline: none; }
+.sh-contact [tabindex="-1"]:focus-visible {
+  /* !important for the same reason as the control rings below — see that
+     comment for the universal `outline: 0 !important` this has to outrank. */
+  outline: 2px solid var(--sh-story-ink) !important; outline-offset: 4px;
+}
+
+/* --- Form ------------------------------------------------------------- */
+/* Shopify sets action="/contact#contact_form" and id="contact_form" on the form
+   itself, so the error re-render and the ?contact_posted=true redirect both jump
+   to it. NEVER pass a custom `id:` to the form tag — it would break that pair. */
+.sh-contact .sh-form { scroll-margin-top: calc(var(--sh-header-h) + 16px); }
+.sh-form__lede {
+  font-size: .95rem; line-height: 1.7; color: var(--sh-story-body);
+  max-width: 52ch; margin-bottom: 26px;
+}
+.sh-form__row { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+.sh-field     { display: grid; row-gap: 7px; margin-bottom: 18px; }
+.sh-field__label {
+  font-size: .68rem; letter-spacing: .16em; text-transform: uppercase;
+  font-weight: 500; color: var(--sh-story-body);
+}
+/* aria-hidden in the markup: `required` already carries this to AT, and a
+   read-aloud "star" is noise. Gold-INK, never --sh-gold — 1.95:1 on cream. */
+.sh-field__req  { color: var(--sh-story-gold-ink); margin-left: .35em; }
+.sh-field__hint { font-size: .76rem; line-height: 1.5; color: var(--sh-story-body); }
+
+/* Bootstrap Reboot and the Herbyo form CSS both style bare controls; (0,1,1)
+   here out-specifies them without !important, matching how .sh-news does it. */
+.sh-contact input,
+.sh-contact select,
+.sh-contact textarea {
+  width: 100%; padding: 13px 15px; border-radius: 4px;
+  border: 1px solid var(--sh-contact-line);
+  background: var(--sh-contact-field);
+  color: var(--sh-story-ink); font-size: .92rem; line-height: 1.4;
+  transition: border-color .2s ease, background-color .2s ease;
+}
+.sh-contact textarea { resize: vertical; min-height: 130px; }
+
+/* Native select chrome reads as a foreign object next to six custom fields. The
+   chevron is set with background-image and friends, NOT the `background`
+   shorthand — the rule above already used the shorthand for the fill, and
+   restating it here would wipe the image. Same reason :focus below sets
+   background-COLOR: `background: #fff` would drop the chevron on focus. */
+.sh-contact select {
+  appearance: none; -webkit-appearance: none;
+  padding-right: 40px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none' stroke='%231b2a12' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M1 1.5 6 6.5 11 1.5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 15px center;
+  background-size: 12px 8px;
+}
+
+/* The old §14c wrote `outline: none` on :focus. `.sh-contact input:focus` is
+   (0,2,1) and `.sh input:focus-visible` (:243) is ALSO (0,2,1) — and §14c came
+   later in the file, so it erased the keyboard ring on EVERY control in this
+   form (WCAG 2.4.7). The two states are split here instead: :focus is the
+   pointer affordance (border and fill), :focus-visible is the indicator, and
+   neither touches the other. */
+.sh-contact input:focus,
+.sh-contact select:focus,
+.sh-contact textarea:focus {
+  border-color: var(--sh-story-gold-ink);
+  background-color: #fff;
+}
+/* Two problems, one rule.
+
+   1. COLOUR. --sh-gold (what :243 paints) is 1.95:1 on cream, under the 3:1
+      WCAG 1.4.11 asks of a focus indicator. --sh-story-ink is 13.1:1.
+
+   2. !important, which the house style otherwise avoids. assets/style-main.scss
+      ships `* { outline: 0 !important; }` — a universal reset that outranks
+      EVERY focus rule in the theme, including :243 and hov-typography.css:65.
+      Verified in the browser: with only the non-important rules in place the
+      computed outline on every control here was `none 0px`. A declaration
+      without !important cannot beat a universal one that has it, whatever its
+      specificity, so the whole shorthand is restated here rather than just the
+      colour. This is a local answer to a SITE-WIDE bug: every other section,
+      the header nav and the footer are still ringless. Deleting that one
+      declaration in style-main.scss is the real fix and would let this rule go
+      back to `outline-color:` alone. */
+.sh-contact a:focus-visible,
+.sh-contact button:focus-visible,
+.sh-contact input:focus-visible,
+.sh-contact select:focus-visible,
+.sh-contact textarea:focus-visible {
+  outline: 2px solid var(--sh-story-ink) !important;
+  outline-offset: 3px;
+}
+
+.sh-form__actions { margin-top: 8px; }
+/* The only solid CTA in the theme on a LIGHT surface. Gold on cream is 2.0:1,
+   so the fill alone gives no 3:1 boundary; --sh-accent-edge on cream is 4.3:1.
+   `outline` with a negative offset, not a border (grows the box) and not an
+   inset box-shadow (paints under the hover ::before, so it vanishes on hover).
+   On focus, `.sh-contact button:focus-visible` (0,2,1) replaces this outline
+   with the ring — the ring is louder, so the swap is a net gain. */
+.sh-contact .sh-btn--solid { outline: 1px solid var(--sh-accent-edge); outline-offset: -1px; }
+.sh-form__privacy {
+  margin-top: 14px; font-size: .78rem; line-height: 1.6; color: var(--sh-story-body);
+}
+
+/* Honeypot. NOT display:none — most bots skip hidden fields but fill offset
+   ones. tabindex="-1" in the markup keeps it out of the tab order, which is what
+   lets the aria-hidden wrapper pass axe's aria-hidden-focus rule. It cannot
+   BLOCK a submission: Shopify's native form has no server hook. Its value is
+   that a filled `Website:` line in the notification email is a one-rule inbox
+   filter. Real blocking is Shopify's platform reCAPTCHA. */
+.sh-form__hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+
+.sh-form__ok,
+.sh-form__err {
+  padding: 18px 20px; border-radius: var(--sh-radius);
+  font-size: .95rem; line-height: 1.7;
+  background-color: var(--sh-contact-bg);   /* tint over the merchant's own bg,
+                                               so both states track a retint */
+}
+.sh-form__ok {
+  display: flex; align-items: flex-start; gap: 12px;
+  background-image: linear-gradient(rgba(65, 86, 42, .10), rgba(65, 86, 42, .10));
+  border: 1px solid rgba(65, 86, 42, .32);
+}
+.sh-form__ok .sh-icon {
+  width: 18px; height: 18px; flex: none; color: var(--sh-green-600); margin-top: 3px;
+}
+.sh-form__err {
+  display: flex; align-items: flex-start; gap: 12px;
+  margin-bottom: 22px;
+  background-image: linear-gradient(rgba(143, 47, 30, .09), rgba(143, 47, 30, .09));
+  border: 1px solid rgba(143, 47, 30, .34);
+}
+.sh-form__err > .sh-icon {
+  width: 18px; height: 18px; flex: none; color: var(--sh-contact-err); margin-top: 3px;
+}
+/* The error was signalled by a pink wash and position alone — colour as the sole
+   carrier of meaning (WCAG 1.4.1). The title is the non-colour signal. */
+.sh-form__err-title { font-weight: 500; color: var(--sh-contact-err); margin-bottom: 6px; }
+.sh-form__err ul { margin: 0; padding-left: 0; list-style: none; }
+.sh-form__after { margin-top: 22px; }
+
+/* --- Details ---------------------------------------------------------- */
+/* Tinted FROM the surface — the band's own colour with a low-alpha ink wash — so
+   the panel tracks whatever `bg` the merchant picks instead of stranding a
+   hardcoded beige next to a retinted band. Same construction as
+   .sh-split__photo--blank. */
+.sh-contact__card {
+  background-color: var(--sh-contact-bg);
+  background-image: linear-gradient(rgba(27, 42, 18, .06), rgba(27, 42, 18, .06));
+  border: 1px solid var(--sh-contact-rule);
+  border-radius: var(--sh-radius);
+  padding: clamp(24px, 2.6vw, 34px);
+}
+/* Promoted to <h2> so the details list is not filed under the FORM's heading
+   (WCAG 1.3.1). That drags it into two rules written for real headings:
+   `.sh h1..h6` (:145) forces the serif at (0,1,1), and `.sh-contact h2` above
+   sets text-transform at (0,1,1). Both restated here at (0,2,0); the
+   font-family also needs !important to answer :145. Same fix as
+   .sh .sh-fgrid__eyebrow. Colour is --sh-story-gold-ink, NOT --sh-gold-2,
+   which was 2.37:1 on cream — a failing colour on live text. */
+.sh .sh-contact__eyebrow {
+  font-family: var(--sh-sans) !important;
+  font-size: .7rem; letter-spacing: .3em; text-transform: uppercase;
+  font-weight: 500; line-height: 1.4;
+  color: var(--sh-story-gold-ink);
+  margin-bottom: 14px;
+}
+/* Eyebrow + hairline, the same idiom .sh-story-hero__eyebrow uses. */
+.sh-contact__rule {
+  display: block; width: clamp(48px, 6vw, 78px); height: 1px;
+  background: var(--sh-story-gold-ink); opacity: .7; margin-bottom: 24px;
+}
+
+.sh-contact__list { display: grid; gap: 22px; margin: 0; }
+.sh-contact__item { display: flex; align-items: flex-start; gap: 14px; }
+/* Icons are decorative, so --sh-gold-2 is fine HERE and nowhere else in this
+   block — every TEXT use of it failed AA on this surface. */
+.sh-contact__item > .sh-icon {
+  width: 19px; height: 19px; flex: none; color: var(--sh-gold-2); margin-top: 2px;
+}
+.sh-contact__item dt {
+  font-size: .66rem; letter-spacing: .18em; text-transform: uppercase;
+  font-weight: 500; color: var(--sh-story-body); margin-bottom: 5px;
+}
+.sh-contact__item dd { margin: 0; font-size: .95rem; line-height: 1.65; }
+.sh-contact__item dd a {
+  text-decoration: underline; text-underline-offset: 3px;
+  text-decoration-color: var(--sh-contact-rule);
+}
+/* Was --sh-gold-2 — 2.37:1 on cream, i.e. the hover state DESTROYED the
+   contrast of a link that was fine at rest. */
+.sh-contact__item dd a:hover {
+  color: var(--sh-story-gold-ink); text-decoration-color: currentColor;
+}
+.sh-contact__map {
+  display: inline-flex; align-items: center; gap: .5em; margin-top: 8px;
+  font-size: .74rem; letter-spacing: .16em; text-transform: uppercase;
+  color: var(--sh-story-gold-ink);
+}
+.sh-contact__map .sh-icon { width: 13px; height: 13px; transition: transform .3s ease; }
+.sh-contact__map:hover .sh-icon { transform: translateX(4px); }
+.sh-contact__note {
+  margin-top: 22px; font-size: .86rem; line-height: 1.7; color: var(--sh-story-body);
+}
+
+/* --- Reveal ----------------------------------------------------------- */
+/* Pattern A, no second observer: shudhi-home.js:268 only ever toggles .is-in on
+   the element carrying data-reveal, so each container keeps the hook and hands
+   the motion to its children. The container's own opacity/transform from :234 is
+   cancelled here — both selectors are (0,2,0), so this wins on source order —
+   otherwise the two fades multiply into a double dip.
+
+   The hook is on .sh-form__inner, NOT on the form element: Shopify injects
+   form_type and utf8 as the form's first children, so nth-child on `form > *`
+   would be counting hidden inputs, and the whole ramp would shift silently if a
+   third ever appeared. The Liquid also withholds data-reveal entirely on the
+   success and error renders — the confirmation heading is the autofocus target,
+   and focusing an element at opacity:0 mid-transform is exactly the "motion
+   gates content" failure the house rule forbids. */
+.sh-form__inner[data-reveal],
+.sh-contact__col--info[data-reveal] { opacity: 1; transform: none; transition: none; }
+.sh-form__inner[data-reveal] > *,
+.sh-contact__col--info[data-reveal] > * {
+  opacity: 0; transform: translateY(20px);
+  transition: opacity .7s cubic-bezier(.22, .61, .36, 1),
+              transform .7s cubic-bezier(.22, .61, .36, 1);
+}
+.sh-form__inner[data-reveal].is-in > *,
+.sh-contact__col--info[data-reveal].is-in > * { opacity: 1; transform: none; }
+/* 90ms apart, capped at 270ms. `> *` so a blank lede shortens the ramp rather
+   than leaving a hole in it. */
+.sh-form__inner[data-reveal] > *:nth-child(2)   { transition-delay: .09s; }
+.sh-form__inner[data-reveal] > *:nth-child(3)   { transition-delay: .18s; }
+.sh-form__inner[data-reveal] > *:nth-child(n+4) { transition-delay: .27s; }
+/* The details column starts 120ms behind, so at desktop — where both columns
+   intersect together — the two read as one gesture rather than two. Worst case
+   120 + 270 = 390ms, inside the ~450ms house ceiling. Below 1024 the columns
+   stack and each gets its own observer entry, so the offset is simply
+   imperceptible: no effect, no bug. Equal specificity (0,3,0) to the rules
+   above, so this block must stay BELOW them. */
+.sh-contact__col--info[data-reveal] > *:nth-child(1)   { transition-delay: .12s; }
+.sh-contact__col--info[data-reveal] > *:nth-child(2)   { transition-delay: .21s; }
+.sh-contact__col--info[data-reveal] > *:nth-child(n+3) { transition-delay: .30s; }
+
+/* --- Breakpoints ------------------------------------------------------ */
+@media (max-width: 1024px) {
+  .sh-contact__grid { grid-template-columns: minmax(0, 1fr); }
+  /* Full width now, so the four rows go two-up instead of running down one long
+     thin column with 500px of dead space beside it. */
+  .sh-contact__list { grid-template-columns: 1fr 1fr; gap: 24px 32px; }
+}
+@media (max-width: 768px) {
+  /* Name/email side by side is too tight below this width. */
+  .sh-form__row { grid-template-columns: 1fr; gap: 0; }
+  .sh-contact__list { grid-template-columns: 1fr; }
+}
+@media (max-width: 599px) {
+  .sh-contact { padding-block: clamp(44px, 9vw, 60px); }
+  .sh-contact__card { padding: 22px 20px; }
+  .sh-contact textarea { min-height: 118px; }
+  /* The one control on this page that gets hit with a thumb. Inline at this
+     width leaves a lopsided gutter and a small target. (0,2,0), equal to the
+     base rule, so this block must stay below it. */
+  .sh-contact .sh-btn--solid { width: 100%; justify-content: center; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* §16 neutralises the [data-reveal] elements themselves, but every moving part
+     here is on their CHILDREN, which carry no such attribute. Without this they
+     would still slide — and would sit at opacity:0 permanently if the observer
+     never fired, which on a CONTACT FORM means an unreachable page, not a
+     cosmetic miss. transition-delay is restated because a delay is motion the
+     same way the movement it delays is (same call .sh-flow__step makes). */
+  .sh-form__inner[data-reveal] > *,
+  .sh-contact__col--info[data-reveal] > * {
+    opacity: 1 !important; transform: none !important;
+    transition: none !important; transition-delay: 0s !important;
+  }
+  .sh-contact input, .sh-contact select, .sh-contact textarea,
+  .sh-contact__map .sh-icon { transition: none !important; }
+  .sh-contact__map:hover .sh-icon { transform: none !important; }
+}
+
+/* ============================================================
+   24. LIVING CONVERSATION — snippets/sh-living-conversation.liquid
+   The editorial panel that occupies sh-contact's right column. It renders
+   INSIDE .sh-contact__grid, so it cannot be its own section and this file is
+   the only place its rules can live.
+
+   Filed below §23, not inside it. Three groups only work here:
+     - .sh-lc[data-reveal] cancels `.sh [data-reveal]` (:234) at equal
+       specificity (0,2,0), so it must come later in the file. Exactly the trade
+       .sh-form__inner[data-reveal] makes at :2900.
+     - the --lc / --both grid rules amend .sh-contact__grid (:2660) and must
+       read as an amendment to it, not a competing definition.
+     - the reduced-motion block EXTENDS §16 (:1415) and §23's own (:2947).
+
+   *** THE ORDERING TRAP — read this before adding any breakpoint. ***
+   `.sh-contact--lc .sh-contact__grid` is (0,2,0). The tablet stack rule at
+   :2927 is `.sh-contact__grid` (0,1,0) inside @media(max-width:1024px), and a
+   MEDIA QUERY ADDS NO SPECIFICITY. So an unqualified --lc grid rule down here
+   out-specifies the stack rule and THE LAYOUT NEVER STACKS BELOW 1024px. Every
+   §24 breakpoint override restates the .sh-contact--lc / --both qualifier for
+   that reason. This is the identical failure the §23 header describes for the
+   §15 -> §23 move, one modifier class further along.
+
+   TOKENS ARE NOT RE-DECLARED HERE. --sh-story-ink / -body / -gold-ink are
+   declared on .sh-contact (:2631) and custom properties inherit, so this scope
+   already has them. A third copy would break the "if they are ever promoted to
+   :root this collapses into a no-op" property :2626 relies on.
+
+   NO FOCUS RULE, DELIBERATELY. The panel is aria-hidden with
+   pointer-events:none and has no focusable descendant, so it needs no ring and
+   therefore does NOT need to restate `outline: … !important` against the
+   universal `* { outline: 0 !important }` in assets/style-main.scss.liquid.
+   That omission is a decision, not an oversight. If a link is ever added inside
+   the panel, both aria-hidden and pointer-events:none must go — and the whole
+   accessibility model has to be redesigned before it does.
+
+   COLOUR BUDGET on this cream band: statement --sh-story-ink (13.1:1), status
+   text --sh-story-body (7.8:1), every stroke, dot and seed --sh-story-gold-ink
+   at reduced alpha. --sh-gold (1.95:1) and --sh-gold-2 (2.37:1) appear NOWHERE
+   in this section, decoratively or otherwise: at these stroke weights on cream
+   they are not "non-compliant", they are invisible.
+   ============================================================ */
+
+/* --- Grid amendment --------------------------------------------------- */
+/* Panel alone: 55/45, and the column CENTRES against the form rather than
+   hanging off its top edge — the form is ~700px tall and the panel ~460px, so
+   `align-items: start` (:2668) would leave it visibly top-heavy. */
+.sh-contact--lc .sh-contact__grid {
+  grid-template-columns: minmax(0, 1.22fr) minmax(0, 1fr);
+  align-items: center;
+}
+/* Panel AND details card: the card needs its width back, so the ratio returns
+   to §23's 1.1fr and the column goes back to top-aligned — a card that floats
+   in the vertical middle next to a tall form reads as unanchored. */
+.sh-contact--both .sh-contact__grid {
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+  align-items: start;
+}
+/* Shared wrapper for whatever occupies the right column. align-content, not
+   align-items: this is the inner grid, and it has to preserve the outer
+   `align-items: start` behaviour for its own children. */
+.sh-contact__col--side { display: grid; align-content: start; gap: clamp(28px, 3.4vw, 44px); }
+
+/* --- Panel root ------------------------------------------------------- */
+.sh-lc {
+  --sh-lc-e:    cubic-bezier(.22, .61, .36, 1);
+  --sh-lc-hair: rgba(122, 93, 46, .42);   /* --sh-story-gold-ink at low alpha */
+
+  position: relative;
+  display: grid; place-content: center;
+  width: 100%; max-width: 560px; min-height: 460px;
+  margin-inline: auto;
+  padding-block: clamp(18px, 2.6vw, 40px);
+  text-align: center;
+
+  /* Load-bearing, not cosmetic. The panel is aria-hidden="true"; axe's
+     aria-hidden-focus rule flags TABBABLE content inside an aria-hidden
+     subtree, and this plus "no focusable descendant" is what keeps it passing.
+     It also guarantees the panel can never intercept a click meant for the
+     confirmation link on the success render. Same reasoning the honeypot's
+     tabindex="-1" carries at :2790. */
+  pointer-events: none;
+}
+
+/* --- Art layers ------------------------------------------------------- */
+/* Behind the copy, clipped to the panel so a drifting seed cannot widen the
+   grid column and push the form. */
+.sh-lc__art {
+  position: absolute; inset: 0;
+  display: grid; place-items: center;
+  overflow: hidden;
+}
+/* The rotation source list. It carries the `hidden` attribute, but that is a UA
+   declaration and this theme ships Bootstrap Reboot's `div { display: block }`
+   in the author origin, which outranks it. Restated here so the statements
+   cannot dump themselves onto the page as a stack of visible text. */
+.sh-lc__source[hidden] { display: none !important; }
+/* Deliberately narrower than the panel, and this measurement is load-bearing:
+   the arcs live in the OUTER MARGIN it creates. The arcs' own viewBox keeps them
+   inside x < 9/82 and x > 73/82, i.e. the outer 11% on each side, so a 380px
+   copy column inside a ~490px panel leaves them roughly 35px of clear air. Widen
+   this and the curves start crossing the type — which is the one thing they must
+   never do, because a stroke through an uppercase serif line reads as a printing
+   fault rather than as decoration. */
+.sh-lc__copy {
+  position: relative; z-index: 1;
+  display: grid; gap: 0;
+  width: 100%; max-width: 380px; margin-inline: auto;
+}
+
+/* --- Statement -------------------------------------------------------- */
+/* The `.sh` prefix is load-bearing. `.sh p` (:140) declares
+   font-family: var(--sh-sans) !important at (0,1,1); a bare .sh-lc__statement
+   is (0,1,0) and would LOSE despite also being !important — which is exactly
+   what happens to .sh-story__seal-num at :803. (0,2,0) wins. Same fix
+   .sh .sh-gen__num (:2181) and .sh .sh-contact__eyebrow (:2841) make. */
+.sh .sh-lc__statement {
+  font-family: var(--sh-serif) !important;
+  /* Capped at 1.95rem so the longest shipped statement still sets two lines
+     inside the 380px copy column above. Larger and "GOOD THINGS BEGIN" alone
+     overflows to two lines, which pushes the whole statement to four. */
+  font-size: clamp(1.45rem, 2.15vw, 1.95rem);
+  font-weight: 500; line-height: 1.22; letter-spacing: .012em;
+  text-transform: uppercase;
+  color: var(--sh-story-ink);
+  margin: 0;
+
+  /* Both lines share one grid cell during a swap, so without a floor the box
+     would be sized by the taller of the two and would grow and shrink as
+     statements of different lengths cycle — a CLS event every 7 seconds, on a
+     timer, forever. 3 lines x 1.22 line-height reserves the tallest the shipped
+     copy can produce at the 560px cap. Recheck this number if the type scale or
+     that cap changes. */
+  display: grid;
+  min-height: 3.66em;
+  align-content: center;
+}
+/* Both lines occupy the same cell so the outgoing and incoming text cross in
+   place. Grid, not absolute positioning — both still participate in sizing, so
+   the min-height above is a floor rather than the only thing holding the box
+   open. */
+.sh-lc__line { grid-area: 1 / 1; }
+
+/* inline-block so a line can never break INSIDE a word. A flat char split
+   without this wrapper lets the text wrap mid-word, which on an uppercase
+   serif display line is instantly visible. */
+.sh-lc__w { display: inline-block; }
+/* The base state is VISIBLE. Every char-level animation below is an opt-in
+   overlay on top of it, so a split that happens without an animation — JS that
+   dies between the two, an engine that drops the keyframes — leaves readable
+   text rather than an empty box. --p is a 0->1 position across the whole line,
+   written once by the split function, so CSS owns every timing constant and a
+   6-char line and a 40-char line sweep in identical wall-clock time. */
+/* No will-change. A statement is 25-40 characters, so hinting each one would ask
+   the compositor for forty permanently promoted layers to serve a 480ms fade —
+   the opposite of the trade :2156 makes for the seal's ring, and at forty times
+   the cost. The browser promotes them for the duration of the animation on its
+   own, which is exactly as long as it should. */
+.sh-lc.is-split .sh-lc__c { display: inline-block; }
+
+/* animation + `backwards`, NOT a transition with a pre-state class. A pre-state
+   class has to be applied and then removed, and if anything fails between those
+   two steps the text is hidden permanently — the "motion gates content" failure
+   the house rule forbids, on the one element that carries the message. With
+   backwards fill the char holds the from-state only during its own delay and
+   then reverts to the base state above, so the class can stay on the element
+   forever and the worst possible outcome is an animation that does not play. */
+.sh-lc.is-split .sh-lc__line--enter .sh-lc__c {
+  animation: sh-lc-c-in 480ms var(--sh-lc-e) backwards;
+  animation-delay: calc(160ms + var(--p) * 220ms);
+}
+/* forwards, so the outgoing line stays gone until JS detaches it. Leave ends at
+   500ms and enter's first char starts at 160ms: the 340ms overlap is what makes
+   the swap read as ONE gesture instead of a queue. They never cross-fade in
+   place — the outgoing char at position p has left before the incoming char at
+   the same p arrives. */
+.sh-lc.is-split .sh-lc__line--leave .sh-lc__c {
+  animation: sh-lc-c-out 320ms var(--sh-lc-e) forwards;
+  animation-delay: calc(var(--p) * 180ms);
+}
+@keyframes sh-lc-c-in  { from { opacity: 0; transform: translateY(.62em); } }
+@keyframes sh-lc-c-out { to   { opacity: 0; transform: translateY(-.62em); } }
+
+/* --- Eyebrow, support, status ----------------------------------------- */
+/* All three are <p>, so all three carry the `.sh` prefix for the same reason
+   .sh .sh-lc__statement above does: the reset at :112 is `.sh p { margin: 0 }`
+   at (0,1,1) and would zero every margin below — including the `auto` that
+   centres the support line and the status row. A bare .sh-lc__support is
+   (0,1,0) and silently loses. This is the single easiest mistake to make in
+   this file; anything new here that is a <p> and sets a margin needs it too. */
+.sh .sh-lc__eyebrow {
+  font-size: .68rem; letter-spacing: .3em; text-transform: uppercase;
+  font-weight: 500; color: var(--sh-story-gold-ink);
+  margin: 0 0 clamp(18px, 2.2vw, 26px);
+}
+.sh .sh-lc__support {
+  font-size: .92rem; line-height: 1.75; color: var(--sh-story-body);
+  max-width: 34ch; margin: clamp(18px, 2.2vw, 26px) auto 0;
+  text-wrap: balance;
+}
+.sh .sh-lc__status {
+  display: inline-flex; align-items: center; justify-content: center; gap: .7em;
+  margin: clamp(26px, 3.2vw, 38px) auto 0;
+  font-size: .7rem; letter-spacing: .18em; text-transform: uppercase;
+  font-weight: 500; color: var(--sh-story-body);
+}
+/* An organic breath, not a technical spinner: it scales and dims on a 4.2s
+   ease-in-out, which is slower than a resting human breath and has no discrete
+   "step" a loading indicator would. The state only ever changes its TEMPO —
+   same dot, same motion, different urgency. */
+.sh-lc__dot {
+  width: 7px; height: 7px; flex: none; border-radius: 50%;
+  background: var(--sh-story-gold-ink);
+  animation: sh-lc-breathe 4.2s ease-in-out infinite;
+}
+@keyframes sh-lc-breathe {
+  0%, 100% { transform: scale(.7); opacity: .45; }
+  50%      { transform: scale(1);  opacity: .95; }
+}
+.sh-lc[data-lc-state="typing"]  .sh-lc__dot { animation-duration: 2.4s; }
+.sh-lc[data-lc-state="sending"] .sh-lc__dot { animation-duration: 1.1s; }
+.sh-lc[data-lc-state="error"]   .sh-lc__dot { animation-duration: 1.6s; background: var(--sh-contact-err); }
+/* Sent is the one state that STOPS. A message that has arrived should settle,
+   not keep pulsing as though something were still pending. */
+.sh-lc[data-lc-state="sent"] .sh-lc__dot {
+  animation: none; transform: scale(1); opacity: 1; background: var(--sh-green-600);
+}
+
+/* --- Botanical ring --------------------------------------------------- */
+/* Three overlapping square SVGs. Square viewBox and the rotation applied to the
+   <svg> ELEMENT, never to a <g> or <circle> inside it: on the element the CSS
+   default transform-origin:50% 50% resolves against its border box with no
+   transform-box declaration needed, which is the construction sh-gen__ring
+   already uses (:2151-2158) and the reason it works across engines. Two
+   elements rather than one because the rings counter-rotate. */
+/* In the copy flow, under the status line — not behind the type. Behind it, the
+   ring crossed every line of an uppercase serif statement and read as a printing
+   fault rather than as decoration; here it closes the composition the way a seal
+   closes a letter, which is also the order the brief's own layout sketch uses.
+   .sh-lc__seal is the entrance target, .sh-lc__symbol inside it is the cursor
+   target — one element cannot hold two transforms. */
+.sh-lc__seal { display: grid; place-items: center; margin-top: clamp(30px, 3.6vw, 44px); }
+.sh-lc__symbol {
+  position: relative;
+  width: clamp(88px, 11vw, 124px); aspect-ratio: 1;
+  display: grid; place-items: center;
+}
+.sh-lc__ring, .sh-lc__ring2 {
+  position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible;
+}
+/* Full-panel, and its own layer: riding the ring would turn a hand-drawn line
+   into a spinning one. It sits in .sh-lc__art so it spans the whole panel rather
+   than the 124px seal. */
+.sh-lc__arcs { position: absolute; inset: 0; width: 100%; height: 100%; }
+.sh-lc__ring  { animation: sh-lc-spin 120s linear infinite; }
+.sh-lc__ring2 { animation: sh-lc-spin  84s linear infinite reverse; }
+@keyframes sh-lc-spin { to { transform: rotate(360deg); } }
+/* stroke-width in viewBox units — 1 of 240 — so it stays a true hairline at
+   every width the clamp produces, rather than thickening as the box grows.
+   Same call :2165 and :797 make. will-change is deliberately omitted: :2156's
+   reasoning applies threefold here, since 120s is a quarter of that ring's
+   speed and a permanently promoted layer is not worth one degree every third
+   of a second. */
+.sh-lc__ring circle, .sh-lc__ring2 circle {
+  fill: none; stroke: var(--sh-lc-hair); stroke-width: 1.6;
+}
+.sh-lc__ring .sh-lc__seed-dot { fill: var(--sh-lc-hair); stroke: none; }
+/* The glyph is a SIBLING of both rings, never a child — anything inside one
+   rides the rotation and spends half the cycle upside down. The identical call
+   sh-gen-seal.liquid:63-67 makes for its number. */
+.sh-lc__glyph {
+  position: relative; z-index: 1;
+  width: 34%; height: 34%;
+  color: var(--sh-story-gold-ink); opacity: .62;
+}
+
+/* pathLength="1" in the markup normalises every path to one user unit, so this
+   dasharray/dashoffset pair draws each arc exactly with no getTotalLength() and
+   therefore NO JAVASCRIPT AT ALL. That is why anime's svg.createDrawable is not
+   used: it wraps a measurement that needs settled layout, and an entrance that
+   fires early measures 0 and draws nothing. */
+.sh-lc__arc {
+  fill: none; stroke: var(--sh-lc-hair);
+  /* User units in the arcs' own 82x100 viewBox, NOT the ring's 240x240 — at the
+     ~6x scale that box gets, .2 lands at ~1.2px. Do not copy the ring's 1.6. */
+  stroke-width: .2; stroke-linecap: round;
+  stroke-dasharray: 1; stroke-dashoffset: 1;
+  transition: stroke-dashoffset 900ms var(--sh-lc-e) 380ms;
+}
+.sh-lc.is-drawn .sh-lc__arc { stroke-dashoffset: 0; }
+.sh-lc__arc:nth-of-type(2) { transition-delay: 520ms; }
+.sh-lc__arc:nth-of-type(3) { transition-delay: 900ms; transition-duration: 380ms; }
+
+/* --- Drifting seeds --------------------------------------------------- */
+.sh-lc__dust { position: absolute; inset: 0; }
+/* Positions come from a hand-authored table in the Liquid, not from Math.random
+   — composed dust reads as design where random dust reads as noise, and a
+   server-rendered position is STABLE across a reload or a back-navigation,
+   where a re-randomised field reads as a glitch. `alternate` rather than a
+   plain loop: a looping translate snaps back at the wrap, which is plainly
+   visible on a 3px dot against flat cream. */
+.sh-lc__seed {
+  position: absolute; left: var(--x); top: var(--y);
+  width: 3px; height: 3px; border-radius: 50%;
+  background: var(--sh-story-gold-ink);
+  opacity: var(--o, .22);
+  animation: sh-lc-drift var(--dur, 16s) ease-in-out var(--del, 0s) infinite alternate;
+  /* Nothing moves before it is seen. The panel's own observer flips
+     .is-onscreen, which gates this, the two rings, the ambient rotation timer
+     and the cursor rAF loop from one class — scrolled away, the panel costs
+     zero, compositor included. */
+  animation-play-state: paused;
+}
+@keyframes sh-lc-drift {
+  from { transform: translate3d(0, 0, 0)       scale(var(--s, 1)); }
+  to   { transform: translate3d(4px, -14px, 0) scale(var(--s, 1)); }
+}
+.sh-lc.is-onscreen .sh-lc__seed,
+.sh-lc.is-onscreen .sh-lc__ring,
+.sh-lc.is-onscreen .sh-lc__ring2 { animation-play-state: running; }
+.sh-lc__ring, .sh-lc__ring2 { animation-play-state: paused; }
+
+/* --- Entrance --------------------------------------------------------- */
+/* Pattern A, no second reveal observer: shudhi-home.js:268 only toggles .is-in
+   on the element carrying data-reveal, so the panel keeps the hook and hands
+   the motion to its children. The container's own opacity/transform from :234
+   is cancelled here — both selectors are (0,2,0), so this wins on source order
+   — otherwise the two fades multiply into a double dip. */
+.sh-lc[data-reveal] { opacity: 1; transform: none; transition: none; }
+.sh-lc[data-reveal] .sh-lc__copy > *,
+.sh-lc[data-reveal] .sh-lc__dust {
+  opacity: 0; transform: translateY(16px);
+  transition: opacity .8s var(--sh-lc-e), transform .8s var(--sh-lc-e);
+}
+.sh-lc[data-reveal].is-in .sh-lc__copy > *,
+.sh-lc[data-reveal].is-in .sh-lc__dust { opacity: 1; transform: none; }
+/* Hierarchy, not a flat stagger: typography leads, the symbol answers it, the
+   dust arrives last. Total 620 + 800 = 1420ms, at the top of the 900-1400ms
+   band the brief asks for and slow enough that no two layers read as one event.
+   Equal specificity (0,3,0) to the pair above, so this block must stay BELOW
+   them. */
+.sh-lc[data-reveal] .sh-lc__copy > *:nth-child(1) { transition-delay: .06s; }
+.sh-lc[data-reveal] .sh-lc__copy > *:nth-child(2) { transition-delay: .16s; }
+.sh-lc[data-reveal] .sh-lc__copy > *:nth-child(3) { transition-delay: .30s; }
+.sh-lc[data-reveal] .sh-lc__copy > *:nth-child(n+4) { transition-delay: .42s; }
+/* The seal is the last copy child, so it inherits the n+4 delay above and then
+   takes longer over it — it should arrive after the sentence has been read, not
+   alongside it. Dust is last of all: the layer you notice only once everything
+   else has settled. Total 620 + 800 = 1420ms, the top of the 900-1400ms band. */
+.sh-lc[data-reveal] .sh-lc__seal { transition-duration: 1.1s; }
+.sh-lc[data-reveal] .sh-lc__dust { transition-delay: .62s; }
+/* Once JS has split the statement its CHARS carry its entrance, so the
+   element-level fade is cancelled or the two multiply into a double dip — the
+   same trade .sh-form__inner[data-reveal] makes at :2900, one level down.
+   (0,4,0) beats the (0,3,0) rules above regardless of source order. */
+.sh-lc.is-split[data-reveal] .sh-lc__statement { opacity: 1; transform: none; transition: none; }
+
+/* --- Cursor depth ----------------------------------------------------- */
+/* The JS writes translate3d here and nowhere else. Three layers, three depths,
+   one transform write each per frame — the dust layer moves as ONE object
+   rather than fourteen things individually tracking the pointer, which is both
+   the cheaper and the more expensive-LOOKING of the two. */
+/* Scoped to the exact conditions the cursor loop itself checks before it binds
+   (see CURSOR in sh-living-conversation.js). Unscoped, this would promote three
+   layers on every phone and tablet to serve an effect that never runs there. */
+@media (min-width: 1025px) and (hover: hover) and (pointer: fine) {
+  .sh-lc__depth { will-change: transform; }
+}
+
+/* --- Compact form ----------------------------------------------------- */
+/* One definition of "compact", two triggers: the details card sharing the
+   column, and the tablet tier below. Written as one selector list so the two
+   can never drift apart. */
+.sh-contact--both .sh-lc { min-height: 0; }
+.sh-contact--both .sh-lc .sh-lc__seal,
+.sh-contact--both .sh-lc .sh-lc__arcs { display: none; }
+.sh .sh-contact--both .sh-lc__statement { font-size: clamp(1.35rem, 2vw, 1.75rem); }
+
+/* --- Breakpoints ------------------------------------------------------ */
+@media (max-width: 1024px) {
+  /* THE TRAP. Both qualifiers restated so these can never out-specify the
+     stack rule at :2927 — see the section header. */
+  .sh-contact--lc .sh-contact__grid,
+  .sh-contact--both .sh-contact__grid {
+    grid-template-columns: minmax(0, 1fr);
+    align-items: start;
+  }
+  /* Stacked now, so the panel is a band under the form rather than a column
+     beside it: it gets the full width, a shorter box and a rule above it to
+     separate it from the form's submit button. */
+  .sh-lc {
+    max-width: 100%; min-height: 0;
+    padding-block: clamp(30px, 6vw, 46px) 0;
+    border-top: 1px solid var(--sh-contact-rule);
+    margin-top: clamp(8px, 2vw, 18px);
+  }
+}
+@media (max-width: 768px) {
+  /* Everything decorative goes. On a phone the panel is already stacked below a
+     long form and barely seen, and this is where the frame budget is tightest.
+     display:none on the seeds stops their animations outright rather than
+     merely hiding fourteen still-compositing layers — the Liquid cannot make
+     this call, because it has no viewport. The statement, the rotation and the
+     status dot all stay: those are the component, the rest is atmosphere. */
+  .sh-lc .sh-lc__arcs, .sh-lc .sh-lc__dust { display: none; }
+  .sh-lc .sh-lc__seal { margin-top: clamp(24px, 5vw, 32px); }
+  .sh-lc .sh-lc__symbol { width: 84px; }
+  .sh .sh-lc__statement { font-size: clamp(1.3rem, 6.2vw, 1.7rem); }
+  .sh .sh-lc__support { font-size: .88rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* §16 neutralises the [data-reveal] element itself, but every moving part
+     here is on its CHILDREN, which carry no such attribute — the same gap §23
+     answers at :2947. transition-delay and animation-delay are both restated
+     because a delay is motion the same way the movement it delays is.
+
+     The arcs are DRAWN, not hidden: stroke-dashoffset:0 is the finished state,
+     and "reduce motion" must never mean "remove the artwork". */
+  .sh-lc[data-reveal] .sh-lc__copy > *,
+  .sh-lc[data-reveal] .sh-lc__dust {
+    opacity: 1 !important; transform: none !important;
+    transition: none !important; transition-delay: 0s !important;
+  }
+  .sh-lc.is-split .sh-lc__c,
+  .sh-lc.is-split .sh-lc__line--enter .sh-lc__c,
+  .sh-lc.is-split .sh-lc__line--leave .sh-lc__c {
+    animation: none !important; animation-delay: 0s !important;
+    opacity: 1 !important; transform: none !important;
+  }
+  .sh-lc__ring, .sh-lc__ring2, .sh-lc__seed, .sh-lc__dot {
+    animation: none !important; animation-delay: 0s !important;
+  }
+  .sh-lc__dot { transform: none !important; opacity: 1 !important; }
+  .sh-lc__arc {
+    stroke-dashoffset: 0 !important;
+    transition: none !important; transition-delay: 0s !important;
+  }
+  /* Insurance against an OS-level toggle flipped mid-session, after the cursor
+     loop has already written an inline transform: an !important AUTHOR rule
+     beats a non-important inline style, which is the same cover :1429 takes. */
+  .sh-lc__depth { transform: none !important; will-change: auto !important; }
+}
+
+/* ============================================================
+   25. SOAP PLATE — snippets/sh-soap-plate.liquid
+   The Signature Product band's left column: a drawn soap still-life that
+   replaced the packshot that used to sit there. §22 kept the column and the
+   seal; everything the plate itself needs is here.
+
+   Appended self-contained with its own breakpoints and reduced-motion rules,
+   matching §18-§24 rather than extending §15/§16.
+
+   FOUR THINGS TO KNOW BEFORE EDITING THIS BLOCK
+   ---------------------------------------------
+
+   1. BEING LAST IN THE FILE IS A HAZARD HERE, not just a convenience. §22 puts
+      the mobile seal rule inside `@media (max-width: 989px)` at :2585 — but a
+      media query adds NO specificity. `.sh-signature .sh-gen` in this block is
+      (0,2,0), the mobile rule is (0,2,0), and this block is later, so the
+      desktop pin below would win at EVERY width and leave the seal in flow with
+      a live bottom/left — a nudge off its own position rather than a corner pin.
+      The 989 rule is therefore RESTATED below. It is not a duplicate; deleting
+      it as one is the single most likely way to break this section.
+
+   2. NO SVG <filter>, anywhere, ever. The snippet's header (5) has the full
+      argument; the short version is that this subtree animates continuously and
+      a filter turns it into a per-frame CPU raster. Every soft edge in the
+      artwork is a multi-stop alpha ramp inside a gradient instead. The same ban
+      covers mix-blend-mode, which would defeat the single composited layer the
+      ~106 elements otherwise collapse into.
+
+   3. ONE TRANSFORM PER ELEMENT. Four levels, one job each — stage translates,
+      depth takes the JS parallax, layer fades, leaf loops. Two transforms on one
+      element is not an error, it is a silent overwrite. Snippet header (4).
+
+   4. PAINT THAT VARIES LIVES IN THE SNIPPET, not here. Every gradient is
+      namespaced with section.id so two instances cannot collide, and a
+      stylesheet cannot see section.id. Anything referencing url(#…) has to stay
+      in the markup. Flat, constant paint — strokes, type — belongs here.
+
+   Colours are the §22 light-surface trio plus the artwork's own warm neutrals.
+   They are literals rather than tokens on purpose: these are pigment values in
+   one illustration, not interface colour, and promoting them to tokens would
+   invite reuse somewhere the light direction is different.
+   ============================================================ */
+
+/* The box, and nothing else — no card, no radius, no fill. The illustration is
+   meant to sit ON the band, not in a panel on top of it, which is why the
+   artwork's outer glow stop is the section's own cream at opacity 0.
+
+   aspect-ratio reserves the full height before a single path paints, so this
+   contributes exactly 0 to CLS. It is also why the plate needs none of the
+   intrinsic width/height bookkeeping the old <img> did. 4/5 matches the
+   viewBox's 760x950 exactly, so at this breakpoint `slice` crops nothing. */
+.sh-plate {
+  position: relative;
+  aspect-ratio: 4 / 5;
+}
+
+/* overflow is the UA default for a root <svg>, and is restated because the
+   crop contract in the snippet's header (6) depends on it: preserveAspectRatio
+   is `slice`, so below 990px the artwork is COVERED, not fitted, and the
+   overflow is what hides the excess instead of spilling it across the band. */
+.sh-plate__svg {
+  display: block;
+  width: 100%; height: 100%;
+  overflow: hidden;
+}
+
+/* ---- Paint ------------------------------------------------------------- */
+/* Stems and midribs are strokes, so they cannot inherit the fill the artwork
+   sets on their parent groups and have to be stated. fill:none on each is
+   load-bearing, not defensive: the parent <g> carries a gradient fill, and
+   without this an open stem path would close and flood. */
+.sh-plate__stem {
+  fill: none; stroke: #6f7f52; stroke-width: 2.6;
+  stroke-opacity: .85; stroke-linecap: round;
+}
+/* Aerial perspective: lighter, thinner, flatter. This pair of values is what
+   holds the neem behind the soap when parallax is off — on touch, under reduced
+   motion, and before the JS lands. Depth that depends on motion is not depth. */
+.sh-plate__stem--far {
+  stroke: #9aa77f; stroke-width: 2.1; stroke-opacity: .7;
+}
+/* Inside a <use> shadow tree. Class selectors do reach cloned content, which is
+   the whole reason the tulsi leaf is a <g> of two paths rather than one path. */
+.sh-plate__midrib {
+  fill: none; stroke: #3f5230; stroke-width: 1.1;
+  stroke-opacity: .3; stroke-linecap: round;
+}
+
+/* The lit edge. Back and left only — see the snippet. Stroke width is in
+   viewBox units, so it stays proportional at every column width, the same trade
+   .sh-gen__ring-c (:2191) makes. */
+.sh-plate__bevel {
+  fill: none; stroke: #f7ecd5; stroke-opacity: .5;
+  stroke-width: 2.4; stroke-linecap: round;
+}
+
+/* The pressed wordmark. var(--sh-serif) matches the product name beside it, so
+   the mark on the bar and the <h3> are the same voice. No !important war to
+   join here: hov-typography.css scopes its font-family overrides to HTML
+   element lists, and an SVG <text> is in none of them.
+
+   letter-spacing sets the natural width; textLength in the markup then pins the
+   final one. Both are needed — the pin alone would stretch default spacing into
+   something mechanical. */
+.sh-plate__mark text {
+  font-family: var(--sh-serif);
+  font-size: 34px; font-weight: 500; letter-spacing: .18em;
+}
+
+/* ---- Seal, repositioned ------------------------------------------------ */
+/* §22 put the seal in the photo's top-left corner. The illustration wants that
+   corner for the neem's light and the bar's lit edge, so it moves to the one
+   quadrant deliberately left empty for it: bottom-left, landing on viewBox
+   x 11-114, y 752-855. The tulsi is held at x >= 208 to keep that clear — the
+   snippet says so at the cluster, because that is where it would be broken.
+
+   top/right must be cancelled explicitly. The base rule (:2168) sets top:12%
+   and right:4%; without `auto` on both, all four offsets apply at once and the
+   seal stretches instead of moving. Same trap §22 hit and documented at :2372. */
+.sh-signature .sh-gen {
+  top: auto; right: auto;
+  bottom: 10%; left: 1.5%;
+  width: clamp(96px, 9.6vw, 132px);
+}
+
+/* ---- Responsive -------------------------------------------------------- */
+@media (max-width: 989px) {
+  /* Square, not portrait. The column is already full-width and centred at
+     max-width:520px here (:2576); a 4/5 box at that width would run 650px tall
+     and push the CTAs most of a screen down. `slice` crops 95 units off the top
+     and bottom of the viewBox rather than letterboxing, which is what the
+     snippet's y in [130, 820] contract is protecting. Net effect: this band is
+     SHORTER on a phone than it was with the photo. */
+  .sh-plate { aspect-ratio: 1; }
+
+  /* Not redundant, and the reason is a genuine difference between an <img> and
+     an <svg>. §22 gives this column `margin-inline: auto` (:2576), and an auto
+     inline margin on a grid item SUPPRESSES the stretch it would otherwise get —
+     the item falls back to its max-content size and the margins eat the rest.
+
+     That was invisible while the column held an <img width="1200">: its
+     intrinsic width was the max-content contribution, so it filled the track and
+     max-width capped it at 520. An inline <svg> has no intrinsic width at all,
+     so it contributes the CSS default size for a replaced element — 300x150 —
+     and the column renders 300px wide at this breakpoint and nowhere else.
+
+     Stating the width restores the stretch that max-width is there to limit. */
+  .sh-signature__media { width: 100%; }
+
+  /* THE RESTATED RULE — see (1) in this block's header. Byte-identical to
+     :2585 on purpose. It is here solely because the desktop pin above is later
+     in source order at equal specificity and would otherwise apply at every
+     width. If you are deleting this as a duplicate, read (1) first. */
+  .sh-signature .sh-gen {
+    position: relative; inset: auto;
+    width: clamp(96px, 24vw, 132px);
+    margin: clamp(20px, 4vw, 32px) auto 0;
+  }
+}
+
+@media (max-width: 599px) {
+  /* A hair taller than square. At 375px the column is ~335px wide, and a flat
+     square crops the tulsi's lowest leaf; 5% of height buys it back without
+     re-opening the height problem the 989 rule just solved. */
+  .sh-plate { aspect-ratio: 1 / 1.05; }
+}
+
+/* ---- Motion: the ambient loops ----------------------------------------- */
+/* Two easing curves, and they are not interchangeable.
+
+   --sh-plate-ease is symmetric, near-sinusoidal, and belongs to everything that
+   LOOPS. The house curve is an entrance curve: it decelerates hard into its end
+   state, which is right for something arriving and wrong for something that has
+   to hand back to its own start. On a 13s loop that asymmetry lands as a visible
+   tick once per cycle.
+
+   --sh-plate-ease-in IS the house curve, unchanged, and drives the entrance in
+   the block below. The distinction is the whole reason both exist. */
+.sh-plate {
+  --sh-plate-ease:    cubic-bezier(.37, 0, .63, 1);
+  --sh-plate-ease-in: cubic-bezier(.22, .61, .36, 1);
+}
+
+/* transform-box AND transform-origin, together, always. Without the first, a
+   percentage or length origin on an SVG child resolves against a box that
+   differs by engine version — and the failure is not subtle: every leaf would
+   swing around the plate's top-left corner instead of its own stalk. §21:2178
+   documents the same trap from the other direction, by sidestepping it. The
+   origins themselves arrive per-element from the markup as --sh-plate-o, in user
+   units, because each leaf pivots at the point where it meets its stem. */
+.sh-plate__leaf-a,
+.sh-plate__leaf-b,
+.sh-plate__sway {
+  transform-box: view-box;
+  transform-origin: var(--sh-plate-o, 50% 50%);
+}
+
+/* Declared here, PAUSED here. The .is-live gate below flips play-state rather
+   than adding or removing the animation, for two reasons: re-adding an animation
+   restarts it, so a plate scrolled past and back would snap every leaf to 0deg
+   and re-run the whole cycle; and a paused animation still renders the pose at
+   its current time, so the negative delays give each element a distinct RESTING
+   angle. That is what makes the still composition — reduced motion, still mode,
+   no JS — look composed rather than merely stopped. */
+.sh-plate__leaf-a { animation: sh-plate-leaf-a 13s var(--sh-plate-ease) var(--sh-plate-d, 0s) infinite; }
+.sh-plate__leaf-b { animation: sh-plate-leaf-b 17s var(--sh-plate-ease) var(--sh-plate-d, 0s) infinite; }
+.sh-plate__sway   { animation: sh-plate-sway   19s var(--sh-plate-ease) var(--sh-plate-d, 0s) infinite; }
+.sh-plate__float  { animation: sh-plate-float  11s var(--sh-plate-ease) var(--sh-plate-d, 0s) infinite; }
+.sh-plate__drift  { animation: sh-plate-drift  23s var(--sh-plate-ease) var(--sh-plate-d, 0s) infinite; }
+.sh-plate__sheen  { animation: sh-plate-sheen  16s var(--sh-plate-ease) var(--sh-plate-d, 0s) infinite; }
+
+.sh-plate__leaf-a,
+.sh-plate__leaf-b,
+.sh-plate__sway,
+.sh-plate__float,
+.sh-plate__drift,
+.sh-plate__sheen { animation-play-state: paused; }
+
+/* Invisible at rest, and the keyframe ramps it. See the sheen's note in the
+   snippet: this is what lets the geometry sit ON the face instead of being
+   parked hundreds of units off-frame to keep it out of sight. */
+.sh-plate__sheen { opacity: 0; }
+
+/* One selector carries both gates. .is-live is toggled by the plate's own
+   observer — the shared one at shudhi-home.js:283 unobserves after the first
+   hit and structurally cannot toggle, which is the entire justification for a
+   second observer. [data-plate-still] is the merchant's ambient-motion switch,
+   and excluding it here means the switch costs nothing at runtime: the loops
+   never start rather than starting and being overridden. */
+.sh-plate.is-live:not([data-plate-still]) .sh-plate__leaf-a,
+.sh-plate.is-live:not([data-plate-still]) .sh-plate__leaf-b,
+.sh-plate.is-live:not([data-plate-still]) .sh-plate__sway,
+.sh-plate.is-live:not([data-plate-still]) .sh-plate__float,
+.sh-plate.is-live:not([data-plate-still]) .sh-plate__drift,
+.sh-plate.is-live:not([data-plate-still]) .sh-plate__sheen { animation-play-state: running; }
+
+/* Periods are 11 / 13 / 17 / 19 / 23 — all prime. Nothing here shares a common
+   multiple inside any plausible viewing session, so the composition never
+   visibly re-syncs into a single beat. Amplitudes are the brief's ceiling and
+   not a unit more: +/-3deg on a leaf, +/-1.8deg on a stem, 5px on the bar.
+   transform and opacity ONLY — nothing in this file can trigger layout or paint. */
+@keyframes sh-plate-leaf-a {
+  0%, 100% { transform: rotate(-3deg); }
+  50%      { transform: rotate(3deg); }
+}
+@keyframes sh-plate-leaf-b {
+  0%, 100% { transform: rotate(2.5deg); }
+  50%      { transform: rotate(-2.5deg); }
+}
+@keyframes sh-plate-sway {
+  0%, 100% { transform: rotate(-1.8deg) translateX(-3px); }
+  50%      { transform: rotate(1.8deg) translateX(3px); }
+}
+@keyframes sh-plate-float {
+  0%, 100% { transform: translateY(-5px); }
+  50%      { transform: translateY(5px); }
+}
+/* The motes each carry their own --sh-plate-op, so the pulse is proportional
+   rather than absolute — a mote authored at .16 must not brighten to the same
+   value as one authored at .26, or the scatter flattens into a row of identical
+   dots at the top of every cycle. The fallback of 1 serves the free droplet,
+   which rides the same loop without a per-element opacity. */
+@keyframes sh-plate-drift {
+  0%   { transform: translateY(0);     opacity: calc(var(--sh-plate-op, 1) * .55); }
+  50%  { transform: translateY(-14px); opacity: var(--sh-plate-op, 1); }
+  100% { transform: translateY(0);     opacity: calc(var(--sh-plate-op, 1) * .55); }
+}
+/* Travel is measured, not guessed: the band spans x 154-343 and the face spans
+   154-596, so -200 puts its right edge clear of the face's left and +460 puts
+   its left edge clear of the face's right. The sweep occupies 0-34% of a 16s
+   cycle — about 5.4 seconds of light in every 16 — and the transform is held at
+   its end value through the dark two-thirds so the wrap at 100% happens at
+   opacity 0, where the jump back cannot be seen. */
+@keyframes sh-plate-sheen {
+  0%   { transform: translateX(-200px); opacity: 0; }
+  6%   { opacity: 1; }
+  28%  { opacity: 1; }
+  34%  { transform: translateX(460px); opacity: 0; }
+  100% { transform: translateX(460px); opacity: 0; }
+}
+
+/* ---- Motion: the entrance ---------------------------------------------- */
+/* THE PLATE DOES NOT USE [data-reveal], AND THAT IS DELIBERATE.
+
+   Every other animated element in this theme opts into the shared observer at
+   shudhi-home.js:269 by carrying that attribute, and inherits an opacity:0
+   pre-state from :233 which the observer then clears. Two reasons the plate
+   opts out:
+
+   The pre-state fails CLOSED. Anything that stops .is-in from landing leaves the
+   element invisible permanently, which is precisely how this section came to
+   render a blank column as a photo.
+
+   And routing the entrance through shudhi-home.js while the parallax comes from
+   sh-soap-plate.js would make the illustration depend on BOTH scripts: arm from
+   one, reveal from the other, and a failure in either leaves it hidden. Owning
+   the whole entrance in one file means there is exactly one thing that can fail,
+   and when it does the plate has never been hidden in the first place.
+
+   So: no attribute, no pre-state, nothing to clear. The resting state below is
+   the finished state, and .is-armed — added by sh-soap-plate.js only when it has
+   an observer to reveal with — is what opts into an entrance at all. */
+
+/* The lift, on the stage — one element, one transform. The depth wrappers below
+   it are where the cursor loop writes, and the layers below those carry the
+   fade; putting any two of those on one element silently drops one. */
+.sh-plate.is-armed .sh-plate__stage {
+  transform: translateY(26px);
+  transition: transform 1s var(--sh-plate-ease-in);
+}
+.sh-plate.is-armed.is-shown .sh-plate__stage { transform: none; }
+
+/* The fade, staggered back-to-front so the composition assembles in depth order
+   rather than all at once: ground, then what is behind the bar, then the bar,
+   then what is in front of it. 90ms steps, matching the copy column's cadence
+   at :2554 so the two halves of the band read as one gesture. */
+.sh-plate.is-armed .sh-plate__layer {
+  opacity: 0;
+  transition: opacity .9s var(--sh-plate-ease-in);
+}
+.sh-plate.is-armed.is-shown .sh-plate__layer { opacity: 1; }
+
+.sh-plate.is-armed .sh-plate__depth:nth-child(2) .sh-plate__layer { transition-delay: .09s; }
+.sh-plate.is-armed .sh-plate__depth:nth-child(3) .sh-plate__layer { transition-delay: .18s; }
+.sh-plate.is-armed .sh-plate__depth:nth-child(4) .sh-plate__layer { transition-delay: .27s; }
+.sh-plate.is-armed .sh-plate__depth:nth-child(5) .sh-plate__layer { transition-delay: .36s; }
+.sh-plate.is-armed .sh-plate__depth:nth-child(6) .sh-plate__layer { transition-delay: .45s; }
+
+/* Promoted only where the cursor loop can actually run — the same three-part
+   gate assets/sh-soap-plate.js reads before it binds anything, and the same one
+   §24 uses at :3353. Six permanent layers is a real cost and it is bought
+   deliberately: this loop writes transforms to all six on every frame of pointer
+   movement, and a piece whose subject is depth is the one place in this theme
+   where that trade is worth making. On touch, on narrow viewports, and for
+   anyone who has asked for less motion, nothing is promoted at all.
+
+   NEVER put this on .sh-signature__media. will-change:transform establishes a
+   containing block for absolutely positioned descendants exactly as a live
+   transform does, and would re-anchor the seal. :2344 has the full list. */
+@media (min-width: 1025px) and (hover: hover) and (pointer: fine) {
+  .sh-plate__depth { will-change: transform; }
+}
+
+/* ---- Reduced motion ---------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  /* Both properties on every loop, never the transition alone — a killed
+     transition SNAPS, which §22:2625 notes is louder than the motion it
+     replaces. animation:none returns each element to its authored pose, which
+     is a composed arrangement rather than an arbitrary frame. */
+  .sh-plate__leaf-a,
+  .sh-plate__leaf-b,
+  .sh-plate__sway,
+  .sh-plate__float,
+  .sh-plate__drift,
+  .sh-plate__sheen {
+    animation: none !important;
+    transform: none !important;
+  }
+  /* The sheen has no resting appearance — it is light, not an object. Its base
+     opacity:0 already covers this; restated because animation:none above would
+     otherwise leave a reader wondering what it looks like stopped. */
+  .sh-plate__sheen { opacity: 0 !important; }
+
+  /* The entrance, neutralised at both ends. .is-armed may already be on the
+     element — the JS adds it before it reads anything about motion preference,
+     deliberately, so that arming can never be the thing that fails. */
+  .sh-plate.is-armed .sh-plate__stage,
+  .sh-plate.is-armed .sh-plate__layer {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+    transition-delay: 0s !important;
+  }
+
+  /* Insurance against an OS-level toggle flipped mid-session, after the cursor
+     loop has already written an inline transform: an !important AUTHOR rule
+     beats a non-important inline style. Same cover §24:3426 and :1429 take. */
+  .sh-plate__depth {
+    transform: none !important;
+    will-change: auto !important;
+  }
+}
+
+/* ============================================================
+   26. RITUAL SCENE — snippets/sh-ritual-scene.liquid
+   ============================================================
+   The drawn water-and-light layer over §10's photograph, its entrance, the
+   four per-card highlights, and the soap-hover splash.
+
+   ------------------------------------------------------------------------
+   FIVE HAZARDS
+   ------------------------------------------------------------------------
+
+   1. BEING DOWNSTREAM OF §15 IS A HAZARD, exactly as §25:3488 says of itself.
+      (This block is no longer the last in the file — a later section has since
+      been appended — but nothing after it selects .sh-ritual, so the hazard
+      still runs in one direction only.)
+      §15's `@media (max-width: 768px)` block at :1407 already carries five
+      .sh-ritual rules, and A MEDIA QUERY ADDS NO SPECIFICITY. Any rule below
+      at equal specificity to one of those beats it AT EVERY WIDTH, not just on
+      desktop. That is why this section's own narrow-viewport block restates
+      what it needs rather than assuming §15 still holds, and why nothing here
+      touches .sh-ritual__item's background or backdrop-filter.
+
+   2. NEVER TRANSFORM .sh-ritual__item ON HOVER. It carries
+      backdrop-filter: blur(14px) (:872). Animating a transform on a
+      backdrop-filtered element forces the browser to re-snapshot and re-blur
+      the backdrop through the transformed geometry every frame — four cards
+      over, on a full-bleed photograph. The card tilt below therefore lives on
+      its two CHILDREN, which is free, and reads better anyway: the icon tips
+      further than the copy. For the same reason will-change never goes there.
+
+      The entrance is the one exception and a deliberate one: it transforms the
+      item for the length of a single 800ms transition and then never again.
+
+   3. NO SVG <filter>, NO mix-blend-mode. Both cost a CPU raster per frame and
+      defeat layer flattening. Every soft edge here is a multi-stop alpha ramp
+      in a gradient, authored in the snippet. §25:3497 has the long version.
+
+   4. ONE TRANSFORM PER ELEMENT. __stage translates, [data-ritual-depth] takes
+      the cursor offset from JS, __layer fades, the leaf elements loop. Putting
+      any two on one element silently drops one.
+
+   5. PAINT THAT VARIES LIVES IN THE SNIPPET. Every gradient is defined there
+      and namespaced with section.id, because two sections on one page would
+      otherwise share one set of ids and the second would paint with the
+      first's fills. Nothing here may contain a url(#..).
+
+   ------------------------------------------------------------------------
+   :has() IS INTRODUCED HERE, AND IT IS THE FIRST IN THIS CODEBASE
+   ------------------------------------------------------------------------
+   The four ritual states and the splash dwell are expressed with :has() rather
+   than a class the JS writes. Three things that buys:
+
+     - no attribute lifecycle, so nothing can go stale across a
+       shopify:section:load or survive a card being deleted in the editor;
+     - :focus-within alongside :hover gets the keyboard path for free;
+     - animation-delay under :has(:hover) IS a dwell gate — if the pointer
+       leaves before the delay elapses the selector stops matching and the
+       animation is removed before it painted a frame. No timer, no JS.
+
+   Baseline since Chrome 105 / Safari 15.4 / Firefox 121. Where it is missing,
+   every rule below simply never matches and the band behaves as it did before
+   any of this existed. That is the whole fallback, and it needs no code.
+   ============================================================ */
+
+/* Two curves, and they are not interchangeable — the same pairing and the same
+   reasoning as §25:3603. The symmetric one belongs to everything that LOOPS,
+   because the house entrance curve decelerates hard into its end state and on
+   a 19s loop that asymmetry lands as a visible tick once per cycle. */
+.sh-ritual {
+  --sh-r-ease:    cubic-bezier(.37, 0, .63, 1);
+  --sh-r-ease-in: cubic-bezier(.22, .61, .36, 1);
+}
+
+/* ---- The two overlays -------------------------------------------------- */
+/* Box rules BYTE-IDENTICAL to .sh-ritual__bg (:831). That identity is the
+   whole registration guarantee: object-fit:cover with object-position 50% 50%
+   and preserveAspectRatio="xMidYMid slice" are the same algorithm, so given
+   the same box and the same 1536x1024 ratio they crop identically at every
+   viewport. One SVG user unit is one photo pixel, permanently, with no
+   measurement and no resize handler. Change either box and the water slides
+   off the photograph. */
+.sh-ritual__scene,
+.sh-ritual__air {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  pointer-events: none; overflow: visible;
+}
+.sh-ritual__scene { z-index: 1; }   /* under the scrim — part of the scene */
+.sh-ritual__air   { z-index: 3; }   /* over it — between viewer and scene  */
+
+/* The single exception to pointer-events:none above. Sitting inside the
+   registered svg is what lets it track the soap bar at every viewport without
+   a rect calculation. */
+.sh-ritual__hit { pointer-events: auto; }
+
+/* ---- Ambient loops ----------------------------------------------------- */
+/* Declared here, PAUSED here. The .is-live gate flips play-state rather than
+   adding or removing the animation, for the two reasons §25:3632 gives: a
+   re-added animation restarts, so a band scrolled past and back would snap
+   every element to frame 0; and a paused animation still renders its pose at
+   the current time, so the negative delays give each element a distinct
+   RESTING state. That is what makes the still composition — reduced motion,
+   no JS, off-screen — look composed rather than merely stopped. */
+.sh-ritual__bloom      { animation: sh-ritual-bloom  29s var(--sh-r-ease) var(--d, 0s) infinite; }
+.sh-ritual__arc        { animation: sh-ritual-arc    17s var(--sh-r-ease) var(--d, 0s) infinite; }
+.sh-ritual__arc--in    { animation-duration: 23s; }
+.sh-ritual__ring-amb   { animation: sh-ritual-ripple 19s var(--sh-r-ease) var(--d, 0s) infinite; }
+.sh-ritual__bead       { animation: sh-ritual-bead   13s var(--sh-r-ease) var(--d, 0s) infinite; }
+.sh-ritual__bead--near { animation-duration: 11s; }
+.sh-ritual__mote       { animation: sh-ritual-mote   23s var(--sh-r-ease) var(--d, 0s) infinite; }
+
+.sh-ritual__bloom,
+.sh-ritual__arc,
+.sh-ritual__ring-amb,
+.sh-ritual__bead,
+.sh-ritual__mote { animation-play-state: paused; }
+
+.sh-ritual.is-live .sh-ritual__bloom,
+.sh-ritual.is-live .sh-ritual__arc,
+.sh-ritual.is-live .sh-ritual__ring-amb,
+.sh-ritual.is-live .sh-ritual__bead,
+.sh-ritual.is-live .sh-ritual__mote { animation-play-state: running; }
+
+/* transform-box AND transform-origin, together, always. Without the first, a
+   length origin on an SVG child resolves against a box that differs by engine
+   version, and the failure is not subtle: every ring would scale from the
+   section's top-left corner instead of the bar's contact point. §25:3618
+   documents the same trap. 776,560 is that contact point in photo pixels. */
+.sh-ritual__ring-amb,
+.sh-ritual__ring {
+  transform-box: view-box;
+  transform-origin: 776px 560px;
+}
+
+/* Periods are 11 / 13 / 17 / 19 / 23 / 29 — all prime, so nothing shares a
+   common multiple inside any plausible viewing session and the composition
+   never re-syncs into a single beat. transform and opacity ONLY; nothing here
+   can trigger layout or paint. */
+@keyframes sh-ritual-bloom {
+  0%, 100% { transform: scale(1);     opacity: .8; }
+  50%      { transform: scale(1.045); opacity: 1; }
+}
+@keyframes sh-ritual-arc {
+  0%, 100% { opacity: .62; }
+  50%      { opacity: 1; }
+}
+/* These breathe outward and back — the water's RESTING motion. The splash
+   rings below expand from nothing and fade, and they look different on
+   purpose: one is the pond, the other is a disturbance in it. */
+@keyframes sh-ritual-ripple {
+  0%, 100% { transform: scale(.94);  opacity: .55; }
+  50%      { transform: scale(1.06); opacity: 1; }
+}
+/* The photograph's droplets HANG in the air around the splash rather than
+   falling, so these bob and pulse. Each carries its own --o so the pulse is
+   proportional: a bead authored at .10 must not brighten to the same value as
+   one at .19, or the scatter flattens into a row of identical dots. */
+@keyframes sh-ritual-bead {
+  0%, 100% { transform: translateY(0);    opacity: calc(var(--o, 1) * .55); }
+  50%      { transform: translateY(-7px); opacity: var(--o, 1); }
+}
+@keyframes sh-ritual-mote {
+  0%, 100% { transform: translate3d(0, 0, 0);       opacity: calc(var(--o, 1) * .35); }
+  50%      { transform: translate3d(6px, -18px, 0); opacity: var(--o, 1); }
+}
+
+/* ---- Motes ------------------------------------------------------------- */
+/* HTML, not more <circle>s in the svg. A continuously transforming node inside
+   an svg repaints THAT WHOLE SVG every frame, and both overlays are full-bleed.
+   As HTML each mote is auto-promoted to its own compositor layer and sixteen
+   of them cost effectively nothing. */
+.sh-ritual__motes { position: absolute; inset: 0; z-index: 3; pointer-events: none; }
+.sh-ritual__mote {
+  position: absolute; left: var(--x); top: var(--y);
+  width: var(--s); height: var(--s); border-radius: 50%;
+  background: radial-gradient(circle at 40% 35%,
+    rgba(255, 252, 242, .95), rgba(240, 232, 210, .35) 55%, rgba(240, 232, 210, 0) 100%);
+  opacity: var(--o);
+}
+
+/* ---- The cursor torch -------------------------------------------------- */
+/* A FIXED-SIZE element with a FIXED gradient that is only ever translated. The
+   obvious implementation writes the pointer position into
+   radial-gradient(.. at var(--x) var(--y) ..) on a full-section element, which
+   repaints roughly a million pixels every frame — the per-frame raster cost
+   hazard 3 exists to forbid, arriving through a door hazard 3 does not name.
+
+   Honest limitation: without mix-blend-mode:screen this is a warm haze rather
+   than additive light. Peak alpha is held at .17 for that reason; brighter and
+   it reads as a smudge on the glass rather than as the room responding. */
+.sh-ritual__torch {
+  position: absolute; left: 0; top: 0; z-index: 3;
+  width: 440px; height: 440px; margin: -220px 0 0 -220px;
+  pointer-events: none; opacity: 0;
+  background: radial-gradient(closest-side,
+    rgba(255, 246, 222, .17), rgba(255, 246, 222, .085) 40%,
+    rgba(255, 246, 222, .025) 70%, rgba(255, 246, 222, 0) 100%);
+  transition: opacity .5s var(--sh-r-ease-in);
+}
+.sh-ritual.is-torch .sh-ritual__torch { opacity: 1; }
+
+/* ---- The entrance ------------------------------------------------------ */
+/* THE RESTING STATE BELOW IS THE FINISHED STATE. Nothing in this band starts
+   hidden. .is-armed — added by assets/sh-ritual-scene.js only when it has an
+   IntersectionObserver in hand to reveal with — is what opts into an entrance
+   at all, and .is-shown is what completes it.
+
+   This replaces [data-reveal] on the heading and the four cards, and that is
+   the point of the change: [data-reveal]'s base rule at :234 is opacity:0, so
+   anything that stopped shudhi-home.js from adding .is-in left this band
+   rendering as a photograph with nothing on it. Same trade §25:3717 makes for
+   the plate, same reasoning. */
+.sh-ritual.is-armed .sh-ritual__stage {
+  transform: translateY(20px);
+  transition: transform 1s var(--sh-r-ease-in);
+}
+.sh-ritual.is-armed.is-shown .sh-ritual__stage { transform: none; }
+
+/* --e arrives per-layer from the snippet rather than from :nth-child, because
+   the air overlay renders its groups conditionally on the splash and states
+   settings — a positional selector would re-time the whole sequence the moment
+   a merchant switched one off. */
+.sh-ritual.is-armed .sh-ritual__layer {
+  opacity: 0;
+  transition: opacity .9s var(--sh-r-ease-in) var(--e, 0s);
+}
+.sh-ritual.is-armed.is-shown .sh-ritual__layer { opacity: 1; }
+
+/* The soap beat. The bar is raster and cannot move, so what settles is its
+   contact shadow and bounce light — 12px over 900ms, which reads as the bar
+   arriving and coming to rest. This is the honest substitution for the brief's
+   "soap rises 12-20px" against a flat photograph. */
+.sh-ritual.is-armed .sh-ritual__rise {
+  transform: translateY(12px);
+  transition: transform .9s var(--sh-r-ease-in) .5s;
+}
+.sh-ritual.is-armed.is-shown .sh-ritual__rise { transform: none; }
+
+/* ---- The heading ------------------------------------------------------- */
+/* Padding and negative margin in the same amount, so the mask clears
+   ascenders and descenders without adding height — §13:1287's trick. .18em
+   rather than that block's .14em because "It's a Ritual." has no descenders
+   but a merchant can type anything, and Cormorant's g and y are deep. */
+.sh-ritual__w {
+  display: inline-block; overflow: hidden;
+  padding-block: .18em; margin-block: -.18em; vertical-align: bottom;
+}
+.sh-ritual__w-in { display: inline-block; }
+
+.sh-ritual.is-armed .sh-ritual__w-in {
+  transform: translateY(110%);
+  transition: transform .8s var(--sh-r-ease-in) .64s;
+}
+.sh-ritual.is-armed.is-shown .sh-ritual__w-in { transform: none; }
+.sh-ritual.is-armed .sh-ritual__w:nth-child(2) .sh-ritual__w-in { transition-delay: .73s; }
+.sh-ritual.is-armed .sh-ritual__w:nth-child(3) .sh-ritual__w-in { transition-delay: .82s; }
+/* Clamped at the fourth word: without this a merchant typing a nine-word
+   heading gets an 810ms tail on the last one. */
+.sh-ritual.is-armed .sh-ritual__w:nth-child(n+4) .sh-ritual__w-in { transition-delay: .91s; }
+
+.sh-ritual__eyebrow-in { display: inline-block; }
+.sh-ritual.is-armed .sh-ritual__eyebrow-in,
+.sh-ritual.is-armed .sh-ritual__ornament {
+  opacity: 0; transform: translateY(8px);
+  transition: opacity .7s var(--sh-r-ease-in) .98s,
+              transform .7s var(--sh-r-ease-in) .98s;
+}
+.sh-ritual.is-armed .sh-ritual__ornament { transition-delay: 1.04s; }
+.sh-ritual.is-armed.is-shown .sh-ritual__eyebrow-in,
+.sh-ritual.is-armed.is-shown .sh-ritual__ornament { opacity: 1; transform: none; }
+
+/* ---- The cards --------------------------------------------------------- */
+/* Each column staggers independently and the right column is offset by half a
+   step, so the order across the band is left-top, right-top, left-bottom,
+   right-bottom — the reading order, not the DOM order. 90ms steps, the cadence
+   at §25:3750 and :2554, so this band reads as the same hand as the Signature
+   one.
+
+   This is hazard 2's one sanctioned exception: the transform is on the item
+   itself, but only for the length of a single entrance transition. */
+.sh-ritual.is-armed .sh-ritual__item {
+  opacity: 0;
+  transition: opacity .8s var(--sh-r-ease-in) var(--e, 1.08s),
+              transform .8s var(--sh-r-ease-in) var(--e, 1.08s);
+}
+.sh-ritual.is-armed .sh-ritual__col--left  .sh-ritual__item { transform: translate(-18px, 14px); }
+.sh-ritual.is-armed .sh-ritual__col--right .sh-ritual__item { transform: translate(18px, 14px); }
+.sh-ritual.is-armed .sh-ritual__col--right .sh-ritual__item { --e: 1.17s; }
+.sh-ritual.is-armed .sh-ritual__col--left  .sh-ritual__item:nth-child(2) { --e: 1.26s; }
+.sh-ritual.is-armed .sh-ritual__col--right .sh-ritual__item:nth-child(2) { --e: 1.35s; }
+.sh-ritual.is-armed .sh-ritual__col .sh-ritual__item:nth-child(n+3) { --e: 1.44s; }
+.sh-ritual.is-armed.is-shown .sh-ritual__item { opacity: 1; transform: none; }
+
+.sh-ritual.is-armed .sh-ritual__connectors {
+  opacity: 0; transition: opacity .7s var(--sh-r-ease-in) 1.53s;
+}
+.sh-ritual.is-armed.is-shown .sh-ritual__connectors { opacity: 1; }
+
+/* ---- Card interaction -------------------------------------------------- */
+/* perspective on the item is safe: it establishes a containing block and a
+   stacking context, and the item has no absolutely positioned descendants —
+   backdrop-filter had already made it a stacking context anyway. */
+.sh-ritual__item {
+  perspective: 760px;
+  transition: border-color .45s var(--sh-r-ease-in),
+              box-shadow .45s var(--sh-r-ease-in),
+              opacity .45s var(--sh-r-ease-in);
+}
+.sh-ritual__item > .sh-icon,
+.sh-ritual__body {
+  transition: transform .45s var(--sh-r-ease-in),
+              color .45s var(--sh-r-ease-in),
+              border-color .45s var(--sh-r-ease-in);
+}
+
+/* Fixed, toward the centre, and split across the two children at different
+   magnitudes so the icon tips further than the copy. Pointer-tracked tilt was
+   rejected on two counts: it would have to transform the glass plate every
+   frame (hazard 2), and at this card height +/-3deg moves the far edge about
+   2.5px — not worth a rect read per card per frame. */
+.sh-ritual__col--left  .sh-ritual__item:hover > .sh-icon { transform: rotateY(5deg) translateZ(10px); }
+.sh-ritual__col--left  .sh-ritual__item:hover .sh-ritual__body { transform: rotateY(3deg) rotateX(-2deg); }
+.sh-ritual__col--right .sh-ritual__item:hover > .sh-icon { transform: rotateY(-5deg) translateZ(10px); }
+.sh-ritual__col--right .sh-ritual__item:hover .sh-ritual__body { transform: rotateY(-3deg) rotateX(-2deg); }
+
+.sh-ritual__item:hover,
+.sh-ritual__item:focus-within {
+  border-color: rgba(201, 168, 106, .34);
+  box-shadow: 0 22px 54px rgba(0, 0, 0, .4),
+              inset 0 1px 0 rgba(255, 255, 255, .12);
+}
+.sh-ritual__item:hover > .sh-icon,
+.sh-ritual__item:focus-within > .sh-icon {
+  border-color: rgba(201, 168, 106, .8); color: var(--sh-accent-soft);
+}
+
+/* The others quiet. :not(:hover) on the siblings rather than a lift on the
+   hovered one, so the active card stays where it is and it is the field around
+   it that recedes. */
+.sh-ritual__cols:hover .sh-ritual__item:not(:hover) { opacity: .62; }
+
+/* ---- The four ritual states -------------------------------------------- */
+/* Asymmetric delay is the latch: entering is immediate and quick, leaving
+   holds for 350ms and then fades over 900ms. A state that snaps off the
+   instant the pointer leaves is the opposite of cinematic. */
+.sh-ritual__glow { opacity: 0; transition: opacity .9s var(--sh-r-ease) .35s; }
+
+/* THE DESCENDANT PART OF THIS SELECTOR IS LOAD-BEARING, NOT DECORATION.
+   §10:854 styles `.sh-ritual__connectors path` — specificity (0,1,1) — and
+   sets stroke-dasharray: 2 6 for the dotted look. A bare `.sh-ritual__trace`
+   is (0,1,0) and LOSES, so the trace would inherit `2 6`. Under
+   pathLength="1" the entire path is one unit long, so a two-unit dash covers
+   it completely and the trace renders as a permanently solid gold line over
+   the dots — which is exactly what it did before this selector was widened.
+   Same reason stroke and stroke-width are restated here rather than left to
+   the shorthand above. */
+.sh-ritual__connectors .sh-ritual__trace {
+  fill: none; stroke: var(--sh-accent-soft); stroke-width: 1.6; stroke-linecap: round;
+  stroke-dasharray: 1; stroke-dashoffset: 1; opacity: .85;
+  transition: stroke-dashoffset .9s var(--sh-r-ease) .35s;
+}
+.sh-ritual__connectors .sh-ritual__conn { transition: stroke .5s var(--sh-r-ease) .35s; }
+
+.sh-ritual:has(.sh-ritual__item[data-ritual="aura"]:hover) .sh-ritual__glow--aura,
+.sh-ritual:has(.sh-ritual__item[data-ritual="aura"]:focus-within) .sh-ritual__glow--aura,
+.sh-ritual:has(.sh-ritual__item[data-ritual="cleanse"]:hover) .sh-ritual__glow--cleanse,
+.sh-ritual:has(.sh-ritual__item[data-ritual="cleanse"]:focus-within) .sh-ritual__glow--cleanse,
+.sh-ritual:has(.sh-ritual__item[data-ritual="ayurveda"]:hover) .sh-ritual__glow--ayurveda,
+.sh-ritual:has(.sh-ritual__item[data-ritual="ayurveda"]:focus-within) .sh-ritual__glow--ayurveda,
+.sh-ritual:has(.sh-ritual__item[data-ritual="intention"]:hover) .sh-ritual__glow--intention,
+.sh-ritual:has(.sh-ritual__item[data-ritual="intention"]:focus-within) .sh-ritual__glow--intention {
+  opacity: 1; transition-duration: .5s; transition-delay: 0s;
+}
+
+.sh-ritual:has(.sh-ritual__item[data-ritual="aura"]:hover) .sh-ritual__trace[data-ritual="aura"],
+.sh-ritual:has(.sh-ritual__item[data-ritual="aura"]:focus-within) .sh-ritual__trace[data-ritual="aura"],
+.sh-ritual:has(.sh-ritual__item[data-ritual="cleanse"]:hover) .sh-ritual__trace[data-ritual="cleanse"],
+.sh-ritual:has(.sh-ritual__item[data-ritual="cleanse"]:focus-within) .sh-ritual__trace[data-ritual="cleanse"],
+.sh-ritual:has(.sh-ritual__item[data-ritual="ayurveda"]:hover) .sh-ritual__trace[data-ritual="ayurveda"],
+.sh-ritual:has(.sh-ritual__item[data-ritual="ayurveda"]:focus-within) .sh-ritual__trace[data-ritual="ayurveda"],
+.sh-ritual:has(.sh-ritual__item[data-ritual="intention"]:hover) .sh-ritual__trace[data-ritual="intention"],
+.sh-ritual:has(.sh-ritual__item[data-ritual="intention"]:focus-within) .sh-ritual__trace[data-ritual="intention"] {
+  stroke-dashoffset: 0; transition-duration: .62s; transition-delay: 0s;
+}
+
+/* While any benefit is active the other connectors recede, so the drawn trace
+   has something to be brighter than. */
+.sh-ritual:has(.sh-ritual__item[data-ritual]:hover) .sh-ritual__conn,
+.sh-ritual:has(.sh-ritual__item[data-ritual]:focus-within) .sh-ritual__conn {
+  stroke: rgba(201, 168, 106, .18); transition-delay: 0s;
+}
+
+/* ---- The splash -------------------------------------------------------- */
+/* animation-delay IS the dwell gate. Leave before .6s elapses and the selector
+   stops matching, so the animation is removed before it painted a frame — no
+   timer, no JS, no state to clear.
+
+   This is safe here and would NOT be for the ambient loops above, and the
+   difference is worth stating: every splash element rests at opacity 0 AND its
+   keyframe ends at opacity 0, so a mid-flight removal returns to opacity 0 and
+   the snap cannot be seen. The ambient loops rest at a visible pose, which is
+   why they use animation-play-state instead.
+
+   Two triggers. The rect is the soap bar's own photo coordinates. The heading
+   is there because at desktop widths it lies across the bar, so the element
+   the eye already goes to is also the soap — which is what makes an otherwise
+   invisible hit area discoverable. */
+.sh-ritual__spark,
+.sh-ritual__ring { opacity: 0; }
+
+.sh-ritual:has(.sh-ritual__hit:hover) .sh-ritual__ring,
+.sh-ritual:has(.sh-ritual__title:hover) .sh-ritual__ring {
+  animation: sh-ritual-ring 1.5s var(--sh-r-ease-in) calc(.6s + var(--d, 0s)) 1 both;
+}
+.sh-ritual:has(.sh-ritual__hit:hover) .sh-ritual__spark,
+.sh-ritual:has(.sh-ritual__title:hover) .sh-ritual__spark {
+  animation: sh-ritual-spark 1.15s var(--sh-r-ease-in) calc(.6s + var(--d, 0ms)) 1 both;
+}
+.sh-ritual:has(.sh-ritual__hit:hover) .sh-ritual__rim,
+.sh-ritual:has(.sh-ritual__title:hover) .sh-ritual__rim {
+  animation: sh-ritual-rim .95s var(--sh-r-ease-in) .72s 1 both;
+}
+
+@keyframes sh-ritual-ring {
+  0%   { transform: scale(.28); opacity: 0; }
+  14%  { opacity: 1; }
+  100% { transform: scale(1);   opacity: 0; }
+}
+/* The spark sits inside a statically rotated <g>, so translating it along -Y
+   throws it radially outward. Up then partly back gives a crown rather than a
+   firework. */
+@keyframes sh-ritual-spark {
+  0%   { transform: translateY(0) scale(.35); opacity: 0; }
+  14%  { opacity: 1; }
+  55%  { transform: translateY(calc(var(--r) * -1)) scale(1); }
+  100% { transform: translateY(calc(var(--r) * -.35)) scale(.5); opacity: 0; }
+}
+@keyframes sh-ritual-rim {
+  0%, 100% { stroke-opacity: 0; }
+  40%      { stroke-opacity: .45; }
+}
+
+/* ---- Promotion --------------------------------------------------------- */
+/* The same three-part gate assets/sh-ritual-scene.js reads before it binds
+   anything, and the same one §24:3397 and §25:3815 use, so a promoted layer
+   never exists without a loop to justify it and a loop never runs against an
+   unpromoted one.
+
+   NOT .sh-ritual__item — hazard 2. A will-change on a backdrop-filtered
+   element re-triggers the blur for the life of the page. */
+@media (min-width: 1025px) and (hover: hover) and (pointer: fine) {
+  .sh-ritual__depth,
+  .sh-ritual__torch { will-change: transform; }
+}
+
+/* ---- Narrow viewports -------------------------------------------------- */
+/* 989px matches §19-§25's tier rather than §15's 768, and the overlays go
+   entirely. Two reasons: below this width the section is tall and narrow, so
+   preserveAspectRatio="slice" crops the photograph to a vertical strip of
+   roughly x 631-905 and every authored coordinate outside it vanishes; and
+   this is where §15:1443 already drops .sh-ritual__connectors, so the scene
+   and the lines it converges on disappear together rather than one without the
+   other.
+
+   What survives on a phone: the entrance, the heading word reveal and the card
+   stagger. */
+@media (max-width: 989px) {
+  /* The descendant `.sh-ritual` is required on the two SVGs and pointless on
+     the two divs, and the asymmetry is the point. :114 sets
+     `.sh img, .sh svg, .sh canvas { display: block }` at (0,1,1); a bare
+     `.sh-ritual__scene` is (0,1,0) and LOSES, media query or not. The first
+     version of this rule hid the motes and the torch and left both overlays
+     on screen — hazard 1 at the top of this section, walked into from the
+     inside. §15:1443 had the identical bug for the connectors. */
+  .sh-ritual .sh-ritual__scene,
+  .sh-ritual .sh-ritual__air,
+  .sh-ritual__motes,
+  .sh-ritual__torch { display: none; }
+  /* Nothing is left to tilt toward, and a hover tilt on a touch device is a
+     tap that sticks until the next tap somewhere else. */
+  .sh-ritual__item > .sh-icon,
+  .sh-ritual__body { transform: none !important; }
+}
+
+/* ---- Reduced motion ---------------------------------------------------- */
+/* §16:1481 covers .sh [data-reveal] and this section no longer uses it, so
+   everything here has to be restated. Both properties on every rule, never the
+   transition alone — a killed transition SNAPS, which §22:2625 notes is louder
+   than the motion it replaces. */
+@media (prefers-reduced-motion: reduce) {
+  .sh-ritual__bloom,
+  .sh-ritual__arc,
+  .sh-ritual__ring-amb,
+  .sh-ritual__bead,
+  .sh-ritual__mote {
+    animation: none !important;
+    transform: none !important;
+  }
+
+  /* The splash is light, not an object: it has no resting appearance, and its
+     base opacity:0 already covers this. Restated because animation:none above
+     would otherwise leave a reader wondering what it looks like stopped. */
+  .sh-ritual__spark,
+  .sh-ritual__ring,
+  .sh-ritual__rim { animation: none !important; opacity: 0 !important; }
+
+  /* The entrance, neutralised at both ends. .is-armed may already be on the
+     root — the JS adds it before it reads anything about motion preference,
+     deliberately, so that arming can never be the thing that fails. */
+  .sh-ritual.is-armed .sh-ritual__stage,
+  .sh-ritual.is-armed .sh-ritual__layer,
+  .sh-ritual.is-armed .sh-ritual__rise,
+  .sh-ritual.is-armed .sh-ritual__w-in,
+  .sh-ritual.is-armed .sh-ritual__eyebrow-in,
+  .sh-ritual.is-armed .sh-ritual__ornament,
+  .sh-ritual.is-armed .sh-ritual__item,
+  .sh-ritual.is-armed .sh-ritual__connectors {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+    transition-delay: 0s !important;
+    animation-delay: 0s !important;
+  }
+
+  .sh-ritual__item > .sh-icon,
+  .sh-ritual__body { transform: none !important; transition: none !important; }
+
+  /* The trace resolves to DRAWN, not to hidden. The state is still worth
+     communicating; only the drawing of it was motion. Leaving dashoffset at 1
+     here would mean hovering a benefit silently did nothing. */
+  .sh-ritual__glow,
+  .sh-ritual__trace { transition: none !important; }
+  .sh-ritual:has(.sh-ritual__item[data-ritual]:hover) .sh-ritual__trace,
+  .sh-ritual:has(.sh-ritual__item[data-ritual]:focus-within) .sh-ritual__trace {
+    stroke-dashoffset: 0 !important;
+  }
+
+  /* Insurance against an OS toggle flipped mid-session, after the cursor loop
+     has already written an inline transform: an !important AUTHOR rule beats a
+     non-important inline style. Same cover §25:3809 takes. */
+  .sh-ritual__depth {
+    transform: none !important;
+    will-change: auto !important;
+  }
+  .sh-ritual__torch { display: none !important; }
+}
+
+/* ============================================================
+   27. TRUST MARQUEE — sections/sh-trust-marquee.liquid
+   The homepage band between Our Signature and Our Story: an editorial header
+   over a continuously scrolling ribbon of quality claims. Light cream surface,
+   a half-step deeper than the two bands it sits between.
+
+   Appended as a self-contained block with its own breakpoints and its own
+   reduced-motion rules, matching §18-§26 rather than extending the shared
+   §15/§16.
+
+   ------------------------------------------------------------
+   FIVE THINGS HERE ARE LOAD-BEARING
+   ------------------------------------------------------------
+
+   1. THE ANIMATION DEFAULTS TO running, AND ONLY JS EVER PAUSES IT.
+      §24:3298 sets the house rule that nothing moves before it is seen, and
+      .sh-lc implements it as paused-by-default plus .is-onscreen to run. That
+      is right for an ambient panel and WRONG here: a marquee that fails to
+      start leaves claims 5-8 parked off the right edge forever. So the polarity
+      is inverted — running by default, and sh-trust-marquee.js ADDS .is-paused.
+      A 404 on that file degrades to the always-running marquee §5 already
+      ships, not to a broken band. The section header (3) has the full argument.
+
+   2. width:max-content ON THE TRACK IS LOAD-BEARING, exactly as at :256. A
+      block-level flex container is sized by its parent, so translateX(-50%)
+      would travel half the VIEWPORT instead of half the duplicated content and
+      the loop would visibly jump once per cycle.
+
+   3. NO url(#…) IN THIS FILE. Every gradient the icons use is defined in
+      snippets/sh-trust-icon.liquid and namespaced from section.id, because a
+      stylesheet cannot see section.id and the track duplicates the DOM. Paint
+      that varies lives in the snippet; paint that is constant lives here. The
+      same split §25:3514 and §26:3902 make.
+
+   4. THE GLASS IS CSS, THE GLYPH IS SVG. Modelling translucency, specular and
+      sweep inside each icon would put ~250 SVG elements on a page that already
+      carries the ~118-element soap plate, and would bury every hover effect two
+      levels inside an SVG where CSS cannot reach it. The medallion below does
+      all of it with a background, a border, two box-shadows and two
+      pseudo-elements — composited, and free to animate.
+
+   5. THE EDGE MASK IS THIS THEME'S FIRST. -webkit- first so Safari below 15.4
+      takes it, unprefixed second so every current engine takes that instead.
+      No @supports guard: the failure mode is hard edges rather than a fade,
+      which is benign, and a fallback would cost overlay pseudo-elements to fake
+      something nobody will miss. The hairlines sit inside the mask on purpose —
+      a rule that dissolves at the same rate as the items reads as one gesture,
+      where a rule stopping dead against a fading item does not.
+   ============================================================ */
+.sh-tmarquee {
+  /* The light-surface trio is re-declared, not referenced. Its only declaration
+     is inside `.sh-story` (:687), deliberately not on :root, so
+     var(--sh-story-ink) resolves to nothing here. Same names and identical
+     values on purpose — the seventh site to make this trade after :1548,
+     :2015, :2303 and :2683. */
+  --sh-story-ink:      #1b2a12;   /* heading — 13.1:1 on this cream */
+  --sh-story-body:     #474a3d;   /* supporting line + claim sub-labels — 7.8:1 */
+  --sh-story-gold-ink: #7a5d2e;   /* the gold dark enough to be READ — 5.3:1 */
+
+  /* Overridden inline from the section's settings; the values here are the
+     fallbacks and the documentation of what those settings expect. */
+  --sh-tm-bg:    #e9e0cf;
+  --sh-tm-icon:  54px;
+  --sh-tm-speed: 52s;
+
+  /* Derived, not set by the merchant, and that distinction is load-bearing:
+     --sh-tm-icon and --sh-tm-speed arrive as INLINE custom properties on this
+     element, and an inline declaration beats any stylesheet rule for the same
+     element — including one inside a media query. So the breakpoints below must
+     never assign --sh-tm-icon or --sh-tm-speed directly; they would be ignored,
+     silently, and only on the two widths nobody re-measures. They scale these
+     derived properties instead. */
+  --sh-tm-scale: 1;
+  --sh-tm-dur:   var(--sh-tm-speed);
+  --sh-tm-rule: rgba(27, 42, 18, .14);
+  --sh-tm-ring: rgba(184, 154, 98, .42);
+  --sh-tm-fade: clamp(28px, 7%, 120px);
+
+  position: relative;
+  /* Mobile safety. The track is width:max-content and WILL push the document
+     sideways the moment this is removed. Asserted at six widths, not assumed. */
+  overflow: hidden;
+  background: var(--sh-tm-bg); color: var(--sh-story-ink);
+  /* Deliberately tighter than the house clamp(66px, 8vw, 110px) that §19 and
+     §22 use: at 110px a side the padding alone would outweigh the content, and
+     this band is meant to read as a ribbon between two full sections rather
+     than as a third full section.
+     42 is not a round number by accident. Measured at 1440: 42 + 100 (head) +
+     28 (gap) + 108 (ribbon) + 42 = 320, the top of the brief's height budget.
+     Changing any of those four also changes the total — measure, do not guess. */
+  padding-block: clamp(32px, 3.4vw, 42px);
+}
+
+/* Two bare-element rules leak in and must be neutralised:
+     houseofveda-modern.css:55  h1..h6 { color: var(--hov-dark) }  -> #1F2A24
+     timber.scss.liquid:814     h1..h6 { text-transform: capitalize }
+   `.sh-tmarquee h2` (0,1,1) beats a bare `h2` (0,0,1), so no !important is
+   needed. Same fix as :678-685. */
+.sh-tmarquee h2 { color: inherit; text-transform: none; }
+
+/* The defs host. NOT display:none — hiding a <defs> host that way has broken
+   reference resolution in shipping engines, and the zero-size absolute box is
+   the technique SVG sprites have used for a decade. The width/height attributes
+   in the snippet cover the case where this file fails to load at all. */
+.sh-tmarquee__defs { position: absolute; width: 0; height: 0; overflow: hidden; }
+
+/* --- Header ----------------------------------------------------------- */
+.sh-tmarquee__head {
+  text-align: center;
+  max-width: 62ch; margin-inline: auto;
+  margin-bottom: clamp(20px, 2.4vw, 28px);
+}
+.sh-tmarquee__eyebrow {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  margin-bottom: 14px;
+}
+.sh-tmarquee .sh-eyebrow { color: var(--sh-story-gold-ink); }
+.sh-tmarquee__eyebrow .sh-icon { width: 14px; height: 14px; }
+.sh-tmarquee__title { font-size: clamp(1.7rem, 3vw, 2.55rem); margin: 0; }
+.sh-tmarquee__body {
+  margin: 10px auto 0; max-width: 46ch;
+  color: var(--sh-story-body); font-size: .95rem; line-height: 1.6;
+}
+
+/* Stagger. nth-child transition-delay, 90ms steps, matching the 3-tier ramp
+   §18 uses at :1687 — the head is one [data-reveal] and its children ride it. */
+.sh-tmarquee__head[data-reveal] > *:nth-child(2) { transition-delay: .09s; }
+.sh-tmarquee__head[data-reveal] > *:nth-child(3) { transition-delay: .18s; }
+
+/* --- Viewport --------------------------------------------------------- */
+.sh-tmarquee__viewport {
+  position: relative; overflow: hidden;
+  -webkit-mask-image: linear-gradient(90deg, transparent 0,
+                        #000 var(--sh-tm-fade),
+                        #000 calc(100% - var(--sh-tm-fade)), transparent 100%);
+          mask-image: linear-gradient(90deg, transparent 0,
+                        #000 var(--sh-tm-fade),
+                        #000 calc(100% - var(--sh-tm-fade)), transparent 100%);
+  /* A linear-gradient with no mask-size already fills the box, so this is a
+     no-op everywhere it works — and insurance where Safari has not. */
+  -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
+}
+.sh-tmarquee--ruled .sh-tmarquee__viewport {
+  border-block: 1px solid var(--sh-tm-rule);
+}
+
+/* --- Track ------------------------------------------------------------ */
+/* See (2). */
+.sh-tmarquee__track {
+  display: flex; width: max-content; will-change: transform;
+  animation: sh-tmarquee-scroll var(--sh-tm-dur) linear infinite;
+}
+/* Linear, and never the entrance curve. §25:3588 documents why: an ease on a
+   loop this long lands as a visible tick once per cycle. */
+@keyframes sh-tmarquee-scroll {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+/* See (1). */
+.sh-tmarquee.is-paused .sh-tmarquee__track { animation-play-state: paused; }
+
+.sh-tmarquee__group {
+  display: flex; flex: none;
+  margin: 0; padding: 0; list-style: none;
+}
+
+/* --- Item ------------------------------------------------------------- */
+/* Proportions echo .sh-trust__item at :655 so the two trust treatments read as
+   one family across the dark hero and this light band. */
+.sh-tmarquee__item {
+  position: relative; flex: none;
+  display: flex; align-items: center; gap: 14px;
+  padding-inline: clamp(18px, 2.4vw, 38px);
+  padding-block: clamp(17px, 2vw, 26px);
+  white-space: nowrap;
+}
+/* The second selector is the seam between the two passes. Without it the
+   divider goes missing exactly once per loop, which is the kind of gap that
+   only ever gets noticed after launch. */
+.sh-tmarquee__item + .sh-tmarquee__item::before,
+.sh-tmarquee__group + .sh-tmarquee__group > .sh-tmarquee__item:first-child::before {
+  content: ""; position: absolute; left: 0; top: 50%;
+  transform: translateY(-50%);
+  width: 1px; height: 34px; background: var(--sh-tm-rule);
+}
+
+/* --- Medallion — see (4) ---------------------------------------------- */
+.sh-tmarquee__medallion {
+  position: relative; flex: none; overflow: hidden;
+  display: grid; place-items: center;
+  width:  calc(var(--sh-tm-icon) * var(--sh-tm-scale));
+  height: calc(var(--sh-tm-icon) * var(--sh-tm-scale));
+  border-radius: 50%;
+  border: 1px solid var(--sh-tm-ring);
+  background: radial-gradient(120% 120% at 30% 22%,
+                rgba(255, 255, 255, .72),
+                rgba(255, 255, 255, .24) 46%,
+                rgba(233, 224, 207, .16));
+  /* Depth without a filter: a bright top inset, a warm bottom inset, and one
+     1px drop. Three declarations instead of a per-frame CPU raster. */
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .85),
+              inset 0 -1px 0 rgba(122, 93, 46, .10),
+              0 1px 2px rgba(38, 53, 29, .07);
+  transition: transform .42s cubic-bezier(.22, .61, .36, 1),
+              border-color .42s cubic-bezier(.22, .61, .36, 1),
+              box-shadow .42s cubic-bezier(.22, .61, .36, 1);
+}
+/* No backdrop-filter. Everywhere else in this file the blur sits over a photo
+   or a canvas; here the surface behind is one flat colour, so it would cost a
+   composited layer per item and change nothing on screen. */
+
+/* The specular. inset:1px keeps it inside the ring rather than over it. */
+.sh-tmarquee__medallion::before {
+  content: ""; position: absolute; inset: 1px; border-radius: 50%;
+  pointer-events: none;
+  background: linear-gradient(158deg,
+                rgba(255, 255, 255, .78) 0%,
+                rgba(255, 255, 255, .20) 34%,
+                rgba(255, 255, 255, 0) 56%);
+}
+
+/* The sweep. Parked off the left edge at 0 opacity, so with the animation off
+   there is no stray bright band sitting on the glass. */
+.sh-tmarquee__medallion::after {
+  content: ""; position: absolute; top: -30%; bottom: -30%; left: 0; width: 38%;
+  pointer-events: none; opacity: 0;
+  transform: translateX(-160%) rotate(14deg);
+  background: linear-gradient(90deg,
+                rgba(255, 255, 255, 0),
+                rgba(255, 255, 255, .62),
+                rgba(255, 255, 255, 0));
+  animation: sh-tmarquee-sweep 7.5s cubic-bezier(.37, 0, .63, 1) infinite;
+}
+@keyframes sh-tmarquee-sweep {
+  0%, 60%   { transform: translateX(-160%) rotate(14deg); opacity: 0; }
+  66%       { opacity: .95; }
+  90%, 100% { transform: translateX(420%)  rotate(14deg); opacity: 0; }
+}
+.sh-tmarquee__medallion.is-still::after { animation: none; }
+.sh-tmarquee.is-paused .sh-tmarquee__medallion::after { animation-play-state: paused; }
+
+/* Staggered so the eight never flash in unison. Explicit steps rather than an
+   --i custom property, matching the nth-child ramps at :1920 and :2116. */
+.sh-tmarquee__item:nth-child(2) .sh-tmarquee__medallion::after { animation-delay: .9s; }
+.sh-tmarquee__item:nth-child(3) .sh-tmarquee__medallion::after { animation-delay: 1.8s; }
+.sh-tmarquee__item:nth-child(4) .sh-tmarquee__medallion::after { animation-delay: 2.7s; }
+.sh-tmarquee__item:nth-child(5) .sh-tmarquee__medallion::after { animation-delay: 3.6s; }
+.sh-tmarquee__item:nth-child(6) .sh-tmarquee__medallion::after { animation-delay: 4.5s; }
+.sh-tmarquee__item:nth-child(7) .sh-tmarquee__medallion::after { animation-delay: 5.4s; }
+.sh-tmarquee__item:nth-child(8) .sh-tmarquee__medallion::after { animation-delay: 6.3s; }
+
+.sh-tmarquee__glyph {
+  position: relative; z-index: 1;
+  width: 58%; height: 58%; opacity: .92;
+  transition: opacity .42s cubic-bezier(.22, .61, .36, 1);
+}
+
+/* --- Label ------------------------------------------------------------ */
+/* .68rem / .13em / 600 is .sh-trust__item b at :670, carried over deliberately. */
+.sh-tmarquee__text { display: block; }
+.sh-tmarquee__label {
+  display: block; font-size: .68rem; letter-spacing: .14em;
+  text-transform: uppercase; font-weight: 600; line-height: 1.25;
+  color: var(--sh-story-ink);
+}
+.sh-tmarquee__desc {
+  display: block; margin-top: 3px;
+  font-size: .66rem; letter-spacing: .04em; line-height: 1.35;
+  color: var(--sh-story-body);
+}
+
+/* --- Hover ------------------------------------------------------------ */
+/* Gated to real pointers so a tap cannot latch the paused state on touch. */
+@media (min-width: 1025px) and (hover: hover) and (pointer: fine) {
+  .sh-tmarquee--hoverpause .sh-tmarquee__viewport:hover .sh-tmarquee__track {
+    animation-play-state: paused;
+  }
+  .sh-tmarquee__item:hover .sh-tmarquee__medallion {
+    transform: scale(1.045);
+    border-color: rgba(184, 154, 98, .75);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .95),
+                inset 0 -1px 0 rgba(122, 93, 46, .12),
+                0 3px 9px rgba(38, 53, 29, .10);
+  }
+  /* The glyph brightens by opacity, not by swapping its stroke: the replacement
+     gradient would have to be named in this file, and (3) forbids that. */
+  .sh-tmarquee__item:hover .sh-tmarquee__glyph { opacity: 1; }
+}
+
+/* --- Responsive ------------------------------------------------------- */
+/* One merchant setting, three bands. The track is width:max-content and travels
+   -50%, so velocity is groupWidth/duration and does NOT change with viewport —
+   a narrower screen just shows fewer items at a time, and the full set takes
+   proportionally longer to come round. These multipliers are what put the
+   default 52s inside the 45-60 / 35-45 / 28-40 targets: 52 / 40.6 / 32.2. */
+@media (max-width: 989px) {
+  .sh-tmarquee {
+    --sh-tm-dur: calc(var(--sh-tm-speed) * .78);
+    --sh-tm-scale: .89;   /* the 54px default -> 48px. Scaled, not reassigned; see the token block. */
+  }
+  .sh-tmarquee__item { padding-inline: clamp(15px, 2.2vw, 26px); gap: 12px; }
+}
+@media (max-width: 599px) {
+  .sh-tmarquee {
+    --sh-tm-dur: calc(var(--sh-tm-speed) * .62);
+    --sh-tm-scale: .81;   /* -> 44px */
+    --sh-tm-fade: 22px;
+  }
+  /* Stacked on phones: at this width a horizontal item is wide enough that only
+     one and a bit fit on screen, which reads as a stalled ribbon rather than a
+     moving one. */
+  .sh-tmarquee__item {
+    flex-direction: column; gap: 9px; text-align: center;
+    padding-inline: 15px; padding-block: 18px;
+  }
+  .sh-tmarquee__item + .sh-tmarquee__item::before,
+  .sh-tmarquee__group + .sh-tmarquee__group > .sh-tmarquee__item:first-child::before {
+    height: 46px;
+  }
+  .sh-tmarquee__label { font-size: .64rem; letter-spacing: .12em; }
+  .sh-tmarquee__desc  { font-size: .62rem; }
+}
+
+/* --- Reduced motion --------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  /* The brief asked for a static horizontally scrollable layout. Wrapping is
+     better here and it is not close: overflow-x:auto would let a pointer scroll
+     into the aria-hidden duplicate, i.e. content reachable by sight but not by
+     screen reader. Eight short items wrap into a centred grid that shows
+     everything at once, with no scroll affordance to find and nothing hidden. */
+  .sh-tmarquee__track {
+    animation: none;
+    width: auto; flex-wrap: wrap; justify-content: center;
+  }
+  /* flex:none is what the moving track needs and exactly what a wrapping one
+     must not have — as a flex item at 0 0 auto the group is frozen at its
+     max-content width, so its own flex-wrap can never fire and the items run
+     straight off the side, where the section's overflow:hidden eats them. The
+     result is worse than the scroll this block exists to avoid: claims that are
+     not merely hard to reach but gone. 1 1 100% + min-width:0 lets it take the
+     track's width and wrap inside it. */
+  .sh-tmarquee__group {
+    flex: 1 1 100%; min-width: 0;
+    flex-wrap: wrap; justify-content: center;
+  }
+  .sh-tmarquee__group[aria-hidden="true"] { display: none; }
+  .sh-tmarquee__viewport {
+    overflow: visible;
+    -webkit-mask-image: none; mask-image: none;
+  }
+  .sh-tmarquee__item { white-space: normal; }
+
+  /* Both properties, not just the animation: the sweep parked off-glass would
+     otherwise snap into view the moment anything re-triggered it. */
+  .sh-tmarquee__medallion,
+  .sh-tmarquee__medallion::after {
+    transform: none !important;
+    transition: none !important;
+    animation: none !important;
+  }
+  .sh-tmarquee__medallion::after { opacity: 0 !important; }
+
+  /* :1490 covers the element CARRYING [data-reveal]; the stagger here lives on
+     its children, so they need their own release. Same shape as :2612-2621. */
+  .sh-tmarquee__head[data-reveal] > * {
+    opacity: 1 !important; transform: none !important;
+    transition: none !important; transition-delay: 0s !important;
+  }
 }

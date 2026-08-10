@@ -1,0 +1,195 @@
+{%- comment -%}
+  SHUDHI — Trust & Certification Marquee
+
+  The homepage band between Our Signature and Our Story: an editorial header over
+  a slow, continuously scrolling ribbon of quality and formulation claims. Acts
+  as the beat between "here is the product" and "here is who we are".
+
+  Icons come from snippets/sh-trust-icon.liquid. Styled in shudhi-home.css §26.
+  Optionally paused off-screen by assets/sh-trust-marquee.js — enhancement only,
+  see (3).
+
+  ---------------------------------------------------------------------------
+  SIX THINGS HERE ARE LOAD-BEARING
+  ---------------------------------------------------------------------------
+
+  1. THE <defs> ARE RENDERED ONCE, ABOVE BOTH PASSES. The track duplicates every
+     item so translateX(-50%) can loop seamlessly, so each icon exists twice.
+     Rendering the gradients inside the icon would emit sixteen copies of the
+     same ids — duplicate DEFINITIONS, which are invalid and silently collapse to
+     the first. Hoisting them here makes the second pass hold duplicate
+     REFERENCES instead, which is legal. snippets/sh-trust-icon.liquid:31-45 has
+     the full reasoning. Consequence: every url(#…) lives in Liquid, never in
+     §26, because a stylesheet cannot see section.id.
+
+  2. THE DISABLED-CLAIM COUNT IS COUNTED, NOT FILTERED. `where` looks like the
+     obvious tool, but its single-argument truthy form is only documented against
+     top-level properties — `where: 'settings.enabled'` relies on nested dot
+     notation that shopify.dev does not specify, and the empty-state guard is not
+     a place to depend on undocumented behaviour. A four-line count is exact.
+
+  3. THE MARQUEE RUNS BY DEFAULT AND THE SCRIPT ONLY EVER PAUSES IT. §26 sets
+     animation-play-state:running; sh-trust-marquee.js ADDS .is-paused when the
+     band scrolls away. Inverting that — CSS paused, JS resumes — would mean a
+     404 on the script, an exception in it, or JS off entirely leaves claims 5-8
+     parked off the right edge forever, which is a visibly broken band rather
+     than a degraded one. Failing open costs one always-running animation in the
+     rare case, exactly what sections/sh-announcement.liquid already ships.
+
+  4. shopify_attributes GOES ON PASS ONE ONLY. Emitted on both, the theme editor
+     sees two elements claiming the same block id and click-to-select breaks.
+
+  5. THE ROOT CARRIES `sh`. assets/shudhi-home.js:269 selects `.sh [data-reveal]`;
+     without the class the header never receives .is-in and stays at opacity 0.
+
+  6. <h2>, NOT <h1>. The homepage h1 belongs to sections/sh-hero-scroll.liquid:100.
+
+  ---------------------------------------------------------------------------
+  A NOTE ON THE CLAIMS
+  ---------------------------------------------------------------------------
+  Nothing here asserts a certification number, laboratory, certifying body, ISO
+  standard number or approval number, and no default text invents one. Each claim
+  carries its own "Show this claim" switch so a merchant can withdraw any of them
+  without losing its wording. Substantiating them is the merchant's job, and the
+  schema says so where they will read it.
+{%- endcomment -%}
+
+{%- assign s = section.settings -%}
+
+{%- comment -%} The `default` must resolve BEFORE the append: 'sh-tm-' | append: nil
+    returns the non-blank string "sh-tm-", so a `default` chained after the append
+    could never fire. Same trap snippets/sh-soap-plate.liquid:27 documents. {%- endcomment -%}
+{%- assign tm_uid = section.id | default: 'tm' -%}
+{%- assign gid = 'sh-tm-' | append: tm_uid -%}
+
+{%- comment -%} See (2). {%- endcomment -%}
+{%- assign live_count = 0 -%}
+{%- for block in section.blocks -%}
+  {%- if block.settings.enabled -%}{%- assign live_count = live_count | plus: 1 -%}{%- endif -%}
+{%- endfor -%}
+
+{%- if live_count > 0 -%}
+<section class="sh sh-tmarquee{% if s.show_rules %} sh-tmarquee--ruled{% endif %}{% if s.pause_hover %} sh-tmarquee--hoverpause{% endif %}"
+         id="shudhi-standard"
+         style="--sh-tm-bg:{{ s.bg }};--sh-tm-speed:{{ s.speed }}s;--sh-tm-icon:{{ s.icon_size }}px;"
+         {% if s.title != blank %}aria-labelledby="sh-tm-title-{{ tm_uid }}"{% else %}aria-label="Our quality standards"{% endif %}>
+
+  {%- comment -%} See (1). Must precede any icon that references it. {%- endcomment -%}
+  {% render 'sh-trust-icon', mode: 'defs', gid: gid %}
+
+  {%- if s.eyebrow != blank or s.title != blank or s.body != blank -%}
+    <div class="sh-wrap">
+      <div class="sh-tmarquee__head"{% if s.animate %} data-reveal{% endif %}>
+        {%- if s.eyebrow != blank -%}
+          <div class="sh-tmarquee__eyebrow sh-eyebrow">
+            {{ s.eyebrow }}{% render 'sh-icon', name: 'leaf' %}
+          </div>
+        {%- endif -%}
+        {%- if s.title != blank -%}
+          <h2 class="sh-tmarquee__title sh-serif" id="sh-tm-title-{{ tm_uid }}">{{ s.title }}</h2>
+        {%- endif -%}
+        {%- if s.body != blank -%}
+          <p class="sh-tmarquee__body">{{ s.body }}</p>
+        {%- endif -%}
+      </div>
+    </div>
+  {%- endif -%}
+
+  <div class="sh-tmarquee__viewport">
+    <div class="sh-tmarquee__track">
+      {%- comment -%} Duplicated once so translateX(-50%) loops seamlessly. Same
+          shape as sections/sh-announcement.liquid:17-27. {%- endcomment -%}
+      {%- for pass in (1..2) -%}
+        {%- assign is_dupe = false -%}
+        {%- if forloop.index == 2 -%}{%- assign is_dupe = true -%}{%- endif -%}
+
+        <ul class="sh-tmarquee__group"{% if is_dupe %} aria-hidden="true"{% endif %}>
+          {%- for block in section.blocks -%}
+            {%- unless block.settings.enabled -%}{%- continue -%}{%- endunless -%}
+            {%- comment -%} See (4). {%- endcomment -%}
+            <li class="sh-tmarquee__item"{% unless is_dupe %} {{ block.shopify_attributes }}{% endunless %}>
+              <span class="sh-tmarquee__medallion{% unless s.icon_motion %} is-still{% endunless %}">
+                {% render 'sh-trust-icon', mode: 'icon', name: block.settings.icon, gid: gid %}
+              </span>
+              <span class="sh-tmarquee__text">
+                <b class="sh-tmarquee__label">{{ block.settings.title }}</b>
+                {%- if s.show_desc and block.settings.text != blank -%}
+                  <small class="sh-tmarquee__desc">{{ block.settings.text }}</small>
+                {%- endif -%}
+              </span>
+            </li>
+          {%- endfor -%}
+        </ul>
+      {%- endfor -%}
+    </div>
+  </div>
+
+</section>
+
+{%- comment -%} See (3). The only script this section needs, and only when the
+    setting that uses it is on. {%- endcomment -%}
+{%- if s.pause_offscreen -%}
+  <script src="{{ 'sh-trust-marquee.js' | asset_url }}" defer></script>
+{%- endif -%}
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "SH · Trust Marquee",
+  "class": "index-section",
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Pure by principle" },
+    { "type": "text", "id": "title", "label": "Heading", "default": "The Shudhi Standard" },
+    { "type": "textarea", "id": "body", "label": "Supporting line", "default": "Rooted in nature. Refined through care." },
+
+    { "type": "header", "content": "Marquee" },
+    { "type": "range", "id": "speed", "label": "Seconds per loop", "min": 30, "max": 90, "step": 2, "default": 52, "unit": "s",
+      "info": "Higher = slower. This is the desktop figure; tablet and mobile scale down from it automatically so the full set still comes round on a narrower screen." },
+    { "type": "checkbox", "id": "pause_hover", "label": "Pause when hovered", "default": true,
+      "info": "Desktop pointers only. Touch devices are unaffected." },
+    { "type": "checkbox", "id": "pause_offscreen", "label": "Pause when scrolled out of view", "default": true,
+      "info": "Saves battery on long pages. Turning this off removes the section's only script." },
+    { "type": "checkbox", "id": "show_desc", "label": "Show the short line under each claim", "default": true,
+      "info": "Turn off for a tighter, label-only ribbon and a shorter band." },
+
+    { "type": "header", "content": "Appearance" },
+    { "type": "range", "id": "icon_size", "label": "Icon size", "min": 40, "max": 72, "step": 2, "default": 54, "unit": "px" },
+    { "type": "checkbox", "id": "show_rules", "label": "Show hairlines above and below the ribbon", "default": true },
+    { "type": "checkbox", "id": "icon_motion", "label": "Ambient light sweep on the icons", "default": true,
+      "info": "A slow highlight that drifts across each icon every few seconds, staggered so they never flash together." },
+    { "type": "checkbox", "id": "animate", "label": "Animate on scroll", "default": true },
+    { "type": "color", "id": "bg", "label": "Background", "default": "#e9e0cf",
+      "info": "A half-step deeper than the cream above and below, so the ribbon reads as an inset band rather than a seam. Keep it light — the icon and text colours are tuned for a light surface." }
+  ],
+  "blocks": [
+    { "type": "claim", "name": "Trust claim", "settings": [
+      { "type": "paragraph", "content": "You are responsible for being able to substantiate every claim shown here. Turn off any you cannot currently evidence." },
+      { "type": "checkbox", "id": "enabled", "label": "Show this claim", "default": true,
+        "info": "Turning this off removes the claim from the ribbon without losing its wording, so it can be restored later." },
+      { "type": "select", "id": "icon", "label": "Icon", "default": "lab", "options": [
+        { "value": "lab", "label": "Flask — lab tested" },
+        { "value": "iso", "label": "Seal — certified" },
+        { "value": "batch", "label": "Cupped hands — small batch" },
+        { "value": "sls", "label": "Droplet, excluded — SLS free" },
+        { "value": "paraben", "label": "Molecule, excluded — paraben free" },
+        { "value": "toxin", "label": "Droplet in a ring — toxin free" },
+        { "value": "cruelty", "label": "Rabbit — cruelty free" },
+        { "value": "natural", "label": "Sprout — natural ingredients" } ] },
+      { "type": "text", "id": "title", "label": "Claim", "default": "Lab Tested" },
+      { "type": "text", "id": "text", "label": "Short line", "default": "Thoughtfully verified",
+        "info": "Two or three words. Longer lines widen the item and slow the ribbon down." }
+    ] }
+  ],
+  "max_blocks": 12,
+  "presets": [ { "name": "SH · Trust Marquee", "blocks": [
+    { "type": "claim", "settings": { "icon": "lab",     "title": "Lab Tested",                "text": "Thoughtfully verified" } },
+    { "type": "claim", "settings": { "icon": "iso",     "title": "ISO Certified",             "text": "Held to standard" } },
+    { "type": "claim", "settings": { "icon": "batch",   "title": "Handmade in Small Batches", "text": "Made by hand" } },
+    { "type": "claim", "settings": { "icon": "sls",     "title": "SLS & SLES Free",           "text": "No harsh surfactants" } },
+    { "type": "claim", "settings": { "icon": "paraben", "title": "Paraben Free",              "text": "No synthetic preservatives" } },
+    { "type": "claim", "settings": { "icon": "toxin",   "title": "Toxin Free",                "text": "Clean by formulation" } },
+    { "type": "claim", "settings": { "icon": "cruelty", "title": "Cruelty Free",              "text": "Never tested on animals" } },
+    { "type": "claim", "settings": { "icon": "natural", "title": "Natural Ingredients",       "text": "Rooted in Ayurveda" } }
+  ] } ]
+}
+{% endschema %}
