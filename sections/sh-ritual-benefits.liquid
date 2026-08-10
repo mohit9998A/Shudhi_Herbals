@@ -247,6 +247,7 @@
 
     { "type": "header", "content": "Images" },
     { "type": "image_picker", "id": "bg_image", "label": "Background image", "info": "Defaults to \"Its a ritual.webp\" in Assets. Uploading your own turns the water and light overlay off, because that drawing is measured against the built-in photograph's exact proportions." },
+    { "type": "image_picker", "id": "center_image", "label": "Soap cut-out", "info": "Optional, and only used while the water and light overlay is on. A transparent PNG is drawn directly over the soap bar in the background photograph — it is placed on the bar's own coordinates, so it stays locked to it at every screen size with nothing to position. Frame your cut-out the way the built-in bar is framed and it will land correctly; a different shape is letterboxed into that space rather than cropped." },
 
     { "type": "header", "content": "Motion" },
     { "type": "checkbox", "id": "animate", "label": "Animate on scroll", "default": true, "info": "Runs the entrance — water first, then the soap's contact shadow, then the heading, then the benefit cards. The section is complete and readable before any of it runs, so turning this off, or losing the script, costs the animation and nothing else." },
