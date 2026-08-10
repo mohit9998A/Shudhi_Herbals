@@ -2,125 +2,419 @@
   SHUDHI — Contact
 
   Shopify's native {% form 'contact' %}, styled to the Shudhi system. Two
-  columns: the form on the left, the contact details on the right.
+  columns: the form on the left, the contact details in a tinted card on the
+  right. CSS lives in assets/shudhi-home.css §23 (it replaced §14c, and the
+  §15 breakpoint entries moved down with it — a media query adds no
+  specificity, so a rule for this component declared in §23 would out-order an
+  identical selector left behind in §15 and the layout would never stack).
 
-  The details are section settings rather than hardcoded copy so the merchant
-  can fill them in without a code change — they ship as [PLACEHOLDER] and each
-  row is skipped entirely when its setting is blank, so an unfilled page shows
-  a short list rather than empty rows.
+  Six things here are deliberate and easy to undo by accident:
 
-  form.posted_successfully? replaces the form outright: Shopify redirects back
-  with ?contact_posted=true, and leaving the fields on screen next to a success
-  note invites a duplicate submit.
+  1. NEVER pass a custom `id:` to {% form %}. Shopify sets id="contact_form"
+     and action="/contact#contact_form" itself, and both the error re-render
+     and the ?contact_posted=true redirect jump to that fragment. Overriding
+     the id breaks the pairing and the user lands at the top of the page with
+     no idea whether anything happened.
+
+  2. [data-reveal] sits on .sh-form__inner, NOT on the <form>. Shopify injects
+     form_type and utf8 as the form's first children, so the nth-child ramp in
+     §23 would be counting hidden inputs — and would shift silently if Shopify
+     ever added a third.
+
+  3. data-reveal is withheld entirely on the success and error renders (see
+     `animate_form`, which is computed INSIDE the {% form %} block — `form` is
+     scoped to that tag and reading it above the <section> silently compared nil,
+     so this guard did nothing at all until that moved).
+     The confirmation heading is the autofocus target,
+     and moving focus to an element sitting at opacity:0 mid-transform is
+     exactly the "motion gates content" failure the house rule forbids. A user
+     who just submitted should not have to watch a fade before reading the
+     answer either.
+
+  4. No role="status" / role="alert" on the two message blocks. Neither is
+     inserted dynamically — both are present at parse time, where a live region
+     is either silently ignored or DOUBLE-announces alongside the autofocus.
+     One reliable announcement beats two unreliable ones.
+
+  5. The four detail values are normalised ONCE, below, rather than guarded
+     four times at the render sites. A value still containing a square bracket
+     is a placeholder nobody filled in, and rendering it produced a CLICKABLE
+     DEAD LINK (href="tel:[PLACEHOLDER—+9100000000]"). Because the defaults
+     lived in two places — this schema and templates/page.contact.json —
+     fixing one alone changed nothing. Blanking them here means neither file
+     can put a dead link on the page, whatever it holds.
+
+  6. The honeypot CANNOT block a submission. Shopify's native contact form has
+     no server-side hook, so a filled trap still sends the email. Its only
+     value is as a filter signal: `Website: http://spam.ru` in the notification
+     is one inbox rule. Real blocking is Shopify's platform-level reCAPTCHA.
+     Anyone reading this as "the theme blocks bots now" is mistaken.
+
+  7. The right column is a WRAPPER (.sh-contact__col--side) holding up to two
+     occupants: the details card and the Living Conversation panel. --solo means
+     "that column is empty", which is what it always meant — it just used to have
+     only one possible occupant. The four combinations:
+
+       panel on,  details empty  -> --lc          55/45, panel centred, full art
+       panel on,  details filled -> --lc --both   §23's 1.1fr, card then panel,
+                                                  panel compact (no ring, 6 seeds)
+       panel off, details filled -> (none)        exactly as before this change
+       panel off, details empty  -> --solo        exactly as before this change
+
+     The last two rows are the property to protect: an unconfigured page and a
+     details-only page must render byte-identically to what they did before the
+     panel existed.
+
+  Custom contact[*] keys (subject, order_number) reach the merchant's
+  notification email as humanised "Key: value" lines, but Shopify exposes no
+  form.* property for them — so unlike name/email/body they do NOT repopulate
+  on the error re-render. That is accepted rather than worked around: the only
+  error Shopify actually raises here is an invalid email, and form.body — the
+  expensive field to retype — is preserved.
+
+  Heading levels: sh-page-header renders the <h1> above this section, so the
+  form heading and the details heading are both h2. The details heading used to
+  be a <div>, which filed the whole list under the FORM's heading (WCAG 1.3.1).
 {%- endcomment -%}
 
 {%- assign s = section.settings -%}
+{%- assign uid = section.id -%}
 
-<section class="sh sh-contact" id="contact"{% if s.bg != blank %} style="--sh-contact-bg:{{ s.bg }};"{% endif %}>
+{%- comment -%} See note 5. {%- endcomment -%}
+{%- assign c_address = s.address | strip -%}
+{%- assign c_phone   = s.phone   | strip -%}
+{%- assign c_email   = s.email   | strip -%}
+{%- assign c_hours   = s.hours   | strip -%}
+{%- if c_address contains '[' -%}{%- assign c_address = '' -%}{%- endif -%}
+{%- if c_phone   contains '[' -%}{%- assign c_phone   = '' -%}{%- endif -%}
+{%- if c_hours   contains '[' -%}{%- assign c_hours   = '' -%}{%- endif -%}
+{%- comment -%} An address is prose; an email is a protocol value. Anything
+    without an @ cannot produce a working mailto:, so require the @ rather than
+    merely reject the bracket. {%- endcomment -%}
+{%- unless c_email contains '@' -%}{%- assign c_email = '' -%}{%- endunless -%}
+
+{%- comment -%} The old href kept spaces and dots. RFC 3966 tolerates neither
+    reliably across dialers. {%- endcomment -%}
+{%- assign tel_href = c_phone | remove: ' ' | remove: '-' | remove: '(' | remove: ')' | remove: '.' -%}
+
+{%- comment -%} With every detail row blank — which is how this ships — the card
+    would render as an empty tinted box next to a 500px column of nothing. An
+    unconfigured page should look deliberate, not broken, so the aside is
+    withheld entirely until it has something to say, and the grid collapses to
+    a single measured column (see .sh-contact--solo in §23). {%- endcomment -%}
+{%- assign has_details = false -%}
+{%- if c_address != blank or c_phone != blank or c_email != blank or c_hours != blank -%}
+  {%- assign has_details = true -%}
+{%- endif -%}
+{%- assign has_aside = false -%}
+{%- if has_details or s.note != blank -%}
+  {%- assign has_aside = true -%}
+{%- endif -%}
+
+{%- comment -%} Living Conversation — see note 7.
+    Parsed exactly the way reason_options is at :195, and for the same reason:
+    `split: '\n'` leaves a \r on every entry pasted from Windows. Emptying the
+    statements hides the panel whatever the checkbox says — the same "blank
+    content, no element" rule the detail rows use, so the off switch is
+    reachable two ways and neither can leave a decorative column with nothing
+    in it. {%- endcomment -%}
+{%- assign lc_list = s.lc_statements | strip | newline_to_br | split: '<br />' -%}
+{%- assign show_panel = false -%}
+{%- if s.lc_show and lc_list.size > 0 -%}
+  {%- assign show_panel = true -%}
+{%- endif -%}
+
+{%- comment -%} --solo now answers "is the RIGHT COLUMN empty", which is what it
+    always meant; it just used to have only one possible occupant. {%- endcomment -%}
+{%- assign has_right = false -%}
+{%- if has_aside or show_panel -%}
+  {%- assign has_right = true -%}
+{%- endif -%}
+
+<section class="sh sh-contact{% unless has_right %} sh-contact--solo{% endunless %}{% if show_panel %} sh-contact--lc{% endif %}{% if show_panel and has_aside %} sh-contact--both{% endif %}" id="contact"{% if s.bg != blank %} style="--sh-contact-bg:{{ s.bg }};"{% endif %}>
   <div class="sh-wrap">
     <div class="sh-contact__grid">
 
       {%- comment -%} Form {%- endcomment -%}
-      <div class="sh-contact__form"{% if s.animate %} data-reveal{% endif %}>
-        {%- if s.form_title != blank -%}
-          <h2 class="sh-contact__title sh-serif">{{ s.form_title }}</h2>
-        {%- endif -%}
-
+      <div class="sh-contact__col--form">
         {%- form 'contact', class: 'sh-form' -%}
+          {%- comment -%} INSIDE the form block, and that is the whole point.
+              `form` is a Liquid object Shopify creates for the {% form %} tag
+              and it does not exist outside it — so computing this above the
+              <section>, where it used to live, silently evaluated
+              form.posted_successfully? and form.errors against nil. The unless
+              therefore always passed and animate_form was simply `s.animate`.
+
+              Verified in the browser before this change: on
+              /pages/contact?contact_posted=true the confirmation rendered AND
+              .sh-form__inner still carried data-reveal — the exact failure note 3
+              describes as forbidden, in the file that documents it. The
+              confirmation heading is the autofocus target, so focus was landing
+              on an element at opacity:0 mid-transform.
+
+              Liquid `assign` writes to the template scope, not a block-local one
+              ({% form %} is not a loop), so both variables are still readable
+              after {% endform %} — which is where the right column needs them.
+              The form column renders BEFORE that column, so the order holds.
+              {%- endcomment -%}
+          {%- assign animate_form = false -%}
+          {%- if s.animate -%}
+            {%- unless form.posted_successfully? or form.errors -%}
+              {%- assign animate_form = true -%}
+            {%- endunless -%}
+          {%- endif -%}
+
+          {%- comment -%} The panel's opening line and status are printed from
+              this server-side, so both are right with JS off and neither can
+              ever claim a success the form did not have. {%- endcomment -%}
+          {%- assign lc_state = 'idle' -%}
           {%- if form.posted_successfully? -%}
-            <p class="sh-form__ok" role="status">
-              {% render 'sh-icon', name: 'leaf' %}
-              {{ s.success_text }}
-            </p>
-          {%- else -%}
-            {%- if form.errors -%}
-              <div class="sh-form__err" role="alert">
-                {{ form.errors | default_errors }}
+            {%- assign lc_state = 'sent' -%}
+          {%- elsif form.errors -%}
+            {%- assign lc_state = 'error' -%}
+          {%- endif -%}
+
+          <div class="sh-form__inner"{% if animate_form %} data-reveal{% endif %}>
+
+            {%- if form.posted_successfully? -%}
+              {%- comment -%} tabindex/autofocus: see note 3. autofocus has been a
+                  global HTML attribute since 2019, so this needs no JS. Browsers
+                  that ignore it degrade to the previous behaviour exactly. {%- endcomment -%}
+              <h2 class="sh-contact__title sh-serif" tabindex="-1" autofocus>{{ s.success_title }}</h2>
+
+              <p class="sh-form__ok">
+                {% render 'sh-icon', name: 'leaf' %}
+                <span>{{ s.success_text }}</span>
+              </p>
+
+              {%- if s.success_link != blank and s.success_link_label != blank -%}
+                <p class="sh-form__after">
+                  <a class="sh-btn sh-btn--ghost" href="{{ s.success_link }}">
+                    {{ s.success_link_label }}{% render 'sh-icon', name: 'arrow-right' %}
+                  </a>
+                </p>
+              {%- endif -%}
+
+            {%- else -%}
+              {%- if s.form_title != blank -%}
+                <h2 class="sh-contact__title sh-serif">{{ s.form_title }}</h2>
+              {%- endif -%}
+
+              {%- if form.errors -%}
+                <div class="sh-form__err" tabindex="-1" autofocus>
+                  {% render 'sh-icon', name: 'alert' %}
+                  <div>
+                    {%- if s.error_title != blank -%}
+                      <p class="sh-form__err-title">{{ s.error_title }}</p>
+                    {%- endif -%}
+                    {{ form.errors | default_errors }}
+                  </div>
+                </div>
+              {%- elsif s.form_lede != blank -%}
+                <p class="sh-form__lede">{{ s.form_lede }}</p>
+              {%- endif -%}
+
+              <div class="sh-form__body">
+                <div class="sh-form__row">
+                  <div class="sh-field">
+                    <label class="sh-field__label" for="sh-name-{{ uid }}">
+                      {{ s.label_name }}<span class="sh-field__req" aria-hidden="true">*</span>
+                    </label>
+                    <input type="text" id="sh-name-{{ uid }}" name="contact[name]"
+                           required aria-required="true" autocomplete="name"
+                           value="{{ form.name | default: customer.name }}">
+                  </div>
+
+                  <div class="sh-field">
+                    <label class="sh-field__label" for="sh-email-{{ uid }}">
+                      {{ s.label_email }}<span class="sh-field__req" aria-hidden="true">*</span>
+                    </label>
+                    <input type="email" id="sh-email-{{ uid }}" name="contact[email]"
+                           required aria-required="true" autocomplete="email"
+                           value="{{ form.email | default: customer.email }}">
+                  </div>
+                </div>
+
+                <div class="sh-form__row">
+                  <div class="sh-field">
+                    <label class="sh-field__label" for="sh-phone-{{ uid }}">{{ s.label_phone }}</label>
+                    <input type="tel" id="sh-phone-{{ uid }}" name="contact[phone]" autocomplete="tel">
+                  </div>
+
+                  {%- if s.show_order -%}
+                    <div class="sh-field">
+                      <label class="sh-field__label" for="sh-order-{{ uid }}">{{ s.label_order }}</label>
+                      <input type="text" id="sh-order-{{ uid }}" name="contact[order_number]"
+                             inputmode="numeric"
+                             {% if s.hint_order != blank %}aria-describedby="sh-order-hint-{{ uid }}"{% endif %}>
+                      {%- if s.hint_order != blank -%}
+                        <p class="sh-field__hint" id="sh-order-hint-{{ uid }}">{{ s.hint_order }}</p>
+                      {%- endif -%}
+                    </div>
+                  {%- endif -%}
+                </div>
+
+                {%- comment -%} Blank reason_options drops the field entirely — the
+                    same "blank content = no element" rule the detail rows use.
+                    The first line is pre-selected, so the email always carries a
+                    meaningful value without a required-select failure mode. {%- endcomment -%}
+                {%- assign reasons = s.reason_options | strip | newline_to_br | split: '<br />' -%}
+                {%- if reasons.size > 0 -%}
+                  <div class="sh-field">
+                    <label class="sh-field__label" for="sh-reason-{{ uid }}">{{ s.label_reason }}</label>
+                    <select id="sh-reason-{{ uid }}" name="contact[subject]">
+                      {%- for r in reasons -%}
+                        {%- assign r = r | strip -%}
+                        {%- if r != blank -%}
+                          <option value="{{ r | escape }}">{{ r }}</option>
+                        {%- endif -%}
+                      {%- endfor -%}
+                    </select>
+                  </div>
+                {%- endif -%}
+
+                <div class="sh-field">
+                  <label class="sh-field__label" for="sh-body-{{ uid }}">
+                    {{ s.label_message }}<span class="sh-field__req" aria-hidden="true">*</span>
+                  </label>
+                  <textarea id="sh-body-{{ uid }}" name="contact[body]" rows="6"
+                            required aria-required="true">{{ form.body }}</textarea>
+                </div>
+
+                {%- comment -%} See note 6. Offset off-screen, not display:none —
+                    bots skip hidden fields but fill offset ones. tabindex="-1" is
+                    load-bearing: it keeps the field out of the tab order, which is
+                    what lets the aria-hidden wrapper pass axe's aria-hidden-focus
+                    rule (that rule flags TABBABLE content inside aria-hidden). {%- endcomment -%}
+                <div class="sh-form__hp" aria-hidden="true">
+                  <label for="sh-website-{{ uid }}">Do not fill this in</label>
+                  <input type="text" id="sh-website-{{ uid }}" name="contact[website]"
+                         tabindex="-1" autocomplete="off" value="">
+                </div>
+              </div>
+
+              <div class="sh-form__actions">
+                <button type="submit" class="sh-btn sh-btn--solid">
+                  {{ s.submit_label }}{% render 'sh-icon', name: 'arrow-right' %}
+                </button>
+                {%- if s.privacy_note != blank -%}
+                  <p class="sh-form__privacy">{{ s.privacy_note }}</p>
+                {%- endif -%}
               </div>
             {%- endif -%}
 
-            <div class="sh-form__row">
-              <label class="sh-field">
-                <span>{{ s.label_name }}</span>
-                <input type="text" name="contact[name]" required
-                       value="{{ form.name | default: customer.name }}">
-              </label>
-
-              <label class="sh-field">
-                <span>{{ s.label_email }}</span>
-                <input type="email" name="contact[email]" required autocomplete="email"
-                       value="{{ form.email | default: customer.email }}">
-              </label>
-            </div>
-
-            <label class="sh-field">
-              <span>{{ s.label_phone }}</span>
-              <input type="tel" name="contact[phone]" autocomplete="tel"
-                     value="{{ form.phone }}">
-            </label>
-
-            <label class="sh-field">
-              <span>{{ s.label_message }}</span>
-              <textarea name="contact[body]" rows="6" required>{{ form.body }}</textarea>
-            </label>
-
-            <button type="submit" class="sh-btn sh-btn--solid">
-              {{ s.submit_label }}{% render 'sh-icon', name: 'arrow-right' %}
-            </button>
-          {%- endif -%}
+          </div>
         {%- endform -%}
       </div>
 
+      {%- comment -%} Right column. The wrapper exists so the details card and
+          the panel can share the column; .sh-contact__col--info sets no
+          grid-placement properties, so moving it one level down changes nothing
+          about how it renders, and its own data-reveal and nth-child ramp
+          (§23 :2921) are untouched.
+
+          Card first, panel second. The card is information someone came here
+          for; the panel is atmosphere. Fact above motion — and it keeps the
+          moving parts out of the top of the reading path. {%- endcomment -%}
+      {%- if has_right -%}
+      <div class="sh-contact__col--side">
+
       {%- comment -%} Details {%- endcomment -%}
-      <aside class="sh-contact__info"{% if s.animate %} data-reveal{% endif %}>
-        {%- if s.info_title != blank -%}
-          <div class="sh-contact__eyebrow sh-eyebrow">{{ s.info_title }}</div>
+      {%- if has_aside -%}
+      <aside class="sh-contact__col--info"{% if s.animate %} data-reveal{% endif %}>
+        {%- if has_details -%}
+        <div class="sh-contact__card">
+          {%- if s.info_title != blank -%}
+            <h2 class="sh-contact__eyebrow">{{ s.info_title }}</h2>
+            <i class="sh-contact__rule" aria-hidden="true"></i>
+          {%- endif -%}
+
+          <dl class="sh-contact__list">
+            {%- if c_address != blank -%}
+              <div class="sh-contact__item">
+                {% render 'sh-icon', name: 'pin' %}
+                <div>
+                  <dt>Visit</dt>
+                  <dd>
+                    {{ c_address }}
+                    {%- if s.map_url != blank -%}
+                      <a class="sh-contact__map" href="{{ s.map_url }}" target="_blank" rel="noopener">
+                        Get directions{% render 'sh-icon', name: 'arrow-right' %}
+                      </a>
+                    {%- endif -%}
+                  </dd>
+                </div>
+              </div>
+            {%- endif -%}
+
+            {%- if c_phone != blank -%}
+              <div class="sh-contact__item">
+                {% render 'sh-icon', name: 'phone' %}
+                <div>
+                  <dt>Call</dt>
+                  <dd><a href="tel:{{ tel_href }}">{{ c_phone }}</a></dd>
+                </div>
+              </div>
+            {%- endif -%}
+
+            {%- if c_email != blank -%}
+              <div class="sh-contact__item">
+                {% render 'sh-icon', name: 'mail' %}
+                <div>
+                  <dt>Email</dt>
+                  <dd><a href="mailto:{{ c_email }}">{{ c_email }}</a></dd>
+                </div>
+              </div>
+            {%- endif -%}
+
+            {%- if c_hours != blank -%}
+              <div class="sh-contact__item">
+                {% render 'sh-icon', name: 'clock' %}
+                <div><dt>Hours</dt><dd>{{ c_hours }}</dd></div>
+              </div>
+            {%- endif -%}
+          </dl>
+        </div>
         {%- endif -%}
-
-        <dl class="sh-contact__list">
-          {%- if s.address != blank -%}
-            <div class="sh-contact__item">
-              {% render 'sh-icon', name: 'pin' %}
-              <div><dt>Visit</dt><dd>{{ s.address }}</dd></div>
-            </div>
-          {%- endif -%}
-
-          {%- if s.phone != blank -%}
-            <div class="sh-contact__item">
-              {% render 'sh-icon', name: 'phone' %}
-              <div>
-                <dt>Call</dt>
-                <dd><a href="tel:{{ s.phone | remove: ' ' | remove: '-' }}">{{ s.phone }}</a></dd>
-              </div>
-            </div>
-          {%- endif -%}
-
-          {%- if s.email != blank -%}
-            <div class="sh-contact__item">
-              {% render 'sh-icon', name: 'mail' %}
-              <div>
-                <dt>Email</dt>
-                <dd><a href="mailto:{{ s.email }}">{{ s.email }}</a></dd>
-              </div>
-            </div>
-          {%- endif -%}
-
-          {%- if s.hours != blank -%}
-            <div class="sh-contact__item">
-              {% render 'sh-icon', name: 'clock' %}
-              <div><dt>Hours</dt><dd>{{ s.hours }}</dd></div>
-            </div>
-          {%- endif -%}
-        </dl>
 
         {%- if s.note != blank -%}
           <p class="sh-contact__note">{{ s.note }}</p>
         {%- endif -%}
       </aside>
+      {%- endif -%}
+
+      {%- comment -%} `animate: animate_form` is note 3 applied a second time —
+          ONE flag, two consumers. On the success and error renders it is false,
+          so the panel ships without data-reveal and sits still while the
+          autofocused confirmation heading is the only thing moving. {%- endcomment -%}
+      {%- if show_panel -%}
+        {%- render 'sh-living-conversation',
+              uid: uid, s: s, lc_list: lc_list,
+              animate: animate_form, lc_state: lc_state, compact: has_aside -%}
+      {%- endif -%}
+
+      </div>
+      {%- endif -%}
 
     </div>
   </div>
 </section>
+
+{%- comment -%} Emitted from the section, not from layout/theme.liquid, and not
+    behind a template check. This section ships a preset, so a merchant can add
+    the form to ANY page — a `template.name == 'page' and template.suffix ==
+    'contact'` gate would gate the wrong thing, and a looser `template contains
+    'contact'` also matches page.contactus, page.contact-us-v2 and
+    page.contact-us-v3, three templates that do not render this section at all.
+
+    `defer` is honoured on a parser-inserted classic script anywhere in the
+    document, so this still runs after parsing and after shudhi-home.js (head,
+    defer, earlier in document order). Two sh-contact sections on one page would
+    emit this twice: the browser fetches once but EXECUTES twice, which is what
+    the window.__shLC re-entry guard at the top of the file answers. {%- endcomment -%}
+{%- if show_panel -%}
+  <script src="{{ 'sh-living-conversation.js' | asset_url }}" defer></script>
+{%- endif -%}
 
 {% schema %}
 {
@@ -128,22 +422,90 @@
   "class": "index-section",
   "settings": [
     { "type": "text", "id": "form_title", "label": "Form heading", "default": "Send us a message" },
+    { "type": "textarea", "id": "form_lede", "label": "Form intro",
+      "info": "Sets expectations before the first field, and is where the required-field legend lives. Blank hides it.",
+      "default": "Tell us what you need and we'll reply personally, usually within two working days. Fields marked * are required." },
+
+    { "type": "header", "content": "Form fields" },
     { "type": "text", "id": "label_name", "label": "Name label", "default": "Name" },
     { "type": "text", "id": "label_email", "label": "Email label", "default": "Email address" },
-    { "type": "text", "id": "label_phone", "label": "Phone label", "default": "Phone (optional)" },
+    { "type": "text", "id": "label_phone", "label": "Phone label", "default": "Phone" },
+    { "type": "text", "id": "label_reason", "label": "Reason label", "default": "What's this about?" },
+    { "type": "textarea", "id": "reason_options", "label": "Reason options",
+      "info": "One per line. The first line is pre-selected. Leave blank to drop the field entirely. Arrives in your notification email as \"Subject\".",
+      "default": "General enquiry\nProduct advice\nOrder or delivery\nReturn or exchange\nWholesale and stockists\nPress and collaborations" },
+    { "type": "checkbox", "id": "show_order", "label": "Ask for an order number", "default": true },
+    { "type": "text", "id": "label_order", "label": "Order number label", "default": "Order number" },
+    { "type": "text", "id": "hint_order", "label": "Order number hint",
+      "default": "Optional. Speeds up anything to do with a delivery." },
     { "type": "text", "id": "label_message", "label": "Message label", "default": "Your message" },
     { "type": "text", "id": "submit_label", "label": "Button text", "default": "Send message" },
-    { "type": "textarea", "id": "success_text", "label": "Success message",
-      "default": "Thank you — your message is on its way. We usually reply within two working days." },
+    { "type": "text", "id": "privacy_note", "label": "Privacy line",
+      "info": "Sits under the button. Blank hides it.",
+      "default": "We use your details only to answer this message." },
+
+    { "type": "header", "content": "After sending",
+      "info": "The confirmation replaces the form and takes keyboard focus, so it has to read as a complete answer on its own." },
+    { "type": "text", "id": "success_title", "label": "Confirmation heading", "default": "Your message is on its way" },
+    { "type": "textarea", "id": "success_text", "label": "Confirmation text",
+      "default": "Thank you — we've received it and usually reply within two working days. Do check your spam folder if you don't hear from us." },
+    { "type": "url", "id": "success_link", "label": "Confirmation link",
+      "info": "Optional. Gives the confirmation somewhere to go instead of dead-ending." },
+    { "type": "text", "id": "success_link_label", "label": "Confirmation link text", "default": "Continue shopping" },
+    { "type": "text", "id": "error_title", "label": "Error heading", "default": "We couldn't send that yet" },
 
     { "type": "header", "content": "Contact details",
-      "info": "Ship as [PLACEHOLDER]. Any row left empty is hidden on the page." },
+      "info": "Any row left blank is hidden. A value that still contains a square bracket is treated as unfilled and hidden too, so a half-configured page never renders a dead tel: or mailto: link." },
     { "type": "text", "id": "info_title", "label": "Heading", "default": "Get in touch" },
-    { "type": "textarea", "id": "address", "label": "Address", "default": "[PLACEHOLDER — street address, city, state, PIN]" },
-    { "type": "text", "id": "phone", "label": "Phone", "default": "[PLACEHOLDER — +91 00000 00000]" },
-    { "type": "text", "id": "email", "label": "Email", "default": "[PLACEHOLDER — hello@shudhiherbals.com]" },
-    { "type": "text", "id": "hours", "label": "Hours", "default": "[PLACEHOLDER — Mon–Sat, 10am–6pm IST]" },
-    { "type": "textarea", "id": "note", "label": "Footnote", "default": "For order and delivery questions, please include your order number." },
+    { "type": "textarea", "id": "address", "label": "Address", "info": "Street, city, state, PIN." },
+    { "type": "url", "id": "map_url", "label": "Directions link",
+      "info": "Optional. Adds a \"Get directions\" link under the address." },
+    { "type": "text", "id": "phone", "label": "Phone",
+      "info": "Write it the way you want it read, e.g. +91 98765 43210. The tel: link is built from it." },
+    { "type": "text", "id": "email", "label": "Email", "info": "Must contain an @, or the row is hidden." },
+    { "type": "text", "id": "hours", "label": "Hours", "info": "e.g. Mon–Sat, 10am–6pm IST." },
+    { "type": "textarea", "id": "note", "label": "Footnote",
+      "info": "Optional. Do not use it to ask for an order number — there is a field for that now." },
+
+    { "type": "header", "content": "Living conversation panel",
+      "info": "The editorial panel beside the form. Emptying \"Rotating statements\" hides it whatever the checkbox says — the same rule the detail rows follow. Write everything below in sentence case; the panel sets it in capitals itself." },
+    { "type": "checkbox", "id": "lc_show", "label": "Show the panel", "default": true },
+    { "type": "text", "id": "lc_eyebrow", "label": "Eyebrow", "default": "A conversation" },
+    { "type": "textarea", "id": "lc_statements", "label": "Rotating statements",
+      "info": "One per line. The first line shows before anything else happens, then they cycle in this order.",
+      "default": "Good things begin with a conversation.\nLet's create something meaningful.\nEvery ritual begins somewhere.\nWe'd love to hear from you.\nTake your time. We're listening.\nRooted in nature. Made for you." },
+    { "type": "text", "id": "lc_support", "label": "Supporting line",
+      "default": "Tell us what you're looking for. We'll take it from there." },
+    { "type": "range", "id": "lc_interval", "label": "Between statements",
+      "min": 4, "max": 12, "step": 1, "unit": "s", "default": 7 },
+
+    { "type": "header", "content": "Living conversation — while filling the form",
+      "info": "Shown while the matching field is in use. Leave any blank to keep the rotating statements running for that field." },
+    { "type": "text", "id": "lc_on_name", "label": "Name field", "default": "Let's start with your name." },
+    { "type": "text", "id": "lc_on_email", "label": "Email field", "default": "Where can we reach you?" },
+    { "type": "text", "id": "lc_on_phone", "label": "Phone field", "default": "We'll keep it simple." },
+    { "type": "text", "id": "lc_on_order", "label": "Order number field", "default": "We'll help you find your order." },
+    { "type": "text", "id": "lc_on_reason", "label": "Reason field", "default": "Tell us where to start." },
+    { "type": "text", "id": "lc_on_message", "label": "Message field", "default": "Take your time. We're listening." },
+    { "type": "text", "id": "lc_on_typing", "label": "After a few words", "default": "We're listening." },
+    { "type": "text", "id": "lc_on_typing_2", "label": "After a sentence", "default": "Every word matters." },
+    { "type": "text", "id": "lc_on_typing_3", "label": "After a paragraph", "default": "Thank you for sharing." },
+
+    { "type": "header", "content": "Living conversation — after sending",
+      "info": "Printed by the server from the form's real result, never guessed by the browser." },
+    { "type": "text", "id": "lc_statement_sent", "label": "Statement on the confirmation", "default": "Thank you. We'll be in touch soon." },
+    { "type": "text", "id": "lc_statement_error", "label": "Statement on an error", "default": "We couldn't send that just yet." },
+
+    { "type": "header", "content": "Living conversation — status line" },
+    { "type": "text", "id": "lc_status_idle", "label": "Resting", "default": "here when you're ready" },
+    { "type": "text", "id": "lc_status_typing", "label": "Typing", "default": "listening" },
+    { "type": "text", "id": "lc_status_sending", "label": "Sending", "default": "sending your message" },
+    { "type": "text", "id": "lc_status_sent", "label": "Sent", "default": "thank you — we'll be in touch" },
+    { "type": "text", "id": "lc_status_error", "label": "Needs a fix", "default": "let's fix one thing" },
+
+    { "type": "header", "content": "Living conversation — decoration" },
+    { "type": "checkbox", "id": "lc_symbol", "label": "Show the botanical ring", "default": true },
+    { "type": "checkbox", "id": "lc_dust", "label": "Show drifting seeds", "default": true },
 
     { "type": "header", "content": "Appearance" },
     { "type": "color", "id": "bg", "label": "Background", "default": "#f2ece0" },

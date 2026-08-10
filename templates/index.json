@@ -67,6 +67,111 @@
         "bg_color": "#c98d86"
       }
     },
+    "signature_product": {
+      "type": "sh-signature-product",
+      "blocks": {
+        "f1": {
+          "type": "feature",
+          "settings": {
+            "icon": "leaf",
+            "title": "Cleanses Deeply",
+            "text": "Removes impurities without stripping natural moisture."
+          }
+        },
+        "f2": {
+          "type": "feature",
+          "settings": {
+            "icon": "sparkle",
+            "title": "Gentle & Safe",
+            "text": "Suitable for all skin types, including sensitive skin."
+          }
+        },
+        "f3": {
+          "type": "feature",
+          "settings": {
+            "icon": "drop",
+            "title": "Nourishes Skin",
+            "text": "Herbal ingredients restore and maintain skin health."
+          }
+        },
+        "f4": {
+          "type": "feature",
+          "settings": {
+            "icon": "mortar",
+            "title": "Ayurvedic Care",
+            "text": "Ancient herbs known for their therapeutic benefits."
+          }
+        },
+        "f5": {
+          "type": "feature",
+          "settings": {
+            "icon": "lotus",
+            "title": "Balances Aura",
+            "text": "Purifies your energy and uplifts your mood."
+          }
+        },
+        "f6": {
+          "type": "feature",
+          "settings": {
+            "icon": "heart",
+            "title": "Mindful Ritual",
+            "text": "Transforms everyday showers into moments of self-care."
+          }
+        }
+      },
+      "block_order": [
+        "f1",
+        "f2",
+        "f3",
+        "f4",
+        "f5",
+        "f6"
+      ],
+      "settings": {
+        "eyebrow": "Our Signature",
+        "title": "One Soap. Countless Benefits.",
+        "sub_eyebrow": "Our Signature Soap",
+        "product_name": "Shudhi Herbals Soap",
+        "body": "A handcrafted herbal soap made with time-honored Ayurvedic ingredients to gently cleanse, nourish, and balance your skin and aura. Free from harsh chemicals, full of nature's goodness.",
+        "seal_number": "4",
+        "seal_top": "Inspired by",
+        "seal_bottom": "Generations of herbal wisdom",
+        "shop_label": "Shop Now",
+        "shop_link": "shopify://collections/all",
+        "learn_label": "Learn More",
+        "learn_link": "shopify://pages/our-story",
+        "animate": true,
+        "bg": "#f6ede1"
+      }
+    },
+    "trust_marquee": {
+      "type": "sh-trust-marquee",
+      "blocks": {
+        "c1": { "type": "claim", "settings": { "enabled": true, "icon": "lab",     "title": "Lab Tested",                "text": "Thoughtfully verified" } },
+        "c2": { "type": "claim", "settings": { "enabled": true, "icon": "iso",     "title": "ISO Certified",             "text": "Held to standard" } },
+        "c3": { "type": "claim", "settings": { "enabled": true, "icon": "batch",   "title": "Handmade in Small Batches", "text": "Made by hand" } },
+        "c4": { "type": "claim", "settings": { "enabled": true, "icon": "sls",     "title": "SLS & SLES Free",           "text": "No harsh surfactants" } },
+        "c5": { "type": "claim", "settings": { "enabled": true, "icon": "paraben", "title": "Paraben Free",              "text": "No synthetic preservatives" } },
+        "c6": { "type": "claim", "settings": { "enabled": true, "icon": "toxin",   "title": "Toxin Free",                "text": "Clean by formulation" } },
+        "c7": { "type": "claim", "settings": { "enabled": true, "icon": "cruelty", "title": "Cruelty Free",              "text": "Never tested on animals" } },
+        "c8": { "type": "claim", "settings": { "enabled": true, "icon": "natural", "title": "Natural Ingredients",       "text": "Rooted in Ayurveda" } }
+      },
+      "block_order": ["c1", "c2", "c3", "c4", "c5", "c6", "c7", "c8"],
+      "settings": {
+        "eyebrow": "Pure by principle",
+        "title": "The Shudhi Standard",
+        "body": "Rooted in nature. Refined through care.",
+        "speed": 52,
+        "pause_hover": true,
+        "pause_offscreen": true,
+        "show_desc": true,
+        "icon_size": 54,
+        "show_rules": true,
+        "icon_motion": true,
+        "animate": true,
+        "bg": "#e9e0cf"
+      }
+    },
     "our_story": {
       "type": "sh-our-story",
       "settings": {
@@ -76,7 +181,7 @@
         "body": "Inspired by 4 generations of herbal wisdom, Shudhi Herbals brings ancient Ayurvedic recipes into your modern self-care rituals.",
         "cta_label": "Know our story",
         "min_height": 560,
-        "show_play": true,
+        "show_play": false,
         "play_label": "Play the Shudhi Herbals story",
         "seal_number": "4",
         "seal_text": "Generations",
@@ -93,6 +198,7 @@
           "settings": {
             "column": "left",
             "icon": "sparkle",
+            "state": "aura",
             "title": "Aura Cleansing",
             "text": "Helps remove negative energy and uplift your aura."
           }
@@ -102,17 +208,9 @@
           "settings": {
             "column": "left",
             "icon": "mortar",
+            "state": "ayurveda",
             "title": "Sacred Ayurveda",
             "text": "Crafted with powerful herbs known for their purifying properties."
-          }
-        },
-        "b3": {
-          "type": "benefit",
-          "settings": {
-            "column": "left",
-            "icon": "leaf",
-            "title": "Cold Process Crafted",
-            "text": "Made slowly in small batches to retain natural goodness."
           }
         },
         "b4": {
@@ -120,6 +218,7 @@
           "settings": {
             "column": "right",
             "icon": "drop",
+            "state": "cleanse",
             "title": "Deep & Gentle Cleanse",
             "text": "Cleanses deeply while nourishing your skin naturally."
           }
@@ -129,6 +228,7 @@
           "settings": {
             "column": "right",
             "icon": "heart",
+            "state": "intention",
             "title": "Made with Intention",
             "text": "Handmade in small batches with love, care & mindfulness."
           }
@@ -137,7 +237,6 @@
       "block_order": [
         "b1",
         "b2",
-        "b3",
         "b4",
         "b5"
       ],
@@ -145,7 +244,14 @@
         "eyebrow": "More than a soap.",
         "title": "It's a Ritual.",
         "side_label": "Ritual Benefits",
-        "animate": true
+        "ornament": true,
+        "height": 92,
+        "animate": true,
+        "scene": true,
+        "scene_cursor": true,
+        "splash": true,
+        "states": true,
+        "motes": 16
       }
     },
     "mindful_ritual": {
@@ -291,6 +397,8 @@
   },
   "order": [
     "hero",
+    "signature_product",
+    "trust_marquee",
     "our_story",
     "ritual_benefits",
     "mindful_ritual",

@@ -67,6 +67,7 @@
           "settings": {
             "column": "left",
             "icon": "sparkle",
+            "state": "aura",
             "title": "Aura Cleansing",
             "text": "Helps remove negative energy and uplift your aura."
           }
@@ -76,17 +77,9 @@
           "settings": {
             "column": "left",
             "icon": "mortar",
+            "state": "ayurveda",
             "title": "Sacred Ayurveda",
             "text": "Crafted with powerful herbs known for their purifying properties."
-          }
-        },
-        "b3": {
-          "type": "benefit",
-          "settings": {
-            "column": "left",
-            "icon": "leaf",
-            "title": "Cold Process Crafted",
-            "text": "Made slowly in small batches to retain natural goodness."
           }
         },
         "b4": {
@@ -94,6 +87,7 @@
           "settings": {
             "column": "right",
             "icon": "drop",
+            "state": "cleanse",
             "title": "Deep & Gentle Cleanse",
             "text": "Cleanses deeply while nourishing your skin naturally."
           }
@@ -103,6 +97,7 @@
           "settings": {
             "column": "right",
             "icon": "heart",
+            "state": "intention",
             "title": "Made with Intention",
             "text": "Handmade in small batches with love, care & mindfulness."
           }
@@ -111,7 +106,6 @@
       "block_order": [
         "b1",
         "b2",
-        "b3",
         "b4",
         "b5"
       ],
@@ -119,7 +113,14 @@
         "eyebrow": "More than a soap.",
         "title": "It's a Ritual.",
         "side_label": "Ritual Benefits",
-        "animate": true
+        "ornament": true,
+        "height": 92,
+        "animate": true,
+        "scene": true,
+        "scene_cursor": true,
+        "splash": true,
+        "states": true,
+        "motes": 16
       }
     }
   },

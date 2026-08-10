@@ -11,6 +11,7 @@
   Fine-line trust-bar set: leaf-line, heart-line, hand-line, rabbit-line, flask-line
   Our Story set: wheat, sprout, flower, sun, hands-heart, heart-check
   Bath-ritual set: meditate, body, face-sparkle, shower, bubbles
+  Contact set: pin, phone, mail, clock, alert
 {%- endcomment -%}
 {%- assign n = name | default: 'leaf' -%}
 {%- comment -%} Optional `sw` overrides stroke weight, for the finer line art
@@ -87,6 +88,10 @@
 {%- when 'phone' -%}<path d="M8.4 4.2 10.6 8l-1.9 2c.9 1.9 2.4 3.4 4.3 4.3l2-1.9 3.8 2.2-.6 2.6c-.2.7-.8 1.2-1.6 1.2C10.4 20.4 3.6 13.6 3.6 6.4c0-.8.5-1.4 1.2-1.6l2.6-.6Z"/>
 {%- when 'mail' -%}<rect x="3.2" y="5.4" width="17.6" height="13.2" rx="2.2"/><path d="m3.8 7 8.2 5.6L20.2 7"/>
 {%- when 'clock' -%}<circle cx="12" cy="12" r="8.4"/><path d="M12 7.2V12l3.2 2"/>
+{%- comment -%} Pairs with 'leaf' in the contact form: leaf marks the success
+    message, this marks the error one. The dot is drawn with fill and no stroke
+    so it stays a dot at any stroke-width the caller passes via `sw`. {%- endcomment -%}
+{%- when 'alert' -%}<path d="M12 4.2 21 19.8H3L12 4.2Z"/><path d="M12 10v4.2"/><circle cx="12" cy="17" r=".9" fill="currentColor" stroke="none"/>
 {%- when 'instagram' -%}<rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1"/>
 {%- when 'facebook' -%}<path d="M14 9h3V5h-3c-2 0-3 1.5-3 3.5V11H8v4h3v6h4v-6h3l1-4h-4V9c0-.6.4-1 1-1Z"/>
 {%- when 'pinterest' -%}<path d="M12 3a9 9 0 0 0-3 17.5c-.1-1 0-2.3.2-3.3l1.2-5s-.3-.6-.3-1.5c0-1.4.8-2.4 1.8-2.4.9 0 1.3.6 1.3 1.4 0 .9-.6 2.2-.9 3.4-.2 1 .5 1.8 1.5 1.8 1.8 0 3-2.3 3-5 0-2-1.4-3.6-4-3.6a4.5 4.5 0 0 0-4.7 4.5c0 .9.3 1.5.7 2 .2.2.2.3.1.5l-.2.9c0 .3-.2.4-.5.2-1.3-.5-1.9-2-1.9-3.6C6 7.7 8.3 5 12.3 5c3.2 0 5.7 2.3 5.7 5.4 0 3.2-2 5.8-4.9 5.8-1 0-1.9-.5-2.2-1.1l-.6 2.3c-.2.8-.7 1.8-1.1 2.5A9 9 0 1 0 12 3Z"/>

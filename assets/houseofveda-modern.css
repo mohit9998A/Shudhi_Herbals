@@ -1296,8 +1296,7 @@ img { border-radius: 2px; }
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 20px rgba(123,174,35,.45);
-  transition: background .2s, transform .2s, box-shadow .2s;
+  transition: background .2s, transform .2s;
   position: relative;
   outline: none;
 }
@@ -1305,7 +1304,6 @@ img { border-radius: 2px; }
 #hov-chat-toggle:hover {
   background: var(--hov-green-dk);
   transform: scale(1.08);
-  box-shadow: 0 6px 24px rgba(123,174,35,.55);
 }
 
 .hov-chat-icon {

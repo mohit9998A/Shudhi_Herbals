@@ -1,0 +1,249 @@
+{%- comment -%}
+  SHUDHI — Living Conversation
+
+  The editorial panel that occupies sh-contact's right column: a rotating brand
+  statement that responds to what the visitor is doing in the form beside it, a
+  slow-breathing status dot, a botanical ring and a field of drifting seeds.
+
+  A SNIPPET, not a section, and not by preference — it renders inside
+  .sh-contact__grid as that grid's second child, and a Shopify section cannot
+  nest inside another section's grid. All of its settings therefore live in
+  sections/sh-contact.liquid's schema (a snippet has none) and arrive here on
+  the `s` drop. CSS is shudhi-home.css §24; behaviour is
+  assets/sh-living-conversation.js.
+
+  Usage — inside .sh-contact__col--side:
+    {%- render 'sh-living-conversation',
+          uid: uid, s: s, lc_list: lc_list,
+          animate: animate_form, lc_state: lc_state, compact: has_aside -%}
+
+  Params:
+    uid      — section.id. `section` is out of scope inside a rendered snippet,
+               so the caller has to pass it.
+    s        — section.settings.
+    lc_list  — the statements, already split by the caller. Split there rather
+               than here because the caller needs its .size to decide whether to
+               render this snippet at all, and parsing it twice would let the
+               two answers drift.
+    animate  — sh-contact's `animate_form`. ONE flag, two consumers; see note 3.
+    lc_state — 'idle' | 'sent' | 'error', resolved from form.posted_successfully?
+               and form.errors by the caller.
+    compact  — true when the contact-details card shares this column.
+
+  Five things here are deliberate and easy to undo by accident:
+
+  1. THE WHOLE PANEL IS aria-hidden="true", AND THAT IS THE CORRECT ANSWER, not
+     a concession. snippets/sh-gen-seal.liquid:54-60 already makes this call for
+     its decorative number, and sh-contact.liquid note 4 makes the other half of
+     it ("one reliable announcement beats two unreliable ones"). A live region
+     re-announcing a statement every seven seconds — and again on every field
+     focus — would interrupt the announcement of the label of the field the user
+     just tabbed into. That is a misuse of SC 4.1.3, not a satisfaction of it.
+     The panel carries no information the form does not already carry: the
+     statements are atmosphere, and the status line duplicates what the
+     autofocused <h2> and .sh-form__ok already say on the success render.
+
+     It also disposes of the usual character-splitting problem. Screen readers
+     read one clean sentence — the form's — whether or not JS has split this
+     one, so there is nothing to restore with an sr-only copy.
+
+  2. pointer-events:none in §24 is load-bearing, not cosmetic. axe's
+     aria-hidden-focus rule flags TABBABLE content inside an aria-hidden
+     subtree; that rule plus "no focusable descendant here" is what keeps this
+     passing, the same way the honeypot's tabindex="-1" does at :2790.
+     *** If a link, button or input is ever added inside this panel, BOTH
+     aria-hidden and pointer-events:none must go, and the accessibility model
+     has to be redesigned before it does. ***
+
+  3. `animate` is sh-contact's own animate_form, not a separate setting. On the
+     success and error renders that flag is false, so this panel ships without
+     data-reveal, renders at full opacity with no entrance, and the JS reads
+     hasAttribute('data-reveal') and skips the entrance sequence entirely. The
+     confirmation heading is the autofocus target and must be the only thing
+     moving — a decorative panel choreographing itself next to it is exactly the
+     distraction note 3 in sh-contact.liquid forbids.
+
+  4. The first statement is printed as PLAIN TEXT, and the status line is
+     printed SERVER-SIDE from lc_state. Both are readable with JS off, blocked,
+     or still deferred. JS splits the line into per-character spans and adds
+     .is-split to the root; every char-level rule in §24 is scoped under that
+     class, so an unsplit line has no motion styles to flash out of. The base
+     state of a split char is VISIBLE — the animations are `backwards`/`forwards`
+     filled overlays on top of it, never a pre-state that has to be removed.
+
+  5. Seed positions come from a hand-authored table, not Math.random(). Liquid
+     has no rand, and that is a feature: composed dust reads as design where
+     random dust reads as noise, and a server-rendered position is stable across
+     a reload or a back-navigation, where a re-randomised field reads as a
+     glitch. The durations are mutually prime-ish so the field never syncs into
+     a visible collective pulse.
+
+  Copy is stored in SENTENCE case and set in caps by §24's text-transform.
+  Storing caps would bake a presentation decision into the merchant's data —
+  and if this panel ever stopped being aria-hidden, screen readers spell
+  all-caps words out letter by letter.
+{%- endcomment -%}
+
+{%- assign lc_uid   = uid      | default: 1 -%}
+{%- assign lc_st    = lc_state | default: 'idle' -%}
+
+{%- comment -%} The opening line answers the render it is on, so a visitor who
+    just submitted is not greeted by an ambient statement about starting a
+    conversation. Falls back to the first rotating statement. {%- endcomment -%}
+{%- assign lc_first = lc_list[0] | strip -%}
+{%- if lc_st == 'sent' and s.lc_statement_sent != blank -%}
+  {%- assign lc_first = s.lc_statement_sent -%}
+{%- elsif lc_st == 'error' and s.lc_statement_error != blank -%}
+  {%- assign lc_first = s.lc_statement_error -%}
+{%- endif -%}
+
+{%- case lc_st -%}
+  {%- when 'sent'  -%}{%- assign lc_status = s.lc_status_sent  -%}
+  {%- when 'error' -%}{%- assign lc_status = s.lc_status_error -%}
+  {%- else         -%}{%- assign lc_status = s.lc_status_idle  -%}
+{%- endcase -%}
+
+{%- comment -%} Milliseconds for the JS; the setting is in seconds because that
+    is what a merchant thinks in. {%- endcomment -%}
+{%- assign lc_ms = s.lc_interval | default: 7 | times: 1000 -%}
+
+{%- comment -%} x% | y% | scale | drift seconds | delay seconds | opacity.
+    Fourteen beside the panel alone, the first six when the details card shares
+    the column. §24 drops the layer entirely below 768px. {%- endcomment -%}
+{%- assign seed_rows = '29,71,1,17,2.4,.30|12,22,.7,13,0,.22|68,31,.85,19,3.6,.26|82,64,.6,14,.7,.20|21,48,.75,23,4.9,.24|57,86,.9,16,2.1,.28|44,14,.55,11,1.1,.18|89,18,.5,12,5.5,.16|7,63,.8,21,1.6,.22|74,79,.65,15,3.1,.19|38,35,.6,18,6.2,.17|63,55,.7,13,4.2,.21|16,88,.85,20,.4,.25|92,42,.55,22,5.1,.18' | split: '|' -%}
+{%- if compact -%}
+  {%- assign seed_count = 6 -%}
+{%- else -%}
+  {%- assign seed_count = 14 -%}
+{%- endif -%}
+
+<div class="sh-lc"
+     id="sh-lc-{{ lc_uid }}"
+     aria-hidden="true"
+     data-lc-state="{{ lc_st }}"
+     data-lc-interval="{{ lc_ms }}"
+     data-lc-name="{{ s.lc_on_name | escape }}"
+     data-lc-email="{{ s.lc_on_email | escape }}"
+     data-lc-phone="{{ s.lc_on_phone | escape }}"
+     data-lc-order="{{ s.lc_on_order | escape }}"
+     data-lc-reason="{{ s.lc_on_reason | escape }}"
+     data-lc-message="{{ s.lc_on_message | escape }}"
+     data-lc-typing="{{ s.lc_on_typing | escape }}"
+     data-lc-typing2="{{ s.lc_on_typing_2 | escape }}"
+     data-lc-typing3="{{ s.lc_on_typing_3 | escape }}"
+     data-lc-status-idle="{{ s.lc_status_idle | escape }}"
+     data-lc-status-typing="{{ s.lc_status_typing | escape }}"
+     data-lc-status-sending="{{ s.lc_status_sending | escape }}"
+     {% if animate %}data-reveal{% endif %}>
+
+  {%- comment -%} Decorative layers, behind the copy and clipped to the panel so
+      a drifting seed can never widen the grid column. {%- endcomment -%}
+  <div class="sh-lc__art">
+
+    {%- comment -%} Two thin curves hugging the LEFT and RIGHT margins of the
+        panel, deliberately not behind the type: a stroke crossing an uppercase
+        serif line reads as a printing fault, not as decoration. They frame the
+        column instead.
+
+        pathLength="1" normalises each path to a single user unit, so §24's
+        stroke-dasharray:1 / dashoffset:1->0 draws it exactly, with no
+        getTotalLength() and therefore no JavaScript at all.
+
+        UNIFORM scaling — the default preserveAspectRatio, and no
+        vector-effect="non-scaling-stroke". Both of those were tried and both are
+        wrong here, for one reason each. non-scaling-stroke moves the stroke into
+        SCREEN space, which takes the dash pattern with it while pathLength keeps
+        normalising in USER space: the two disagree and every arc renders as a
+        run of 1px dashes instead of a line. preserveAspectRatio="none" then
+        needed that vector-effect to stop the non-uniform scale squashing the
+        stroke into a wedge. The viewBox is simply given the panel's own
+        proportions instead, so the default "meet" lands within a pixel or two of
+        edge-to-edge and every one of those problems disappears. {%- endcomment -%}
+    <svg class="sh-lc__arcs" viewBox="0 0 82 100" aria-hidden="true" focusable="false">
+      <path class="sh-lc__arc" pathLength="1" d="M 2,93 C 4,74 6,56 9,37"/>
+      <path class="sh-lc__arc" pathLength="1" d="M 80,35 C 78,54 76,72 73,92"/>
+      <path class="sh-lc__arc" pathLength="1" d="M 9,37 l 4,2 M 9,37 l -1,4.5"/>
+    </svg>
+
+    {%- if s.lc_dust -%}
+      <div class="sh-lc__dust sh-lc__depth" data-lc-depth="5.1">
+        {%- for row in seed_rows limit: seed_count -%}
+          {%- assign p = row | split: ',' -%}
+          <i class="sh-lc__seed" style="--x:{{ p[0] }}%;--y:{{ p[1] }}%;--s:{{ p[2] }};--dur:{{ p[3] }}s;--del:{{ p[4] }}s;--o:{{ p[5] }};"></i>
+        {%- endfor -%}
+      </div>
+    {%- endif -%}
+
+  </div>
+
+  <div class="sh-lc__copy sh-lc__depth" data-lc-depth="1.5">
+    {%- if s.lc_eyebrow != blank -%}
+      <p class="sh-lc__eyebrow">{{ s.lc_eyebrow }}</p>
+    {%- endif -%}
+
+    {%- comment -%} Plain text, deliberately. See note 4. {%- endcomment -%}
+    <p class="sh-lc__statement" data-lc-stage>
+      <span class="sh-lc__line" data-lc-line>{{ lc_first }}</span>
+    </p>
+
+    {%- if s.lc_support != blank -%}
+      <p class="sh-lc__support">{{ s.lc_support }}</p>
+    {%- endif -%}
+
+    <p class="sh-lc__status">
+      <i class="sh-lc__dot"></i><span data-lc-status>{{ lc_status }}</span>
+    </p>
+
+    {%- if s.lc_symbol -%}
+      {%- comment -%} In the flow, under the status line, rather than behind the
+          type. Sat behind it the ring crossed every line of an uppercase serif
+          statement and read as a printing fault; here it closes the composition
+          the way a seal closes a letter.
+
+          Two nested elements on purpose. The OUTER one is what the entrance
+          animates (§24 gives every .sh-lc__copy child an opacity/translateY),
+          and the INNER one is what the cursor loop writes an inline transform
+          to. One element doing both would let the inline transform overwrite
+          the entrance mid-reveal — an element cannot hold two transforms.
+          {%- endcomment -%}
+      <div class="sh-lc__seal">
+        <div class="sh-lc__symbol sh-lc__depth" data-lc-depth="2.6">
+          {%- comment -%} Two <svg> ELEMENTS, counter-rotating. The rotation is
+              on the element and never on a <g> or <circle> inside it: on the
+              element the default transform-origin:50% 50% resolves against its
+              border box with no transform-box declaration needed, which is the
+              construction sh-gen__ring already relies on. A square viewBox keeps
+              that centre honest at every clamp width. {%- endcomment -%}
+          <svg class="sh-lc__ring" viewBox="0 0 240 240" aria-hidden="true" focusable="false">
+            <circle cx="120" cy="120" r="104"/>
+            <circle class="sh-lc__seed-dot" cx="224" cy="120" r="3"/>
+            <circle class="sh-lc__seed-dot" cx="120" cy="224" r="3"/>
+            <circle class="sh-lc__seed-dot" cx="16"  cy="120" r="3"/>
+            <circle class="sh-lc__seed-dot" cx="120" cy="16"  r="3"/>
+          </svg>
+          <svg class="sh-lc__ring2" viewBox="0 0 240 240" aria-hidden="true" focusable="false">
+            <circle cx="120" cy="120" r="82"/>
+          </svg>
+
+          {%- comment -%} A SIBLING of both rings, never a child: anything inside
+              one rides the rotation and spends half the cycle upside down. The
+              same call sh-gen-seal.liquid:63-67 makes for its number. {%- endcomment -%}
+          {% render 'sh-icon', name: 'sprout', class: 'sh-lc__glyph', sw: 1.1 %}
+        </div>
+      </div>
+    {%- endif -%}
+  </div>
+
+  {%- comment -%} The rotation source, read by the JS via textContent. A hidden
+      element rather than a JSON <script> block: Liquid's `json` filter does not
+      escape "</script>", so a merchant statement containing that sequence would
+      close the block and dump the rest of the list into the page as markup. One
+      span per statement needs no parsing at all and cannot be broken by any
+      character a merchant can type. {%- endcomment -%}
+  <div class="sh-lc__source" hidden>
+    {%- for st in lc_list -%}
+      {%- assign st = st | strip -%}
+      {%- if st != blank -%}<span data-lc-src>{{ st }}</span>{%- endif -%}
+    {%- endfor -%}
+  </div>
+</div>
