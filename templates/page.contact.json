@@ -18,7 +18,7 @@
         "label_email": "Email address",
         "label_phone": "Phone",
         "label_reason": "What's this about?",
-        "reason_options": "General enquiry\nProduct advice\nOrder or delivery\nReturn or exchange\nWholesale and stockists\nPress and collaborations",
+        "reason_options": "General enquiry\nProduct advice\nOrder or delivery\nReturn or exchange\nBulk order enquiry\nPress and collaborations",
         "show_order": true,
         "label_order": "Order number",
         "hint_order": "Optional. Speeds up anything to do with a delivery.",

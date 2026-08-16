@@ -213,6 +213,16 @@
             "text": "Crafted with powerful herbs known for their purifying properties."
           }
         },
+        "b3": {
+          "type": "benefit",
+          "settings": {
+            "column": "left",
+            "icon": "shield",
+            "state": "none",
+            "title": "Negativity Buster",
+            "text": "Helps in removing negativity and clears heavy energy."
+          }
+        },
         "b4": {
           "type": "benefit",
           "settings": {
@@ -232,13 +242,25 @@
             "title": "Made with Intention",
             "text": "Handmade in small batches with love, care & mindfulness."
           }
+        },
+        "b6": {
+          "type": "benefit",
+          "settings": {
+            "column": "right",
+            "icon": "meditate",
+            "state": "none",
+            "title": "Stress Buster",
+            "text": "Helps you relax, unwind and bust the stress off the day."
+          }
         }
       },
       "block_order": [
         "b1",
         "b2",
+        "b3",
         "b4",
-        "b5"
+        "b5",
+        "b6"
       ],
       "settings": {
         "eyebrow": "More than a soap.",
@@ -302,97 +324,6 @@
         "cta_label": "Explore rituals",
         "animate": true
       }
-    },
-    "collection": {
-      "type": "sh-collection",
-      "blocks": {
-        "c1": {
-          "type": "card",
-          "settings": {
-            "title": "Handmade Soaps",
-            "cta": "Explore Now"
-          }
-        },
-        "c2": {
-          "type": "card",
-          "settings": {
-            "title": "Herbal Skincare",
-            "cta": "Explore Now"
-          }
-        },
-        "c3": {
-          "type": "card",
-          "settings": {
-            "title": "Herbal Body Care",
-            "cta": "Explore Now"
-          }
-        },
-        "c4": {
-          "type": "card",
-          "settings": {
-            "title": "Essential Oils",
-            "cta": "Explore Now"
-          }
-        },
-        "c5": {
-          "type": "card",
-          "settings": {
-            "title": "Herbal Wellness",
-            "cta": "Explore Now"
-          }
-        },
-        "u1": {
-          "type": "trust",
-          "settings": {
-            "icon": "leaf",
-            "title": "100% Natural",
-            "subtitle": "Pure & safe"
-          }
-        },
-        "u2": {
-          "type": "trust",
-          "settings": {
-            "icon": "badge",
-            "title": "Organic Certified",
-            "subtitle": "Quality you can trust"
-          }
-        },
-        "u3": {
-          "type": "trust",
-          "settings": {
-            "icon": "hand",
-            "title": "Small Batch",
-            "subtitle": "Handmade with care"
-          }
-        },
-        "u4": {
-          "type": "trust",
-          "settings": {
-            "icon": "recycle",
-            "title": "Eco-Friendly",
-            "subtitle": "Sustainable & responsible"
-          }
-        }
-      },
-      "block_order": [
-        "c1",
-        "c2",
-        "c3",
-        "c4",
-        "c5",
-        "u1",
-        "u2",
-        "u3",
-        "u4"
-      ],
-      "settings": {
-        "eyebrow": "Explore our collection",
-        "title_l1": "Nature. Science. Rituals.",
-        "title_l2": "In Every Product.",
-        "autoplay": false,
-        "animate": true,
-        "bg": "#f2ece0"
-      }
     }
   },
   "order": [
@@ -401,7 +332,6 @@
     "trust_marquee",
     "our_story",
     "ritual_benefits",
-    "mindful_ritual",
-    "collection"
+    "mindful_ritual"
   ]
 }
