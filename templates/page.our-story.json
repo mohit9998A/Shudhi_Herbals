@@ -57,11 +57,12 @@
         "scrim": 80,
         "min_height": 620,
         "animate": true,
-        "bg": "#1b2411"
+        "bg": "#1b2411",
+        "cursor": true
       }
     },
     "our_beginning": {
-      "type": "sh-story-split",
+      "type": "sh-story-beginning",
       "settings": {
         "eyebrow": "Our Beginning",
         "heading": "From tradition to",
@@ -77,7 +78,7 @@
       }
     },
     "our_philosophy": {
-      "type": "sh-feature-grid",
+      "type": "sh-story-philosophy",
       "blocks": {
         "p1": {
           "type": "feature",
@@ -123,7 +124,7 @@
       }
     },
     "why_we_started": {
-      "type": "sh-story-split",
+      "type": "sh-story-purpose",
       "settings": {
         "eyebrow": "Why We Started",
         "heading": "More than cleansing. A daily act of",
@@ -138,7 +139,7 @@
       }
     },
     "handmade_purpose": {
-      "type": "sh-feature-grid",
+      "type": "sh-story-handmade",
       "blocks": {
         "h1": {
           "type": "feature",
@@ -210,7 +211,7 @@
       }
     },
     "more_than_soap": {
-      "type": "sh-feature-grid",
+      "type": "sh-story-proof",
       "blocks": {
         "r1": {
           "type": "feature",
@@ -283,7 +284,7 @@
       }
     },
     "daily_ritual": {
-      "type": "sh-ritual-steps",
+      "type": "sh-story-steps",
       "blocks": {
         "s1": {
           "type": "step",
@@ -348,7 +349,8 @@
         "button_label": "Explore the ritual",
         "button_link": "/pages/the-ritual",
         "animate": true,
-        "bg": "#e9e0cf"
+        "bg": "#e9e0cf",
+        "scrub": true
       }
     }
   },

@@ -19,57 +19,103 @@
   one place.
 {%- endcomment -%}
 
+{{ 'shudhi-story.css' | asset_url | stylesheet_tag }}
+
 {%- assign s = section.settings -%}
 {%- assign scrim = s.scrim | divided_by: 100.0 -%}
 
+{%- comment -%}
+  data-sh-reveal is what assets/sh-story-motion.js arms, and it replaces the
+  [data-reveal] this band used to put on .sh-story-hero__copy. That attribute
+  carried `opacity: 0` from shudhi-home.css §4, which meant an exception, a 404
+  or a blocked script left this page's LCP band with an invisible headline, body
+  and CTA. Every pre-state now lives behind .is-armed, which only ever appears
+  next to the observer that clears it. See shudhi-story.css §28.
+{%- endcomment -%}
 <section class="sh sh-story-hero"
+         {%- if s.animate %} data-sh-reveal{% endif -%}
+         {%- if s.animate and s.cursor %} data-sh-cursor{% endif %}
          style="--sh-green-900:{{ s.bg }};--sh-story-hero-scrim:{{ scrim }};--sh-story-hero-h:{{ s.min_height }}px;">
 
-  {%- comment -%} data-parallax hangs off the same `animate` checkbox as the reveal
-      below, so one merchant switch governs every bit of motion in the band. The
-      30px of vertical slack the offset needs is in the CSS, keyed off the same
-      attribute — see .sh-story-hero__bg[data-parallax]. {%- endcomment -%}
+  {%- comment -%} data-parallax is the SCROLL parallax from shudhi-home.js and it stays
+      on the image. Pointer depth deliberately does NOT go here as well: two
+      systems writing `transform` to one element fight every frame, and the house
+      rule is one transform job per element. The pointer layers on this band are
+      the copy column and the seal — the 2px and 3px of the design's depth stack —
+      and the background keeps the 15px scroll travel it already had.
+
+      Dimensions are the file's REAL ones. The fallback previously declared
+      2000x1000 for an asset that was 1536x1024, so the browser reserved a box of
+      the wrong shape for the LCP element. hero_frame_0240.webp is 1280x720.
+      sizes="100vw" is stated because the image is full-bleed; without it the
+      browser assumes 100vw anyway for the src, but the merchant branch's srcset
+      needs it to pick correctly. {%- endcomment -%}
   {%- if s.image != blank -%}
     <img class="sh-story-hero__bg"{% if s.animate %} data-parallax{% endif %}
-         src="{{ s.image | image_url: width: 2400 }}"
+         src="{{ s.image | image_url: width: 2000 }}"
+         srcset="{{ s.image | image_url: width: 1200 }} 1200w,
+                 {{ s.image | image_url: width: 1600 }} 1600w,
+                 {{ s.image | image_url: width: 2000 }} 2000w,
+                 {{ s.image | image_url: width: 2600 }} 2600w"
+         sizes="100vw"
          alt="{{ s.image.alt | default: s.title_l1 | escape }}"
-         width="2400" height="1200" fetchpriority="high" decoding="async">
+         width="{{ s.image.width }}" height="{{ s.image.height }}"
+         fetchpriority="high">
   {%- else -%}
     <img class="sh-story-hero__bg"{% if s.animate %} data-parallax{% endif %}
-         src="{{ 'Our story.webp' | asset_url }}"
-         alt="" width="2000" height="1000" fetchpriority="high" decoding="async">
+         src="{{ 'hero_frame_0240.webp' | asset_url }}"
+         sizes="100vw"
+         alt="" width="1280" height="720"
+         fetchpriority="high">
   {%- endif -%}
 
   <div class="sh-story-hero__scrim"></div>
 
+  {%- comment -%} The resolve. A flat wash of the band's own background colour that
+      starts opaque and clears over 1.1s, so the photograph appears to surface
+      rather than snap in. Painted in --sh-green-900, so while the image is still
+      in flight it is invisible against the section's own background and costs
+      nothing; it only reads once there is a photo under it.
+
+      Inert without .is-armed — no JS, no veil, and the photo is simply there. {%- endcomment -%}
+  {%- if s.animate -%}<div class="sh-story-hero__veil" aria-hidden="true"></div>{%- endif -%}
+
   <div class="sh-wrap">
-    <div class="sh-story-hero__copy"{% if s.animate %} data-reveal{% endif %}>
+    <div class="sh-story-hero__copy" data-sh-depth="0.25">
 
       {%- if s.eyebrow != blank -%}
-        <div class="sh-story-hero__eyebrow sh-eyebrow">
+        <div class="sh-story-hero__eyebrow sh-eyebrow" data-sh-fade style="--i:0">
           {{ s.eyebrow }}{% render 'sh-icon', name: 'leaf' %}<i></i>
         </div>
       {%- endif -%}
 
-      {%- comment -%} Each line is its own masked block rather than two lines split
-          by a <br>: the split-line reveal needs an overflow box to slide the words
-          up out of. The schema is untouched — title_l1/_em and title_l2/_em print
-          the same text in the same order — and the wrappers are inert markup when
-          `animate` is off, because the motion is keyed off the [data-reveal] on
-          .sh-story-hero__copy above, never off these spans. Line 2 stays
-          conditional; one line is a complete headline. {%- endcomment -%}
+      {%- comment -%} Each line is its own mask rather than two lines split by a <br>:
+          the reveal needs an overflow box to slide the words up out of. .sh-w /
+          .sh-w-in is the SHARED mask from §28 — the same pair band 6 uses on its
+          heading words — so the page carries one mask geometry rather than the two
+          it used to. The schema is untouched: title_l1/_em and title_l2/_em print
+          the same text in the same order, and with `animate` off the wrappers are
+          inert markup. Line 2 stays conditional; one line is a complete headline. {%- endcomment -%}
+      {%- comment -%} THE SPACE BETWEEN THE TWO LINE SPANS IS LITERAL AND MUST STAY.
+          Without it the accessible name fuses to "Rooted in Tradition.Crafted for
+          Today." — there is no whitespace for the accessibility tree to infer
+          between two adjacent spans, and this markup previously had none. It costs
+          nothing visually: the <h1> is display:flex, and a flex container discards
+          whitespace-only text nodes between its items, so the two lines land exactly
+          where they did. Verify with
+          `document.querySelector('.sh-story-hero__title').textContent`. {%- endcomment -%}
       <h1 class="sh-story-hero__title sh-serif">
-        <span class="sh-story-hero__line"><span class="sh-story-hero__line-in">{{ s.title_l1 }}{% if s.title_l1_em != blank %} <em>{{ s.title_l1_em }}</em>{% endif %}</span></span>
-        {%- if s.title_l2 != blank or s.title_l2_em != blank -%}
-          <span class="sh-story-hero__line"><span class="sh-story-hero__line-in">{{ s.title_l2 }}{% if s.title_l2_em != blank %} <em>{{ s.title_l2_em }}</em>{% endif %}</span></span>
-        {%- endif -%}
+        <span class="sh-w" style="--i:1"><span class="sh-w-in">{{ s.title_l1 }}{% if s.title_l1_em != blank %} <em>{{ s.title_l1_em }}</em>{% endif %}</span></span>
+        {% if s.title_l2 != blank or s.title_l2_em != blank %}
+          <span class="sh-w" style="--i:2"><span class="sh-w-in">{{ s.title_l2 }}{% if s.title_l2_em != blank %} <em>{{ s.title_l2_em }}</em>{% endif %}</span></span>
+        {% endif %}
       </h1>
 
-      <div class="sh-story-hero__rule"><i></i>{% render 'sh-icon', name: 'leaf' %}</div>
+      <div class="sh-story-hero__rule" data-sh-fade style="--i:3"><i></i>{% render 'sh-icon', name: 'leaf' %}</div>
 
-      {%- if s.body != blank -%}<p class="sh-story-hero__text">{{ s.body }}</p>{%- endif -%}
+      {%- if s.body != blank -%}<p class="sh-story-hero__text" data-sh-fade style="--i:4">{{ s.body }}</p>{%- endif -%}
 
-      <div class="sh-story-hero__cta">
+      <div class="sh-story-hero__cta" data-sh-fade style="--i:5">
         {%- if s.cta_label != blank -%}
           {%- comment -%} Falls back to the first band on THIS page. The old fallback was
               #our-story, which is sh-our-story's id — that section lives on the homepage
@@ -88,17 +134,32 @@
   {%- comment -%} Sibling of .sh-wrap, not a child of it: the seal is positioned
       against the section's own box so it can sit out over the photo's open right
       side, which the wrap's max-width would otherwise stop it short of. Hidden
-      entirely when the number is blank — an empty ring is not a design. {%- endcomment -%}
+      entirely when the number is blank — an empty ring is not a design.
+
+      depth 0.40 is ~3.2px of pointer travel, the design's "badge 3px" layer. The
+      seal is the one element on this band that takes BOTH a depth and a fade,
+      which is safe because they land on different properties of an element that
+      is already its own containing block. {%- endcomment -%}
   {%- if s.seal_number != blank -%}
     {% render 'sh-gen-seal',
        number: s.seal_number,
        text_top: s.seal_text_top,
        text_bottom: s.seal_text_bottom,
-       uid: section.id %}
+       uid: section.id,
+       depth: '0.40',
+       reveal: 6 %}
   {%- endif -%}
 
   {% render 'sh-trust-row', blocks: section.blocks, class: 'sh-story-hero__trust' %}
 </section>
+
+{%- comment -%} Deferred and conditional, the same shape sh-ritual-benefits.liquid:224
+    and sh-signature-product.liquid:179 use. One shared module serves all seven
+    bands of this page; the seven <script src> tags resolve to one fetch and one
+    execution (the __shSM guard). {%- endcomment -%}
+{%- if s.animate -%}
+  <script src="{{ 'sh-story-motion.js' | asset_url }}" defer></script>
+{%- endif -%}
 
 {% schema %}
 {
@@ -128,13 +189,16 @@
 
     { "type": "header", "content": "Media" },
     { "type": "image_picker", "id": "image", "label": "Background image",
-      "info": "Fills the whole band. Defaults to \"Our story.webp\" in Assets." },
+      "info": "Fills the whole band. Defaults to \"hero_frame_0240.webp\" in Assets (1280×720). Upload a wider image if the default looks soft on a large or high-density screen." },
     { "type": "range", "id": "scrim", "label": "Dark overlay strength", "min": 40, "max": 100, "step": 5, "default": 80, "unit": "%",
       "info": "Keeps the copy legible over the photo. Raise it if you swap in a lighter image." },
     { "type": "range", "id": "min_height", "label": "Band height", "min": 420, "max": 820, "step": 20, "default": 620, "unit": "px" },
 
     { "type": "header", "content": "Appearance" },
-    { "type": "checkbox", "id": "animate", "label": "Animate on scroll", "default": true },
+    { "type": "checkbox", "id": "animate", "label": "Animate on scroll", "default": true,
+      "info": "Turns off the whole entrance, the photo's scroll drift and the pointer depth together. The band still renders in full." },
+    { "type": "checkbox", "id": "cursor", "label": "Pointer depth (desktop)", "default": true,
+      "info": "Nudges the copy and the seal a few pixels as the pointer moves. Desktop pointers only — ignored on touch, on narrow screens, and for anyone who has asked for reduced motion." },
     { "type": "color", "id": "bg", "label": "Background", "default": "#1b2411" }
   ],
   "blocks": [

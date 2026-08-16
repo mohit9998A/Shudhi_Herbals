@@ -1,0 +1,699 @@
+/* ===========================================================================
+   SHUDHI — STORY MOTION  (§28)
+   The Our Story page's motion layer, and nothing else.
+
+   ---------------------------------------------------------------------------
+   WHY THIS IS A SEPARATE FILE AND NOT §28 OF shudhi-home.css
+   ---------------------------------------------------------------------------
+   shudhi-home.css is 236KB and layout/theme.liquid loads it on EVERY template —
+   cart, product, collection, account. Seven bands of entrance choreography that
+   only one page can ever use does not belong in that budget. This sheet is
+   requested by the seven story sections themselves, so it is fetched on Our
+   Story and nowhere else.
+
+   It MUST load after shudhi-home.css. Several rules here beat an equal-specificity
+   rule in §14bb / §18 / §19 / §20 on source order alone, and the section-level
+   {{ 'shudhi-story.css' | asset_url | stylesheet_tag }} lands in <body>, which is
+   after the <head> link at theme.liquid:148 in every engine. Seven sections each
+   emit the tag; the browser fetches once and applies once.
+
+   ---------------------------------------------------------------------------
+   THE ONE CONTRACT EVERYTHING HERE OBEYS
+   ---------------------------------------------------------------------------
+   THE RESTING STATE IS THE FINISHED STATE. Not one selector below writes a
+   pre-state — no opacity:0, no translate, no stroke-dashoffset — outside a
+   `[data-sh-reveal].is-armed` ancestor. `.is-armed` is written by
+   assets/sh-story-motion.js and ONLY when it already holds an IntersectionObserver,
+   i.e. only when it can guarantee the matching `.is-shown` that clears it.
+
+   That makes every failure mode land on the finished page:
+     · JS disabled ........... no .is-armed  -> no rule here matches
+     · sh-story-motion.js 404  no .is-armed  -> no rule here matches
+     · this sheet 404 ........ .is-armed set, nothing styled -> finished page
+     · IntersectionObserver missing .......... JS declines to arm at all
+     · an exception before init() ............ no .is-armed
+   The old shared mechanism does the opposite: `.sh [data-reveal] { opacity: 0 }`
+   at shudhi-home.css §4 paints the pre-state on the bare attribute, so ANY
+   upstream failure renders the band blank. Every band on this page has been
+   migrated off it. Do not reintroduce [data-reveal] on this template.
+
+   ---------------------------------------------------------------------------
+   HOW A BAND IS WIRED
+   ---------------------------------------------------------------------------
+     <section class="sh …" data-sh-reveal [data-sh-cursor]>   <- root, JS arms this
+       …  [data-sh-fade] style="--i:0"                        <- opt in per element
+       …  [data-sh-depth="0.4"]                               <- pointer parallax
+   States, all written by the JS, all on the root:
+     .is-armed   pre-states apply. Latched on once, never removed.
+     .is-shown   the release. Latched on at first intersection, never removed.
+     .is-live    band is on screen. TOGGLED, so ambient loops can stop off screen.
+   `data-sh-still` on the root is the merchant "no ambient loops" opt-out.
+   =========================================================================== */
+
+/* ---------------------------------------------------------------------------
+   1. TOKENS — declared on the band root so a merchant setting can override any
+   of them per section with one inline style, and so nothing here leaks to the
+   rest of the theme the way a :root declaration would.
+
+   TWO curves, not seven. These are the two shudhi-home.css already uses (21 and
+   3 occurrences); the seven per-band designs proposed five more between them and
+   they are rejected. One page reads as one hand only if the arrivals share a
+   curve.
+   --------------------------------------------------------------------------- */
+[data-sh-reveal] {
+  --sh-e-in:   cubic-bezier(.22, .61, .36, 1);   /* everything that ARRIVES */
+  --sh-e-loop: cubic-bezier(.37, 0, .63, 1);     /* everything that LOOPS   */
+
+  --sh-dur:      .8s;    /* the default fade-rise                      */
+  --sh-dur-fast: .64s;   /* icons, labels, small glyph work            */
+  --sh-dur-draw: .9s;    /* SVG stroke-dashoffset                      */
+  --sh-dur-slow: 1.1s;   /* media scale-settle, hero veil              */
+
+  --sh-rise:   16px;     /* ONE rise distance. Settles the 8/10/12/14/18/26px
+                            argument the seven designs were having. */
+  --sh-step:   90ms;     /* ONE stagger cadence, page-wide */
+  --sh-spread: 450ms;    /* hard ceiling on a stagger's total spread */
+  --sh-lead:   0ms;      /* per-band offset before its ladder starts */
+}
+
+/* ---------------------------------------------------------------------------
+   2. THE STAGGER — every delay on this page is `--e`, never a bare
+   transition-delay.
+
+   `transition-delay` written as its own declaration is a trap: any LATER
+   `transition:` shorthand resets it to 0s, so the rules have to be hand-ordered
+   and stay hand-ordered. Feeding the delay through a custom property inside the
+   shorthand removes the ordering constraint entirely — a band block can restate
+   `--e` wherever it likes and the transition it belongs to cannot lose it.
+   Generalised from the §26 idiom.
+
+   min() rather than :nth-child(n+4) for the clamp. The nth-child form the designs
+   proposed only counts DOM position, so it breaks the moment an element is not a
+   direct sibling of its ladder-mates — which is true in four of the seven bands.
+   This form clamps the value itself and is position-independent.
+   `--i` comes from Liquid as `style="--i:{{ forloop.index0 }}"`, with a 0 fallback
+   so a missing inline style degrades to "unstaggered", never to an invalid calc. */
+[data-sh-reveal] [data-sh-fade],
+[data-sh-reveal] [data-sh-draw],
+[data-sh-reveal] [data-sh-line],
+[data-sh-reveal] .sh-w-in {
+  --e: calc(var(--sh-lead) + min(var(--i, 0) * var(--sh-step), var(--sh-spread)));
+}
+
+/* ---------------------------------------------------------------------------
+   3. FADE-RISE — the workhorse. Opacity plus a small translate, nothing else.
+
+   Both the pre-state AND the transition sit on `.is-armed`, matching
+   .sh-plate (§25) and .sh-ritual (§26) exactly. The theoretical cost is that
+   arming an element already at rest starts a fade-OUT; it is not reachable on
+   this theme because layout/theme.liquid ships ~1MB of render-blocking CSS
+   before the first paint, so a deferred script always executes first. Do not
+   "fix" this by moving the transition onto .is-shown — that trades an
+   unreachable flash for a real one every time a band is armed while visible. */
+[data-sh-reveal].is-armed [data-sh-fade] {
+  opacity: 0;
+  transform: translateY(var(--sh-rise));
+  transition: opacity   var(--sh-dur) var(--sh-e-in) var(--e, 0s),
+              transform var(--sh-dur) var(--sh-e-in) var(--e, 0s);
+}
+[data-sh-reveal].is-armed.is-shown [data-sh-fade] {
+  opacity: 1;
+  transform: none;
+}
+
+/* Opacity-only variant. Required wherever the element is the containing block
+   for an absolutely-positioned child — a transform on it would make the child
+   ride along. §19's .sh-fgrid__item is exactly that case: its ::after divider is
+   absolutely positioned INSIDE it, so a translate on the item drags the hairline
+   with it and compounds with the hairline's own scaleY. This is also why the
+   brief says "no card scaling" for band 5; the two constraints are one. */
+[data-sh-reveal].is-armed [data-sh-fade="soft"] {
+  opacity: 0;
+  transform: none;
+  transition: opacity var(--sh-dur-fast) var(--sh-e-in) var(--e, 0s);
+}
+[data-sh-reveal].is-armed.is-shown [data-sh-fade="soft"] { opacity: 1; }
+
+/* ---------------------------------------------------------------------------
+   4. WORD / LINE MASK — .sh-w wraps, .sh-w-in slides up out of it.
+
+   Geometry is the NEWER §26 set (.18em padding, 110%, not §14bb's .14em/120%),
+   so the page carries ONE mask rather than two. The padding restores the room
+   .sh-serif's 1.06 line-height steals — without it overflow:hidden shaves the
+   top of "R" and the descender of "y" in "Today." — and the equal negative
+   margin hands the space straight back so the lines land where they always did.
+
+   vertical-align: bottom on the wrapper matters: an inline-block's baseline is
+   its last line box, and with the negative margin in play that lands the mask a
+   few px low next to bare text. Its parent must be display:flex (block bands) or
+   the wrapper inline-block (word splits) — never a bare inline, whose adjacent
+   negative margins WOULD collapse. */
+[data-sh-reveal] .sh-w {
+  display: inline-block; vertical-align: bottom;
+  overflow: hidden;
+  padding-block: .18em; margin-block: -.18em;
+}
+[data-sh-reveal] .sh-w-in { display: block; }
+/* 120%, not 110% or 100%, and the arithmetic matters. overflow clips at the
+   PADDING box, so the span has to clear its own height PLUS both pads: with
+   .sh-serif's 1.06em line box and .18em of padding that is (1.06 + .36 - .18) /
+   1.06 = 117%. §14bb's retired mask needed 113% for the same reason at .14em.
+   120% clears both geometries with a little margin, which is why one value can
+   serve every mask on the page. */
+[data-sh-reveal].is-armed .sh-w-in {
+  transform: translateY(120%);
+  transition: transform var(--sh-dur) var(--sh-e-in) var(--e, 0s);
+}
+[data-sh-reveal].is-armed.is-shown .sh-w-in { transform: none; }
+
+/* ---------------------------------------------------------------------------
+   5. SVG DRAW-ON — pathLength="1" in the markup, dashoffset 1 -> 0 here.
+
+   pathLength normalises the geometry to one unit so a dasharray of 1 is always
+   exactly the whole stroke, whatever the path's real length. That is what lets
+   this be pure CSS: no getTotalLength(), no measurement, and therefore no
+   dependency on settled layout. A measured draw-on run during an entrance reads
+   0 and draws nothing — the failure shudhi-home.css:3390 documents.
+
+   NEVER declare dasharray/dashoffset on the bare class. .sh-lc__arc does exactly
+   that and is fails-CLOSED as a result; here both live behind .is-armed so an
+   unarmed glyph is simply a finished glyph.
+
+   The opacity ramp riding alongside is not decoration. stroke-linecap:round is a
+   presentation attribute on the shared <svg> (snippets/sh-icon.liquid) and is
+   inherited by every path; in some engines a zero-length dash with a round cap
+   paints a DOT, which at t=0 would be a scatter of gold specks before the draw
+   begins. Fading in over the first third of the draw hides it and costs nothing.
+   If specks survive that on any engine, scope `stroke-linecap: butt` to
+   .is-armed:not(.is-shown) — do not remove the round caps at rest. */
+[data-sh-reveal].is-armed [data-sh-draw] {
+  opacity: 0;
+  transition: opacity var(--sh-dur-fast) var(--sh-e-in) var(--e, 0s);
+}
+[data-sh-reveal].is-armed [data-sh-draw] :is(path, circle, rect, line, polyline) {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  transition: stroke-dashoffset var(--sh-dur-draw) var(--sh-e-in) var(--e, 0s);
+}
+[data-sh-reveal].is-armed.is-shown [data-sh-draw] { opacity: 1; }
+[data-sh-reveal].is-armed.is-shown [data-sh-draw] :is(path, circle, rect, line, polyline) {
+  stroke-dashoffset: 0;
+}
+
+/* ---------------------------------------------------------------------------
+   6. HAIRLINE DRAW — a rule that grows from one end. scaleX/scaleY on a 1px
+   element, never width/height: a scale is a compositor job, a width change is a
+   layout job on every frame.
+   `--sh-line-o` picks the origin so one primitive serves both the horizontal
+   eyebrow rules and the vertical column dividers. */
+[data-sh-reveal].is-armed [data-sh-line] {
+  transform: scale(var(--sh-line-sx, 1), var(--sh-line-sy, 1));
+  transform-origin: var(--sh-line-o, 50% 0%);
+  transition: transform var(--sh-dur-draw) var(--sh-e-in) var(--e, 0s);
+}
+[data-sh-reveal].is-armed.is-shown [data-sh-line] { transform: none; }
+
+/* ---------------------------------------------------------------------------
+   7. POINTER DEPTH — the JS writes translate3d() inline on [data-sh-depth].
+   Nothing is declared here but the promotion, and only where the loop can
+   actually run: the same three-part gate assets/sh-story-motion.js reads before
+   it binds mousemove at all. On touch, on narrow viewports and under reduced
+   motion nothing is promoted, so no compositor layer is paid for.
+
+   NOT on .sh-story-hero__bg. That is the LCP element on this page and a
+   permanent layer is a cost paid before anyone has scrolled — §14bb:1369 makes
+   the same call for the same element. The translate3d the JS writes promotes it
+   on first use instead. */
+@media (min-width: 1025px) and (hover: hover) and (pointer: fine) {
+  [data-sh-cursor] [data-sh-depth]:not(.sh-story-hero__bg) { will-change: transform; }
+}
+
+/* ---------------------------------------------------------------------------
+   8. AMBIENT LOOPS — gated on .is-live, which the observer TOGGLES rather than
+   latches. An off-screen band composites nothing.
+   `data-sh-still` is the merchant opt-out and is checked here rather than in the
+   JS so unchecking it cannot leave a half-armed band. */
+[data-sh-reveal] [data-sh-loop] { animation-play-state: paused; }
+[data-sh-reveal].is-live:not([data-sh-still]) [data-sh-loop] { animation-play-state: running; }
+
+/* ---------------------------------------------------------------------------
+   9. SCROLL SCRUB — `--sh-k` is written on the band root by the JS, 0 -> 1
+   across the band's travel through the viewport. Consumers live in the band
+   blocks; the only thing declared here is the fallback, so a band whose scrub
+   never runs resolves to a real number instead of an invalid calc.
+
+   The scrub is the ONE deliberate exception to "resting state is finished
+   state": it rests at 0, not 1. That is safe only because everything it drives
+   is decoration with no resting appearance — a gold thread and six rings that do
+   not exist in the reference at rest. The moment anyone routes an icon stroke, a
+   label, a number or a description through --sh-k, that safety is gone and the
+   band becomes the blank-band failure this whole migration exists to design out. */
+[data-sh-reveal] { --sh-k: 0; }
+
+/* ---------------------------------------------------------------------------
+   10. REDUCED MOTION — one block, covering every primitive above.
+
+   Both ends of every pair, never the transition alone: .is-armed may already be
+   on the root when the OS setting is flipped mid-session, and killing only the
+   transition would freeze the band in its pre-state forever. `!important` is
+   what beats the inline transforms the JS has already written to
+   [data-sh-depth] — the JS reads matchMedia once at boot, so a mid-session
+   toggle is covered here and only here.
+
+   --sh-k is forced to 1: band 7's gold thread and accent rings are driven
+   entirely by the scrub, and leaving it at 0 would mean a reduced-motion visitor
+   never sees the gold progression at all. Reduced motion means arrive finished,
+   not arrive empty. */
+@media (prefers-reduced-motion: reduce) {
+  [data-sh-reveal] { --sh-k: 1 !important; }
+
+  [data-sh-reveal].is-armed [data-sh-fade],
+  [data-sh-reveal].is-armed [data-sh-fade="soft"],
+  [data-sh-reveal].is-armed .sh-w-in,
+  [data-sh-reveal].is-armed [data-sh-draw],
+  [data-sh-reveal].is-armed [data-sh-line] {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+  [data-sh-reveal].is-armed [data-sh-draw] :is(path, circle, rect, line, polyline) {
+    stroke-dasharray: none !important;
+    stroke-dashoffset: 0 !important;
+    transition: none !important;
+  }
+  [data-sh-reveal] [data-sh-depth] { transform: none !important; }
+  [data-sh-reveal] [data-sh-loop] { animation: none !important; }
+  [data-sh-cursor] [data-sh-depth] { will-change: auto !important; }
+}
+
+/* ===========================================================================
+   BAND 1 — STORY HERO
+   sections/sh-story-hero.liquid. Resting design is §14bb in shudhi-home.css;
+   nothing here touches it.
+   =========================================================================== */
+
+/* A longer ladder than the shared 450ms ceiling. Seven rungs land on this band
+   (eyebrow, two headline lines, rule, body, CTA, seal) and clamping them at 450ms
+   would collapse the last three onto one another. 640ms puts the seal at 540ms
+   and still reads as one gesture rather than seven animations. */
+.sh-story-hero[data-sh-reveal] { --sh-spread: 640ms; }
+
+/* ---- The resolve ------------------------------------------------------- */
+/* The one place on this page where the PRE-state is the visible one, so it is
+   also the one place the transition cannot sit on .is-armed with it. If it did,
+   arming would start a 1.1s fade IN to the wash, .is-shown would arrive a frame
+   later and reverse it from ~1% — and the effect would be invisible. Declaring
+   the pre-state bare (instant) and the transition on the release is what makes
+   the veil actually clear over 1.1s.
+   z-index 1 with the scrim, painted above it on source order; below .sh-wrap's 2,
+   so the copy is never behind the wash. */
+.sh-story-hero__veil {
+  position: absolute; inset: 0; z-index: 1; pointer-events: none;
+  opacity: 0;
+  background: var(--sh-green-900);
+}
+.sh-story-hero[data-sh-reveal].is-armed .sh-story-hero__veil { opacity: 1; }
+.sh-story-hero[data-sh-reveal].is-armed.is-shown .sh-story-hero__veil {
+  opacity: 0;
+  transition: opacity var(--sh-dur-slow) var(--sh-e-in);
+}
+
+/* ---- The gold words ---------------------------------------------------- */
+/* "Tradition." and "Today." arrive as cream and warm into gold once their line
+   has landed. A COLOUR transition, not an opacity or a background-clip sweep:
+   the words are legible at both ends, so this can never be the thing that makes
+   a headline unreadable, and there is no -webkit-text-fill-color:transparent to
+   go wrong. 220ms behind the line's own 800ms so the warm-up reads as a
+   consequence of the line arriving rather than as a second, separate animation. */
+.sh-story-hero[data-sh-reveal].is-armed .sh-story-hero__title em {
+  color: var(--sh-light);
+}
+.sh-story-hero[data-sh-reveal].is-armed.is-shown .sh-story-hero__title em {
+  color: var(--sh-gold);
+  transition: color var(--sh-dur-slow) var(--sh-e-in) calc(var(--e, 0s) + 220ms);
+}
+
+/* ---- Trust row --------------------------------------------------------- */
+/* Written as its own rule rather than given [data-sh-fade], because the row is
+   rendered by snippets/sh-trust-row.liquid — shared with the homepage hero, which
+   is NOT on this contract and must not gain an attribute it has no script to
+   clear. Keyed on the band instead, so the coupling stays on this page.
+   Its resting transform is translateX(-50%) (§14bb centres it that way), so the
+   entrance has to carry that through or the row jumps half its width. */
+.sh-story-hero[data-sh-reveal].is-armed .sh-story-hero__trust {
+  opacity: 0;
+  transform: translateX(-50%) translateY(var(--sh-rise));
+  transition: opacity   var(--sh-dur) var(--sh-e-in) 630ms,
+              transform var(--sh-dur) var(--sh-e-in) 630ms;
+}
+.sh-story-hero[data-sh-reveal].is-armed.is-shown .sh-story-hero__trust {
+  opacity: 1;
+  transform: translateX(-50%);
+}
+
+/* ---- Reduced motion ---------------------------------------------------- */
+/* §28's shared block covers [data-sh-fade], .sh-w-in, [data-sh-draw] and
+   [data-sh-depth]. These four are band-1 specific and are not reachable by it:
+   the veil and the trust row are keyed on their own classes, and the em colour is
+   a colour, which the shared block deliberately does not touch. */
+@media (prefers-reduced-motion: reduce) {
+  .sh-story-hero[data-sh-reveal].is-armed .sh-story-hero__veil {
+    opacity: 0 !important; transition: none !important;
+  }
+  .sh-story-hero[data-sh-reveal].is-armed .sh-story-hero__title em {
+    color: var(--sh-gold) !important; transition: none !important;
+  }
+  .sh-story-hero[data-sh-reveal].is-armed .sh-story-hero__trust {
+    opacity: 1 !important;
+    transform: translateX(-50%) !important;
+    transition: none !important;
+  }
+}
+
+/* ===========================================================================
+   BANDS 2 & 4 — OUR BEGINNING / WHY WE STARTED
+   sections/sh-story-beginning.liquid + sections/sh-story-purpose.liquid.
+   Resting design is §18 in shudhi-home.css; nothing here touches it.
+
+   ONE block for BOTH bands, keyed on .sh-split rather than on either modifier.
+   The two sections are mirrors of each other and §18 already flips the columns
+   and the feather from [data-media-position]; giving each band its own rules
+   would create two places for one gesture to be tuned, and they would drift.
+   The copy ladder needs nothing here at all — it is §28's [data-sh-fade]
+   primitive, offset by `--sh-lead: 180ms` written inline on each section, which
+   lands the four rungs at 180 / 270 / 360 / 450ms.
+   =========================================================================== */
+
+/* Congruent with .sh-split__media, which is position:relative (§18). This is
+   what keeps shudhi-home.js's parallax measuring the same box it measured
+   before the frame existed — see the note in the section's Liquid header. */
+.sh-split__frame { position: absolute; inset: 0; }
+
+/* The settle. 1.02 -> none, no opacity: the photograph is never faded, only
+   allowed to come to rest, so the image is fully painted from the first frame
+   and can still be the LCP element on a band where it is the largest thing.
+   Delay 0 — the media leads and the copy follows it in at 180ms. */
+[data-sh-reveal].is-armed .sh-split__frame {
+  transform: scale(1.02);
+  transition: transform var(--sh-dur-slow) var(--sh-e-in);
+}
+[data-sh-reveal].is-armed.is-shown .sh-split__frame { transform: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  [data-sh-reveal].is-armed .sh-split__frame {
+    transform: none !important; transition: none !important;
+  }
+}
+
+/* ===========================================================================
+   BAND 3 — OUR PHILOSOPHY
+   sections/sh-story-philosophy.liquid. Resting design is §19; nothing here
+   touches it.
+   =========================================================================== */
+
+/* The sequence, expressed once. 520ms of draw on a 560ms step is what makes the
+   brief's "each glyph completes before the next begins" true AND keeps the band
+   inside a gesture the eye reads as one: glyph N finishes at 140 + 520 + 560N,
+   glyph N+1 starts at 140 + 560(N+1) — 40ms of clear air between them.
+     glyph  140 /  700 / 1260ms      label  420 / 980 / 1540ms
+     text   540 / 1100 / 1660ms      settles ~1.9s
+   These override §28's shared `--e` at (0,3,0) against its (0,2,0), which is
+   also why they can be stated as plain calc() rather than fighting the ladder. */
+.sh-fgrid--phil[data-sh-reveal] {
+  --sh-dur-draw: .52s;
+  /* The [data-sh-draw] opacity ramp. At the shared .64s the glyph would still be
+     half-transparent when its 520ms draw finished, so the draw would be watched
+     through a fade instead of being the thing you watch. */
+  --sh-dur-fast: .2s;
+}
+.sh-fgrid--phil[data-sh-reveal] [data-sh-draw]        { --e: calc(140ms + var(--i, 0) * 560ms); }
+.sh-fgrid--phil[data-sh-reveal] .sh-fgrid__label      { --e: calc(420ms + var(--i, 0) * 560ms); }
+.sh-fgrid--phil[data-sh-reveal] .sh-fgrid__text       { --e: calc(540ms + var(--i, 0) * 560ms); }
+
+/* §19 gives .sh-fgrid__icon `transition: transform .3s ease` for its hover, and
+   §28's [data-sh-draw] rule is a transition SHORTHAND at higher specificity — so
+   without this the hover would snap. Restated with both properties, and with the
+   hover's own timing preserved exactly. */
+.sh-fgrid--phil[data-sh-reveal].is-armed [data-sh-draw] {
+  transition: opacity var(--sh-dur-fast) var(--sh-e-in) var(--e, 0s),
+              transform .3s ease;
+}
+
+/* ---- Dividers ---------------------------------------------------------- */
+/* The rule between pillars draws downward as its pillar arrives. It is a
+   PSEUDO-element, so it cannot carry [data-sh-line] and is written out here
+   instead. Origin top, scaleY — a 1px element scaled on the compositor, never a
+   height animation. */
+.sh-fgrid--phil[data-sh-reveal].is-armed .sh-fgrid__item::after {
+  transform: scaleY(0); transform-origin: 50% 0;
+  transition: transform var(--sh-dur-draw) var(--sh-e-in) calc(280ms + var(--i, 0) * 560ms);
+}
+.sh-fgrid--phil[data-sh-reveal].is-armed.is-shown .sh-fgrid__item::after { transform: none; }
+
+/* Below 600px §19 turns the divider horizontal and centres it with
+   translateX(-50%) (shudhi-home.css:2112). That translate is RESTING LAYOUT: a
+   bare scaleY here would drop it and every rule would jump half its own width to
+   the right. Restated with the translate carried through, and scaled on X because
+   the rule is now horizontal. */
+@media (max-width: 599px) {
+  .sh-fgrid--phil[data-sh-reveal].is-armed .sh-fgrid__item::after {
+    transform: translateX(-50%) scaleX(0); transform-origin: 50% 50%;
+  }
+  .sh-fgrid--phil[data-sh-reveal].is-armed.is-shown .sh-fgrid__item::after {
+    transform: translateX(-50%);
+  }
+}
+
+/* ---- Hover ------------------------------------------------------------- */
+/* Three pillars, three different gestures, and no new DOM for any of them —
+   PURITY unfurls, BALANCE settles, NATURE grows upward. Doing this with added
+   leaves and particles would put elements in the resting picture that the
+   reference does not have. Transform only, inside the pointer gate so a touch tap
+   cannot latch any of them. */
+@media (hover: hover) and (pointer: fine) {
+  /* Purity — the leaf opens. */
+  .sh-fgrid--phil .sh-fgrid__item:nth-child(1):hover .sh-fgrid__icon { transform: scale(1.08) rotate(-3deg); }
+  /* Balance — no rotation anywhere; it comes to rest exactly where it was. */
+  .sh-fgrid--phil .sh-fgrid__item:nth-child(2):hover .sh-fgrid__icon { transform: scale(1.08); }
+  /* Nature — grows. */
+  .sh-fgrid--phil .sh-fgrid__item:nth-child(3):hover .sh-fgrid__icon { transform: translateY(-3px) scale(1.04); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sh-fgrid--phil[data-sh-reveal].is-armed .sh-fgrid__item::after,
+  .sh-fgrid--phil[data-sh-reveal].is-armed.is-shown .sh-fgrid__item::after {
+    transform: none !important; transition: none !important;
+  }
+  /* The phone layout's centring translate is layout, not motion, and must survive
+     the reset above — which is why it is restated rather than left to `none`. */
+  @media (max-width: 599px) {
+    .sh-fgrid--phil[data-sh-reveal].is-armed .sh-fgrid__item::after,
+    .sh-fgrid--phil[data-sh-reveal].is-armed.is-shown .sh-fgrid__item::after {
+      transform: translateX(-50%) !important;
+    }
+  }
+  .sh-fgrid--phil .sh-fgrid__item:hover .sh-fgrid__icon { transform: none !important; }
+}
+
+/* ===========================================================================
+   BAND 5 — HANDMADE WITH PURPOSE
+   sections/sh-story-handmade.liquid. Resting design is §19; nothing here
+   touches it.
+   =========================================================================== */
+
+.sh-fgrid--hand[data-sh-reveal] { --sh-lead: 120ms; }
+
+/* The icon scales, the ITEM does not — see the section's Liquid header for why a
+   transform on .sh-fgrid__item drags its own ::after divider along.
+   Scaled on the inner <svg>, not on .sh-fgrid__icon, because §19 owns that
+   element's transform for the hover (:2054). Two elements, two transform jobs,
+   so the entrance and the hover compose instead of overwriting each other.
+   The <svg> is an OUTERMOST svg, so transform-origin resolves against its border
+   box with no transform-box declaration needed — the construction .sh-gen__ring
+   already ships on. */
+.sh-fgrid--hand[data-sh-reveal].is-armed .sh-fgrid__icon .sh-icon {
+  transform: scale(.85);
+  transition: transform var(--sh-dur-fast) var(--sh-e-in) var(--e, 0s);
+}
+.sh-fgrid--hand[data-sh-reveal].is-armed.is-shown .sh-fgrid__icon .sh-icon { transform: none; }
+
+/* Dividers draw downward with their item. Same pseudo-element handling, and the
+   same ≤599px restatement, as band 3 — see the note there. */
+.sh-fgrid--hand[data-sh-reveal].is-armed .sh-fgrid__item::after {
+  transform: scaleY(0); transform-origin: 50% 0;
+  transition: transform var(--sh-dur-draw) var(--sh-e-in) var(--e, 0s);
+}
+.sh-fgrid--hand[data-sh-reveal].is-armed.is-shown .sh-fgrid__item::after { transform: none; }
+
+@media (max-width: 599px) {
+  .sh-fgrid--hand[data-sh-reveal].is-armed .sh-fgrid__item::after {
+    transform: translateX(-50%) scaleX(0); transform-origin: 50% 50%;
+  }
+  .sh-fgrid--hand[data-sh-reveal].is-armed.is-shown .sh-fgrid__item::after {
+    transform: translateX(-50%);
+  }
+}
+
+/* Hover: the icon grows, the label lifts 3px, the gold strengthens. No card
+   scaling — the brief says so, and §19's absolutely-positioned divider means the
+   item could not be scaled safely even if it did not. */
+@media (hover: hover) and (pointer: fine) {
+  .sh-fgrid--hand .sh-fgrid__item:hover .sh-fgrid__icon { transform: scale(1.1); }
+  .sh-fgrid--hand .sh-fgrid__label { transition: transform .3s ease, color .3s ease; }
+  .sh-fgrid--hand .sh-fgrid__item:hover .sh-fgrid__label {
+    transform: translateY(-3px);
+    color: var(--sh-story-gold-ink, var(--sh-fgrid-accent));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sh-fgrid--hand[data-sh-reveal].is-armed .sh-fgrid__icon .sh-icon,
+  .sh-fgrid--hand[data-sh-reveal].is-armed .sh-fgrid__item::after,
+  .sh-fgrid--hand[data-sh-reveal].is-armed.is-shown .sh-fgrid__item::after {
+    transform: none !important; transition: none !important;
+  }
+  @media (max-width: 599px) {
+    .sh-fgrid--hand[data-sh-reveal].is-armed .sh-fgrid__item::after,
+    .sh-fgrid--hand[data-sh-reveal].is-armed.is-shown .sh-fgrid__item::after {
+      transform: translateX(-50%) !important;
+    }
+  }
+  .sh-fgrid--hand .sh-fgrid__item:hover .sh-fgrid__icon,
+  .sh-fgrid--hand .sh-fgrid__item:hover .sh-fgrid__label {
+    transform: none !important; transition: none !important;
+  }
+}
+
+/* ===========================================================================
+   BAND 6 — MORE THAN A SOAP / IT'S A RITUAL
+   sections/sh-story-proof.liquid. Resting design is §19; nothing here touches
+   it. The band stays flat — no background image, no scrim, no height change.
+   =========================================================================== */
+
+/* The heading words are §28's shared .sh-w / .sh-w-in and need nothing here.
+   The item ladder starts after the heading has landed: four words at 90ms plus
+   the .8s mask puts the last word home at ~1.07s, so 620ms of lead has the first
+   benefit arriving while the heading is still settling rather than after it —
+   one gesture, not two. */
+.sh-fgrid--proof[data-sh-reveal] { --sh-lead: 620ms; }
+
+/* Sibling recede. Hovering one benefit lifts it and lets the other five step
+   back — attention, not decoration, and it costs one opacity per item. Written
+   with :has() so the whole thing is CSS; where :has() is unsupported the rule
+   simply never matches and the row behaves exactly as it does today. */
+@media (hover: hover) and (pointer: fine) {
+  .sh-fgrid--proof .sh-fgrid__item { transition: opacity .3s ease; }
+  .sh-fgrid--proof .sh-fgrid__grid:has(.sh-fgrid__item:hover) .sh-fgrid__item { opacity: .62; }
+  .sh-fgrid--proof .sh-fgrid__grid .sh-fgrid__item:hover { opacity: 1; }
+  .sh-fgrid--proof .sh-fgrid__item:hover .sh-fgrid__icon { transform: scale(1.08); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sh-fgrid--proof .sh-fgrid__grid:has(.sh-fgrid__item:hover) .sh-fgrid__item { opacity: 1 !important; }
+  .sh-fgrid--proof .sh-fgrid__item:hover .sh-fgrid__icon { transform: none !important; }
+}
+
+/* ===========================================================================
+   BAND 7 — TRANSFORM YOUR DAILY RITUAL
+   sections/sh-story-steps.liquid. Resting design is §20; nothing here touches
+   it.
+   =========================================================================== */
+
+/* Entrance: intro column, then the thread, then the six cards.
+   90ms, not §20's own 80ms — ONE cadence across the page. §20's delays are
+   quarantined behind [data-reveal] in the same commit, so they cannot reach this
+   band at all. */
+.sh-flow--steps[data-sh-reveal] { --sh-lead: 340ms; }
+.sh-flow--steps[data-sh-reveal] .sh-flow__intro > * { --e: calc(var(--i, 0) * var(--sh-step)); }
+
+/* The grey hairline draws left to right before the cards land, so the thread
+   exists before anything is threaded onto it. */
+.sh-flow--steps[data-sh-reveal].is-armed .sh-flow__line {
+  transform: scaleX(0); transform-origin: 0 50%;
+  transition: transform var(--sh-dur-draw) var(--sh-e-in) 240ms;
+}
+.sh-flow--steps[data-sh-reveal].is-armed.is-shown .sh-flow__line { transform: none; }
+
+/* ---- The gold thread --------------------------------------------------- */
+/* An ::after over the existing hairline rather than a recolour of it: the grey
+   rule is resting design and has to survive with the scrub at 0, at 1, and with
+   no JS at all. scaleX from a custom property is a compositor job — no width
+   animation, no layout, nothing read back.
+
+   Guarded so a deep link into the middle of the page cannot paint gold before
+   the grey rule beneath it has drawn. */
+.sh-flow--steps .sh-flow__line { position: relative; }
+.sh-flow--steps .sh-flow__line::after {
+  content: ""; position: absolute; inset: 0;
+  background: var(--sh-accent);
+  transform: scaleX(var(--sh-k, 0)); transform-origin: 0 50%;
+}
+.sh-flow--steps[data-sh-reveal].is-armed:not(.is-shown) .sh-flow__line::after { transform: scaleX(0); }
+
+/* ---- The accent rings -------------------------------------------------- */
+/* Per-step progress from one page-level scrub. --sh-k is 0..1 across the whole
+   track; this maps it onto step i's own slice, so ring i fills exactly while the
+   scroll is crossing the i-th sixth of the band:
+       kn = clamp(0, (k - i/n) * n, 1)
+   --sh-flow-n is written inline by the section (block count) and is the same
+   value §20 already derives the column count and connector inset from, so the
+   rings can never disagree with the layout about how many steps there are. */
+.sh-flow--steps .sh-flow__ring {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  overflow: visible; pointer-events: none;
+  fill: none; stroke: var(--sh-accent); stroke-width: 1.4;
+  --sh-kn: clamp(0, (var(--sh-k, 0) - var(--i, 0) / var(--sh-flow-n)) * var(--sh-flow-n), 1);
+}
+.sh-flow--steps .sh-flow__ring circle {
+  stroke-dasharray: 1;
+  /* Two declarations, and the plain one MUST come first. --sh-kn divides by a
+     custom property; if any engine rejects that, the calc below becomes invalid
+     at computed-value time and stroke-dashoffset would fall back to its INITIAL
+     value of 0 — every ring fully drawn at rest, which is not the reference.
+     Stating the reference value first means an engine that drops the second
+     declaration keeps the undrawn ring instead. Same two-declaration fallback
+     shape §19 uses for color-mix at shudhi-home.css:1996. */
+  stroke-dashoffset: 1;
+  stroke-dashoffset: calc(1 - var(--sh-kn));
+  /* Starts at 12 o'clock and runs clockwise. Without this the ring begins at
+     3 o'clock, which reads as arbitrary next to a numeral. */
+  transform: rotate(-90deg); transform-origin: 50% 50%;
+  transition: stroke-dashoffset .18s linear;
+}
+
+/* THE PAUSE. Step four draws ~320ms slower than its neighbours, which is the
+   0.3-0.5s of visual calm the design asks for. Keyed on POSITION, not on the
+   word "Pause": the fourth beat of a six-beat ritual is where the breath goes,
+   and a merchant reordering the steps is reordering the ritual. One
+   transition-duration, no JS timer, nothing to fight the scroll handler. */
+.sh-flow--steps .sh-flow__step:nth-child(4) .sh-flow__ring circle {
+  transition-duration: .5s;
+  transition-timing-function: var(--sh-e-in);
+}
+
+/* ---- Hover ------------------------------------------------------------- */
+/* §20's stagger is now quarantined behind [data-reveal] (shudhi-home.css), so
+   these respond immediately instead of up to 400ms late. */
+@media (hover: hover) and (pointer: fine) {
+  .sh-flow--steps .sh-flow__step { transition: border-color .3s ease; }
+  .sh-flow--steps .sh-flow__step:hover { border-color: var(--sh-accent); }
+  .sh-flow--steps .sh-flow__step > .sh-icon { transition: transform .3s ease; }
+  .sh-flow--steps .sh-flow__step:hover > .sh-icon { transform: translateY(-3px); }
+}
+
+/* ---- Reduced motion ---------------------------------------------------- */
+/* §28 forces --sh-k to 1, so the thread and every ring resolve FULL rather than
+   empty — reduced motion means arrive finished, not arrive blank. Only the
+   transitions and the entrance need killing here. */
+@media (prefers-reduced-motion: reduce) {
+  .sh-flow--steps[data-sh-reveal].is-armed .sh-flow__line,
+  .sh-flow--steps[data-sh-reveal].is-armed.is-shown .sh-flow__line {
+    transform: none !important; transition: none !important;
+  }
+  .sh-flow--steps[data-sh-reveal].is-armed:not(.is-shown) .sh-flow__line::after,
+  .sh-flow--steps .sh-flow__line::after {
+    transform: scaleX(1) !important;
+  }
+  .sh-flow--steps .sh-flow__ring circle { transition: none !important; }
+  .sh-flow--steps .sh-flow__step:hover > .sh-icon { transform: none !important; }
+}

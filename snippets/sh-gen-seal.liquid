@@ -24,6 +24,20 @@
                   document-global, so two seals sharing a uid would both bend
                   their labels along the FIRST seal's arcs. `section` is out of
                   scope inside a rendered snippet, so the caller has to pass it.
+    depth       — optional. Emits data-sh-depth, the pointer-parallax hook read by
+                  assets/sh-story-motion.js. 0.40 gives ~3.2px of travel, which is
+                  the "badge 3px" layer of the Our Story hero's depth stack.
+    reveal      — optional. Emits data-sh-fade + --i so the seal joins the band's
+                  entrance ladder instead of being present from the first frame.
+
+  BOTH are opt-in and BOTH are inert without them. sections/sh-signature-product.liquid
+  passes neither and renders byte-identically to before they existed — the homepage
+  seal is not on the §28 contract and must not be dragged onto it.
+
+  A transform on .sh-gen is safe where a transform on an ANCESTOR of it is not.
+  .sh-gen is already position:absolute, so it is already the containing block for
+  its own absolutely-positioned children; adding a transform changes nothing for
+  them. The warning below is about ancestors, and it still stands.
 
   Where it is rendered matters twice over:
     - .sh-gen is absolutely positioned against its nearest positioned ancestor.
@@ -58,7 +72,16 @@
   of that adds noise, not information. No sr-only restatement here for the same
   reason.
 {%- endcomment -%}
-<div class="sh-gen" aria-hidden="true">
+<div class="sh-gen" aria-hidden="true"
+     {%- if depth != blank %} data-sh-depth="{{ depth }}"{% endif -%}
+     {%- comment -%} "soft" — opacity only, never a transform. When `depth` is also
+         passed, assets/sh-story-motion.js writes translate3d() to THIS element's
+         inline style every frame, and an inline transform beats anything the
+         stylesheet can say without !important. A transform-carrying fade would
+         therefore work until the first pointer move and then die silently. Opacity
+         and transform are two different properties on one element, so these two
+         compose instead of fighting. {%- endcomment -%}
+     {%- if reveal != blank %} data-sh-fade="soft" style="--i:{{ reveal }}"{% endif -%}>
 
   {%- comment -%}
     The <svg> IS the rotating group (90s linear, CSS). The number is deliberately
@@ -71,7 +94,11 @@
       <path id="{{ gid }}-b" fill="none" d="M26,100 A74,74 0 0 0 174,100"/>
     </defs>
 
-    <circle class="sh-gen__ring-c" cx="100" cy="100" r="92"/>
+    {%- comment -%} pathLength normalises the circumference to 1 so a caller can
+        draw the ring with `stroke-dasharray: 1; stroke-dashoffset: 1 -> 0` and no
+        JS measurement. Purely declarative: with no dasharray in play — which is
+        every caller today — it has no rendering effect whatsoever. {%- endcomment -%}
+    <circle class="sh-gen__ring-c" cx="100" cy="100" r="92" pathLength="1"/>
     <circle class="sh-gen__dot" cx="34" cy="100" r="2.6"/>
     <circle class="sh-gen__dot" cx="166" cy="100" r="2.6"/>
 

@@ -1,0 +1,168 @@
+{%- comment -%}
+  SHUDHI — More Than a Soap / It's a Ritual (Our Story band 6)
+
+  A fork of sections/sh-feature-grid.liquid, sibling to sh-story-philosophy.liquid
+  and sh-story-handmade.liquid. Keeps .sh-fgrid / --cols-6, so the resting design
+  is shudhi-home.css §19 verbatim; .sh-fgrid--proof is the motion hook.
+
+  WHAT THIS BAND DELIBERATELY IS NOT
+
+  A "living ritual field" was designed for this band: five parallax water layers,
+  fifteen droplets, sixteen motes, three ripple rings, a cursor torch, an SVG
+  soap, eleven keyframe families, six :has() state pairs and a near-verbatim copy
+  of assets/sh-ritual-scene.js — roughly seventy new DOM nodes on a six-item trust
+  row. It is cut in full, for three reasons and any one of them is sufficient:
+
+    1. It is the "generic WebGL demo" energy the brief bans, built in DOM instead
+       of WebGL. The brand's premium is restraint.
+    2. It silently ADDED a background photograph, a scrim and a 76svh min-height
+       to a band that today is flat #1b2411 with none of the three. That is a
+       rewrite of the resting composition presented as a motion pass.
+    3. The homepage already ships exactly that treatment in sh-ritual-benefits.
+       Repeating it here would not double the impression, it would halve it.
+
+  What the band gets instead is the page's own vocabulary: a word-masked heading,
+  and the six benefits arriving on the shared 90ms cadence. The band still renders
+  flat #1b2411, with no image and no scrim, exactly as it does today.
+{%- endcomment -%}
+
+{{ 'shudhi-story.css' | asset_url | stylesheet_tag }}
+
+{%- assign s = section.settings -%}
+
+<section class="sh sh-fgrid sh-fgrid--proof sh-fgrid--cols-{{ s.columns }}{% if s.show_circle %} sh-fgrid--ring{% endif %}"
+         {%- if s.anchor_id != blank %} id="{{ s.anchor_id | handle }}"{% endif %}
+         {%- if s.animate %} data-sh-reveal{% endif %}
+         data-scheme="{{ s.scheme }}"
+         {%- if s.bg != blank %} style="--sh-fgrid-bg:{{ s.bg }};"{% endif %}>
+
+  {%- if s.bg_image != blank -%}
+    {%- assign bg_h = 2000 | divided_by: s.bg_image.aspect_ratio | round -%}
+    <img class="sh-fgrid__bg" src="{{ s.bg_image | image_url: width: 2000 }}" alt=""
+         width="2000" height="{{ bg_h }}" loading="lazy" decoding="async">
+    <div class="sh-fgrid__scrim"></div>
+  {%- endif -%}
+
+  <div class="sh-wrap">
+
+    {%- if s.eyebrow != blank or s.heading != blank or s.heading_em != blank -%}
+      <div class="sh-fgrid__head" data-sh-fade style="--i:0">
+        {%- comment -%} The eyebrow is promoted to <h2> exactly when there is no other
+            heading to take the job — this band is eyebrow-only by design, and a
+            <div> here would file its six benefits under the previous band's
+            heading (WCAG 1.3.1). Visually identical either way. {%- endcomment -%}
+        {%- if s.eyebrow != blank -%}
+          {%- if s.heading == blank and s.heading_em == blank -%}
+            <h2 class="sh-fgrid__eyebrow sh-eyebrow">{{ s.eyebrow }}</h2>
+          {%- else -%}
+            <div class="sh-fgrid__eyebrow sh-eyebrow">{{ s.eyebrow }}</div>
+          {%- endif -%}
+        {%- endif -%}
+        {%- comment -%} The heading is split into words SERVER-SIDE so each can ride
+            its own mask. Two things about this are load-bearing:
+
+            1. THE SPACE BETWEEN THE SPANS IS LITERAL AND MUST STAY. Remove it and
+               the accessible name becomes "It'saRitual." — the spans are
+               inline-block, so there is no whitespace for the accessibility tree to
+               infer. Verify with
+               `document.querySelector('.sh-fgrid--proof h2').textContent`.
+            2. `| escape` on the word, never raw. The value is merchant input and
+               it is being re-emitted inside markup this file generates.
+
+            The gold tail keeps its <em>: it is emphasis, and the mask wraps the
+            <em> rather than the reverse so the italic never gets clipped by an
+            overflow box sized to upright glyphs. {%- endcomment -%}
+        {%- if s.heading != blank or s.heading_em != blank -%}
+          <h2 class="sh-fgrid__title sh-serif">
+            {%- assign words = s.heading | strip | split: ' ' -%}
+            {%- for w in words -%}
+              <span class="sh-w" style="--i:{{ forloop.index0 }}"><span class="sh-w-in">{{ w | escape }}</span></span>{% unless forloop.last and s.heading_em == blank %} {% endunless %}
+            {%- endfor -%}
+            {%- if s.heading_em != blank -%}
+              <span class="sh-w" style="--i:{{ words.size }}"><span class="sh-w-in"><em>{{ s.heading_em | escape }}</em></span></span>
+            {%- endif -%}
+          </h2>
+        {%- endif -%}
+      </div>
+    {%- endif -%}
+
+    {%- comment -%} role="list" is load-bearing: the .sh reset sets list-style:none on
+        every ul, and Safari/VoiceOver drops list semantics — and the item count —
+        from an unstyled-marker list. {%- endcomment -%}
+    <ul class="sh-fgrid__grid" role="list">
+      {%- for block in section.blocks -%}
+        {%- comment -%} --i rides the <li> and is INHERITED by the icon, label and
+            description, so one declaration drives every ladder from a single
+            benefit index. {%- endcomment -%}
+        <li class="sh-fgrid__item" data-sh-fade="soft" style="--i:{{ forloop.index0 }}" {{ block.shopify_attributes }}>
+          <span class="sh-fgrid__icon">{% render 'sh-icon', name: block.settings.icon %}</span>
+          <h3 class="sh-fgrid__label">{{ block.settings.title }}</h3>
+          {%- if s.show_description and block.settings.description != blank -%}
+            <p class="sh-fgrid__text">{{ block.settings.description }}</p>
+          {%- endif -%}
+        </li>
+      {%- endfor -%}
+    </ul>
+
+  </div>
+</section>
+
+{%- if s.animate -%}
+  <script src="{{ 'sh-story-motion.js' | asset_url }}" defer></script>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "SH · Story — Proof",
+  "class": "index-section",
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "More Than a Soap" },
+
+    { "type": "header", "content": "Heading" },
+    { "type": "paragraph", "content": "Optional. Leave both blank for an eyebrow-only band — no empty heading is rendered." },
+    { "type": "text", "id": "heading", "label": "Heading" },
+    { "type": "text", "id": "heading_em", "label": "Heading — gold words" },
+
+    { "type": "header", "content": "Layout" },
+    { "type": "select", "id": "columns", "label": "Columns", "default": "6",
+      "info": "6 drops to 3 on tablet and 2 on phones.",
+      "options": [ { "value": "3", "label": "3" }, { "value": "6", "label": "6" } ] },
+    { "type": "checkbox", "id": "show_circle", "label": "Ring around each icon", "default": false },
+    { "type": "checkbox", "id": "show_description", "label": "Show descriptions", "default": true },
+
+    { "type": "header", "content": "Media" },
+    { "type": "image_picker", "id": "bg_image", "label": "Background image",
+      "info": "Optional. Rendered blurred behind a scrim. Without one the band is the flat colour below." },
+
+    { "type": "header", "content": "Appearance" },
+    { "type": "text", "id": "anchor_id", "label": "Anchor id",
+      "info": "Optional. Lets another section link straight to this band with #your-id. Must be unique on the page." },
+    { "type": "select", "id": "scheme", "label": "Colour scheme", "default": "dark",
+      "info": "Picks the text/rule/accent set. Set the surface with Background below.",
+      "options": [ { "value": "dark", "label": "Dark" }, { "value": "light", "label": "Light" } ] },
+    { "type": "color", "id": "bg", "label": "Background", "default": "#1b2411" },
+    { "type": "checkbox", "id": "animate", "label": "Animate on scroll", "default": true,
+      "info": "Turns off the heading reveal and the benefit stagger. The band still renders in full." }
+  ],
+  "blocks": [
+    { "type": "feature", "name": "Benefit", "settings": [
+      { "type": "select", "id": "icon", "label": "Icon", "default": "leaf", "options": [
+        { "value": "leaf", "label": "Leaf" }, { "value": "lotus", "label": "Lotus" },
+        { "value": "flower", "label": "Flower" }, { "value": "sprout", "label": "Sprout" },
+        { "value": "plant", "label": "Plant" }, { "value": "wheat", "label": "Wheat" },
+        { "value": "mortar", "label": "Mortar & pestle" }, { "value": "drop", "label": "Drop" },
+        { "value": "sun", "label": "Sun" }, { "value": "sparkle", "label": "Sparkle" },
+        { "value": "face-sparkle", "label": "Glowing skin" }, { "value": "meditate", "label": "Meditate" },
+        { "value": "hands-heart", "label": "Hands & heart" }, { "value": "hand", "label": "Hand" },
+        { "value": "heart", "label": "Heart" }, { "value": "heart-check", "label": "Heart with check" },
+        { "value": "search", "label": "Magnifier" }, { "value": "flask-line", "label": "Flask (fine)" },
+        { "value": "badge", "label": "Badge" }, { "value": "recycle", "label": "Recycle" },
+        { "value": "rabbit", "label": "Rabbit" } ] },
+      { "type": "text", "id": "title", "label": "Title", "default": "Handmade in Small Batches" },
+      { "type": "textarea", "id": "description", "label": "Description",
+        "default": "We use only pure, natural ingredients—free from toxins and harsh chemicals." }
+    ] }
+  ],
+  "max_blocks": 6
+}
+{% endschema %}
