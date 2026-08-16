@@ -1417,48 +1417,46 @@ a.sh-story__play:hover {
   font-family: var(--sh-serif) !important;
 }
 
-/* Split-line reveal. Each line is a mask; the span inside starts below the mask's
-   own bottom edge and slides up into place.
+/* One line per row. The mask itself is now the shared .sh-w / .sh-w-in pair in
+   shudhi-story.css §28, but this rule stays HERE because it is resting layout,
+   not motion: it is what stacks the two headline lines, and it must hold on a
+   page where §28 never loads.
 
-   The masks need vertical breathing room. .sh-serif sets line-height 1.06 —
-   TIGHTER than Cormorant's content area — so glyphs already overflow their line
-   box at both ends, and a bare overflow:hidden would shave the top of "R" and the
-   descender of the "y" in "Today.". .14em of padding restores it and an equal
-   negative margin hands the space straight back, so the two lines land exactly
-   where the <br> used to put them.
+   display:flex is also what makes the mask's negative margin safe. Adjacent
+   NEGATIVE margins collapse between block siblings — line 1's and line 2's would
+   resolve to one, and the second line would ride up by that amount — and flex
+   items never collapse margins. §28's padding/margin pair is exactly cancelling
+   ONLY while this holds. Do not change it to display:block.
 
-   display:flex on the h1 is what makes that pull-back safe: adjacent NEGATIVE
-   margins collapse between block siblings — line 1's -.14em and line 2's would
-   resolve to one -.14em and the second line would sit .14em high — and flex items
-   never collapse margins.
+   The wrappers inherit the serif: the TYPOGRAPHY DEFENCE block (:141) lists b,
+   strong, em, label, button, input, select and textarea, and <span> is not among
+   them — which is why the em rule above needs a font-family re-declaration and
+   these do not. */
+.sh-story-hero__title { display: flex; flex-direction: column; }
 
-   No font-family re-declaration here, unlike the em rule above. The TYPOGRAPHY
-   DEFENCE block (:141) lists b, strong, em, label, button, input, select and
-   textarea; <span> is NOT among them, so these wrappers inherit the serif. */
-.sh-story-hero__title   { display: flex; flex-direction: column; }
-.sh-story-hero__line    { overflow: hidden; padding-block: .14em; margin-block: -.14em; }
-.sh-story-hero__line-in { display: block; }
+/* The split-line REVEAL that used to live here has moved to shudhi-story.css §28
+   as the shared .sh-w / .sh-w-in mask, and sections/sh-story-hero.liquid no longer
+   emits [data-reveal] on the copy column. Three reasons it could not stay:
 
-/* Keyed off [data-reveal] on the COPY BLOCK, not a second one on the h1:
-     - `animate` is one merchant checkbox and it hangs off .sh-story-hero__copy.
-       Keyed here, unchecking it leaves the headline flat with no second Liquid
-       conditional to keep in sync.
-     - A [data-reveal] on the h1 would pick up `.sh [data-reveal]`'s own opacity:0
-       (:226) INSIDE a parent already fading from 0, and the two fades multiply —
-       the same double dip .sh-split__copy cancels at :1570.
-     - It adds no new way for the page to stay blank. These spans keep opacity 1
-       and are only ever TRANSLATED, so the single class the observer already
-       toggles governs both.
-   120%, not 100%: the mask is 1.06em of line box plus .14em of padding, and
-   overflow clips at the PADDING box, so the span has to clear that extra strip. */
-.sh-story-hero__copy[data-reveal] .sh-story-hero__line-in {
-  transform: translateY(120%);
-  transition: transform .9s cubic-bezier(.22, .61, .36, 1);
-}
-.sh-story-hero__copy[data-reveal].is-in .sh-story-hero__line-in { transform: none; }
-/* 120ms behind line one — the two read as one gesture. Sibling combinator rather
-   than :nth-child(2), so nothing changes if a third line is ever added. */
-.sh-story-hero__line + .sh-story-hero__line > .sh-story-hero__line-in { transition-delay: .12s; }
+     - It was fails-CLOSED. The pre-state hung off the bare [data-reveal]
+       attribute Liquid writes server-side, so if shudhi-home.js threw, 404'd or
+       was blocked, the headline stayed translated 120% out of its own mask —
+       permanently, on this page's LCP band. §28 puts every pre-state behind an
+       .is-armed that only ever appears alongside the observer that clears it.
+
+     - The sibling delay below it was UNQUALIFIED — `.sh-story-hero__line + …`,
+       (0,3,0) — so it out-specified anything the new sheet could write for the
+       same element without escalating, and it applied whether or not the band
+       was animating at all.
+
+     - The page now carries ONE mask geometry (§26's .18em / 110%) rather than
+       this one (.14em / 120%) and §26's. Two masks on one page is two things to
+       keep in step for no gain.
+
+   sections/sh-story-hero.liquid is the only file that ever used these rules, so
+   nothing else on the theme is affected. The structural half — .sh-story-hero__title
+   display:flex and the .14em padding on __line — is deliberately LEFT ABOVE: it is
+   resting layout, not motion, and removing it would move the headline. */
 
 /* Rule + flourish under the headline, mirroring the eyebrow's rule + leaf. */
 .sh-story-hero__rule { display: flex; align-items: center; gap: 12px; margin: 26px 0 24px; color: var(--sh-gold); }
@@ -2275,14 +2273,24 @@ a.sh-story__play:hover {
 .sh-flow__text  { font-size: .78rem; line-height: 1.6; color: var(--sh-story-body); }
 
 /* Left-to-right stagger. .sh [data-reveal] (:226) already owns the transition;
-   these add only the delay and land later at equal specificity (0,2,0). 80ms a
+   these add only the delay and land later at equal specificity (0,3,0). 80ms a
    step puts the last card at 400ms — under the ~450ms ceiling, past which the
-   row stops reading as one gesture and starts reading as six animations. */
-.sh-flow__step:nth-child(2) { transition-delay: .08s; }
-.sh-flow__step:nth-child(3) { transition-delay: .16s; }
-.sh-flow__step:nth-child(4) { transition-delay: .24s; }
-.sh-flow__step:nth-child(5) { transition-delay: .32s; }
-.sh-flow__step:nth-child(6) { transition-delay: .40s; }
+   row stops reading as one gesture and starts reading as six animations.
+
+   [data-reveal] IS LOAD-BEARING AND MUST NOT BE DROPPED. These were unqualified,
+   which was harmless only for as long as every .sh-flow__step on every template
+   carried the attribute. sections/sh-story-steps.liquid does not — it is on the
+   fails-open §28 contract and emits no [data-reveal] at all — and an unqualified
+   `transition-delay` applies to EVERY transition on the element, not just the
+   entrance. Card 6's hover border would have arrived 400ms after the pointer,
+   and cards 2-5 proportionally late, on a section whose entrance these rules no
+   longer even drive. Qualifying rather than deleting keeps the generic
+   sections/sh-ritual-steps.liquid, which still ships and still uses [data-reveal]. */
+.sh-flow__step[data-reveal]:nth-child(2) { transition-delay: .08s; }
+.sh-flow__step[data-reveal]:nth-child(3) { transition-delay: .16s; }
+.sh-flow__step[data-reveal]:nth-child(4) { transition-delay: .24s; }
+.sh-flow__step[data-reveal]:nth-child(5) { transition-delay: .32s; }
+.sh-flow__step[data-reveal]:nth-child(6) { transition-delay: .40s; }
 
 /* 989/599 rather than the house 1024/768 tiers, because the breaking point here
    is set by the cards, not the viewport: six of them stop holding a two-word

@@ -1,0 +1,147 @@
+{%- comment -%}
+  SHUDHI — Transform Your Daily Ritual (Our Story band 7)
+
+  A fork of sections/sh-ritual-steps.liquid. The generic section stays on disk,
+  keeps its [data-reveal] entrance, and still ships on other templates. This file
+  keeps the class .sh-flow, so the entire resting design — the card grid, the
+  hairline that passes behind the number badges, the --sh-flow-n arithmetic — is
+  shudhi-home.css §20 reused verbatim. .sh-flow--steps is the motion hook.
+
+  ---------------------------------------------------------------------------
+  TWO CONTRACTS, DELIBERATELY DIFFERENT
+  ---------------------------------------------------------------------------
+  (a) THE ENTRANCE is the house fails-open pattern: resting state is the finished
+      state, and .is-armed is only ever added by a script holding the observer
+      that clears it.
+
+  (b) THE SCRUB rests at its ZERO end, which is the one deliberate exception on
+      this page. That is safe ONLY because everything it drives is decoration with
+      no resting appearance: the gold thread and the six accent rings do not exist
+      in the reference at rest, so "not yet drawn" IS the reference.
+
+      THE MOMENT ANYONE ROUTES AN ICON, A LABEL, A NUMBER OR A DESCRIPTION
+      THROUGH --sh-k, THAT SAFETY IS GONE and this band becomes exactly the
+      blank-band failure the rest of the page was migrated away from. Under
+      reduced motion §28 forces --sh-k to 1, so a visitor who asked for less
+      motion still sees the finished gold progression rather than none of it.
+
+  ---------------------------------------------------------------------------
+  THE PAUSE
+  ---------------------------------------------------------------------------
+  Step four is slower than its neighbours, by ~320ms. It is keyed on
+  :nth-child(4) — position, not the word "Pause" — because the fourth beat of a
+  six-beat ritual is where the design puts the breath, and a merchant who
+  reorders the steps is reordering the ritual, not just the labels. No JS timer
+  is involved and nothing fights the scroll handler: it is one transition-duration.
+{%- endcomment -%}
+
+{{ 'shudhi-story.css' | asset_url | stylesheet_tag }}
+
+{%- assign s = section.settings -%}
+
+<section class="sh sh-flow sh-flow--steps"
+         {%- if s.animate %} data-sh-reveal{% endif %}
+         style="--sh-flow-bg:{{ s.bg }};--sh-flow-n:{{ section.blocks.size }};">
+  <div class="sh-wrap">
+    <div class="sh-flow__grid">
+
+      <div class="sh-flow__intro">
+        {%- if s.eyebrow != blank -%}
+          <div class="sh-eyebrow" data-sh-fade style="--i:0">{{ s.eyebrow }}</div>
+        {%- endif -%}
+        <h2 class="sh-flow__title sh-serif" data-sh-fade style="--i:1">{{ s.heading }}</h2>
+        {%- if s.button_label != blank -%}
+          <a class="sh-btn sh-btn--solid" href="{{ s.button_link | default: '/pages/the-ritual' }}"
+             data-sh-fade style="--i:2">
+            {{ s.button_label }} {% render 'sh-icon', name: 'arrow-right' %}
+          </a>
+        {%- endif -%}
+      </div>
+
+      {%- comment -%} Guarded: with no blocks the CSS would hit repeat(0, …) and the
+          connector inset — and the scrub's per-step arithmetic — would divide by
+          zero. {%- endcomment -%}
+      {%- if section.blocks.size > 0 -%}
+        {%- comment -%} data-sh-scrub marks the element whose travel through the
+            viewport drives --sh-k. It goes on the TRACK rather than the section so
+            the progression is measured against the row of cards, not against the
+            intro column beside them — on desktop those are very different heights. {%- endcomment -%}
+        <div class="sh-flow__track"{% if s.animate and s.scrub %} data-sh-scrub{% endif %}>
+          {%- comment -%} A sibling of the list, not a child — <ol> only admits <li>.
+              Decorative: the sequence is in the markup, this only draws it. The gold
+              fill is its ::after in shudhi-story.css, so the grey hairline underneath
+              is untouched and still renders when nothing is scrubbing. {%- endcomment -%}
+          <span class="sh-flow__line" aria-hidden="true"></span>
+
+          {%- comment -%} role="list" restores what the reset takes away: .sh ol is
+              list-style:none, which drops list semantics in Safari/VoiceOver — and
+              the ordering is the point of this section. {%- endcomment -%}
+          <ol class="sh-flow__steps" role="list">
+            {%- for block in section.blocks -%}
+              <li class="sh-flow__step" data-sh-fade style="--i:{{ forloop.index0 }}" {{ block.shopify_attributes }}>
+                {%- comment -%} The accent ring. pathLength="1" normalises the
+                    circumference so stroke-dashoffset can be driven straight from the
+                    scrub with no measurement.
+
+                    IT MUST STAY ABSOLUTELY POSITIONED (§28 does that). §20 makes
+                    .sh-flow__num a `display: grid; place-items: center` box holding one
+                    thing — the numeral. An in-flow <svg> would become a second grid
+                    item and stack the ring ABOVE the number instead of around it. Out
+                    of flow, the numeral is still the only grid item and the badge
+                    centres exactly as it always did. The numeral itself is never
+                    animated: the number is the one thing in this badge that carries
+                    meaning. {%- endcomment -%}
+                <span class="sh-flow__num" aria-hidden="true"><svg class="sh-flow__ring" viewBox="0 0 34 34" aria-hidden="true" focusable="false"><circle cx="17" cy="17" r="16.2" pathLength="1"/></svg>{{ forloop.index }}</span>
+                {% render 'sh-icon', name: block.settings.icon %}
+                <h3 class="sh-flow__label">{{ block.settings.label }}</h3>
+                <p class="sh-flow__text">{{ block.settings.description }}</p>
+              </li>
+            {%- endfor -%}
+          </ol>
+        </div>
+      {%- endif -%}
+
+    </div>
+  </div>
+</section>
+
+{%- if s.animate -%}
+  <script src="{{ 'sh-story-motion.js' | asset_url }}" defer></script>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "SH · Story — Steps",
+  "class": "index-section",
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Transform Your Daily Ritual" },
+    { "type": "text", "id": "heading", "label": "Heading", "default": "A simple ritual for body, mind & soul." },
+    { "type": "text", "id": "button_label", "label": "Button label", "default": "Explore the ritual" },
+    { "type": "url", "id": "button_link", "label": "Button link", "info": "Falls back to /pages/the-ritual when empty." },
+
+    { "type": "header", "content": "Motion" },
+    { "type": "checkbox", "id": "animate", "label": "Animate on scroll", "default": true,
+      "info": "Turns off the entrance and the gold thread together. The band still renders in full." },
+    { "type": "checkbox", "id": "scrub", "label": "Gold thread follows the scroll", "default": true,
+      "info": "Fills the connector and draws each number's ring as the band scrolls past. Always shown complete for anyone who has asked for reduced motion." },
+
+    { "type": "header", "content": "Appearance" },
+    { "type": "color", "id": "bg", "label": "Background", "default": "#e9e0cf",
+      "info": "Also fills the step cards and the number badges, which is what hides the connector line behind them. Keep it a solid, light tone." }
+  ],
+  "blocks": [
+    { "type": "step", "name": "Step", "settings": [
+      { "type": "paragraph", "content": "Steps are numbered automatically in the order they appear here. The fourth step is the ritual's pause and animates a little slower than its neighbours." },
+      { "type": "select", "id": "icon", "label": "Icon", "default": "drop", "options": [
+        { "value": "drop", "label": "Drop" }, { "value": "bubbles", "label": "Bubbles" },
+        { "value": "body", "label": "Body" }, { "value": "lotus", "label": "Lotus" },
+        { "value": "shower", "label": "Shower" }, { "value": "heart", "label": "Heart" },
+        { "value": "leaf", "label": "Leaf" }, { "value": "sparkle", "label": "Sparkle" },
+        { "value": "hand", "label": "Hand" } ] },
+      { "type": "text", "id": "label", "label": "Label", "default": "Wet" },
+      { "type": "textarea", "id": "description", "label": "Description", "default": "Wet your skin and the soap gently." }
+    ] }
+  ],
+  "max_blocks": 6
+}
+{% endschema %}
