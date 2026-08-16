@@ -1,0 +1,146 @@
+{%- comment -%}
+  SHUDHI — Handmade With Purpose (Our Story band 5)
+
+  A fork of sections/sh-feature-grid.liquid, sibling to sh-story-philosophy.liquid
+  and sh-story-proof.liquid. It keeps .sh-fgrid / --cols-6, so the whole resting
+  design is shudhi-home.css §19 reused verbatim; .sh-fgrid--hand is the motion hook.
+
+  THE BAND IS A HORIZONTAL RITUAL TIMELINE. Six icons arrive left to right, each
+  scaling up from .85, while the five hairlines between them draw downward. The
+  cadence is the page's shared 90ms, which puts the last icon at 450ms and the row
+  inside the ~450ms ceiling past which six items stop reading as one gesture and
+  start reading as six animations.
+
+  NO TRANSFORM ON .sh-fgrid__item, EVER. Its divider is an ::after positioned
+  ABSOLUTELY INSIDE it, so a transform on the item makes the item the divider's
+  containing block and the hairline rides along — compounding with its own scaleY.
+  The items therefore fade on opacity alone ([data-sh-fade="soft"]) and the motion
+  people actually see is on the icon, which is a child and safe to transform. The
+  brief's "explicitly no card scaling" and this constraint turn out to be one and
+  the same rule.
+
+  NO eyebrow leaf glyph and NO botanical watermark, both of which were designed.
+  Each would be a new element present at rest, and the resting page is the
+  reference. Motion may reveal this composition; it may not add to it.
+{%- endcomment -%}
+
+{{ 'shudhi-story.css' | asset_url | stylesheet_tag }}
+
+{%- assign s = section.settings -%}
+
+<section class="sh sh-fgrid sh-fgrid--hand sh-fgrid--cols-{{ s.columns }}{% if s.show_circle %} sh-fgrid--ring{% endif %}"
+         {%- if s.anchor_id != blank %} id="{{ s.anchor_id | handle }}"{% endif %}
+         {%- if s.animate %} data-sh-reveal{% endif %}
+         data-scheme="{{ s.scheme }}"
+         {%- if s.bg != blank %} style="--sh-fgrid-bg:{{ s.bg }};"{% endif %}>
+
+  {%- if s.bg_image != blank -%}
+    {%- assign bg_h = 2000 | divided_by: s.bg_image.aspect_ratio | round -%}
+    <img class="sh-fgrid__bg" src="{{ s.bg_image | image_url: width: 2000 }}" alt=""
+         width="2000" height="{{ bg_h }}" loading="lazy" decoding="async">
+    <div class="sh-fgrid__scrim"></div>
+  {%- endif -%}
+
+  <div class="sh-wrap">
+
+    {%- if s.eyebrow != blank or s.heading != blank or s.heading_em != blank -%}
+      <div class="sh-fgrid__head" data-sh-fade style="--i:0">
+        {%- comment -%} The eyebrow is promoted to <h2> exactly when there is no other
+            heading to take the job — this band is eyebrow-only by design, and a
+            <div> here would file its six items under the previous band's
+            heading (WCAG 1.3.1). Visually identical either way. {%- endcomment -%}
+        {%- if s.eyebrow != blank -%}
+          {%- if s.heading == blank and s.heading_em == blank -%}
+            <h2 class="sh-fgrid__eyebrow sh-eyebrow">{{ s.eyebrow }}</h2>
+          {%- else -%}
+            <div class="sh-fgrid__eyebrow sh-eyebrow">{{ s.eyebrow }}</div>
+          {%- endif -%}
+        {%- endif -%}
+        {%- if s.heading != blank or s.heading_em != blank -%}
+          <h2 class="sh-fgrid__title sh-serif">
+            {{- s.heading }}{% if s.heading_em != blank %} <em>{{ s.heading_em }}</em>{% endif -%}
+          </h2>
+        {%- endif -%}
+      </div>
+    {%- endif -%}
+
+    {%- comment -%} role="list" is load-bearing: the .sh reset sets list-style:none on
+        every ul, and Safari/VoiceOver drops list semantics — and the item count —
+        from an unstyled-marker list. {%- endcomment -%}
+    <ul class="sh-fgrid__grid" role="list">
+      {%- for block in section.blocks -%}
+        {%- comment -%} --i rides the <li> and is INHERITED by the icon, label and
+            description, so one declaration drives every ladder from a single
+            item index. {%- endcomment -%}
+        <li class="sh-fgrid__item" data-sh-fade="soft" style="--i:{{ forloop.index0 }}" {{ block.shopify_attributes }}>
+          <span class="sh-fgrid__icon">{% render 'sh-icon', name: block.settings.icon %}</span>
+          <h3 class="sh-fgrid__label">{{ block.settings.title }}</h3>
+          {%- if s.show_description and block.settings.description != blank -%}
+            <p class="sh-fgrid__text">{{ block.settings.description }}</p>
+          {%- endif -%}
+        </li>
+      {%- endfor -%}
+    </ul>
+
+  </div>
+</section>
+
+{%- if s.animate -%}
+  <script src="{{ 'sh-story-motion.js' | asset_url }}" defer></script>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "SH · Story — Handmade",
+  "class": "index-section",
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Handmade With Purpose" },
+
+    { "type": "header", "content": "Heading" },
+    { "type": "paragraph", "content": "Optional. Leave both blank for an eyebrow-only band — no empty heading is rendered." },
+    { "type": "text", "id": "heading", "label": "Heading" },
+    { "type": "text", "id": "heading_em", "label": "Heading — gold words" },
+
+    { "type": "header", "content": "Layout" },
+    { "type": "select", "id": "columns", "label": "Columns", "default": "6",
+      "info": "6 drops to 3 on tablet and 2 on phones. The timeline stagger follows whatever the row becomes.",
+      "options": [ { "value": "3", "label": "3" }, { "value": "6", "label": "6" } ] },
+    { "type": "checkbox", "id": "show_circle", "label": "Ring around each icon", "default": false },
+    { "type": "checkbox", "id": "show_description", "label": "Show descriptions", "default": false },
+
+    { "type": "header", "content": "Media" },
+    { "type": "image_picker", "id": "bg_image", "label": "Background image",
+      "info": "Optional. Rendered blurred behind a scrim. Without one the band is the flat colour below." },
+
+    { "type": "header", "content": "Appearance" },
+    { "type": "text", "id": "anchor_id", "label": "Anchor id",
+      "info": "Optional. Lets another section link straight to this band with #your-id. Must be unique on the page." },
+    { "type": "select", "id": "scheme", "label": "Colour scheme", "default": "light",
+      "info": "Picks the text/rule/accent set. Set the surface with Background below.",
+      "options": [ { "value": "dark", "label": "Dark" }, { "value": "light", "label": "Light" } ] },
+    { "type": "color", "id": "bg", "label": "Background", "default": "#e9e0cf" },
+    { "type": "checkbox", "id": "animate", "label": "Animate on scroll", "default": true,
+      "info": "Turns off the left-to-right timeline and the hairline draw. The band still renders in full." }
+  ],
+  "blocks": [
+    { "type": "feature", "name": "Item", "settings": [
+      { "type": "select", "id": "icon", "label": "Icon", "default": "leaf", "options": [
+        { "value": "leaf", "label": "Leaf" }, { "value": "lotus", "label": "Lotus" },
+        { "value": "flower", "label": "Flower" }, { "value": "sprout", "label": "Sprout" },
+        { "value": "plant", "label": "Plant" }, { "value": "wheat", "label": "Wheat" },
+        { "value": "mortar", "label": "Mortar & pestle" }, { "value": "drop", "label": "Drop" },
+        { "value": "sun", "label": "Sun" }, { "value": "sparkle", "label": "Sparkle" },
+        { "value": "face-sparkle", "label": "Glowing skin" }, { "value": "meditate", "label": "Meditate" },
+        { "value": "hands-heart", "label": "Hands & heart" }, { "value": "hand", "label": "Hand" },
+        { "value": "heart", "label": "Heart" }, { "value": "heart-check", "label": "Heart with check" },
+        { "value": "search", "label": "Magnifier" }, { "value": "flask-line", "label": "Flask (fine)" },
+        { "value": "badge", "label": "Badge" }, { "value": "recycle", "label": "Recycle" },
+        { "value": "rabbit", "label": "Rabbit" } ] },
+      { "type": "text", "id": "title", "label": "Title", "default": "Small-batch production" },
+      { "type": "textarea", "id": "description", "label": "Description",
+        "default": "We use only pure, natural ingredients—free from toxins and harsh chemicals." }
+    ] }
+  ],
+  "max_blocks": 6
+}
+{% endschema %}

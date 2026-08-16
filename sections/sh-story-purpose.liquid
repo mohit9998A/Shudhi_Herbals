@@ -1,0 +1,172 @@
+{%- comment -%}
+  SHUDHI — Why We Started (Our Story band 4)
+
+  The MIRROR of sections/sh-story-beginning.liquid, and deliberately identical to
+  it in every timing and every mechanism. Only three things differ: the class
+  modifier, the schema defaults (media_position right, and this band's copy), and
+  nothing else.
+
+  There is no parallel CSS block for the mirror and there must not be one. §18
+  already flips --sh-split-cols / --sh-split-media-col / --sh-split-feather from
+  [data-media-position="right"], and shudhi-story.css keys band 2 and band 4 with
+  ONE rule set on `[data-sh-reveal] .sh-split`. Both bands are therefore served by
+  the same declarations and cannot drift apart. Splitting the Liquid was for
+  ownership — so each band can be edited without touching the other — not so the
+  two could diverge visually.
+
+  The rest of this file's rationale is band 2's; the two are maintained together.
+
+  A fork of sections/sh-story-split.liquid, not a replacement for it. The generic
+  section stays on disk and stays on its old [data-reveal] entrance; this file
+  exists so band 2 and band 4 can carry the §28 motion contract without dragging
+  every other possible instance of a story split onto it.
+
+  IT KEEPS THE CLASS .sh-split. That is the whole point of forking rather than
+  rewriting: every line of the resting design — the grid, the feather, the
+  mirrored columns, the light-surface colour trio, the <=767px stack — is
+  shudhi-home.css §18 and is reused verbatim. .sh-split--purpose is a hook for
+  nothing today; it exists so a future band-2-only rule has somewhere to go
+  without reaching for an id.
+
+  WHAT CHANGED FROM THE GENERIC, AND WHY
+
+  1. [data-reveal] IS GONE from .sh-split__copy. It carried `opacity: 0` from
+     shudhi-home.css §4 via a bare attribute, so a thrown exception, a 404 or a
+     blocked script left a photograph with no words next to it. Every pre-state now
+     sits behind .is-armed, which assets/sh-story-motion.js only ever writes when
+     it already holds the observer that clears it.
+     The orphaned rules at §18 (.sh-split__copy[data-reveal] and its three
+     nth-child delays) are deliberately NOT deleted — sh-story-split.liquid still
+     ships and still emits the attribute. They simply never match on this page.
+
+  2. .sh-split__frame is new, and its `position: absolute; inset: 0` is
+     LOAD-BEARING rather than styling. shudhi-home.js:374 reads
+     `pxEls[i].parentNode.getBoundingClientRect()` to drive the scroll parallax,
+     and after this change that parent is the frame. Inset:0 inside the
+     position:relative media box makes it exactly congruent with the box the
+     parallax used to measure, so the effect is unchanged. Make it a plain in-flow
+     div and the photo's containing block silently reverts — the layout still
+     looks right while parallax measures a zero-height parent and skips the
+     element, which presents as "the parallax stopped working" with nothing in the
+     CSS to point at.
+
+  3. NO botanical motif, NO paper grain, NO light drift. All three were designed
+     and all three are cut: each would be a NEW element present in the resting
+     picture, and the brief's first rule is that the page at rest is the reference.
+     Motion may reveal this composition; it may not add to it.
+
+  4. NO pointer depth. The photo already carries 15px of scroll parallax, and a
+     second transform system on the same band buys ~3px nobody asked for.
+{%- endcomment -%}
+
+{{ 'shudhi-story.css' | asset_url | stylesheet_tag }}
+
+{%- assign s = section.settings -%}
+
+<section class="sh sh-split sh-split--purpose"
+         {%- if s.anchor_id != blank %} id="{{ s.anchor_id | handle }}"{% endif -%}
+         {%- if s.animate %} data-sh-reveal{% endif %}
+         data-media-position="{{ s.media_position }}"
+         style="--sh-split-bg:{{ s.bg }};--sh-split-h:{{ s.min_height }}px;--sh-lead:180ms;">
+
+  <div class="sh-split__grid">
+
+    <div class="sh-split__media">
+      {%- if s.image != blank -%}
+        {%- assign img_h = 1400 | divided_by: s.image.aspect_ratio | round -%}
+        {%- comment -%} The settle rides the frame; the parallax rides the photo. One
+            transform job per element, so neither can overwrite the other. {%- endcomment -%}
+        <div class="sh-split__frame">
+          <img class="sh-split__photo"{% if s.animate %} data-parallax{% endif %}
+               src="{{ s.image | image_url: width: 1400 }}"
+               alt="{{ s.image.alt | escape }}"
+               width="1400" height="{{ img_h }}"
+               loading="lazy" decoding="async">
+        </div>
+      {%- else -%}
+        {%- comment -%}
+          Final photography is not in yet. An empty <img> would render as a broken
+          image glyph and read as a bug in review; this block is tinted from the
+          band's own surface colour so the composition, the feathered seam and the
+          copy alignment can all be judged on a page that still looks finished.
+
+          No frame on this branch, and therefore no settle: scaling a flat tint by
+          2% is invisible, and wrapping it would put a transformed element in the
+          tree for no payoff. The settle ships as dead code until a photo lands —
+          judging it on the current build is a false negative.
+        {%- endcomment -%}
+        <div class="sh-split__photo sh-split__photo--blank" aria-hidden="true"></div>
+      {%- endif -%}
+    </div>
+
+    <div class="sh-split__copy">
+
+      {%- if s.eyebrow != blank -%}
+        <div class="sh-split__eyebrow sh-eyebrow" data-sh-fade style="--i:0">{{ s.eyebrow }}</div>
+      {%- endif -%}
+
+      <h2 class="sh-split__title sh-serif" data-sh-fade style="--i:1">
+        {{ s.heading }}{% if s.heading_em != blank %} <em>{{ s.heading_em }}</em>{% endif %}
+      </h2>
+
+      {%- if s.body != blank -%}
+        <p class="sh-split__text" data-sh-fade style="--i:2">{{ s.body }}</p>
+      {%- endif -%}
+
+      {%- comment -%} Both halves required. A label with no destination used to fall
+          back to href="#", and an empty fragment means "top of the document" — so a
+          reader who reached this band and pressed the link was thrown back to the
+          hero, losing their place with no announcement (WCAG 2.4.4). Hiding the
+          link is the honest failure mode; a dead one is not. {%- endcomment -%}
+      {%- if s.link_label != blank and s.link_url != blank -%}
+        <a class="sh-split__link sh-btn sh-btn--ghost" href="{{ s.link_url }}" data-sh-fade style="--i:3">
+          {{ s.link_label }} {% render 'sh-icon', name: 'arrow-right' %}
+        </a>
+      {%- endif -%}
+
+    </div>
+
+  </div>
+</section>
+
+{%- if s.animate -%}
+  <script src="{{ 'sh-story-motion.js' | asset_url }}" defer></script>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "SH · Story — Purpose",
+  "class": "index-section",
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Why We Started" },
+
+    { "type": "header", "content": "Headline" },
+    { "type": "paragraph", "content": "The heading is split in two: the plain part, then the tail shown in gold italic." },
+    { "type": "text", "id": "heading", "label": "Heading", "default": "More than cleansing. A daily act of" },
+    { "type": "text", "id": "heading_em", "label": "Heading — gold italic tail", "default": "self-care." },
+
+    { "type": "header", "content": "Copy" },
+    { "type": "textarea", "id": "body", "label": "Body text", "default": "Our journey began with time-honored herbal rituals passed down through four generations. Inspired by ancient wisdom and family practices, we create products that bring balance and well-being to modern lives." },
+    { "type": "text", "id": "link_label", "label": "Link label",
+      "info": "Set this and the URL below together — neither renders on its own." },
+    { "type": "url", "id": "link_url", "label": "Link URL",
+      "info": "The link stays hidden until this is set — a labelled link with no destination jumps the reader back to the top of the page." },
+
+    { "type": "header", "content": "Media" },
+    { "type": "image_picker", "id": "image", "label": "Image",
+      "info": "Full-bleed to the viewport edge on its side. A neutral tinted panel stands in until one is picked — the photo's entrance only runs once a real image is here." },
+    { "type": "select", "id": "media_position", "label": "Image side", "default": "right",
+      "info": "Below 768px the image is always shown first, whichever side is chosen.",
+      "options": [ { "value": "left", "label": "Left" }, { "value": "right", "label": "Right" } ] },
+    { "type": "range", "id": "min_height", "label": "Band height", "min": 380, "max": 760, "step": 20, "default": 520, "unit": "px" },
+
+    { "type": "header", "content": "Appearance" },
+    { "type": "text", "id": "anchor_id", "label": "Anchor id",
+      "info": "Optional. Lets another section link straight to this band with #your-id. Must be unique on the page." },
+    { "type": "checkbox", "id": "animate", "label": "Animate on scroll", "default": true,
+      "info": "Turns off the copy entrance and the photo's scroll drift together. The band still renders in full." },
+    { "type": "color", "id": "bg", "label": "Background", "default": "#f6ede1",
+      "info": "The panel colour, and the colour the photo's inner edge feathers into. Keep it light — the heading, body and link colours are tuned for a light surface." }
+  ]
+}
+{% endschema %}

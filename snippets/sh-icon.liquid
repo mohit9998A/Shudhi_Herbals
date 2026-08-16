@@ -19,6 +19,30 @@
 {%- assign stroke_w = sw | default: 1.4 -%}
 {%- capture cls -%}sh-icon sh-icon--{{ n }}{% if class %} {{ class }}{% endif %}{%- endcapture -%}
 <svg class="{{ cls }}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="{{ stroke_w }}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+{%- comment -%}
+  `draw` — opt-in, and OFF for every caller that does not ask. Captures the glyph
+  and stamps pathLength="1" onto each of its shapes, which normalises every path
+  to one unit of length so a caller can draw it on with
+  `stroke-dasharray: 1; stroke-dashoffset: 1 -> 0` and no JS measurement at all.
+  See shudhi-story.css §28's [data-sh-draw] primitive; sections/sh-story-philosophy.liquid
+  is the only caller today.
+
+  WHY THIS IS SAFE ACROSS ALL ~54 CALL SITES
+
+  1. `draw` is nil everywhere else, so the replace never runs and the captured
+     string is emitted exactly as the case block produced it — byte-identical
+     output, verified by diffing the rendered homepage before and after.
+  2. The three match strings each end in a SPACE, and the file contains only
+     `<path ` (99), `<circle ` (26) and `<rect ` (3) — no <line>, <polyline> or
+     <ellipse> exist here. Nothing else in the string can match.
+  3. Even a leaked `draw: true` is INERT. pathLength has no rendering effect
+     whatsoever unless a stroke-dasharray is in play, and the only dasharray rules
+     in the theme are scoped to .sh-ritual__connectors, .sh-mindful, .sh-lc__arc
+     and .sh-ritual__trace — none of which can reach an .sh-icon child.
+  4. The case block below is untouched. No bezier is ever hand-edited, so the
+     glyph library cannot drift from the drawable version of itself.
+{%- endcomment -%}
+{%- capture glyph -%}
 {%- case n -%}
 {%- comment -%} Brand mark: the seated figure — dot (purity), curve (balance), base (nature) {%- endcomment -%}
 {%- when 'shudhi-mark' -%}<circle cx="12" cy="4.4" r="1.7" fill="currentColor" stroke="none"/><path d="M12 8.6c-3.4 0-6.2 2.4-6.2 5.4 0 1 .4 1.9 1.1 2.6"/><path d="M12 8.6c3.4 0 6.2 2.4 6.2 5.4 0 1-.4 1.9-1.1 2.6"/><path d="M4.2 18.6c2.2-1.4 4.9-2.1 7.8-2.1s5.6.7 7.8 2.1"/>
@@ -99,4 +123,15 @@
 {%- when 'youtube' -%}<rect x="3" y="6" width="18" height="12" rx="3"/><path d="M10 9l5 3-5 3V9Z"/>
 {%- else -%}<circle cx="12" cy="12" r="8"/>
 {%- endcase -%}
+{%- endcapture -%}
+{%- if draw -%}
+  {%- assign glyph = glyph
+      | replace: '<path ',   '<path pathLength="1" '
+      | replace: '<circle ', '<circle pathLength="1" '
+      | replace: '<rect ',   '<rect pathLength="1" ' -%}
+{%- endif -%}
+{%- comment -%} `-}}` so the newline before </svg> is stripped, exactly as the old
+    `{%- endcase -%}` did. Without it every icon in the theme gains one whitespace
+    text node — invisible, but it means "byte-identical" stops being checkable. {%- endcomment -%}
+{{ glyph -}}
 </svg>
