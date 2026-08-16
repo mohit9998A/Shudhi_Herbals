@@ -1,0 +1,176 @@
+{%- comment -%}
+  SHUDHI — Core ingredients (The Ritual band 2)
+
+  The reference's ingredient diagram: the soap centred in a soft circular wash,
+  four ingredient callouts at the corners, and thin hand-drawn olive arrows
+  curving from each callout toward the centre.
+
+  CORNER PLACEMENT IS DOM ORDER, NOT A SETTING. Block 1 → top-left, 2 →
+  top-right, 3 → bottom-left, 4 → bottom-right. The alternative — a per-block
+  position select — is four more ways to configure two blocks into the same
+  corner; auto-placement makes that unrepresentable, the same call
+  sh-ritual-steps.liquid makes for its numbering.
+
+  THE ARROWS are one absolutely-positioned SVG overlay, four [data-sh-draw]
+  groups, each a single hand-authored path (curve, then two arrowhead strokes as
+  subpaths, so the head draws after the shaft). Every path carries a literal
+  pathLength="1" — hand-stamped here because sh-icon's draw: param only serves
+  library glyphs — and the draw-on, stagger and reduced-motion handling all come
+  from shudhi-story.css §28 item 5. Nothing in this section declares dash state,
+  so an unarmed arrow is simply a finished arrow. The overlay renders only with
+  exactly four blocks: with fewer, the diagram is not a diagram and an arrow
+  into an empty corner would be pointing at nothing.
+
+  THE CENTRE falls back from the merchant's image to a STILL soap plate
+  (animate:false, motion:false → data-plate-still, no data-plate-reveal): the
+  finished illustration with no script dependency at all — sh-soap-plate.js is
+  deliberately NOT loaded by this section. uid must differ per render site so
+  the plate's SVG gradient ids cannot collide with another plate on the page;
+  section.id does that for free.
+
+  Ingredient images fall back through two steps: uploaded image → a named file
+  in /assets (the generated dark ingredient photographs ship there) → a tinted
+  circle with a botanical glyph. Nothing renders broken with zero uploads.
+{%- endcomment -%}
+
+{{ 'shudhi-story.css' | asset_url | stylesheet_tag }}
+{{ 'shudhi-ritual.css' | asset_url | stylesheet_tag }}
+
+{%- assign s = section.settings -%}
+{%- assign corners = 'tl,tr,bl,br' | split: ',' -%}
+
+<section class="sh sh-rcore"
+         {%- if s.anchor_id != blank %} id="{{ s.anchor_id | handle }}"{% endif %}
+         {%- if s.animate %} data-sh-reveal{% endif %}
+         style="--sh-rcore-bg:{{ s.bg }};">
+
+  <div class="sh-wrap">
+
+    <header class="sh-rcore__head">
+      <h2 class="sh-rcore__title sh-serif" data-sh-fade style="--i:0">
+        {{- s.heading }}{% if s.heading_em != blank %} <em>{{ s.heading_em }}</em>{% endif -%}
+      </h2>
+      <div class="sh-rcore__rule" data-sh-line style="--i:1;--sh-line-sx:0;--sh-line-o:50% 50%" aria-hidden="true"></div>
+    </header>
+
+    <div class="sh-rcore__stage">
+
+      {%- if section.blocks.size == 4 -%}
+        {%- comment -%} preserveAspectRatio="none" stretches the curves with the
+            stage; vector-effect in shudhi-ritual.css keeps the stroke width
+            honest under that scale. Decorative, so hidden from the tree. The
+            groups carry their own --i:0..3 ladder on a 500ms lead (declared in
+            the CSS) — see the note there for why it is not a continuation of
+            the callouts' ladder. {%- endcomment -%}
+        <svg class="sh-rcore__arrows" viewBox="0 0 1000 560" preserveAspectRatio="none"
+             fill="none" stroke="currentColor" stroke-width="1.5"
+             stroke-linecap="round" stroke-linejoin="round"
+             aria-hidden="true" focusable="false">
+          <g data-sh-draw style="--i:0"><path pathLength="1" d="M 308 126 C 348 132 382 160 398 194 l -13 -6 m 13 6 l -4 -14"/></g>
+          <g data-sh-draw style="--i:1"><path pathLength="1" d="M 692 126 C 652 130 618 158 602 194 l 13 -6 m -13 6 l 4 -14"/></g>
+          <g data-sh-draw style="--i:2"><path pathLength="1" d="M 308 434 C 350 430 383 402 398 366 l -13 6 m 13 -6 l -4 14"/></g>
+          <g data-sh-draw style="--i:3"><path pathLength="1" d="M 692 434 C 650 428 617 400 602 366 l 13 6 m -13 -6 l 4 14"/></g>
+        </svg>
+      {%- endif -%}
+
+      {%- comment -%} role="list" is load-bearing: the .sh reset strips list
+          semantics — and the item count — in Safari/VoiceOver without it. {%- endcomment -%}
+      <ul class="sh-rcore__items" role="list">
+        {%- for block in section.blocks -%}
+          {%- assign b = block.settings -%}
+          <li class="sh-rcore__item sh-rcore__item--{{ corners[forloop.index0] }}"
+              data-sh-fade style="--i:{{ forloop.index0 | plus: 2 }}" {{ block.shopify_attributes }}>
+            <span class="sh-rcore__media">
+              {%- if b.image != blank -%}
+                <img src="{{ b.image | image_url: width: 360 }}"
+                     alt="{{ b.image.alt | default: b.title | escape }}"
+                     width="360" height="{{ 360 | divided_by: b.image.aspect_ratio | round }}"
+                     loading="lazy" decoding="async">
+              {%- elsif b.asset != blank -%}
+                <img src="{{ b.asset | asset_img_url: '360x' }}"
+                     alt="{{ b.title | escape }}"
+                     width="360" height="360"
+                     loading="lazy" decoding="async">
+              {%- else -%}
+                <span class="sh-rcore__glyph" aria-hidden="true">{% render 'sh-icon', name: b.icon %}</span>
+              {%- endif -%}
+            </span>
+            <h3 class="sh-rcore__name">{{ b.title }}</h3>
+            {%- if b.text != blank -%}<p class="sh-rcore__text">{{ b.text }}</p>{%- endif -%}
+          </li>
+        {%- endfor -%}
+      </ul>
+
+      <div class="sh-rcore__disc"{% if s.center_image == blank %} aria-hidden="true"{% endif %}>
+        {%- if s.center_image != blank -%}
+          <img class="sh-rcore__disc-img"
+               src="{{ s.center_image | image_url: width: 680 }}"
+               alt="{{ s.center_image.alt | escape }}"
+               width="680" height="{{ 680 | divided_by: s.center_image.aspect_ratio | round }}"
+               loading="lazy" decoding="async">
+        {%- else -%}
+          {% render 'sh-soap-plate', uid: section.id, animate: false, motion: false, cursor: false %}
+        {%- endif -%}
+      </div>
+
+    </div>
+
+  </div>
+</section>
+
+{%- if s.animate -%}
+  <script src="{{ 'sh-story-motion.js' | asset_url }}" defer></script>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "SH · Ritual — Ingredients",
+  "class": "index-section",
+  "settings": [
+    { "type": "header", "content": "Heading" },
+    { "type": "paragraph", "content": "The heading is split in two: the plain part, then the tail shown in gold italic." },
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Core" },
+    { "type": "text", "id": "heading_em", "label": "Heading — gold italic tail", "default": "Ingredients." },
+
+    { "type": "header", "content": "Centre" },
+    { "type": "image_picker", "id": "center_image", "label": "Centre image",
+      "info": "Optional. Shown in a circle at the centre of the diagram. Without one, the drawn soap still-life stands in — the band never renders empty." },
+
+    { "type": "header", "content": "Appearance" },
+    { "type": "text", "id": "anchor_id", "label": "Anchor id",
+      "info": "Optional. Lets another section link straight to this band with #your-id. Must be unique on the page. The hero's button targets \"core-ingredients\"." },
+    { "type": "checkbox", "id": "animate", "label": "Animate on scroll", "default": true,
+      "info": "Turns off the callout entrance and the arrow draw-on together. The band still renders in full, arrows included." },
+    { "type": "color", "id": "bg", "label": "Background", "default": "#f4f2eb",
+      "info": "Keep it light — the ink, gold and arrow colours on this band are tuned for a light surface." }
+  ],
+  "blocks": [
+    { "type": "ingredient", "name": "Ingredient", "settings": [
+      { "type": "paragraph", "content": "Corners fill in block order: 1 top-left, 2 top-right, 3 bottom-left, 4 bottom-right. The arrows only render once all four corners are filled." },
+      { "type": "image_picker", "id": "image", "label": "Image",
+        "info": "Shown in a circle. Without one, the fallback file below is used; without either, a botanical glyph stands in." },
+      { "type": "text", "id": "asset", "label": "Fallback image file (in Assets)",
+        "info": "Filename of an image already in the theme's Assets folder — the generated ingredient photographs ship there. Leave blank to show a glyph instead." },
+      { "type": "select", "id": "icon", "label": "Glyph (fallback)", "default": "leaf", "options": [
+        { "value": "leaf", "label": "Leaf" }, { "value": "sprout", "label": "Sprout" },
+        { "value": "drop", "label": "Drop" }, { "value": "flower", "label": "Flower" },
+        { "value": "wheat", "label": "Wheat" }, { "value": "plant", "label": "Plant" },
+        { "value": "lotus", "label": "Lotus" } ] },
+      { "type": "text", "id": "title", "label": "Title", "default": "Avocado Oil" },
+      { "type": "textarea", "id": "text", "label": "Description",
+        "default": "Nourishes the skin with antioxidants, leaving it soft, hydrated and supple." }
+    ] }
+  ],
+  "max_blocks": 4,
+  "presets": [ { "name": "SH · Ritual — Ingredients", "blocks": [
+    { "type": "ingredient", "settings": { "title": "Avocado Oil",   "icon": "sprout", "asset": "shudhi_avocado_dark_1786900795543.png",
+      "text": "Nourishes the skin with antioxidants, leaving it soft, hydrated and supple." } },
+    { "type": "ingredient", "settings": { "title": "Aloe Extract",  "icon": "plant",  "asset": "shudhi_aloe_dark_1786901348454.png",
+      "text": "Soothes irritation, restores the skin and shields it from everyday stress." } },
+    { "type": "ingredient", "settings": { "title": "Mint Extract",  "icon": "leaf",   "asset": "shudhi_mint_dark_1786900807961.png",
+      "text": "Refreshes and cools the skin while balancing its natural oils." } },
+    { "type": "ingredient", "settings": { "title": "Macadamia Oil", "icon": "wheat",  "asset": "",
+      "text": "Deeply hydrates, softens and helps prevent the first signs of ageing." } }
+  ] } ]
+}
+{% endschema %}
