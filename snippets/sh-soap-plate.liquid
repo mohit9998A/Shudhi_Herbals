@@ -42,9 +42,10 @@
      sh-soap-plate.js, an exception earlier in boot: all of them land here on a
      complete, visible illustration.
 
-     The sheen obeys this too. It is parked at x -280…-69, entirely clear of the
-     bar, so with no animation running there is no stray bright band sitting on
-     the soap.
+     The sheen obeys this too. Its geometry sits ON the face, but §25 rests it
+     at opacity 0 and the keyframe ramps opacity with position — so with no
+     animation running there is no stray bright band sitting on the soap, and
+     no oversized bbox parked off-frame either.
 
   4. FOUR NESTING LEVELS, ONE JOB EACH — because an element cannot hold two
      transforms and the second one silently wins:
@@ -62,7 +63,7 @@
      while on screen. Every soft edge here is a multi-stop alpha ramp inside a
      gradient instead: same look, composited, free. Adding a filter or a
      mix-blend-mode anywhere inside also defeats the single flattened layer the
-     ~118 elements currently collapse into. Do not add one.
+     ~150 elements currently collapse into. Do not add one.
 
   6. THE MOBILE CROP CONTRACT: keep every coordinate inside y ∈ [130, 820].
      preserveAspectRatio is `slice`, so the box is COVERED, not fitted. The worst
@@ -80,12 +81,13 @@
   ---------------------------------------------------------------------------
   LAYOUT — measured, not eyeballed. Numbers are viewBox units.
   ---------------------------------------------------------------------------
-    soap bar     x 154–596, y 430–604 (58% of frame width) — the hero
-    neem         x 546–652, y 311–466, tucked BEHIND the bar's top-right
-    herb sprig   x 152–236, y 268–436 — upper left, faintest thing in the frame
-    bud          x 314–354, y 240–366 — off-centre left, breaks the top void
-    droplet      x 646–674, y 486–528 — right edge, below the neem
-    tulsi        x 208–292, y 615–806 — FOREGROUND, crosses the bar's lower left
+    soap bar     x 190–562, y 351–670 (49% of frame width) — the hero, a
+                 squarish frontal block: front face 372×284, strip above
+    neem         x 496–618, y 257–412, tucked BEHIND the bar's top-right
+    herb sprig   x 152–236, y 268–436 — upper left, grazes behind the left edge
+    bud          x 316–356, y 216–342 — off-centre left, breaks the top void
+    droplet      x 646–674, y 486–528 — right edge, well clear of the bar
+    tulsi        x 204–292, y 633–806 — FOREGROUND, crosses the bar's lower left
     low herb     x 556–668, y 668–760 — foreground counterweight, bottom right
     seal (HTML)  x  11–114, y 752–855 — see (7)
 
@@ -93,16 +95,23 @@
   the copy column to the right is top-weighted, so the illustration's mass sits
   low and left of centre to balance it across the gutter rather than mirror it.
 
-  Element budget: ~118 elements including <defs>. That is roughly 4× the largest
-  SVG this theme otherwise ships. The nine neem leaflets are <use> references to
-  one <path> for exactly that reason — do not inline them. If this ever needs to
-  pass 200, it wants to be a raster instead.
+  Element budget: ~148 elements including <defs>. That is roughly 5× the largest
+  SVG this theme otherwise ships. The nine neem leaflets and fifteen herb flecks
+  are <use> references to one <path> each for exactly that reason — do not
+  inline them. If this ever needs to pass 200, it wants to be a raster instead.
 
-  Light: a single key from the upper left, everywhere, no exceptions. The top face
-  is brightest, the front face mid, the right end darkest because it is turned
-  away. The bevel highlight runs the back and left edges only. Background
-  botanicals are painted lighter and flatter than foreground ones — aerial
-  perspective, and it is what separates the depth layers when parallax is off.
+  Light: a single key from the upper left, everywhere, no exceptions. The shallow
+  top strip is brightest — it faces the key most directly; the dominant front
+  face is pillowed mid, carrying the interior -pool hotspot and the pressed die;
+  the darkest values are the -rim flanks at both silhouette edges (there is no
+  end face in the one-point view — thickness is the strip, the chamfer, the rim
+  and the ground shadow). No base gradient ever approaches the section cream,
+  and BOTH planes carry a -rim falloff dup, so the silhouette reads at every
+  edge — the wash-out the earlier passes kept half-fixing. The bevel highlight
+  runs the back and left edges only; the -cham strip is an interior rolled-edge
+  facet, not a silhouette stroke. Background botanicals are painted lighter and
+  flatter than foreground ones — aerial perspective, and it is what separates
+  the depth layers when parallax is off.
 {%- endcomment -%}
 
 {%- assign plate_uid = uid | default: 'plate' -%}
@@ -125,32 +134,87 @@
 
     <defs>
       {%- comment -%} ---- Soap material ---------------------------------- {%- endcomment -%}
-      {%- comment -%} The top face carries the key. Three stops, not two: the
-          middle one is what stops a 460-unit-wide face reading as flat vinyl. {%- endcomment -%}
-      <linearGradient id="{{ gid }}-top" x1="0.12" y1="0" x2="0.88" y2="1">
-        <stop offset="0"    stop-color="#f4e9d3"/>
-        <stop offset="0.46" stop-color="#e0cca6"/>
-        <stop offset="1"    stop-color="#c8ac80"/>
+      {%- comment -%} The top face is a shallow receding strip in the frontal
+          view, so two stops suffice. It is still the brightest plane — it faces
+          the key most directly — but its left tip gets a -rim dup below because
+          #ecd8b2 alone is only a few DeltaE from the section cream. {%- endcomment -%}
+      <linearGradient id="{{ gid }}-top" x1="0.1" y1="0" x2="0.9" y2="1">
+        <stop offset="0" stop-color="#ead5ae"/>
+        <stop offset="1" stop-color="#cbae80"/>
       </linearGradient>
 
-      <linearGradient id="{{ gid }}-front" x1="0.1" y1="0" x2="0.7" y2="1">
-        <stop offset="0"   stop-color="#cdb289"/>
-        <stop offset="1"   stop-color="#a08657"/>
+      {%- comment -%} Edge falloff, painted on duplicates of the front face AND
+          the top strip. A pillowed plane turns away from the key at its rims:
+          strongest at the far-left end (the edge that kept washing out into the
+          cream), a hint at the right. The middle two-thirds is untouched. The
+          left silhouette can now never read as background: #e6d2a9 under this
+          0.25 ramp lands near #cfb98e, a full value step off #f6ede1. {%- endcomment -%}
+      <linearGradient id="{{ gid }}-rim" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0"    stop-color="#8a6c3e" stop-opacity="0.28"/>
+        <stop offset="0.08" stop-color="#8a6c3e" stop-opacity="0.07"/>
+        <stop offset="0.18" stop-color="#8a6c3e" stop-opacity="0"/>
+        <stop offset="0.84" stop-color="#8a6c3e" stop-opacity="0"/>
+        <stop offset="1"    stop-color="#8a6c3e" stop-opacity="0.18"/>
       </linearGradient>
 
-      {%- comment -%} Turned furthest from the key, so it is the darkest plane in
-          the whole illustration. Everything else is lighter than this. {%- endcomment -%}
-      <linearGradient id="{{ gid }}-end" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0"   stop-color="#a68a58"/>
-        <stop offset="1"   stop-color="#896f46"/>
+      {%- comment -%} The key's pool on the pillowed front face — the interior
+          hotspot. Held 42 units off the face's left edge, so the light itself
+          can never re-wash the silhouette. Upper-left-of-centre, where the
+          single upper-left key says it must sit. {%- endcomment -%}
+      <radialGradient id="{{ gid }}-pool" cx="0.42" cy="0.40" r="0.75">
+        <stop offset="0"    stop-color="#fdf3dd" stop-opacity="0.30"/>
+        <stop offset="0.40" stop-color="#faefd8" stop-opacity="0.20"/>
+        <stop offset="0.72" stop-color="#f8ecd2" stop-opacity="0.07"/>
+        <stop offset="1"    stop-color="#f8ecd2" stop-opacity="0"/>
+      </radialGradient>
+
+      {%- comment -%} The rolled-edge catch: a thin bright lip where a face
+          rounds over into the next one. Vertical, light-to-nothing in a few
+          units. This is a facet INSIDE the silhouette — not the stroked bevel,
+          which stays on the back and left edges only. {%- endcomment -%}
+      <linearGradient id="{{ gid }}-cham" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#fbf0da" stop-opacity="0.55"/>
+        <stop offset="1" stop-color="#fbf0da" stop-opacity="0"/>
+      </linearGradient>
+
+      {%- comment -%} Front-face form, on a duplicate of the front path: core
+          shadow just under the rolled edge, clear middle, and a whisper of
+          bounce light at the bottom lip where the ground reflects back up.
+          The dark-to-light colour swap mid-gradient is deliberate — both ends
+          are transparent where they meet, so there is no seam. {%- endcomment -%}
+      <linearGradient id="{{ gid }}-fshade" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0"    stop-color="#6b532f" stop-opacity="0.20"/>
+        <stop offset="0.12" stop-color="#6b532f" stop-opacity="0.03"/>
+        <stop offset="0.45" stop-color="#6b532f" stop-opacity="0"/>
+        <stop offset="0.86" stop-color="#f9ecd2" stop-opacity="0"/>
+        <stop offset="1"    stop-color="#f9ecd2" stop-opacity="0.16"/>
+      </linearGradient>
+
+      {%- comment -%} Handmade unevenness: broad, barely-there tone drifts on
+          the top face. Three of these at ≤0.10 alpha is what separates "poured
+          by hand" from "extruded by machine". {%- endcomment -%}
+      <radialGradient id="{{ gid }}-blotch" cx="0.5" cy="0.5" r="0.5">
+        <stop offset="0"   stop-color="#a9895a" stop-opacity="0.10"/>
+        <stop offset="0.7" stop-color="#a9895a" stop-opacity="0.05"/>
+        <stop offset="1"   stop-color="#a9895a" stop-opacity="0"/>
+      </radialGradient>
+
+      {%- comment -%} The dominant plane in the frontal view, so it takes the
+          three-stop rule that used to belong to the top face: the middle stop
+          is what stops a 470-unit-wide plane reading as flat vinyl. Never
+          approaches the section cream — the silhouette guarantee. {%- endcomment -%}
+      <linearGradient id="{{ gid }}-front" x1="0.12" y1="0" x2="0.88" y2="1">
+        <stop offset="0"    stop-color="#e3cfa4"/>
+        <stop offset="0.46" stop-color="#d3bb90"/>
+        <stop offset="1"    stop-color="#b19268"/>
       </linearGradient>
 
       {%- comment -%} Ambient occlusion — the dark crease where the bar meets its
           own shadow. Tight and weak. This is the one that sells contact; the
           broad shadow below only sells distance. {%- endcomment -%}
       <radialGradient id="{{ gid }}-ao" cx="0.5" cy="0.5" r="0.5">
-        <stop offset="0"    stop-color="#6b5836" stop-opacity="0.32"/>
-        <stop offset="0.55" stop-color="#6b5836" stop-opacity="0.15"/>
+        <stop offset="0"    stop-color="#6b5836" stop-opacity="0.40"/>
+        <stop offset="0.55" stop-color="#6b5836" stop-opacity="0.18"/>
         <stop offset="1"    stop-color="#6b5836" stop-opacity="0"/>
       </radialGradient>
 
@@ -169,8 +233,8 @@
           the merchant sets `bg` to instead of floating as a lighter card on top
           of it. That one value is why the schema needs no colour setting. {%- endcomment -%}
       <radialGradient id="{{ gid }}-glow" cx="0.5" cy="0.5" r="0.5">
-        <stop offset="0"    stop-color="#fdf7ec" stop-opacity="0.9"/>
-        <stop offset="0.52" stop-color="#f5ead6" stop-opacity="0.45"/>
+        <stop offset="0"    stop-color="#fdf7ec" stop-opacity="0.72"/>
+        <stop offset="0.52" stop-color="#f5ead6" stop-opacity="0.34"/>
         <stop offset="1"    stop-color="#f6ede1" stop-opacity="0"/>
       </radialGradient>
 
@@ -216,12 +280,44 @@
         <path class="sh-plate__midrib" d="M2 -1 C18 -7 38 -13 54 -20"/>
       </g>
 
-      {%- comment -%} Clips the sheen to the top face. Byte-identical to the top
-          face path below — if one is edited the other must be too, or the light
-          runs off the edge of the solid. {%- endcomment -%}
-      <clipPath id="{{ gid }}-topclip">
-        <path d="M188 540 C300 534 460 536 596 540 C585 505 573 470 562 436
-                 C450 430 290 431 154 436 C165 470 177 505 188 540 Z"/>
+      {%- comment -%} One herbal fleck — a tiny irregular sliver of ground herb,
+          drawn once, scattered fifteen times over the front face in two tones.
+          Same <use> economy as the leaflet. No paint here: fill arrives from
+          the referencing group, exactly like the leaflet. {%- endcomment -%}
+      <path id="{{ gid }}-fleck" d="M0 0 C1.6 -1.2 3.9 -1 5.2 0.2 C3.8 1.5 1.3 1.4 0 0 Z"/>
+
+      {%- comment -%} The Shudhi Herbals brandmark — the meditating figure from
+          the master logo (head dot, shoulder crescent, crossed-leg loops) —
+          redrawn as vector in a local ~200x120 box centred on the loops' cross.
+          Pressed into the bar three times below with the same offsets as the
+          wordmark, so mark and letters read as one die.
+
+          Paint is split by intent: the dot and crescent are FILLS and carry
+          stroke="none" so the engraving colour arrives via fill on each <use>;
+          the leg line is a STROKE and carries fill="none" so the same <use>'s
+          fill cannot flood the loops closed. Both attributes on every child are
+          load-bearing — a <use>'s presentation attributes inherit into the
+          shadow tree and would otherwise apply to all three. {%- endcomment -%}
+      <g id="{{ gid }}-brandmark">
+        <circle cx="0" cy="-46" r="13.5" stroke="none"/>
+        <path stroke="none"
+              d="M -52 -14 C -22 6 22 6 52 -16 C 24 -4 -24 -4 -52 -14 Z"/>
+        <path fill="none" stroke-width="7" stroke-linecap="round"
+              d="M 2 34 C 16 46 38 56 60 56 C 84 56 101 44 97 30
+                 C 92 14 66 6 38 12 C 20 16 8 26 0 32
+                 C -8 26 -20 16 -38 12 C -66 6 -92 14 -97 30
+                 C -101 44 -84 56 -60 56 C -38 56 -16 46 -2 34"/>
+      </g>
+
+      {%- comment -%} Clips the sheen AND the surface-matter group to the front
+          face. Byte-identical to the front face path below — if one is edited
+          the other must be too, or the light runs off the edge of the solid. {%- endcomment -%}
+      <clipPath id="{{ gid }}-faceclip">
+        <path d="M198 392 C310 386 442 386 552 392
+                 C557 393 560 397 560 404 C562 480 562 556 558 634
+                 C557 650 547 662 528 664 C428 670 320 670 224 664
+                 C206 663 196 651 195 634 C190 556 190 478 194 404
+                 C194 397 195 393 198 392 Z"/>
       </clipPath>
     </defs>
 
@@ -235,9 +331,9 @@
           <ellipse cx="378" cy="512" rx="372" ry="312" fill="url(#{{ gid }}-glow)"/>
           {%- comment -%} Unrotated, unlike the bar above it. A shadow lies on the
               ground plane; tilting it with the object is the classic tell. Sits
-              just under the bar's lowest edge at y≈604. {%- endcomment -%}
-          <ellipse cx="365" cy="638" rx="288" ry="40" fill="url(#{{ gid }}-shadow)"/>
-          <ellipse cx="368" cy="626" rx="212" ry="22" fill="url(#{{ gid }}-ao)"/>
+              just under the bar's lowest edge at y≈676 (post-rotation). {%- endcomment -%}
+          <ellipse cx="370" cy="686" rx="245" ry="42" fill="url(#{{ gid }}-shadow)"/>
+          <ellipse cx="372" cy="675" rx="180" ry="18" fill="url(#{{ gid }}-ao)"/>
         </g>
       </g>
 
@@ -275,7 +371,7 @@
               rule (4). Putting it on .sh-plate__leaf-b would work until the
               keyframe in §25 overwrote it and the whole sprig jumped back to its
               authored coordinates. {%- endcomment -%}
-          <g transform="translate(-10 150)">
+          <g transform="translate(-60 96)">
             <g class="sh-plate__leaf-b" style="--sh-plate-o:556px 306px; --sh-plate-d:-4s;">
               <path class="sh-plate__stem sh-plate__stem--far"
                     d="M556 306 C588 268 618 218 646 170"/>
@@ -304,78 +400,185 @@
         <g class="sh-plate__layer">
           <g class="sh-plate__float">
             {%- comment -%} One rotation for the whole solid, about the bar's own
-                centre (375,517). An oblique projection with depth vector
-                (-34,-104): back is up and slightly LEFT, so the RIGHT end is the
-                one we see. Faces are painted far-to-near — end, front, top — so
-                seams never need a stroke to hide a gap.
+                centre (375,517). This is a ONE-POINT frontal view now, not an
+                oblique: the back edge of the top strip is inset on BOTH sides
+                (left +18, right -4), so the strip is a symmetric-ish trapezoid
+                and no end of it can overhang the front face. The overhang was
+                the bug the last two views shared: an oblique's receding vector
+                pushes the back edge sideways, and on the side away from the
+                visible end face the top juts out over nothing — a notch that
+                read as an open carton flap ("positioning is corrupted"). With
+                both back corners inside the front corners, the silhouette is
+                convex everywhere and there is no end face at all: thickness is
+                carried by the strip, the rolled-edge chamfer, the rim falloff
+                and the ground shadow. Faces are painted far-to-near — strip,
+                then front — so the seam never needs a stroke.
 
-                The lean is 18° off vertical, not the 32° this started at. At 32°
-                the top face overhung the front face by 52 units and the
-                silhouette turned a hard corner at the front-left, which read as a
-                notch in the solid — the bar looked like a doorstop. Depth also
-                went from 82 units to 104: at 442 units for a 90mm bar the scale
-                is 4.9 u/mm, so a 60mm depth seen from ~35° above wants roughly
-                this, and the shallower version read as a tile. {%- endcomment -%}
-            <g transform="rotate(-6.5 375 517)">
+                The block is squarish on purpose: front face 372×284 (1.3:1), a
+                hand-cut artisan bar rather than the 3.5:1 plank the last pass
+                shipped. The lean eases to -4° so the big slab does not loom. {%- endcomment -%}
+            <g transform="rotate(-4 375 517)">
 
-              <path fill="url(#{{ gid }}-end)"
-                    d="M596 540 C585 505 573 470 562 436 L562 492
-                       C570 522 582 552 596 578 Z"/>
+              {%- comment -%} The strip's outer boundary is the only part that
+                  shows: its slants land exactly ON the face's silhouette at
+                  (192,402)/(559,402) and its back corners are rounded, so the
+                  union outline is one continuous convex curve — no ears, no
+                  lid. The fold-line side bows BELOW the face's top edge and is
+                  entirely painted over by the face. {%- endcomment -%}
+              <path fill="url(#{{ gid }}-top)"
+                    d="M192 402 C310 390 440 390 559 402
+                       C557 386 552 372 549 364
+                       C547 357 542 354 536 354
+                       C434 350 326 350 228 354
+                       C222 354 217 358 214 364
+                       C209 373 202 385 192 402 Z"/>
+
+              {%- comment -%} Rim dup for the strip: its left and right tips are
+                  the last slivers of silhouette that could wash into the cream. {%- endcomment -%}
+              <path fill="url(#{{ gid }}-rim)"
+                    d="M192 402 C310 390 440 390 559 402
+                       C557 386 552 372 549 364
+                       C547 357 542 354 536 354
+                       C434 350 326 350 228 354
+                       C222 354 217 358 214 364
+                       C209 373 202 385 192 402 Z"/>
 
               <path fill="url(#{{ gid }}-front)"
-                    d="M188 540 C300 534 460 536 596 540 L596 578
-                       C596 590 587 598 573 599 C450 604 300 603 208 599
-                       C194 598 186 590 186 578 Z"/>
+                    d="M198 392 C310 386 442 386 552 392
+                       C557 393 560 397 560 404 C562 480 562 556 558 634
+                       C557 650 547 662 528 664 C428 670 320 670 224 664
+                       C206 663 196 651 195 634 C190 556 190 478 194 404
+                       C194 397 195 393 198 392 Z"/>
 
-              <path fill="url(#{{ gid }}-top)"
-                    d="M188 540 C300 534 460 536 596 540 C585 505 573 470 562 436
-                       C450 430 290 431 154 436 C165 470 177 505 188 540 Z"/>
+              {%- comment -%} Rim falloff on the same geometry — the front face's
+                  share of the edge guarantee: both silhouette flanks stay soap,
+                  never cream. {%- endcomment -%}
+              <path fill="url(#{{ gid }}-rim)"
+                    d="M198 392 C310 386 442 386 552 392
+                       C557 393 560 397 560 404 C562 480 562 556 558 634
+                       C557 650 547 662 528 664 C428 670 320 670 224 664
+                       C206 663 196 651 195 634 C190 556 190 478 194 404
+                       C194 397 195 393 198 392 Z"/>
+
+              {%- comment -%} Surface matter, clipped to the front face: tone
+                  drifts, then the key's pool, then the herb flecks — pigment
+                  under light under matter. All static; the animated sheen keeps
+                  its own clipped group below. Flecks avoid the die's footprint
+                  (x 260-490, y 444-610) so the letters stay clean. The pool is
+                  held 60 units off the left edge — light never re-washes the
+                  silhouette. {%- endcomment -%}
+              <g clip-path="url(#{{ gid }}-faceclip)">
+                <ellipse cx="255" cy="580" rx="65" ry="34" fill="url(#{{ gid }}-blotch)"/>
+                <ellipse cx="430" cy="470" rx="80" ry="44" fill="url(#{{ gid }}-blotch)"
+                         transform="rotate(-5 430 470)"/>
+                <ellipse cx="500" cy="600" rx="45" ry="26" fill="url(#{{ gid }}-blotch)"/>
+
+                <ellipse cx="340" cy="500" rx="130" ry="90" fill="url(#{{ gid }}-pool)"/>
+
+                <g fill="#7a5c2c">
+                  <use href="#{{ gid }}-fleck" transform="translate(215 430) rotate(15)   scale(1.15)" fill-opacity="0.22"/>
+                  <use href="#{{ gid }}-fleck" transform="translate(208 520) rotate(-52)  scale(0.85)" fill-opacity="0.18"/>
+                  <use href="#{{ gid }}-fleck" transform="translate(230 625) rotate(78)   scale(1.0)"  fill-opacity="0.24"/>
+                  <use href="#{{ gid }}-fleck" transform="translate(300 415) rotate(-18)  scale(0.85)" fill-opacity="0.16"/>
+                  <use href="#{{ gid }}-fleck" transform="translate(350 640) rotate(40)   scale(1.2)"  fill-opacity="0.22"/>
+                  <use href="#{{ gid }}-fleck" transform="translate(445 635) rotate(-65)  scale(0.9)"  fill-opacity="0.18"/>
+                  <use href="#{{ gid }}-fleck" transform="translate(505 425) rotate(22)   scale(1.0)"  fill-opacity="0.20"/>
+                  <use href="#{{ gid }}-fleck" transform="translate(525 540) rotate(-35)  scale(1.25)" fill-opacity="0.24"/>
+                  <use href="#{{ gid }}-fleck" transform="translate(515 615) rotate(60)   scale(0.95)" fill-opacity="0.20"/>
+                  <use href="#{{ gid }}-fleck" transform="translate(540 480) rotate(-10)  scale(0.8)"  fill-opacity="0.16"/>
+                </g>
+                <g fill="#fff6e0">
+                  <use href="#{{ gid }}-fleck" transform="translate(235 575) rotate(120)  scale(0.9)"  fill-opacity="0.25"/>
+                  <use href="#{{ gid }}-fleck" transform="translate(270 420) rotate(-80)  scale(0.75)" fill-opacity="0.22"/>
+                  <use href="#{{ gid }}-fleck" transform="translate(475 645) rotate(10)   scale(1.0)"  fill-opacity="0.25"/>
+                  <use href="#{{ gid }}-fleck" transform="translate(530 585) rotate(-120) scale(0.85)" fill-opacity="0.22"/>
+                  <use href="#{{ gid }}-fleck" transform="translate(545 455) rotate(95)   scale(0.7)"  fill-opacity="0.20"/>
+                </g>
+              </g>
+
+              {%- comment -%} Form on the front face: core shadow under the lip,
+                  bounce light at the base. Same geometry as the face itself,
+                  painted over the matter so the shadow sits on everything. {%- endcomment -%}
+              <path fill="url(#{{ gid }}-fshade)"
+                    d="M198 392 C310 386 442 386 552 392
+                       C557 393 560 397 560 404 C562 480 562 556 558 634
+                       C557 650 547 662 528 664 C428 670 320 670 224 664
+                       C206 663 196 651 195 634 C190 556 190 478 194 404
+                       C194 397 195 393 198 392 Z"/>
 
               {%- comment -%} Bevel. Back and left edges ONLY — they are the two
                   turned toward the key. Running it the whole way round is what
-                  makes a soap bar look like a sticker. {%- endcomment -%}
+                  makes a soap bar look like a sticker. The chamfer strip below
+                  is not an exception to that rule: it is an interior facet
+                  fading INTO the front face, not a stroke on the silhouette. {%- endcomment -%}
               <path class="sh-plate__bevel"
-                    d="M188 540 C177 505 165 470 154 436 C290 431 450 430 562 436"/>
+                    d="M197 392 C206 378 213 367 216 361 C220 355 226 353 233 353
+                       C330 350 430 350 532 353 C539 354 544 357 547 362"/>
 
-              {%- comment -%} The pressed wordmark. Read the matrix rather than
-                  guessing at it: (1.42, 0) keeps x along the horizontal front
-                  edge at the bar's scale, and (0.628, 0.9585) lays y down the
-                  receding depth axis with its foreshortening already baked in.
+              {%- comment -%} The rolled edge between the strip and the front
+                  face: a bright catch line a few units tall, then straight into
+                  -fshade's core shadow beneath it. That bright-then-dark pair is
+                  the single strongest "this face turns" cue in the render. {%- endcomment -%}
+              <path fill="url(#{{ gid }}-cham)"
+                    d="M202 396 C320 385 430 385 550 396
+                       C430 391 320 391 202 396 Z"/>
+
+              {%- comment -%} The die, on the front face now that the face fronts
+                  the camera. An oblique projection leaves the frontal plane
+                  undistorted, so the only shear left is d=0.98 — the whisper of
+                  vertical squeeze the 8° camera reads onto it. An x-skew here
+                  would fight the dead-vertical right edge a few paths up.
 
                   Debossed, not embossed: soap branding is pressed IN, so with a
                   key from the upper left the shadow falls on the near-upper wall
                   and the highlight on the far-lower one. Inverting that pair is
-                  the difference between "stamped" and "stuck on".
+                  the difference between "stamped" and "stuck on". Offsets are
+                  ±2, scaled up with the die from v2's ±1.5.
+
+                  Brandmark: both fill AND stroke are set on each <use> — the
+                  dot and crescent take the fill, the leg line takes the stroke;
+                  the defs lock each child to exactly one of the two.
 
                   textLength is identical on all three copies and pinned with
                   lengthAdjust, so Cormorant arriving late re-cuts the glyphs
                   without ever letting the mark grow past the bar. Measured: the
-                  mark occupies about 65% of the top face's width. {%- endcomment -%}
+                  wordmark occupies 59% of the front face's 372-unit width. {%- endcomment -%}
               <g class="sh-plate__mark">
-                <text transform="matrix(1.42 0 0.311 0.951 373.6 486.4)" text-anchor="middle"
-                      textLength="188" lengthAdjust="spacingAndGlyphs"
+                <use href="#{{ gid }}-brandmark"
+                     transform="translate(-2 -2.2) matrix(1 0 0 0.98 375 486) scale(0.62)"
+                     fill="#8a6a2c" stroke="#8a6a2c" opacity="0.50"/>
+                <use href="#{{ gid }}-brandmark"
+                     transform="translate(2 2.3) matrix(1 0 0 0.98 375 486) scale(0.62)"
+                     fill="#f7ecd5" stroke="#f7ecd5" opacity="0.55"/>
+                <use href="#{{ gid }}-brandmark"
+                     transform="matrix(1 0 0 0.98 375 486) scale(0.62)"
+                     fill="#b09468" stroke="#b09468" opacity="0.78"/>
+
+                <text transform="matrix(1 0 0 0.98 373 597.8)" text-anchor="middle"
+                      textLength="220" lengthAdjust="spacingAndGlyphs"
                       fill="#8a6a2c" fill-opacity="0.50">SHUDHI</text>
-                <text transform="matrix(1.42 0 0.311 0.951 376.4 489.8)" text-anchor="middle"
-                      textLength="188" lengthAdjust="spacingAndGlyphs"
+                <text transform="matrix(1 0 0 0.98 377 602.3)" text-anchor="middle"
+                      textLength="220" lengthAdjust="spacingAndGlyphs"
                       fill="#f7ecd5" fill-opacity="0.55">SHUDHI</text>
-                <text transform="matrix(1.42 0 0.311 0.951 375 488)" text-anchor="middle"
-                      textLength="188" lengthAdjust="spacingAndGlyphs"
+                <text transform="matrix(1 0 0 0.98 375 600)" text-anchor="middle"
+                      textLength="220" lengthAdjust="spacingAndGlyphs"
                       fill="#b09468" fill-opacity="0.75">SHUDHI</text>
               </g>
 
-              {%- comment -%} A single bead left on the face. One, not a scatter:
+              {%- comment -%} A single bead left on the bar. One, not a scatter:
                   it says the bar has been used, which is the whole difference
                   between a still life and a packshot.
 
-                  Set back at x 544–568, in the empty quarter between the mark's
-                  right edge (513) and the face's (596). It was at 483 and
-                  overlapped the mark by 30 units, which made it read as a full
-                  stop after "SHUDHI" rather than as water. {%- endcomment -%}
+                  It lives on the TOP STRIP at (470,370), right of centre and
+                  clear of the die below. ry 4, not the strip's foreshortening —
+                  that ratio flattens a mark lying IN the plane, but a bead is a
+                  dome standing ON it. Outside the -faceclip, so the sheen never
+                  sweeps across it. {%- endcomment -%}
               <g class="sh-plate__bead">
-                <ellipse cx="556" cy="456" rx="12.1" ry="8.5"
-                         fill="url(#{{ gid }}-drop)" transform="rotate(-18 556 456)"/>
-                <ellipse cx="552.6" cy="452.8" rx="3.6" ry="2.1"
-                         fill="#ffffff" fill-opacity="0.75" transform="rotate(-18 553 453)"/>
+                <ellipse cx="470" cy="370" rx="10" ry="4"
+                         fill="url(#{{ gid }}-drop)" transform="rotate(-3 470 370)"/>
+                <ellipse cx="467.5" cy="368.6" rx="2.9" ry="1.3"
+                         fill="#ffffff" fill-opacity="0.75" transform="rotate(-3 467 368)"/>
               </g>
 
               {%- comment -%} A parallelogram, not a skewed <rect>. skewX shears
@@ -383,10 +586,10 @@
                   translated hundreds of units sideways as a side effect and blew
                   the soap group's bbox out to 1090 units — which is the box a
                   promoted compositor layer gets sized to. The lean is baked into
-                  the path instead: 210 units of height against 34/104 of run,
-                  matching the depth vector.
+                  the path instead: 310 units of height against 36 of run — a
+                  gentle lean matching the one-point view's near-vertical sides.
 
-                  The geometry sits ON the face (x 154–343), not parked off to the
+                  The geometry sits ON the face (x 190–346), not parked off to the
                   left, so getBBox stays inside the bar and the promoted layer
                   stays small. Authoring it off-frame instead cost 270 units of
                   empty bbox for nothing.
@@ -398,9 +601,9 @@
                   soap, because there is no opacity. Nothing is hidden that a
                   reader needed; the sheen is the one purely decorative mark in
                   the piece. {%- endcomment -%}
-              <g clip-path="url(#{{ gid }}-topclip)">
+              <g clip-path="url(#{{ gid }}-faceclip)">
                 <path class="sh-plate__sheen" fill="url(#{{ gid }}-sheen)"
-                      d="M154 410 L274 410 L343 620 L223 620 Z"/>
+                      d="M190 380 L310 380 L346 690 L226 690 Z"/>
               </g>
 
             </g>
@@ -416,6 +619,7 @@
               the frame's one genuinely dead region — the void above the bar and
               between the bare stem and the neem. Off-centre because dead centre
               would split the top of the composition in half. {%- endcomment -%}
+          <g transform="translate(2 -24)">
           <g class="sh-plate__leaf-b" style="--sh-plate-o:330px 366px; --sh-plate-d:-9s;">
             <path class="sh-plate__stem" d="M330 366 C333 344 336 322 334 300"/>
             {%- comment -%} A closed bud: two overlapping sepals with a lighter
@@ -431,6 +635,7 @@
                  transform="translate(332 330) rotate(-152) scale(0.66)"/>
             <use href="#{{ gid }}-leaflet" fill="url(#{{ gid }}-leaf-a)"
                  transform="translate(333 344) rotate(-24) scale(0.6)"/>
+          </g>
           </g>
 
           {%- comment -%} A free droplet catching the key, mid-air, right of the
@@ -462,19 +667,20 @@
               the only reason the seal reads as a signature on the composition
               rather than a sticker over it. Moving the tulsi left closes it.
 
-              The topmost leaf deliberately crosses the bar's lower-left corner at
-              (193,602). Foreground overlapping the hero is what makes the depth
-              read at all when parallax is off — which is most of the time, on
-              touch and under reduced motion. It clears the wordmark by ~120
-              units.
+              The topmost leaf deliberately crosses the bar's bottom-left edge,
+              its tip landing near (251,635) — inside the face by ~30 units.
+              Foreground overlapping the hero is what makes the depth read at
+              all when parallax is off — which is most of the time, on touch
+              and under reduced motion. It clears the die's bottom by ~25
+              units — re-measure if either moves.
 
               The three loops are -a, -b, -a with co-prime periods and unrelated
               negative delays: a matched pair breathing in sync reads mechanical. {%- endcomment -%}
           <g fill="url(#{{ gid }}-leaf-a)">
-            <path class="sh-plate__stem" d="M274 806 C256 760 240 704 232 648"/>
+            <path class="sh-plate__stem" d="M274 806 C258 768 234 724 216 684"/>
 
-            <g class="sh-plate__leaf-a" style="--sh-plate-o:232px 648px; --sh-plate-d:-2s;">
-              <use href="#{{ gid }}-tulsi" transform="translate(232 648) rotate(-34) scale(1.05)"/>
+            <g class="sh-plate__leaf-a" style="--sh-plate-o:216px 684px; --sh-plate-d:-2s;">
+              <use href="#{{ gid }}-tulsi" transform="translate(216 684) rotate(-34) scale(1.05)"/>
             </g>
             <g class="sh-plate__leaf-b" style="--sh-plate-o:256px 716px; --sh-plate-d:-7.5s;">
               <use href="#{{ gid }}-tulsi" transform="translate(256 716) rotate(158) scale(0.92)"/>

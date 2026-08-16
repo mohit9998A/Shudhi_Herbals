@@ -36,12 +36,13 @@
           {%- endif -%}
         {%- endform -%}
 
-        {%- if s.instagram != blank or s.facebook != blank or s.pinterest != blank or s.youtube != blank -%}
+        {%- if s.instagram != blank or s.facebook != blank or s.pinterest != blank or s.youtube != blank or s.email != blank -%}
           <div class="sh-social">
             {%- if s.instagram != blank -%}<a href="{{ s.instagram }}" aria-label="Instagram" rel="noopener" target="_blank">{% render 'sh-icon', name: 'instagram' %}</a>{%- endif -%}
             {%- if s.facebook != blank -%}<a href="{{ s.facebook }}" aria-label="Facebook" rel="noopener" target="_blank">{% render 'sh-icon', name: 'facebook' %}</a>{%- endif -%}
             {%- if s.pinterest != blank -%}<a href="{{ s.pinterest }}" aria-label="Pinterest" rel="noopener" target="_blank">{% render 'sh-icon', name: 'pinterest' %}</a>{%- endif -%}
             {%- if s.youtube != blank -%}<a href="{{ s.youtube }}" aria-label="YouTube" rel="noopener" target="_blank">{% render 'sh-icon', name: 'youtube' %}</a>{%- endif -%}
+            {%- if s.email != blank -%}<a href="mailto:{{ s.email }}" aria-label="Email us">{% render 'sh-icon', name: 'mail' %}</a>{%- endif -%}
           </div>
         {%- endif -%}
       </div>
@@ -161,6 +162,8 @@
     { "type": "url", "id": "facebook", "label": "Facebook" },
     { "type": "url", "id": "pinterest", "label": "Pinterest" },
     { "type": "url", "id": "youtube", "label": "YouTube" },
+    { "type": "text", "id": "email", "label": "Email address",
+      "info": "Renders a mail icon linking to this address." },
 
     { "type": "header", "content": "Brand" },
     { "type": "checkbox", "id": "use_asset_logo", "label": "Use the logo image", "default": true,
