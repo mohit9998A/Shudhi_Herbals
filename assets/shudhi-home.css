@@ -800,7 +800,17 @@ a.sh-story__play:hover {
   width: clamp(126px, 14vw, 186px); aspect-ratio: 1;
   display: grid; place-items: center;
 }
-.sh-story__seal svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+/* The <svg> is the rotating group — ring, dots and both arc labels ride it,
+   so the labels pass upside-down through the bottom of each cycle; same call
+   the dark twin's .sh-gen__ring (§21) already makes. The number stays upright
+   because it is a SIBLING of the svg, not a child. The seal box is square
+   (aspect-ratio above), so the CSS default 50% 50% origin lands exactly on the
+   viewBox's 100,100 — no transform-box needed. 15s against the dark seal's 90s
+   is deliberate: this seal was asked to visibly revolve, not drift. */
+.sh-story__seal svg {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  animation: sh-gen-spin 15s linear infinite;
+}
 /* stroke-width is in viewBox units: 1 of 200, so it renders as a true ~0.9px
    hairline at every size the clamp above produces. */
 .sh-story__seal-ring { fill: none; stroke: var(--sh-story-gold); stroke-width: 1; }
@@ -812,6 +822,12 @@ a.sh-story__play:hover {
 .sh-story__seal-num {
   font-family: var(--sh-serif) !important;
   font-size: clamp(2rem, 3.4vw, 3.1rem); line-height: 1; color: var(--sh-story-ink);
+}
+
+/* The spin is the only motion this seal owns — same guard .sh-gen__ring
+   carries in §21. */
+@media (prefers-reduced-motion: reduce) {
+  .sh-story__seal svg { animation: none; }
 }
 
 /* ============================================================
@@ -969,15 +985,20 @@ a.sh-story__play:hover {
 /* Frosted panel per benefit. The band's photo is busy behind the copy — leaves,
    water and highlights run straight under the .8rem description — so each item
    carries its own glass plate rather than relying on the section's gradient.
-   Tokens are the hero trust bar's (:614) verbatim: same smoke, blur, hairline
-   and lift, so the two glass surfaces on the homepage read as one material.
+   Blur, hairline and lift are the hero trust bar's (:614), so the two glass
+   surfaces on the homepage read as one material — but the smoke deliberately
+   is NOT. The trust bar sits on the hero's darker frames and can stay at .5;
+   this photo runs sunlit water and bright leaves directly under six cards, and
+   .5 left the copy dissolving into it. .68 is where the .8rem description
+   holds contrast over the brightest patches while blur(14px) still reads as
+   glass — the trust bar's own comment puts "no longer glass" at ~.72.
    `background` is a flat colour and doubles as the no-blur fallback. */
 .sh-ritual__item {
   display: flex; align-items: center; gap: 16px;
   padding: 14px clamp(14px, 1.4vw, 20px);
-  background: rgba(20, 18, 12, .5);
+  background: rgba(20, 18, 12, .68);
   -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
-  border: 1px solid rgba(255, 255, 255, .12); border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, .16); border-radius: 14px;
   box-shadow: 0 18px 46px rgba(0, 0, 0, .34),
               inset 0 1px 0 rgba(255, 255, 255, .07);
 }
@@ -995,7 +1016,10 @@ a.sh-story__play:hover {
   font-family: var(--sh-serif) !important;
   font-size: 1.06rem; margin-bottom: 6px; color: var(--sh-gold);
 }
-.sh-ritual__item p { font-size: .8rem; line-height: 1.65; color: var(--sh-muted-light); max-width: 26ch; }
+/* Brighter than --sh-muted-light's .72 alpha, locally: at .8rem over the glass
+   plate this is the smallest copy on the band, and it is what the section
+   exists to deliver. */
+.sh-ritual__item p { font-size: .8rem; line-height: 1.65; color: rgba(244, 239, 230, .9); max-width: 26ch; }
 
 /* Hairline / diamond / hairline under the heading. Built from three empty
    elements rather than a glyph so it inherits the gold and scales with the
@@ -1180,6 +1204,7 @@ a.sh-story__play:hover {
 .sh-social a {
   width: 34px; height: 34px; display: grid; place-items: center;
   border: 1px solid var(--sh-hairline); border-radius: 50%; color: var(--sh-muted-light);
+  transition: border-color .3s ease, color .3s ease;
 }
 .sh-social a:hover { border-color: var(--sh-gold); color: var(--sh-gold); }
 .sh-social .sh-icon { width: 15px; height: 15px; }
@@ -3598,7 +3623,7 @@ a.sh-story__play:hover {
       a filter turns it into a per-frame CPU raster. Every soft edge in the
       artwork is a multi-stop alpha ramp inside a gradient instead. The same ban
       covers mix-blend-mode, which would defeat the single composited layer the
-      ~106 elements otherwise collapse into.
+      ~150 elements otherwise collapse into.
 
    3. ONE TRANSFORM PER ELEMENT. Four levels, one job each — stage translates,
       depth takes the JS parallax, layer fades, leaf loops. Two transforms on one
@@ -3678,7 +3703,7 @@ a.sh-story__play:hover {
    something mechanical. */
 .sh-plate__mark text {
   font-family: var(--sh-serif);
-  font-size: 34px; font-weight: 500; letter-spacing: .18em;
+  font-size: 52px; font-weight: 500; letter-spacing: .18em;
 }
 
 /* ---- Seal, repositioned ------------------------------------------------ */
@@ -3839,18 +3864,18 @@ a.sh-story__play:hover {
   50%  { transform: translateY(-14px); opacity: var(--sh-plate-op, 1); }
   100% { transform: translateY(0);     opacity: calc(var(--sh-plate-op, 1) * .55); }
 }
-/* Travel is measured, not guessed: the band spans x 154-343 and the face spans
-   154-596, so -200 puts its right edge clear of the face's left and +460 puts
+/* Travel is measured, not guessed: the band spans x 190-346 and the face spans
+   190-562, so -170 puts its right edge clear of the face's left and +400 puts
    its left edge clear of the face's right. The sweep occupies 0-34% of a 16s
    cycle — about 5.4 seconds of light in every 16 — and the transform is held at
    its end value through the dark two-thirds so the wrap at 100% happens at
    opacity 0, where the jump back cannot be seen. */
 @keyframes sh-plate-sheen {
-  0%   { transform: translateX(-200px); opacity: 0; }
+  0%   { transform: translateX(-170px); opacity: 0; }
   6%   { opacity: 1; }
   28%  { opacity: 1; }
-  34%  { transform: translateX(460px); opacity: 0; }
-  100% { transform: translateX(460px); opacity: 0; }
+  34%  { transform: translateX(400px); opacity: 0; }
+  100% { transform: translateX(400px); opacity: 0; }
 }
 
 /* ---- Motion: the entrance ---------------------------------------------- */
@@ -4291,8 +4316,18 @@ a.sh-story__play:hover {
 
 /* The others quiet. :not(:hover) on the siblings rather than a lift on the
    hovered one, so the active card stays where it is and it is the field around
-   it that recedes. */
-.sh-ritual__cols:hover .sh-ritual__item:not(:hover) { opacity: .62; }
+   it that recedes.
+
+   :has() rather than a bare .sh-ritual__cols:hover, because the cols grid spans
+   the whole band including the soap gap in the middle — the old guard matched
+   with the pointer anywhere over the section, so crossing the photo dimmed all
+   six cards with nothing highlighted in exchange. Now the field only recedes
+   while an actual card is hovered, and .8 rather than .62: the recede is a
+   focus cue, not a legibility budget — at .62 over this photo the other five
+   descriptions stopped being readable at all. Same :has() support story as the
+   ritual states below — where it is missing the rule never matches and every
+   card simply stays at full strength. */
+.sh-ritual__cols:has(.sh-ritual__item:hover) .sh-ritual__item:not(:hover) { opacity: .8; }
 
 /* ---- The four ritual states -------------------------------------------- */
 /* Asymmetric delay is the latch: entering is immediate and quick, leaving
