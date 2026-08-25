@@ -1,200 +1,184 @@
-/*
- * ------------------------------------------------------------
- * IMPORTANT: The contents of this file are auto-generated.
- *
- * This file may be updated by the Shopify admin theme editor
- * or related systems. Please exercise caution as any changes
- * made to this file may be overwritten.
- * ------------------------------------------------------------
- */
 {
   "sections": {
-    "ritual_hero": {
-      "type": "sh-ritual-hero",
-      "blocks": {
-        "t1": {
-          "type": "trust",
-          "settings": {
-            "icon": "leaf",
-            "title": "100% Natural",
-            "subtitle": "No harsh chemicals"
-          }
-        },
-        "t2": {
-          "type": "trust",
-          "settings": {
-            "icon": "rabbit",
-            "title": "Cruelty Free",
-            "subtitle": "Kind to every being"
-          }
-        },
-        "t3": {
-          "type": "trust",
-          "settings": {
-            "icon": "shield",
-            "title": "No Toxins",
-            "subtitle": "Nothing but nature"
-          }
-        }
-      },
-      "block_order": ["t1", "t2", "t3"],
+    "page_header": {
+      "type": "sh-page-header",
       "settings": {
         "eyebrow": "The Ritual",
-        "title_l1": "A moment of",
-        "title_l1_em": "purity.",
-        "title_l2": "Every",
-        "title_l2_em": "day.",
-        "body": "Our rituals are simple, intentional and rooted in Ayurveda — to bring balance, clarity and a natural glow to your everyday life.",
-        "cta_label": "Discover the ritual",
-        "cta_link": "#core-ingredients",
-        "animate": true,
-        "cursor": true,
-        "bg": "#f4f2eb"
+        "title": "More than a soap. It's a Ritual.",
+        "body": "Every Shudhi bar is made to be used slowly — four mindful steps that turn a daily wash into a moment of reset.",
+        "bg": "#1b2411"
       }
     },
-    "core_ingredients": {
-      "type": "sh-ritual-ingredients",
+    "ritual_stages": {
+      "type": "sh-ritual-stages",
       "blocks": {
-        "i1": {
-          "type": "ingredient",
+        "st1": {
+          "type": "stage",
           "settings": {
-            "asset": "shudhi_avocado_dark_1786900795543.png",
-            "icon": "sprout",
-            "title": "Avocado Oil",
-            "text": "Nourishes the skin with antioxidants, leaving it soft, hydrated and supple."
+            "icon": "sun",
+            "title": "Solar Vitalization"
           }
         },
-        "i2": {
-          "type": "ingredient",
+        "st2": {
+          "type": "stage",
           "settings": {
-            "asset": "shudhi_aloe_dark_1786901348454.png",
-            "icon": "plant",
-            "title": "Aloe Extract",
-            "text": "Soothes irritation, restores the skin and shields it from everyday stress."
+            "icon": "moon",
+            "title": "Lunar Conditioning"
           }
         },
-        "i3": {
-          "type": "ingredient",
+        "st3": {
+          "type": "stage",
           "settings": {
-            "asset": "shudhi_mint_dark_1786900807961.png",
-            "icon": "leaf",
-            "title": "Mint Extract",
-            "text": "Refreshes and cools the skin while balancing its natural oils."
+            "icon": "crystal",
+            "title": "Mineral Resonance Infusion"
           }
         },
-        "i4": {
-          "type": "ingredient",
+        "st4": {
+          "type": "stage",
           "settings": {
-            "asset": "",
-            "icon": "wheat",
-            "title": "Macadamia Oil",
-            "text": "Deeply hydrates, softens and helps prevent the first signs of ageing."
+            "icon": "geometry",
+            "title": "Geometric Crystal Conditioning"
+          }
+        },
+        "st5": {
+          "type": "stage",
+          "settings": {
+            "icon": "waves",
+            "title": "Harmonic Resonance Activation"
           }
         }
       },
-      "block_order": ["i1", "i2", "i3", "i4"],
+      "block_order": [
+        "st1",
+        "st2",
+        "st3",
+        "st4",
+        "st5"
+      ],
       "settings": {
-        "heading": "Core",
-        "heading_em": "Ingredients.",
-        "anchor_id": "core-ingredients",
-        "animate": true,
-        "bg": "#f4f2eb"
+        "heading": "The Five Ritual Stages",
+        "anchor_id": "ritual-stages",
+        "bg": "#f4f2eb",
+        "animate": true
       }
     },
-    "ritual_flow": {
-      "type": "sh-ritual-flow",
+    "mindful_ritual": {
+      "type": "sh-mindful-ritual",
       "blocks": {
         "s1": {
           "type": "step",
           "settings": {
             "icon": "drop",
-            "label": "Cleanse",
-            "description": "Gently wash away impurities as the herbal bar clears skin and pores."
+            "title": "Wet",
+            "text": "Begin with mindful presence"
           }
         },
         "s2": {
           "type": "step",
           "settings": {
-            "icon": "leaf",
-            "label": "Tone",
-            "description": "Refresh with a natural toner to restore pH balance and prepare skin for moisture."
+            "icon": "lotus",
+            "title": "Lather",
+            "text": "Let the herbs cleanse & purify"
           }
         },
         "s3": {
           "type": "step",
           "settings": {
-            "icon": "lotus",
-            "label": "Moisturize",
-            "description": "Nourish with natural oils for a lasting glow, softness and elasticity."
+            "icon": "wind",
+            "title": "Breathe",
+            "text": "Release negativity, embrace calm"
+          }
+        },
+        "s4": {
+          "type": "step",
+          "settings": {
+            "icon": "leaf",
+            "title": "Refresh",
+            "text": "Step out renewed, refreshed & grounded"
           }
         }
       },
-      "block_order": ["s1", "s2", "s3"],
+      "block_order": [
+        "s1",
+        "s2",
+        "s3",
+        "s4"
+      ],
       "settings": {
-        "eyebrow": "The Ritual, Step by Step",
-        "heading": "Three steps to",
-        "heading_em": "presence.",
-        "media_position": "left",
-        "min_height": 560,
-        "anchor_id": "ritual-steps",
-        "animate": true,
-        "bg": "#f6ede1"
+        "title": "Transform Your Daily Bath into a Mindful Ritual",
+        "body": "Breathe. Pause. Purify. Let every shower be a moment to reset, release and reconnect with yourself.",
+        "cta_label": "Shop the ritual",
+        "cta_link": "/products/negativity-removal-cleansing-bar",
+        "animate": true
       }
     },
-    "ritual_features": {
-      "type": "sh-story-handmade",
+    "ritual_energize": {
+      "type": "sh-ritual-energize",
       "blocks": {
-        "f1": {
-          "type": "feature",
+        "e1": {
+          "type": "step",
           "settings": {
-            "icon": "sprout",
-            "title": "Natural Composition",
-            "description": "Only pure herbs and plant oils."
+            "icon": "sun",
+            "title": "Solar Vitalization",
+            "text": "The power of sunlight prepares and energizes the sacred botanicals."
           }
         },
-        "f2": {
-          "type": "feature",
+        "e2": {
+          "type": "step",
           "settings": {
-            "icon": "hands-heart",
-            "title": "Handmade",
-            "description": "Every bar crafted in small batches with care."
+            "icon": "moon",
+            "title": "Lunar Conditioning",
+            "text": "Timely lunar rhythms condition the ingredients in a phase of natural alignment."
           }
         },
-        "f3": {
-          "type": "feature",
+        "e3": {
+          "type": "step",
           "settings": {
-            "icon": "mortar",
-            "title": "Ayurvedic Approach",
-            "description": "Ancient wisdom for modern skin care."
+            "icon": "crystal",
+            "title": "Mineral Resonance Infusion",
+            "text": "Botanicals are immersed in a proprietary mineral resonance environment."
           }
         },
-        "f4": {
-          "type": "feature",
+        "e4": {
+          "type": "step",
           "settings": {
-            "icon": "heart",
-            "title": "Self-Care",
-            "description": "Simple rituals for beauty, balance and harmony."
+            "icon": "geometry",
+            "title": "Crystal Conditioning",
+            "text": "A second crystal-based conditioning stage stabilizes and elevates the energy of the formulation."
+          }
+        },
+        "e5": {
+          "type": "step",
+          "settings": {
+            "icon": "waves",
+            "title": "Harmonic Activation",
+            "text": "The final infusion of harmonic frequencies completes the energetic preparation."
           }
         }
       },
-      "block_order": ["f1", "f2", "f3", "f4"],
+      "block_order": [
+        "e1",
+        "e2",
+        "e3",
+        "e4",
+        "e5"
+      ],
       "settings": {
-        "eyebrow": "",
-        "heading": "",
-        "heading_em": "",
-        "columns": "4",
-        "show_circle": false,
-        "show_description": true,
-        "scheme": "light",
-        "bg": "#e9e0cf",
-        "animate": true
+        "eyebrow": "Before becoming your daily cleansing ritual,",
+        "heading": "Every Sacred Ingredient Is Energized Through",
+        "heading_em": "5 Steps",
+        "autoplay": true,
+        "interval": 4,
+        "animate": true,
+        "anchor_id": "ritual-energize",
+        "bg": "#1b2411"
       }
     }
   },
   "order": [
-    "ritual_hero",
-    "core_ingredients",
-    "ritual_flow",
-    "ritual_features"
+    "page_header",
+    "ritual_stages",
+    "mindful_ritual",
+    "ritual_energize"
   ]
 }
