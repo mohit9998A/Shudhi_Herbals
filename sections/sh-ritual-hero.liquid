@@ -1,0 +1,184 @@
+{%- comment -%}
+  SHUDHI — Ritual hero (The Ritual band 1)
+
+  The page's opening block and its only <h1>: light split hero — copy on the
+  left, the soap photograph in the middle, a vertical rail of trust badges on
+  the right edge. It replaces sh-page-header on this template only, the same
+  move sh-story-hero made for Our Story; sh-page-header itself is untouched and
+  still opens Contact.
+
+  On the §28 fails-open motion contract (see shudhi-story.css): every pre-state
+  sits behind [data-sh-reveal].is-armed, written only by assets/sh-story-motion.js
+  with an observer already in hand. No bare [data-reveal] anywhere on this
+  template — that mechanism paints opacity:0 on the attribute and fails closed.
+
+  The badge rail deliberately re-styles the shared `trust` BLOCK SCHEMA rather
+  than rendering snippets/sh-trust-row.liquid: the row's frosted-glass treatment
+  was designed for photography and reads as a grey smudge on flat beige. Same
+  merchant editing surface, different paint (shudhi-ritual.css).
+
+  The default photograph is a generated asset shipped in /assets, so the band
+  is finished before anyone opens the theme editor; the image_picker overrides
+  it the moment real product photography lands.
+{%- endcomment -%}
+
+{{ 'shudhi-story.css' | asset_url | stylesheet_tag }}
+{{ 'shudhi-ritual.css' | asset_url | stylesheet_tag }}
+
+{%- assign s = section.settings -%}
+
+<section class="sh sh-rhero"
+         {%- if s.animate %} data-sh-reveal{% endif -%}
+         {%- if s.animate and s.cursor %} data-sh-cursor{% endif %}
+         style="--sh-rhero-bg:{{ s.bg }};">
+
+  <div class="sh-wrap">
+    <div class="sh-rhero__grid">
+
+      {%- comment -%} depth 0.25 = ~2px of pointer travel on the copy; the media
+          wrapper below takes 0.12. Both attributes are inert unless the root
+          carries data-sh-cursor AND the JS's desktop/fine-pointer/motion gates
+          all pass. {%- endcomment -%}
+      <div class="sh-rhero__copy" data-sh-depth="0.25">
+
+        {%- if s.eyebrow != blank -%}
+          <div class="sh-rhero__eyebrow sh-eyebrow" data-sh-fade style="--i:0">
+            {{ s.eyebrow }}{% render 'sh-icon', name: 'leaf' %}
+          </div>
+        {%- endif -%}
+
+        {%- comment -%} Each line is its own .sh-w mask (the shared §28 pair).
+            THE SPACE BETWEEN THE TWO LINE SPANS IS LITERAL AND MUST STAY — without
+            it the accessible name fuses to "A moment of purity.Every day."; the
+            <h1> is display:flex, which discards the whitespace-only node visually.
+            Full rationale at sh-story-hero.liquid:99. {%- endcomment -%}
+        <h1 class="sh-rhero__title sh-serif">
+          <span class="sh-w" style="--i:1"><span class="sh-w-in">{{ s.title_l1 }}{% if s.title_l1_em != blank %} <em>{{ s.title_l1_em }}</em>{% endif %}</span></span>
+          {% if s.title_l2 != blank or s.title_l2_em != blank %}
+            <span class="sh-w" style="--i:2"><span class="sh-w-in">{{ s.title_l2 }}{% if s.title_l2_em != blank %} <em>{{ s.title_l2_em }}</em>{% endif %}</span></span>
+          {% endif %}
+        </h1>
+
+        <div class="sh-rhero__rule" data-sh-fade style="--i:3"><i></i>{% render 'sh-icon', name: 'leaf' %}</div>
+
+        {%- if s.body != blank -%}<p class="sh-rhero__text" data-sh-fade style="--i:4">{{ s.body }}</p>{%- endif -%}
+
+        {%- if s.cta_label != blank -%}
+          <div class="sh-rhero__cta" data-sh-fade style="--i:5">
+            {%- comment -%} Falls back to the ingredients band on THIS page —
+                templates/page.the-ritual.json gives that instance
+                anchor_id "core-ingredients". {%- endcomment -%}
+            <a href="{{ s.cta_link | default: '#core-ingredients' }}" class="sh-btn sh-btn--solid">
+              {{ s.cta_label }} {% render 'sh-icon', name: 'arrow-right' %}
+            </a>
+          </div>
+        {%- endif -%}
+
+      </div>
+
+      {%- comment -%} One transform job per element: the wrapper takes the
+          pointer-depth translate the JS writes, the <img> takes the fade-rise.
+          This is the page's LCP element — fetchpriority high, never lazy, and
+          real dimensions on both branches so the box is reserved before paint
+          (the generated asset is 1024×1024). {%- endcomment -%}
+      <div class="sh-rhero__media" data-sh-depth="0.12">
+        {%- if s.image != blank -%}
+          <img class="sh-rhero__photo"{% if s.animate %} data-sh-fade style="--i:2"{% endif %}
+               src="{{ s.image | image_url: width: 1200 }}"
+               srcset="{{ s.image | image_url: width: 800 }} 800w,
+                       {{ s.image | image_url: width: 1200 }} 1200w,
+                       {{ s.image | image_url: width: 1600 }} 1600w"
+               sizes="(max-width: 767px) 100vw, 44vw"
+               alt="{{ s.image.alt | escape }}"
+               width="{{ s.image.width }}" height="{{ s.image.height }}"
+               fetchpriority="high" decoding="async">
+        {%- else -%}
+          <img class="sh-rhero__photo"{% if s.animate %} data-sh-fade style="--i:2"{% endif %}
+               src="{{ 'shudhi_hero_soap_1786900622530.png' | asset_img_url: '1024x' }}"
+               alt="A handmade herbal soap bar resting on a natural stone, surrounded by green leaves"
+               width="1024" height="1024"
+               fetchpriority="high" decoding="async">
+        {%- endif -%}
+      </div>
+
+      {%- comment -%} role="list" is load-bearing: the .sh reset sets
+          list-style:none, and Safari/VoiceOver drops list semantics — and the
+          badge count — from an unstyled-marker list. {%- endcomment -%}
+      {%- if section.blocks.size > 0 -%}
+        <ul class="sh-rhero__badges" role="list">
+          {%- for block in section.blocks -%}
+            <li class="sh-rhero__badge" data-sh-fade style="--i:{{ forloop.index0 | plus: 6 }}" {{ block.shopify_attributes }}>
+              <span class="sh-rhero__badge-disc">{% render 'sh-icon', name: block.settings.icon, sw: 1.1 %}</span>
+              <b>{{ block.settings.title }}</b>
+              {%- if block.settings.subtitle != blank -%}<small>{{ block.settings.subtitle }}</small>{%- endif -%}
+            </li>
+          {%- endfor -%}
+        </ul>
+      {%- endif -%}
+
+    </div>
+  </div>
+</section>
+
+{%- comment -%} Deferred and conditional, the same shape every §28 band uses.
+    All Ritual bands resolve to one fetch and one execution (the __shSM guard). {%- endcomment -%}
+{%- if s.animate -%}
+  <script src="{{ 'sh-story-motion.js' | asset_url }}" defer></script>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "SH · Ritual — Hero",
+  "class": "index-section",
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "The Ritual" },
+
+    { "type": "header", "content": "Headline" },
+    { "type": "paragraph", "content": "Each line is split in two: the plain part, then the part shown in gold italic." },
+    { "type": "text", "id": "title_l1", "label": "Line 1", "default": "A moment of" },
+    { "type": "text", "id": "title_l1_em", "label": "Line 1 — gold words", "default": "purity." },
+    { "type": "text", "id": "title_l2", "label": "Line 2", "default": "Every" },
+    { "type": "text", "id": "title_l2_em", "label": "Line 2 — gold words", "default": "day." },
+
+    { "type": "header", "content": "Copy" },
+    { "type": "textarea", "id": "body", "label": "Body text", "default": "Our rituals are simple, intentional and rooted in Ayurveda — to bring balance, clarity and a natural glow to your everyday life." },
+    { "type": "text", "id": "cta_label", "label": "Primary button", "default": "Discover the ritual" },
+    { "type": "url", "id": "cta_link", "label": "Primary button link",
+      "info": "Left blank, the button scrolls to the Core Ingredients band on this page." },
+
+    { "type": "header", "content": "Media" },
+    { "type": "image_picker", "id": "image", "label": "Soap photograph",
+      "info": "Optional. The generated soap-on-stone photograph in Assets stands in until one is uploaded, so the band never renders empty." },
+
+    { "type": "header", "content": "Appearance" },
+    { "type": "checkbox", "id": "animate", "label": "Animate on scroll", "default": true,
+      "info": "Turns off the whole entrance and the pointer depth together. The band still renders in full." },
+    { "type": "checkbox", "id": "cursor", "label": "Pointer depth (desktop)", "default": true,
+      "info": "Nudges the copy and the photograph a few pixels as the pointer moves. Desktop pointers only — ignored on touch, on narrow screens, and for anyone who has asked for reduced motion." },
+    { "type": "color", "id": "bg", "label": "Background", "default": "#f4f2eb",
+      "info": "Keep it light — the ink, gold and button colours on this band are tuned for a light surface." }
+  ],
+  "blocks": [
+    { "type": "trust", "name": "Trust badge", "settings": [
+      { "type": "select", "id": "icon", "label": "Icon", "default": "leaf", "options": [
+        { "value": "leaf-line", "label": "Leaf (fine)" }, { "value": "heart-line", "label": "Heart (fine)" },
+        { "value": "hand-line", "label": "Hand (fine)" }, { "value": "rabbit-line", "label": "Rabbit (fine)" },
+        { "value": "flask-line", "label": "Flask (fine)" },
+        { "value": "leaf", "label": "Leaf" }, { "value": "heart", "label": "Heart" },
+        { "value": "hand", "label": "Hand" }, { "value": "rabbit", "label": "Rabbit" },
+        { "value": "lotus", "label": "Lotus" }, { "value": "drop", "label": "Drop" },
+        { "value": "sparkle", "label": "Sparkle" }, { "value": "plant", "label": "Plant" },
+        { "value": "shield", "label": "Shield" },
+        { "value": "badge", "label": "Badge" }, { "value": "recycle", "label": "Recycle" } ] },
+      { "type": "text", "id": "title", "label": "Title", "default": "100% Natural" },
+      { "type": "text", "id": "subtitle", "label": "Subtitle", "default": "No harsh chemicals" }
+    ] }
+  ],
+  "max_blocks": 4,
+  "presets": [ { "name": "SH · Ritual — Hero", "blocks": [
+    { "type": "trust", "settings": { "icon": "leaf",   "title": "100% Natural", "subtitle": "No harsh chemicals" } },
+    { "type": "trust", "settings": { "icon": "rabbit", "title": "Cruelty Free", "subtitle": "Kind to every being" } },
+    { "type": "trust", "settings": { "icon": "shield", "title": "No Toxins",    "subtitle": "Nothing but nature" } }
+  ] } ]
+}
+{% endschema %}

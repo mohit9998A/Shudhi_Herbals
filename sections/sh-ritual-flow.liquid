@@ -1,0 +1,159 @@
+{%- comment -%}
+  SHUDHI — Ritual flow (The Ritual band 3)
+
+  The reference's step section: a large lifestyle photograph on one side, a
+  vertical three-step timeline (Cleanse / Tone / Moisturize) on the other.
+
+  A fork of the sh-story-beginning PATTERN, not of sh-ritual-steps:
+  §20's .sh-flow is a horizontal card row and shares nothing with a vertical
+  timeline, while §18's .sh-split already owns everything this band needs at
+  rest — the grid, the full-bleed media column, the feathered seam, the
+  data-media-position mirror, the ≤767px photo-first stack and the tinted-panel
+  fallback. IT KEEPS THE CLASS .sh-split for exactly that reason;
+  .sh-split--rflow hooks the timeline rules in shudhi-ritual.css.
+
+  Carried over from sh-story-beginning verbatim, because both are load-bearing:
+
+  · .sh-split__frame (position:absolute; inset:0) is the parallax's measuring
+    box — shudhi-home.js:374 reads the photo's PARENT rect. The settle rides the
+    frame; the parallax rides the photo. One transform job per element.
+  · No frame on the blank branch: the lifestyle photograph is not in yet, and
+    the tinted panel keeps the band looking finished until it lands (this is
+    the shipping state of this template today).
+
+  The step NUMBER is generated from forloop.index and aria-hidden — the
+  ordering already lives in the <ol>, so a screen reader would otherwise hear
+  "1. 1. Cleanse". Same rationale as sh-ritual-steps.liquid:66.
+{%- endcomment -%}
+
+{{ 'shudhi-story.css' | asset_url | stylesheet_tag }}
+{{ 'shudhi-ritual.css' | asset_url | stylesheet_tag }}
+
+{%- assign s = section.settings -%}
+
+<section class="sh sh-split sh-split--rflow"
+         {%- if s.anchor_id != blank %} id="{{ s.anchor_id | handle }}"{% endif -%}
+         {%- if s.animate %} data-sh-reveal{% endif %}
+         data-media-position="{{ s.media_position }}"
+         style="--sh-split-bg:{{ s.bg }};--sh-split-h:{{ s.min_height }}px;--sh-lead:180ms;">
+
+  <div class="sh-split__grid">
+
+    <div class="sh-split__media">
+      {%- if s.image != blank -%}
+        {%- assign img_h = 1400 | divided_by: s.image.aspect_ratio | round -%}
+        <div class="sh-split__frame">
+          <img class="sh-split__photo"{% if s.animate %} data-parallax{% endif %}
+               src="{{ s.image | image_url: width: 1400 }}"
+               alt="{{ s.image.alt | escape }}"
+               width="1400" height="{{ img_h }}"
+               loading="lazy" decoding="async">
+        </div>
+      {%- else -%}
+        <div class="sh-split__photo sh-split__photo--blank" aria-hidden="true"></div>
+      {%- endif -%}
+    </div>
+
+    <div class="sh-split__copy">
+
+      {%- if s.eyebrow != blank -%}
+        <div class="sh-split__eyebrow sh-eyebrow" data-sh-fade style="--i:0">{{ s.eyebrow }}</div>
+      {%- endif -%}
+
+      <h2 class="sh-split__title sh-serif" data-sh-fade style="--i:1">
+        {{ s.heading }}{% if s.heading_em != blank %} <em>{{ s.heading_em }}</em>{% endif %}
+      </h2>
+
+      <div class="sh-rflow__track">
+        {%- comment -%} Vertical connector, drawn downward by §28's [data-sh-line]
+            via the two inline vars. The nodes' opaque background breaks it at
+            each step — §20's badge trick, rotated. {%- endcomment -%}
+        <span class="sh-rflow__line" data-sh-line style="--i:2;--sh-line-sy:0;--sh-line-o:50% 0%" aria-hidden="true"></span>
+
+        <ol class="sh-rflow__steps" role="list">
+          {%- for block in section.blocks -%}
+            {%- assign b = block.settings -%}
+            <li class="sh-rflow__step" data-sh-fade style="--i:{{ forloop.index0 | plus: 3 }}" {{ block.shopify_attributes }}>
+              <span class="sh-rflow__node" aria-hidden="true">{% render 'sh-icon', name: b.icon %}</span>
+              <span class="sh-rflow__media">
+                {%- if b.image != blank -%}
+                  <img src="{{ b.image | image_url: width: 240 }}"
+                       alt="{{ b.image.alt | default: b.label | escape }}"
+                       width="240" height="{{ 240 | divided_by: b.image.aspect_ratio | round }}"
+                       loading="lazy" decoding="async">
+                {%- else -%}
+                  <span class="sh-rflow__media-glyph" aria-hidden="true">{% render 'sh-icon', name: b.icon %}</span>
+                {%- endif -%}
+              </span>
+              <div class="sh-rflow__body">
+                <h3 class="sh-rflow__label sh-serif"><span aria-hidden="true">{{ forloop.index }}.</span> {{ b.label }}</h3>
+                {%- if b.description != blank -%}<p class="sh-rflow__text">{{ b.description }}</p>{%- endif -%}
+              </div>
+            </li>
+          {%- endfor -%}
+        </ol>
+      </div>
+
+    </div>
+
+  </div>
+</section>
+
+{%- if s.animate -%}
+  <script src="{{ 'sh-story-motion.js' | asset_url }}" defer></script>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "SH · Ritual — Steps",
+  "class": "index-section",
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "The Ritual, Step by Step" },
+
+    { "type": "header", "content": "Headline" },
+    { "type": "paragraph", "content": "The heading is split in two: the plain part, then the tail shown in gold italic." },
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Three steps to" },
+    { "type": "text", "id": "heading_em", "label": "Heading — gold italic tail", "default": "presence." },
+
+    { "type": "header", "content": "Media" },
+    { "type": "image_picker", "id": "image", "label": "Lifestyle image",
+      "info": "Full-bleed to the viewport edge on its side. A neutral tinted panel stands in until one is picked — the photo's entrance and scroll drift only run once a real image is here." },
+    { "type": "select", "id": "media_position", "label": "Image side", "default": "left",
+      "info": "Below 768px the image is always shown first, whichever side is chosen.",
+      "options": [ { "value": "left", "label": "Left" }, { "value": "right", "label": "Right" } ] },
+    { "type": "range", "id": "min_height", "label": "Band height", "min": 420, "max": 760, "step": 20, "default": 560, "unit": "px" },
+
+    { "type": "header", "content": "Appearance" },
+    { "type": "text", "id": "anchor_id", "label": "Anchor id",
+      "info": "Optional. Lets another section link straight to this band with #your-id. Must be unique on the page." },
+    { "type": "checkbox", "id": "animate", "label": "Animate on scroll", "default": true,
+      "info": "Turns off the step entrance, the connector draw and the photo's scroll drift together. The band still renders in full." },
+    { "type": "color", "id": "bg", "label": "Background", "default": "#f6ede1",
+      "info": "The panel colour, the colour the photo's inner edge feathers into, and the fill that breaks the connector line behind each step's leaf node. Keep it light." }
+  ],
+  "blocks": [
+    { "type": "step", "name": "Step", "settings": [
+      { "type": "paragraph", "content": "Steps number themselves in order — reordering the blocks renumbers them." },
+      { "type": "select", "id": "icon", "label": "Icon", "default": "leaf", "options": [
+        { "value": "drop", "label": "Drop" }, { "value": "leaf", "label": "Leaf" },
+        { "value": "lotus", "label": "Lotus" }, { "value": "sprout", "label": "Sprout" },
+        { "value": "flower", "label": "Flower" }, { "value": "sparkle", "label": "Sparkle" },
+        { "value": "bubbles", "label": "Bubbles" }, { "value": "bottle", "label": "Bottle" } ] },
+      { "type": "image_picker", "id": "image", "label": "Product image",
+        "info": "Shown in a small circle beside the step. Without one, the step's icon stands in on a tinted disc." },
+      { "type": "text", "id": "label", "label": "Title", "default": "Cleanse" },
+      { "type": "textarea", "id": "description", "label": "Description",
+        "default": "Gently wash away impurities as the herbal bar clears skin and pores." }
+    ] }
+  ],
+  "max_blocks": 4,
+  "presets": [ { "name": "SH · Ritual — Steps", "blocks": [
+    { "type": "step", "settings": { "icon": "drop",  "label": "Cleanse",
+      "description": "Gently wash away impurities as the herbal bar clears skin and pores." } },
+    { "type": "step", "settings": { "icon": "leaf",  "label": "Tone",
+      "description": "Refresh with a natural toner to restore pH balance and prepare skin for moisture." } },
+    { "type": "step", "settings": { "icon": "lotus", "label": "Moisturize",
+      "description": "Nourish with natural oils for a lasting glow, softness and elasticity." } }
+  ] } ]
+}
+{% endschema %}

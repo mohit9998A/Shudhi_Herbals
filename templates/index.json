@@ -1,3 +1,12 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
 {
   "sections": {
     "hero": {
@@ -133,7 +142,7 @@
         "sub_eyebrow": "Our Signature Soap",
         "product_name": "Shudhi Herbals Soap",
         "body": "A handcrafted herbal soap made with time-honored Ayurvedic ingredients to gently cleanse, nourish, and balance your skin and aura. Free from harsh chemicals, full of nature's goodness.",
-        "seal_number": "4",
+        "seal_number": "",
         "seal_top": "Inspired by",
         "seal_bottom": "Generations of herbal wisdom",
         "shop_label": "Shop Now",
