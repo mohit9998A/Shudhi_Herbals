@@ -65,6 +65,18 @@
 {% if template contains 'collection' and canonical_url contains '?page=' %}
   <meta name="robots" content="noindex" />
 {% endif %}
+{%- comment -%}
+  Single-product store: /collections/all (any page/tag/sort) is a dead end —
+  the nav's Shop goes straight to the product — so forward direct/indexed
+  hits. Liquid cannot 301 and admin URL Redirects refuse live paths, hence
+  meta refresh + JS. Skipped in the theme editor so the collection template
+  stays editable; switches itself off once a second product is live.
+{%- endcomment -%}
+{%- if request.page_type == 'collection' and collection.handle == 'all' and collection.all_products_count == 1 and request.design_mode == false -%}
+  <meta name="robots" content="noindex" />
+  <meta http-equiv="refresh" content="0; url=/products/negativity-removal-cleansing-bar">
+  <script>window.location.replace('/products/negativity-removal-cleansing-bar');</script>
+{%- endif -%}
   <!-- Helpers ================================================== -->
   {% include 'social-meta-tags' %}
   <link rel="canonical" href="{{ canonical_url }}">

@@ -108,7 +108,7 @@
 
           <div class="sh-hero__cta">
             {%- if s.cta_label != blank -%}
-              <a href="{{ s.cta_link | default: routes.all_products_collection_url }}" class="sh-btn sh-btn--solid">
+              <a href="{{ s.cta_link | default: '/products/negativity-removal-cleansing-bar' }}" class="sh-btn sh-btn--solid">
                 {{ s.cta_label }} {% render 'sh-icon', name: 'arrow-right' %}
               </a>
             {%- endif -%}
