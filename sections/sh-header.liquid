@@ -88,7 +88,7 @@
           Navigation and select it in this section's settings.
         {%- endcomment -%}
         <a href="{{ routes.root_url }}">Home</a>
-        <a href="{{ routes.all_products_collection_url }}">Shop</a>
+        <a href="/products/negativity-removal-cleansing-bar">Shop</a>
         <a href="/pages/our-story">Our Story</a>
         <a href="/pages/the-ritual">The Ritual</a>
         <a href="{{ blog.url | default: '/blogs/news' }}">Journal</a>
@@ -107,9 +107,12 @@
       </a>
 
       {%- comment -%}
-        .js-call-minicart and .enj-cartcount are the theme's own hooks
-        (ajaxCartConfig at theme.liquid:353-355). Using them gets the existing
-        minicart drawer and live count updates with no extra JS.
+        .enj-cartcount is the theme's own count hook (ajaxCartConfig in
+        theme.liquid). The click is handled by cart() in assets/shudhi-home.js:
+        it opens the minicart drawer in place; the href stays as the no-JS
+        fallback. .js-call-minicart is kept for quickview.js, which triggers
+        it — its own legacy handler in engo-scripts never binds because that
+        ready block throws earlier.
       {%- endcomment -%}
       <a href="{{ routes.cart_url }}" class="sh-cart js-call-minicart" aria-label="Cart">
         {% render 'sh-icon', name: 'cart', sw: 1.1 %}
@@ -147,7 +150,7 @@
     {%- else -%}
       {%- comment -%} Must match the desktop fallback at :70. {%- endcomment -%}
       <a href="{{ routes.root_url }}">Home</a>
-      <a href="{{ routes.all_products_collection_url }}">Shop</a>
+      <a href="/products/negativity-removal-cleansing-bar">Shop</a>
       <a href="/pages/our-story">Our Story</a>
       <a href="/pages/the-ritual">The Ritual</a>
       <a href="{{ blog.url | default: '/blogs/news' }}">Journal</a>
