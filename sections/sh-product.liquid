@@ -1,0 +1,494 @@
+{%- comment -%}
+  SHUDHI — Product page (PDP)
+
+  Replaces the legacy chain (product-template.liquid -> product-extended.liquid,
+  jQuery + Shopify.OptionSelectors) for templates/product.json's "main" slot.
+  The old files are untouched and remain the rollback path: point main.type back
+  at "product-template" and the legacy page returns.
+
+  Load-bearing decisions — undo any of these and something distant breaks:
+
+  1. ONE {% form 'product' %} holds the hidden [name="id"], the quantity input,
+     the Add to Cart submit AND {{ form | payment_button }}. The legacy layout
+     nested the payment form inside a hand-written cart form, so Buy It Now
+     always bought the first variant regardless of selection. The pack radios
+     are deliberately NOT named "id": Shopify's hosted wallet JS reads the
+     form's [name=id], and a radio group would hand it the first radio rather
+     than the checked one. assets/sh-product.js syncs the hidden input instead.
+
+  2. The AJAX cart is inherited, not reimplemented. assets/ajax-cart.js.liquid
+     delegates on body for `form[action^="/cart/add"]` submissions — serialize,
+     POST /cart/add.js, open the drawer, update .enj-cartcount, dispatch
+     'cart:updated'. This section only has to render a real form. The submit
+     button carries .enj-add-to-cart-btn so ajax-cart applies its busy states,
+     and [name="add"] means assets/hov-cart-checkout.js converts it into its
+     .hov-cart__btn span structure (loading/success driven by 'cart:add').
+     That conversion REWRITES the button's innerHTML — which is why the label
+     is plain text with no icon, and why sh-product.js updates the label via
+     .hov-cart__btn-default when present. shudhi-product.css repaints the
+     converted button gold, the same scoped-repaint bargain
+     .sh-signature .sh-btn--solid makes with the shared button component.
+
+  3. The sticky bar's button is type="button" with a class that matches NEITHER
+     ajax-cart's .enj-add-to-cart-btn NOR hov-cart-checkout's selector list.
+     It fires a synthetic click() on the real submit button so the one real
+     flow runs and the one real button shows the busy state (hov-cart-checkout
+     enters "loading" from the click event, so requestSubmit() would skip it).
+     Give it either class and the add fires twice / converts twice.
+
+  4. Class naming is part of the wishlist contract. hov-wishlist.js scrapes
+     btn.closest('[class*="card"], [class*="product"], li, article') and then
+     reads an <img>, a '[class*="price"]:not([class*="compare"])' and an
+     'a[href*="/products/"]' from whatever that resolves to. The root carries
+     "product"; every inner wrapper uses the sh-pdp__ prefix precisely so
+     closest() falls through to the root, where the gallery image, the main
+     .sh-pdp__price and the breadcrumb's self-link live. The struck compare-at
+     numbers are .sh-pdp__was — no "price" or "compare" substring — so the
+     scrape can never pick a pack card's number over the real price.
+
+  5. The countdown card ships with the `hidden` attribute and JS removes it
+     only for a valid FUTURE deadline. This inverts the theme's fail-open rule
+     on purpose: a timer frozen at a fake value (JS off, bad date) is worse
+     than no timer. The deadline is one absolute moment from section settings —
+     it survives refreshes and never re-seeds per pageload.
+
+  6. The breadcrumb is its own markup (.sh-pdp__crumbs), never the shared
+     snippets/breadcrumb.liquid classes: engo-customizes.css.liquid:35470+
+     styles `.template-product .hov-breadcrumb` as a grey pill entirely in
+     !important, and out-specifying that is a war not worth fighting.
+
+  Heading outline: h1 = product title (this is the page's h1 — the legacy
+  layout used h1 here too), h2 = Reviews, h3 = accordion summaries.
+{%- endcomment -%}
+
+{{ 'shudhi-product.css' | asset_url | stylesheet_tag }}
+
+{%- assign s = section.settings -%}
+
+{%- liquid
+  # Initial variant: an explicit ?variant= URL wins, else the merchant's
+  # "most popular" pick (if it exists and is buyable), else Shopify's default.
+  assign initial = product.selected_variant
+  if initial == blank
+    assign mp_index = s.most_popular_position | minus: 1
+    if product.variants.size > mp_index
+      assign mp_variant = product.variants[mp_index]
+      if mp_variant.available
+        assign initial = mp_variant
+      endif
+    endif
+  endif
+  if initial == blank
+    assign initial = product.selected_or_first_available_variant
+  endif
+-%}
+
+<section class="sh sh-product sh-pdp"
+         data-sh-pdp
+         data-sh-money="{{ shop.money_format | escape }}"
+         data-sh-money-currency="{{ shop.money_with_currency_format | escape }}"
+         style="--sh-pdp-bg:{{ s.bg }};--sh-pdp-pad-top:{{ s.pad_top }}px;--sh-pdp-pad-bottom:{{ s.pad_bottom }}px;">
+  <div class="sh-wrap">
+
+    {%- if s.show_breadcrumb -%}
+      <nav class="sh-pdp__crumbs" aria-label="Breadcrumb">
+        <a href="{{ routes.root_url }}">Home</a>
+        {% render 'sh-icon', name: 'chevron-right', sw: 1.6 %}
+        <a href="{{ product.url }}" aria-current="page">{{ product.title }}</a>
+      </nav>
+    {%- endif -%}
+
+    <div class="sh-pdp__grid">
+
+      <div class="sh-pdp__gallery">
+        <div class="sh-pdp__stage">
+          {%- for media in product.media -%}
+            <figure class="sh-pdp__slide{% if forloop.first %} is-active{% endif %}"
+                    data-media-id="{{ media.id }}">
+              <img src="{{ media.preview_image | image_url: width: 1100 }}"
+                   srcset="{{ media.preview_image | image_url: width: 480 }} 480w,
+                           {{ media.preview_image | image_url: width: 740 }} 740w,
+                           {{ media.preview_image | image_url: width: 1100 }} 1100w,
+                           {{ media.preview_image | image_url: width: 1600 }} 1600w"
+                   sizes="(max-width: 989px) 100vw, 55vw"
+                   width="{{ media.preview_image.width }}"
+                   height="{{ media.preview_image.height }}"
+                   alt="{{ media.alt | default: product.title | escape }}"
+                   {% if forloop.first %}fetchpriority="high"{% else %}loading="lazy"{% endif %}>
+            </figure>
+          {%- endfor -%}
+          {%- if product.media.size == 0 -%}
+            <figure class="sh-pdp__slide is-active">
+              {{ 'product-1' | placeholder_svg_tag: 'sh-pdp__placeholder' }}
+            </figure>
+          {%- endif -%}
+        </div>
+
+        {%- if product.media.size > 1 -%}
+          <div class="sh-pdp__thumbs">
+            {%- for media in product.media -%}
+              <button type="button"
+                      class="sh-pdp__thumb"
+                      data-media-id="{{ media.id }}"
+                      aria-label="View image {{ forloop.index }} of {{ product.media.size }}"
+                      {% if forloop.first %}aria-current="true"{% endif %}>
+                <img src="{{ media.preview_image | image_url: width: 160 }}"
+                     width="80" height="80"
+                     alt=""
+                     loading="lazy">
+              </button>
+            {%- endfor -%}
+          </div>
+        {%- endif -%}
+      </div>
+
+      <div class="sh-pdp__info">
+
+        <div class="sh-pdp__head">
+          <h1 class="sh-pdp__title sh-serif">
+            {{ product.title }}
+            <span class="sh-pdp__dot{% unless initial.available %} is-out{% endunless %}"
+                  data-sh-dot aria-hidden="true"></span>
+            <span class="sh-visually-hidden" data-sh-avail-sr>
+              {%- if initial.available %}In stock{% else %}Sold out{% endif -%}
+            </span>
+          </h1>
+          {%- if s.show_wishlist -%}
+            {% render 'hov-wishlist', product: product %}
+          {%- endif -%}
+        </div>
+
+        <p class="sh-pdp__cost">
+          <span class="sh-pdp__price" data-sh-price>{{ initial.price | money_with_currency }}</span>
+          {%- if s.tax_note != blank -%}
+            <span class="sh-pdp__tax">{{ s.tax_note }}</span>
+          {%- endif -%}
+        </p>
+
+        {%- if s.countdown_enable and s.countdown_end_date != blank -%}
+          {%- assign cd_time = s.countdown_end_time | default: '23:59' -%}
+          <div class="sh-pdp__timer"
+               data-sh-timer
+               data-sh-deadline="{{ s.countdown_end_date }}T{{ cd_time }}"
+               hidden>
+            <span class="sh-pdp__timer-label">{{ s.countdown_text }}</span>
+            <span class="sh-pdp__timer-digits" data-sh-timer-digits aria-hidden="true"></span>
+            <span class="sh-visually-hidden" aria-live="polite" data-sh-timer-sr></span>
+          </div>
+        {%- endif -%}
+
+        {% form 'product', product, id: 'sh-pdp-form', class: 'sh-pdp__form', data-sh-form: '' %}
+
+          <input type="hidden" name="id" value="{{ initial.id }}" data-sh-id>
+
+          {%- unless product.has_only_default_variant -%}
+            <fieldset class="sh-pdp__packs">
+              <legend class="sh-visually-hidden">Choose an option</legend>
+
+              {%- liquid
+                # The biggest absolute saving gets the "Best value" caption.
+                assign max_saving = 0
+                for v in product.variants
+                  if v.compare_at_price > v.price
+                    assign sv = v.compare_at_price | minus: v.price
+                    if sv > max_saving
+                      assign max_saving = sv
+                    endif
+                  endif
+                endfor
+              -%}
+
+              {%- for variant in product.variants -%}
+                {%- liquid
+                  assign saving = 0
+                  assign pct = 0
+                  if variant.compare_at_price > variant.price
+                    assign saving = variant.compare_at_price | minus: variant.price
+                    assign pct = saving | times: 100.0 | divided_by: variant.compare_at_price | round
+                  elsif variant.metafields.custom.discount_percent != blank
+                    # No compare-at price in admin: fall back to the badge the legacy
+                    # swatch read (snippets/swatch.liquid:143). Badge only — there is no
+                    # struck price or saving to show without a real compare-at.
+                    assign pct = variant.metafields.custom.discount_percent | plus: 0
+                  endif
+                  assign is_popular = false
+                  if forloop.index == s.most_popular_position and variant.available
+                    assign is_popular = true
+                  endif
+                -%}
+                <label class="sh-pdp__pack{% if variant.available == false %} is-soldout{% endif %}">
+                  <input type="radio"
+                         class="sh-pdp__pack-input sh-visually-hidden"
+                         name="sh-pack-{{ section.id }}"
+                         value="{{ variant.id }}"
+                         data-variant-id="{{ variant.id }}"
+                         {% if variant.featured_media %}data-media-id="{{ variant.featured_media.id }}"{% endif %}
+                         {% if variant.id == initial.id %}checked{% endif %}
+                         {% unless variant.available %}disabled{% endunless %}>
+                  <span class="sh-pdp__pack-card">
+                    {%- if is_popular -%}
+                      <span class="sh-pdp__pack-flag">Most popular</span>
+                    {%- endif -%}
+                    <span class="sh-pdp__pack-radio" aria-hidden="true"></span>
+                    <span class="sh-pdp__pack-main">
+                      <span class="sh-pdp__pack-name">
+                        {{ variant.title }}
+                        {%- if pct > 0 %}
+                          <span class="sh-pdp__pack-off">{{ pct }}% off</span>
+                        {%- endif -%}
+                      </span>
+                      <span class="sh-pdp__pack-note">
+                        {%- if variant.available == false -%}
+                          Sold out
+                        {%- elsif saving == 0 -%}
+                          Standard price
+                        {%- elsif saving == max_saving -%}
+                          Best value — biggest saving
+                        {%- else -%}
+                          You save {{ saving | money }}
+                        {%- endif -%}
+                      </span>
+                    </span>
+                    <span class="sh-pdp__pack-money">
+                      <span class="sh-pdp__pack-amount">{{ variant.price | money }}</span>
+                      {%- if saving > 0 -%}
+                        <s class="sh-pdp__was">
+                          <span class="sh-visually-hidden">Regular price</span>
+                          {{ variant.compare_at_price | money }}
+                        </s>
+                      {%- endif -%}
+                    </span>
+                  </span>
+                </label>
+              {%- endfor -%}
+            </fieldset>
+            <noscript>
+              <p class="sh-pdp__noscript">JavaScript is off in your browser — the highlighted option is the one added to the cart.</p>
+            </noscript>
+          {%- endunless -%}
+
+          {%- assign initial_saving = 0 -%}
+          {%- if initial.compare_at_price > initial.price -%}
+            {%- assign initial_saving = initial.compare_at_price | minus: initial.price -%}
+          {%- endif -%}
+          <p class="sh-pdp__saving{% if initial_saving == 0 %} is-hidden{% endif %}"
+             data-sh-saving aria-live="polite">
+            {% render 'sh-icon', name: 'arrow-right', sw: 1.6 %}
+            <span>You're saving
+              <strong data-sh-saving-amount>{{ initial_saving | money }}</strong>
+              on this order</span>
+          </p>
+
+          <div class="sh-pdp__trust">
+            <div class="sh-pdp__trust-item">
+              {% render 'sh-icon', name: 'shield' %}
+              <span class="sh-pdp__trust-copy">
+                {%- if s.trust_line_1 != blank -%}<strong>{{ s.trust_line_1 }}</strong>{%- endif -%}
+                {%- if s.trust_line_2 != blank -%}<span>{{ s.trust_line_2 }}</span>{%- endif -%}
+              </span>
+            </div>
+            <div class="sh-pdp__trust-item">
+              {% render 'sh-icon', name: 'lock' %}
+              <span class="sh-pdp__trust-copy"><strong>{{ s.trust_secure }}</strong></span>
+            </div>
+          </div>
+
+          {%- unless settings.enable_catalog_mode -%}
+            <div class="sh-pdp__buy" data-sh-buyrow>
+              <div class="sh-pdp__qty">
+                <button type="button" data-sh-qty="-1" aria-label="Decrease quantity">
+                  {% render 'sh-icon', name: 'minus', sw: 1.6 %}
+                </button>
+                {%- comment -%} type="text", not "number": assets/ajax-cart.js.liquid
+                    qtySelectors() replaces EVERY input[type=number] on the page
+                    with its own caret widget and removes the original, which
+                    would orphan this stepper. clampQty() in sh-product.js keeps
+                    the value a whole number >= 1. {%- endcomment -%}
+                <input type="text" name="quantity" value="1"
+                       inputmode="numeric" pattern="[0-9]*" autocomplete="off"
+                       aria-label="Quantity" data-sh-qty-input>
+                <button type="button" data-sh-qty="1" aria-label="Increase quantity">
+                  {% render 'sh-icon', name: 'plus', sw: 1.6 %}
+                </button>
+              </div>
+              <button type="submit" name="add"
+                      class="sh-pdp__atc enj-add-to-cart-btn"
+                      data-sh-atc
+                      {% unless initial.available %}disabled{% endunless %}>
+                {%- if initial.available %}Add to cart{% else %}Sold out{% endif -%}
+              </button>
+            </div>
+
+            <div class="sh-pdp__paybtn">{{ form | payment_button }}</div>
+          {%- endunless -%}
+
+        {% endform %}
+
+        {%- if s.show_categories and product.collections.size > 0 -%}
+          <p class="sh-pdp__meta">
+            <span class="sh-pdp__meta-label">Categories:</span>
+            {% for c in product.collections -%}
+              <a href="{{ c.url }}">{{ c.title }}</a>{%- unless forloop.last %}, {% endunless -%}
+            {%- endfor -%}
+          </p>
+        {%- endif -%}
+
+      </div>
+    </div>
+
+    {%- if s.show_details -%}
+      {%- comment -%}
+        The store's product descriptions carry [tag]...[/tag] shortcode pairs
+        that the legacy layout parsed into a Bootstrap accordion
+        (snippets/product-extended.liquid:580-701). Same parsing, native
+        <details>/<summary> instead — no collapse JS. The first pane present
+        ships open. A description with no shortcodes at all falls back to one
+        plain "Description" pane so nothing a merchant wrote can vanish.
+      {%- endcomment -%}
+      {%- assign acc_keys = 'description,ingredients,brewing_instruction,certifications,brand_overview,more_information' | split: ',' -%}
+      {%- assign acc_titles = 'Description,Ingredients,Brewing Instruction,Certifications,Brand Overview,More Information' | split: ',' -%}
+      {%- assign acc_any = false -%}
+      {%- for key in acc_keys -%}
+        {%- assign open_tag = '[' | append: key | append: ']' -%}
+        {%- if product.description contains open_tag -%}
+          {%- assign acc_any = true -%}
+        {%- endif -%}
+      {%- endfor -%}
+
+        <div class="sh-pdp__details">
+          {%- assign acc_opened = false -%}
+          {%- if acc_any -%}
+            {%- for key in acc_keys -%}
+              {%- assign open_tag = '[' | append: key | append: ']' -%}
+              {%- assign close_tag = '[/' | append: key | append: ']' -%}
+              {%- if product.description contains open_tag -%}
+                {%- assign pane = product.description | split: close_tag | first | split: open_tag | last -%}
+                <details class="sh-pdp__acc"{% unless acc_opened %} open{% endunless %}>
+                  <summary>
+                    <h3 class="sh-pdp__acc-title">{{ acc_titles[forloop.index0] }}</h3>
+                    {% render 'sh-icon', name: 'plus', sw: 1.6, class: 'sh-pdp__acc-icon' %}
+                  </summary>
+                  <div class="sh-pdp__acc-body">{{ pane }}</div>
+                </details>
+                {%- assign acc_opened = true -%}
+              {%- endif -%}
+            {%- endfor -%}
+          {%- elsif product.description != blank -%}
+            <details class="sh-pdp__acc" open>
+              <summary>
+                <h3 class="sh-pdp__acc-title">Description</h3>
+                {% render 'sh-icon', name: 'plus', sw: 1.6, class: 'sh-pdp__acc-icon' %}
+              </summary>
+              <div class="sh-pdp__acc-body">{{ product.description }}</div>
+            </details>
+          {%- endif -%}
+
+          {%- comment -%} The legacy "More Information" tab
+              (snippets/tab-product-details.liquid:98-172): the same metafield
+              rows, plus its two fixed lines, so no regulatory copy a merchant
+              entered in admin disappears with the redesign. {%- endcomment -%}
+          {%- assign mf = product.metafields.custom -%}
+          <details class="sh-pdp__acc">
+            <summary>
+              <h3 class="sh-pdp__acc-title">More Information</h3>
+              {% render 'sh-icon', name: 'plus', sw: 1.6, class: 'sh-pdp__acc-icon' %}
+            </summary>
+            <dl class="sh-pdp__acc-body sh-pdp__facts">
+              {%- if mf.brand != blank -%}<dt>Brand</dt><dd>{{ mf.brand }}</dd>{%- endif -%}
+              <dt>Country of Origin</dt><dd>India</dd>
+              <dt>Marketed by</dt><dd>Shudhi Herbals</dd>
+              {%- if mf.net_weight != blank -%}<dt>Net Weight</dt><dd>{{ mf.net_weight }}</dd>{%- endif -%}
+              {%- if mf.unit_price != blank -%}<dt>Unit Price</dt><dd>{{ mf.unit_price }}</dd>{%- endif -%}
+              {%- if mf.pack_type != blank -%}<dt>Pack Type</dt><dd>{{ mf.pack_type }}</dd>{%- endif -%}
+              {%- if mf.manufacturer != blank -%}<dt>Manufacturer</dt><dd>{{ mf.manufacturer }}</dd>{%- endif -%}
+              {%- if mf.manufacturer_address != blank -%}<dt>Manufacturer Address 1</dt><dd>{{ mf.manufacturer_address }}</dd>{%- endif -%}
+              {%- if mf.manufacturer_address1 != blank -%}<dt>Manufacturer Address 2</dt><dd>{{ mf.manufacturer_address1 }}</dd>{%- endif -%}
+              {%- if mf.shelf_life != blank -%}<dt>Shelf Life</dt><dd>{{ mf.shelf_life }}</dd>{%- endif -%}
+              {%- if mf.product_dimension != blank -%}<dt>Product Dimension</dt><dd>{{ mf.product_dimension }}</dd>{%- endif -%}
+            </dl>
+          </details>
+        </div>
+      {%- endif -%}
+
+    {%- if s.show_reviews -%}
+      <div class="sh-pdp__reviews" id="sh-reviews">
+        <h2 class="sh-pdp__reviews-title sh-serif">Reviews</h2>
+        {%- comment -%} Same Judge.me embed the legacy tabs used
+            (snippets/tab-product-details.liquid:91-93). {%- endcomment -%}
+        <div id="judgeme_product_reviews" class="jdgm-widget jdgm-review-widget" data-id="{{ product.id }}">
+          {{ product.metafields.judgeme.widget }}
+        </div>
+      </div>
+    {%- endif -%}
+
+  </div>
+
+  {%- if s.sticky_bar -%}
+    {%- comment -%} Rendered LAST inside the section on purpose: hov-wishlist.js's
+        price scrape takes the first '[class*="price"]' in DOM order, and this bar
+        repeats the price. See note 4 in the header. Hidden until sh-product.js
+        shows it on mobile after the buy row scrolls away. {%- endcomment -%}
+    <aside class="sh-pdp__sticky" data-sh-sticky hidden aria-hidden="true">
+      {%- if product.featured_image -%}
+        <img src="{{ product.featured_image | image_url: width: 96 }}"
+             width="48" height="48" alt="" loading="lazy">
+      {%- endif -%}
+      <span class="sh-pdp__sticky-txt">
+        <span class="sh-pdp__sticky-title" data-sh-sticky-title>
+          {%- if product.has_only_default_variant %}{{ product.title }}{% else %}{{ initial.title }}{% endif -%}
+        </span>
+        <span class="sh-pdp__sticky-amt" data-sh-sticky-amt>{{ initial.price | money }}</span>
+      </span>
+      <button type="button" class="sh-pdp__sticky-atc" data-sh-sticky-atc
+              {% unless initial.available %}disabled{% endunless %}>
+        {%- if initial.available %}Add to cart{% else %}Sold out{% endif -%}
+      </button>
+    </aside>
+  {%- endif -%}
+
+  <script type="application/json" data-sh-variants>{{ product.variants | json }}</script>
+</section>
+
+<script src="{{ 'sh-product.js' | asset_url }}" defer></script>
+
+{% schema %}
+{
+  "name": "SH · Product",
+  "settings": [
+    { "type": "header", "content": "Layout" },
+    { "type": "checkbox", "id": "show_breadcrumb", "label": "Show breadcrumb", "default": true },
+    { "type": "checkbox", "id": "show_wishlist", "label": "Show wishlist heart", "default": true },
+    { "type": "color", "id": "bg", "label": "Background", "default": "#fdfbf7",
+      "info": "Keep it light — the pack cards, trust panel and gold button are tuned for a light surface." },
+    { "type": "range", "id": "pad_top", "label": "Top padding", "min": 0, "max": 80, "step": 4, "unit": "px", "default": 24 },
+    { "type": "range", "id": "pad_bottom", "label": "Bottom padding", "min": 0, "max": 80, "step": 4, "unit": "px", "default": 48 },
+
+    { "type": "header", "content": "Pack options" },
+    { "type": "range", "id": "most_popular_position", "label": "\"Most popular\" option", "min": 1, "max": 6, "step": 1, "default": 2,
+      "info": "Which option gets the badge and is pre-selected, counted top to bottom. Ignored when that option is sold out, when the product has a single variant, or when the visitor arrives on a link to a specific option." },
+
+    { "type": "header", "content": "Offer countdown" },
+    { "type": "checkbox", "id": "countdown_enable", "label": "Enable countdown", "default": false },
+    { "type": "text", "id": "countdown_text", "label": "Countdown text", "default": "Hurry! Offer expires in" },
+    { "type": "text", "id": "countdown_end_date", "label": "Offer end date",
+      "info": "YYYY-MM-DD, e.g. 2026-09-15. Leave empty to hide the countdown." },
+    { "type": "text", "id": "countdown_end_time", "label": "Offer end time", "default": "23:59",
+      "info": "24-hour HH:MM, in each shopper's local time. The countdown hides itself once this moment passes — it never restarts per visit." },
+
+    { "type": "header", "content": "Trust panel" },
+    { "type": "text", "id": "trust_line_1", "label": "Left title", "default": "No hidden fees" },
+    { "type": "text", "id": "trust_line_2", "label": "Left text", "default": "Discounts & gifts will be applied at checkout" },
+    { "type": "text", "id": "trust_secure", "label": "Right title", "default": "100% Secure Checkout" },
+    { "type": "text", "id": "tax_note", "label": "Note beside the price", "default": "(Inc of all taxes.)" },
+
+    { "type": "header", "content": "Mobile sticky bar" },
+    { "type": "checkbox", "id": "sticky_bar", "label": "Show sticky add-to-cart bar", "default": true,
+      "info": "Phones and tablets only. Appears once the buy buttons scroll out of view." },
+
+    { "type": "header", "content": "Below the buy box" },
+    { "type": "checkbox", "id": "show_categories", "label": "Show categories", "default": true },
+    { "type": "checkbox", "id": "show_details", "label": "Show product details accordion", "default": true },
+    { "type": "checkbox", "id": "show_reviews", "label": "Show reviews", "default": true }
+  ]
+}
+{% endschema %}

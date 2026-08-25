@@ -103,6 +103,9 @@
     var sectionTop = 0, stickyTop = 0, scrollSpan = 1;
     /* -- cover-fit rect in backing-store px: computed once per resize ------- */
     var fitX = 0, fitY = 0, fitW = 0, fitH = 0;
+    var drawnIdx = -1;                 // frame index actually on the canvas
+    var qualityLow = false;            // ctx is in scrub-time 'low' filtering
+    var lowPainted = false;            // ...and at least one frame used it
 
     /* -- listener recorder so teardown can drop every one ------------------- */
     var binds = [];
@@ -173,21 +176,45 @@
       if (isNaN(cap) || cap <= 0) cap = DPR_MAX;
       var dpr = Math.min(window.devicePixelRatio || 1, cap);
 
-      canvas.width  = Math.round(w * dpr);
-      canvas.height = Math.round(h * dpr);
-      canvas.style.width  = w + 'px';
-      canvas.style.height = h + 'px';
+      var bw = Math.round(w * dpr), bh = Math.round(h * dpr);
+      var sameStore = (bw === canvas.width && bh === canvas.height);
 
-      // CRITICAL: assigning canvas.width resets the ENTIRE 2D context state,
-      // including these. They must be re-set after every resize, not once at
-      // init — setting them once is the same bug as never setting them.
-      ctx.imageSmoothingEnabled = true;
-      if ('imageSmoothingQuality' in ctx) ctx.imageSmoothingQuality = 'high';
-      ctx.globalAlpha = 1;
+      // The CSS box must track the pin even when the physical store does not:
+      // browser zoom changes CSS pixels while leaving physical pixels the same
+      // (1440px at DPR 1 equals 960px at 150% zoom under the 1.5 cap), and a
+      // stale inline width crops the hero under the pin's overflow:hidden.
+      var cssW = w + 'px', cssH = h + 'px';
+      if (canvas.style.width !== cssW)  canvas.style.width  = cssW;
+      if (canvas.style.height !== cssH) canvas.style.height = cssH;
 
+      if (!sameStore) {
+        canvas.width  = bw;
+        canvas.height = bh;
+
+        // CRITICAL: assigning canvas.width resets the ENTIRE 2D context state,
+        // including these. They must be re-set after every resize, not once at
+        // init — setting them once is the same bug as never setting them.
+        ctx.imageSmoothingEnabled = true;
+        if ('imageSmoothingQuality' in ctx) ctx.imageSmoothingQuality = 'high';
+        ctx.globalAlpha = 1;
+        qualityLow = false;
+      }
+
+      // computeFit ALWAYS runs: the settle() that learns srcW re-enters here
+      // with the store already at its final size, and skipping the fit math
+      // on that call leaves fitW at zero — every draw then silently paints
+      // nothing onto an opaque-black canvas.
+      var pX = fitX, pY = fitY, pW = fitW, pH = fitH;
       computeFit();
-      lastKey = -1;
       measure();
+
+      // The body ResizeObserver lands here for ANY page-height change —
+      // lazysizes swaps, carousel init, the webfont. If neither the backing
+      // store nor the fit rect moved, nothing visual changed: the geometry
+      // cache above is refreshed and the forced multi-MP redraw is skipped.
+      if (sameStore && pX === fitX && pY === fitY && pW === fitW && pH === fitH) return;
+
+      lastKey = -1;
       draw(currentFrame);
     }
 
@@ -250,6 +277,9 @@
         }
       }
 
+      drawnIdx = a;
+      if (qualityLow) lowPainted = true;
+
       if (!isReady) { isReady = true; root.classList.add('is-ready'); }
     }
 
@@ -308,7 +338,11 @@
         if (Math.abs(target - currentFrame) < SNAP_EPS) currentFrame = target;
       }
 
-      draw(currentFrame);
+      // A frame that already blew a 30fps budget should not also pay for the
+      // blend's second drawImage: an integer index makes frac 0, which the
+      // BLEND_MIN gate inside draw() turns into a single draw. Stepping on a
+      // frame that was janky anyway is invisible; its cost was not.
+      draw(dt > 34 ? Math.round(currentFrame) : currentFrame);
       overlays(p);
 
       var moving = (y !== lastY) || (currentFrame !== target);
@@ -319,6 +353,18 @@
         // Purely a styling hook: lets the trust bar / badge restore their
         // backdrop-filter once the scrub settles. No effect on the scrub.
         root.classList.remove('is-scrubbing');
+        // The scrub ran at 'low' filtering (see wake()); re-render the frame
+        // people actually study at full quality before parking the loop —
+        // but only if something was actually painted at 'low' since this
+        // wake. A keydown/pointerdown wake that never scrolled left the
+        // existing 'high' pixels untouched, and redrawing them is pure waste.
+        if ('imageSmoothingQuality' in ctx) ctx.imageSmoothingQuality = 'high';
+        qualityLow = false;
+        if (lowPainted) {
+          lowPainted = false;
+          lastKey = -1;
+          draw(currentFrame);
+        }
         return;                                                    // do NOT re-request
       }
 
@@ -330,6 +376,14 @@
       runningLoop = true;
       lastT = 0;                       // dt = 0 on the resume frame
       root.classList.add('is-scrubbing');   // styling hook only — see loop()
+      // Motion masks resampling quality, so scrub at 'low' and pay for 'high'
+      // exactly once, on the idle bail in loop() — the same trade the trust
+      // bar makes with its is-scrubbing backdrop-filter swap in the CSS.
+      if ('imageSmoothingQuality' in ctx) {
+        ctx.imageSmoothingQuality = 'low';
+        qualityLow = true;
+        lowPainted = false;
+      }
       rafId = requestAnimationFrame(loop);
     }
 
@@ -382,7 +436,12 @@
     var poolSize = 4;                  // raised after load; see boot()
 
     function pump() {
-      while (inflight < poolSize && cursor < order.length) {
+      // Every arrival costs a WebP decode; eight concurrent arrivals under a
+      // live scrub was the measured stall. Halve the pool while the loop is
+      // running — settle() re-calls pump() on each arrival, so depth recovers
+      // to poolSize on the first arrival after the scrub goes idle.
+      var depth = runningLoop ? 4 : poolSize;
+      while (inflight < depth && cursor < order.length) {
         load(order[cursor], cursor);
         cursor++;
       }
@@ -410,7 +469,10 @@
 
       img.decoding = 'async';
       if ('fetchPriority' in img) {
-        img.fetchPriority = rank < 4 ? 'high' : (rank > order.length * 0.5 ? 'low' : 'auto');
+        // Never 'high': the poster is the LCP element and already carries
+        // fetchpriority="high" in the section — early frames at 'high' compete
+        // with it for pre-LCP bandwidth. 'auto' still outranks the tail.
+        img.fetchPriority = rank > order.length * 0.5 ? 'low' : 'auto';
       }
       img.onload = function () {
         // decode() moves the WebP decode off the first drawImage, which would
@@ -437,7 +499,20 @@
           resize();                                  // now that fit is knowable
         }
         if (!started) start();
-        else { lastKey = -1; wake(); }  // a new frame changes what can be drawn
+        // Only force a redraw when the arrival can change what is on screen:
+        // near the scrub position, or closer to it than the stand-in actually
+        // drawn. Waking for ALL 240 arrivals produced a redraw storm — a
+        // full-canvas upscale plus a possible lazy re-decode each —
+        // interleaved with the user's first scrub, while this test keeps an
+        // idle visitor converging arrival by arrival on slow networks.
+        // drained() still forces one final pass so the resting frame always
+        // ends on the genuine frame for the position.
+        else if (Math.abs(i - currentFrame) < 3 ||
+                 (drawnIdx >= 0 &&
+                  Math.abs(i - currentFrame) < Math.abs(drawnIdx - currentFrame))) {
+          lastKey = -1;
+          wake();
+        }
       } else {
         failed[i] = 1;
       }
@@ -457,6 +532,12 @@
       // uploaded, the tail 404s. Clamp so the scrub ends on the real last frame
       // instead of freezing on a blank stretch.
       while (total > 1 && failed[total - 1] && !ready[total - 1]) total--;
+
+      // settle() no longer wakes for far-away arrivals, so run one forced
+      // pass now that everything has landed: whatever stand-in is on screen
+      // gets replaced by the genuine frame for the current position.
+      lastKey = -1;
+      wake();
 
       if (loadedCount === 0) {
         // No frames at all — keep the poster, collapse the tall wrapper so the

@@ -59,7 +59,6 @@
       class="hov-reelpop__video"
       src="{{ 'Shudhi_Herbals_promotional_reel_202608161527.webm' | asset_url }}"
       muted
-      autoplay
       loop
       playsinline
       preload="metadata">
@@ -391,14 +390,58 @@
     }
   }
 
-  // Trigger autoplay attempt
-  attemptAutoplay();
+  // The hero is a scroll-scrubbed canvas; a continuously-decoding video
+  // composited over it measurably worsens scrub frame times, and two motion
+  // systems competing reads as noise, not premium. Play only once the visitor
+  // is past the hero; pause again if they scroll back up. An explicit tap or
+  // maximize overrides the gate for the rest of the visit. Under
+  // prefers-reduced-motion the reel stays on its poster frame, tap-to-play only.
+  const mqReduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const hero = document.querySelector('.sh-hero');
+  let heroBlocked = false;
+  let userPlayed = false;
+
+  function syncPlayback() {
+    if (mqReduce.matches) { video.pause(); return; }
+    if (heroBlocked && !userPlayed) {
+      if (!video.paused) video.pause();
+    } else if (video.paused) {
+      attemptAutoplay();
+    }
+  }
+
+  // Without autoplay some engines (iOS Safari notably) never paint a first
+  // frame on their own — the tile would sit solid black over the hero. Nudge
+  // currentTime once metadata is in so a single frame decodes as the poster.
+  const paintFirstFrame = () => {
+    if (video.paused && video.currentTime === 0) { try { video.currentTime = 0.001; } catch (e) {} }
+  };
+  if (video.readyState >= 1) paintFirstFrame();
+  else video.addEventListener('loadedmetadata', paintFirstFrame, { once: true });
+
+  let heroObserver = null;
+  if (hero && !mqReduce.matches && 'IntersectionObserver' in window) {
+    heroBlocked = true;   // the hero starts at the top of the page
+    heroObserver = new IntersectionObserver((entries) => {
+      // Last entry: a batched enter+leave delivery (fast flick, tab restore)
+      // must resolve to the CURRENT state, not the oldest record.
+      heroBlocked = entries[entries.length - 1].isIntersecting;
+      syncPlayback();
+    });
+    heroObserver.observe(hero);
+  } else {
+    syncPlayback();
+  }
 
   // Close button functionality
   closeBtn?.addEventListener('click', (e) => {
     e.stopPropagation();
     popup.setAttribute('data-dismissed', 'true');
     sessionStorage.setItem(DISMISS_KEY, 'true');
+    // Stop watching the hero too — otherwise the observer closure keeps the
+    // detached video alive and can restart a muted, invisible decode when
+    // the visitor scrolls past the hero after dismissing.
+    heroObserver?.disconnect();
     video.pause();
     setTimeout(() => popup.remove(), 320);
   });
@@ -430,7 +473,9 @@
     isMinimized = false;
     popup.setAttribute('data-minimized', 'false');
     sessionStorage.setItem(MINIMIZE_KEY, 'false');
-    // Ensure video is playing when maximized
+    // Ensure video is playing when maximized — an explicit user action
+    // overrides the over-hero pause gate for the rest of the visit.
+    userPlayed = true;
     if (video.paused) {
       attemptAutoplay();
     }
@@ -441,6 +486,10 @@
     video.muted = !video.muted;
     popup.setAttribute('data-muted', video.muted ? 'true' : 'false');
     unmuteBtn.querySelector('span').textContent = video.muted ? 'Tap to unmute' : 'Tap to mute';
+    // Unmuting a gated (paused-over-hero) reel is explicit engagement: start
+    // playback inside THIS click's gesture context, instead of letting the
+    // observer callback attempt an unmuted play() later without one.
+    if (!video.muted && video.paused) { userPlayed = true; syncPlayback(); }
   }
 
   // Unmute button click handler
@@ -455,6 +504,7 @@
     if (e.target.closest('.hov-reelpop__actions, .hov-reelpop__unmute, .hov-reelpop__maximize-overlay')) return;
     
     if (video.paused) {
+      userPlayed = true;   // explicit tap overrides the over-hero pause gate
       video.play().then(() => {
         popup.classList.remove('hov-reelpop--needs-tap');
       }).catch(() => {});

@@ -69,6 +69,13 @@
                 multiplies by 220 to get a millisecond time-constant. {%- endcomment -%}
             data-smoothing="{{ s.smoothing | divided_by: 100.0 }}"
             data-blend="{{ s.blend_frames }}"
+            {% comment %} Caps the engine's devicePixelRatio (default 2).
+                1.5 cuts backing-store pixels 44% on DPR-2 screens — measured
+                GPU raster was the scrub bottleneck — while the 1280x720
+                source stays the detail ceiling, so nothing visibly softens.
+                Tracks the shipped frame resolution, not merchant taste;
+                hence an attribute, not a schema setting. {%- endcomment -%}
+            data-dpr-cap="1.5"
             role="img"
             aria-label="{{ s.headline_l1 }} {{ s.headline_l2 }} {{ s.headline_l3 }}"></canvas>
 
