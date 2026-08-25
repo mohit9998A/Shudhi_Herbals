@@ -1,0 +1,926 @@
+/* ============================================================
+   SHUDHI — PRODUCT PAGE (sections/sh-product.liquid)
+
+   Page-scoped by the same bargain shudhi-story.css strikes: shudhi-home.css
+   is the everywhere budget, this file loads only where the section renders
+   (Shopify dedupes the stylesheet_tag). Everything here is scoped under
+   .sh-pdp — no bare-element selectors, ever.
+
+   The --sh-* base tokens come from shudhi-home.css, which loads globally.
+   The light-surface trio is restated on the root below, the way .sh-story,
+   .sh-signature and .sh-tmarquee each restate it: gold that CARRIES TEXT on
+   a light surface must be --sh-story-gold-ink (#7a5d2e, 5.3:1) — --sh-gold
+   is 1.95:1 on cream and is decoration only.
+
+   Two scoped repaints of shared components live here, both with a precedent:
+   - .sh-pdp .sh-pdp__buy .sh-pdp__atc repaints the .hov-cart__btn conversion applied by
+     assets/hov-cart-checkout.js (same move as .sh-signature .sh-btn--solid
+     repainting the shared button). Its loading/success state colours are
+     restated below because THIS stylesheet loads after hov-cart-checkout.css
+     — at equal specificity our base rule would flatten the state feedback,
+     so the states are re-declared rather than left to inheritance.
+   - .sh-pdp .shopify-payment-button__button--unbranded gets the dark ink
+     treatment (the "SHOP NOW" bargain from shudhi-home.css §22).
+
+   Selector depth on buttons is deliberate: shudhi-home.css resets
+   `.sh button:not(.sh-btn)` at (0,2,1) — background none, border 0,
+   padding 0 — so every styled <button> here is reached at (0,3,0)+ or it
+   renders as bare text. Two classes are not enough.
+
+   Breakpoints follow the house ladder: 989 stacks the split grid, 599 is
+   phone tuning, and the reduced-motion block sits adjacent at the bottom —
+   both properties killed, never just the transition (a snap is louder than
+   the motion it replaces).
+   ============================================================ */
+
+.sh-pdp {
+  --sh-story-ink: #1b2a12;
+  --sh-story-body: #474a3d;
+  --sh-story-gold: #b8965c;
+  --sh-story-gold-ink: #7a5d2e;
+
+  --sh-pdp-bg: #fdfbf7;            /* fallback; the section's inline prop wins */
+  --sh-pdp-card: #ffffff;
+  --sh-pdp-line: #e5e1d8;
+  --sh-pdp-line-strong: rgba(27, 42, 18, 0.35);
+  --sh-pdp-tint: #f7f3ea;
+  --sh-pdp-blush: #fbeeea;
+  --sh-pdp-blush-ink: #a53d2e;
+  --sh-pdp-green: #3f9a4f;
+  --sh-pdp-radius: 10px;
+
+  position: relative;
+  background: var(--sh-pdp-bg);
+  color: var(--sh-story-ink);
+  padding-block: var(--sh-pdp-pad-top, 24px) var(--sh-pdp-pad-bottom, 48px);
+}
+
+/* Legacy leak neutralisers — houseofveda-modern.css paints h1-h6 in
+   --hov-dark and timber.scss capitalises them. Every heading rendered by
+   this section opts back out, the way every sh-* section does. */
+.sh-pdp h1,
+.sh-pdp h2,
+.sh-pdp h3 {
+  color: inherit;
+  text-transform: none;
+  margin: 0;
+}
+
+.sh-pdp img { max-width: 100%; }
+
+/* Focus indicators. The !important is required, not decorative: style-main
+   carries a universal `outline: 0 !important` and the ring loses without it
+   (same note as shudhi-home.css:2949). */
+.sh-pdp a:focus-visible,
+.sh-pdp button:focus-visible,
+.sh-pdp input:focus-visible,
+.sh-pdp summary:focus-visible {
+  outline: 2px solid var(--sh-story-ink) !important;
+  outline-offset: 3px;
+}
+
+/* ---------------------------------------------------------- breadcrumb */
+
+.sh-pdp__crumbs {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 100%;
+  padding: 9px 18px;
+  margin-bottom: clamp(18px, 2.5vw, 30px);
+  background: var(--sh-pdp-tint);
+  border: 1px solid var(--sh-pdp-line);
+  border-radius: 999px;
+  font-size: 0.82rem;
+}
+
+.sh-pdp__crumbs a {
+  color: var(--sh-story-ink);
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sh-pdp__crumbs a[aria-current="page"] {
+  color: var(--sh-story-body);
+  font-weight: 400;
+}
+
+.sh-pdp__crumbs a:hover { color: var(--sh-story-gold-ink); }
+
+.sh-pdp__crumbs .sh-icon {
+  width: 12px;
+  height: 12px;
+  flex: none;
+  color: var(--sh-story-body);
+}
+
+/* ---------------------------------------------------------- split grid */
+
+.sh-pdp__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 11fr) minmax(0, 9fr);
+  gap: clamp(28px, 4.5vw, 72px);
+  align-items: start;
+}
+
+/* ---------------------------------------------------------- gallery */
+
+.sh-pdp__slide { display: none; margin: 0; }
+.sh-pdp__slide.is-active { display: block; }
+
+.sh-pdp__slide img,
+.sh-pdp__placeholder {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+}
+
+.sh-pdp__thumbs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.sh-pdp .sh-pdp__thumbs .sh-pdp__thumb {
+  display: block;
+  width: 72px;
+  height: 72px;
+  padding: 0;
+  background: var(--sh-pdp-card);
+  border: 1px solid var(--sh-pdp-line);
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: pointer;
+  opacity: 0.75;
+  transition: border-color 0.2s ease, opacity 0.2s ease;
+}
+
+.sh-pdp .sh-pdp__thumbs .sh-pdp__thumb img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.sh-pdp .sh-pdp__thumbs .sh-pdp__thumb:hover { opacity: 1; }
+
+.sh-pdp .sh-pdp__thumbs .sh-pdp__thumb[aria-current="true"] {
+  opacity: 1;
+  border-color: var(--sh-story-ink);
+  box-shadow: inset 0 0 0 1px var(--sh-story-ink);
+}
+
+/* ---------------------------------------------------------- title row */
+
+.sh-pdp__head {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.sh-pdp__title {
+  font-size: clamp(1.55rem, 2.4vw, 2.1rem);
+  font-weight: 500;
+  line-height: 1.15;
+  letter-spacing: -0.005em;
+}
+
+/* hov-wishlist.css positions every heart absolute top/right 12px for the
+   product cards; here it sits in the title row, so put it back in flow */
+.sh-pdp__head .hov-wish__btn {
+  position: relative;
+  top: auto;
+  right: auto;
+  flex: none;
+  margin-left: auto;
+  margin-top: 2px;
+}
+
+.sh-pdp__dot {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  margin-left: 8px;
+  border-radius: 50%;
+  background: var(--sh-pdp-green);
+  vertical-align: middle;
+}
+
+.sh-pdp__dot.is-out { background: var(--sh-pdp-blush-ink); }
+
+/* ---------------------------------------------------------- price */
+
+.sh-pdp__cost {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 10px;
+  margin: 12px 0 0;
+}
+
+.sh-pdp__price {
+  font-size: 1.35rem;
+  font-weight: 600;
+  color: var(--sh-story-ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.sh-pdp__tax {
+  font-size: 0.85rem;
+  color: var(--sh-story-body);
+}
+
+/* ---------------------------------------------------------- countdown */
+
+.sh-pdp__timer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 16px;
+  padding: 11px 16px;
+  background: var(--sh-pdp-blush);
+  border: 1px solid rgba(165, 61, 46, 0.16);
+  border-radius: var(--sh-pdp-radius);
+}
+
+.sh-pdp__timer-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--sh-pdp-blush-ink);
+}
+
+.sh-pdp__timer-digits {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.sh-pdp__timer-seg {
+  display: inline-block;
+  min-width: 2.2em;
+  padding: 3px 7px;
+  background: var(--sh-story-ink);
+  color: #f4efe6;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.sh-pdp__timer-colon {
+  color: var(--sh-pdp-blush-ink);
+  font-weight: 600;
+}
+
+/* ---------------------------------------------------------- pack cards */
+
+.sh-pdp__form { margin-top: 18px; }
+
+.sh-pdp__packs {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.sh-pdp__pack {
+  display: block;
+  position: relative;
+  margin: 0;              /* bootstrap gives every <label> margin-bottom .5rem */
+  cursor: pointer;
+}
+
+.sh-pdp__pack.is-soldout { cursor: not-allowed; }
+
+.sh-pdp__pack-card {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 14px;
+  position: relative;
+  padding: 15px 18px;
+  background: var(--sh-pdp-card);
+  border: 1px solid var(--sh-pdp-line);
+  border-radius: var(--sh-pdp-radius);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+.sh-pdp__pack:hover .sh-pdp__pack-card {
+  border-color: var(--sh-pdp-line-strong);
+}
+
+.sh-pdp__pack.is-soldout .sh-pdp__pack-card {
+  opacity: 0.55;
+}
+
+.sh-pdp__pack.is-soldout:hover .sh-pdp__pack-card {
+  border-color: var(--sh-pdp-line);
+}
+
+/* Selected: the second line is an inset shadow, not a wider border — a border
+   width change would shift the card's content by a pixel on every toggle. */
+.sh-pdp__pack-input:checked + .sh-pdp__pack-card {
+  border-color: var(--sh-story-ink);
+  box-shadow: inset 0 0 0 1px var(--sh-story-ink), 0 10px 24px rgba(27, 42, 18, 0.10);
+}
+
+.sh-pdp__pack-input:focus-visible + .sh-pdp__pack-card {
+  outline: 2px solid var(--sh-story-ink);
+  outline-offset: 3px;
+}
+
+/* the drawn radio */
+.sh-pdp__pack-radio {
+  position: relative;
+  width: 20px;
+  height: 20px;
+  flex: none;
+  border: 1.5px solid rgba(71, 74, 61, 0.45);
+  border-radius: 50%;
+  transition: border-color 0.2s ease;
+}
+
+.sh-pdp__pack-radio::after {
+  content: "";
+  position: absolute;
+  inset: 4px;
+  border-radius: 50%;
+  background: var(--sh-story-ink);
+  transform: scale(0);
+  transition: transform 0.15s ease;
+}
+
+.sh-pdp__pack-input:checked + .sh-pdp__pack-card .sh-pdp__pack-radio {
+  border-color: var(--sh-story-ink);
+}
+
+.sh-pdp__pack-input:checked + .sh-pdp__pack-card .sh-pdp__pack-radio::after {
+  transform: scale(1);
+}
+
+.sh-pdp__pack-name {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--sh-story-ink);
+}
+
+.sh-pdp__pack-off {
+  padding: 3px 8px;
+  background: var(--sh-story-ink);
+  color: #f4efe6;
+  border-radius: 999px;
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.sh-pdp__pack-note {
+  display: block;
+  margin-top: 3px;
+  font-size: 0.85rem;
+  color: var(--sh-story-body);
+}
+
+.sh-pdp__pack-money {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.sh-pdp__pack-amount {
+  display: block;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--sh-story-ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.sh-pdp__was {
+  display: block;
+  margin-top: 2px;
+  font-size: 0.85rem;
+  color: rgba(71, 74, 61, 0.6);
+  font-variant-numeric: tabular-nums;
+}
+
+.sh-pdp__pack-flag {
+  position: absolute;
+  top: -10px;
+  right: 14px;
+  padding: 4px 10px;
+  background: var(--sh-story-ink);
+  color: #f4efe6;
+  border-radius: 999px;
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.sh-pdp__noscript {
+  margin: 8px 0 0;
+  font-size: 0.82rem;
+  color: var(--sh-story-body);
+}
+
+/* ---------------------------------------------------------- savings */
+
+.sh-pdp__saving {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 14px 0 0;
+  padding: 12px 16px;
+  background: var(--sh-pdp-tint);
+  border-radius: 8px;
+  font-size: 0.92rem;
+  color: var(--sh-story-body);
+}
+
+.sh-pdp__saving.is-hidden { display: none; }
+
+.sh-pdp__saving .sh-icon {
+  width: 16px;
+  height: 16px;
+  flex: none;
+  color: var(--sh-story-gold-ink);
+}
+
+.sh-pdp__saving strong {
+  color: var(--sh-story-ink);
+  font-weight: 600;
+}
+
+/* ---------------------------------------------------------- trust */
+
+.sh-pdp__trust {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.sh-pdp__trust-item {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 12px 14px;
+  background: var(--sh-pdp-tint);
+  border-radius: 8px;
+}
+
+.sh-pdp__trust-item > .sh-icon {
+  width: 34px;
+  height: 34px;
+  flex: none;
+  padding: 7px;
+  background: var(--sh-story-ink);
+  color: #f4efe6;
+  border-radius: 8px;
+}
+
+.sh-pdp__trust-item:last-child {
+  background: transparent;
+  border: 1px solid var(--sh-pdp-line);
+  justify-content: center;
+}
+
+.sh-pdp__trust-item:last-child > .sh-icon {
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  background: none;
+  color: var(--sh-story-gold-ink);
+}
+
+.sh-pdp__trust-copy {
+  font-size: 0.8rem;
+  line-height: 1.45;
+  color: var(--sh-story-body);
+}
+
+.sh-pdp__trust-copy strong {
+  display: block;
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: var(--sh-story-ink);
+}
+
+.sh-pdp__trust-item:last-child .sh-pdp__trust-copy strong { display: inline; }
+
+/* ---------------------------------------------------------- buy row */
+
+.sh-pdp__buy {
+  display: flex;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.sh-pdp__qty {
+  display: flex;
+  align-items: stretch;
+  flex: none;
+  height: 52px;
+  background: var(--sh-pdp-card);
+  border: 1px solid var(--sh-pdp-line);
+  border-radius: 8px;
+}
+
+.sh-pdp .sh-pdp__qty button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  padding: 0;
+  background: none;
+  border: 0;
+  color: var(--sh-story-ink);
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.sh-pdp .sh-pdp__qty button:first-child { border-radius: 7px 0 0 7px; }
+.sh-pdp .sh-pdp__qty button:last-child { border-radius: 0 7px 7px 0; }
+
+.sh-pdp .sh-pdp__qty button:hover { background: var(--sh-pdp-tint); }
+
+.sh-pdp .sh-pdp__qty button .sh-icon { width: 14px; height: 14px; }
+
+/* (0,2,1) so houseofveda-modern.css's input[type="text"] border/padding/
+   width:100% rule never wins a tie */
+.sh-pdp .sh-pdp__qty input {
+  width: 44px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  text-align: center;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--sh-story-ink);
+}
+
+/* The gold Add to Cart. This selector must keep winning after
+   hov-cart-checkout.js adds .hov-cart__btn to the same element — see the
+   header comment for why the busy states are restated below. */
+.sh-pdp .sh-pdp__buy .sh-pdp__atc {
+  flex: 1;
+  height: auto;
+  min-height: 52px;
+  min-width: 0;
+  padding: 0 20px;
+  border: 0;
+  border-radius: 8px;
+  background-color: var(--sh-accent);
+  background-image: linear-gradient(100deg, var(--sh-accent-soft) 0%, var(--sh-accent) 46%, var(--sh-accent-deep) 100%);
+  color: var(--sh-accent-fg);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+  /* gold fill alone has no 3:1 boundary on a light page — WCAG 1.4.11 rim.
+     shudhi-home.css:2979 draws it with outline, but style-main carries a
+     universal `outline: 0 !important` that wins here, so this one is an
+     inset shadow: nothing overlays the fill on this button, so it stays
+     visible on hover (the reason the .sh-btn variant avoided it). */
+  box-shadow: inset 0 0 0 1px var(--sh-accent-edge);
+  transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.sh-pdp .sh-pdp__buy .sh-pdp__atc:hover:not([data-state]):not(:disabled) {
+  background-image: linear-gradient(100deg, var(--sh-accent) 0%, var(--sh-accent-deep) 100%);
+  transform: translateY(-1px);
+  box-shadow: inset 0 0 0 1px var(--sh-accent-edge), 0 6px 18px rgba(138, 106, 44, 0.28);
+}
+
+.sh-pdp .sh-pdp__buy .sh-pdp__atc:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* busy states — same data-state contract hov-cart-checkout.css defines,
+   re-coloured for the gold surface */
+.sh-pdp .sh-pdp__buy .sh-pdp__atc[data-state="loading"] {
+  background-image: none;
+  background-color: var(--sh-accent-deep);
+  pointer-events: none;
+}
+
+.sh-pdp .sh-pdp__buy .sh-pdp__atc[data-state="success"] {
+  background-image: none;
+  background-color: #1e5c31;
+  color: #f4efe6;
+  pointer-events: none;
+}
+
+/* ---------------------------------------------------------- buy it now */
+
+.sh-pdp__paybtn { margin-top: 12px; }
+
+/* The !importants here are matched, not gratuitous: engo-customizes.css and
+   houseofveda-modern.css both style this exact class with !important
+   (height 48px, border-radius, letter-spacing, hover background #335030,
+   25px vertical margins), and the .sh button reset out-specifies a
+   two-class selector for colour/background. Every declaration below either
+   beats a legacy !important or the (0,2,1) reset. */
+.sh-pdp .sh-pdp__paybtn .shopify-payment-button__button--unbranded {
+  width: 100% !important;
+  max-width: 100% !important;
+  height: 52px !important;
+  min-height: 52px !important;
+  margin: 0 !important;
+  padding: 0 20px !important;
+  border: 0 !important;
+  border-radius: 8px !important;
+  background: var(--sh-story-ink) !important;
+  color: #f4efe6 !important;
+  font-size: 0.78rem !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.14em !important;
+  text-transform: uppercase !important;
+  transition: background-color 0.3s ease;
+}
+
+.sh-pdp .sh-pdp__paybtn .shopify-payment-button__button--unbranded:hover:not([disabled]) {
+  background: #0f1a08 !important;
+}
+
+.sh-pdp__paybtn .shopify-payment-button__more-options {
+  color: var(--sh-story-body);
+  font-size: 0.8rem;
+}
+
+/* ---------------------------------------------------------- meta */
+
+.sh-pdp__meta {
+  margin: 18px 0 0;
+  font-size: 0.85rem;
+  color: var(--sh-story-body);
+}
+
+.sh-pdp__meta-label { font-weight: 600; color: var(--sh-story-ink); }
+
+.sh-pdp__meta a {
+  color: var(--sh-story-body);
+  text-decoration: none;
+}
+
+.sh-pdp__meta a:hover {
+  color: var(--sh-story-gold-ink);
+  text-decoration: underline;
+}
+
+/* ---------------------------------------------------------- details accordion */
+
+.sh-pdp__details {
+  margin-top: clamp(40px, 5vw, 64px);
+}
+
+.sh-pdp__acc {
+  border-top: 1px solid var(--sh-pdp-line);
+}
+
+.sh-pdp__acc:last-child {
+  border-bottom: 1px solid var(--sh-pdp-line);
+}
+
+.sh-pdp__acc summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 18px 4px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.sh-pdp__acc summary::-webkit-details-marker { display: none; }
+
+.sh-pdp__acc-title {
+  font-size: 1.2rem;
+  font-weight: 500;
+}
+
+.sh-pdp__acc-icon {
+  width: 16px;
+  height: 16px;
+  flex: none;
+  color: var(--sh-story-gold-ink);
+  transition: transform 0.25s ease;
+}
+
+.sh-pdp__acc[open] > summary .sh-pdp__acc-icon {
+  transform: rotate(45deg);
+}
+
+.sh-pdp__acc-body {
+  padding: 0 4px 22px;
+  max-width: 72ch;
+  font-size: 0.95rem;
+  line-height: 1.75;
+  color: var(--sh-story-body);
+}
+
+.sh-pdp__facts {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: 8px 22px;
+  margin: 0;
+}
+
+.sh-pdp__facts dt { font-weight: 600; color: var(--sh-story-ink); }
+.sh-pdp__facts dd { margin: 0; }
+
+.sh-pdp__acc-body p { margin: 0 0 1em; }
+.sh-pdp__acc-body p:last-child { margin-bottom: 0; }
+
+/* ---------------------------------------------------------- reviews */
+
+.sh-pdp__reviews {
+  margin-top: clamp(40px, 5vw, 64px);
+}
+
+.sh-pdp .sh-pdp__reviews-title {
+  margin-bottom: 18px;
+  font-size: clamp(1.4rem, 2vw, 1.8rem);
+  font-weight: 500;
+}
+
+/* ---------------------------------------------------------- sticky bar */
+
+.sh-pdp__sticky {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  /* above page chrome (header is 900), below every overlay/drawer (100000+) */
+  z-index: 950;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  background: var(--sh-pdp-card);
+  border-top: 1px solid var(--sh-pdp-line);
+  box-shadow: 0 -8px 24px rgba(27, 42, 18, 0.10);
+  transform: translateY(110%);
+  transition: transform 0.3s ease;
+}
+
+.sh-pdp__sticky[hidden] { display: none; }
+
+.sh-pdp__sticky.is-up { transform: translateY(0); }
+
+.sh-pdp__sticky img {
+  width: 44px;
+  height: 44px;
+  flex: none;
+  border-radius: 6px;
+  object-fit: cover;
+}
+
+.sh-pdp__sticky-txt {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.sh-pdp__sticky-title {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--sh-story-ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sh-pdp__sticky-amt {
+  font-size: 0.82rem;
+  color: var(--sh-story-body);
+  font-variant-numeric: tabular-nums;
+}
+
+.sh-pdp .sh-pdp__sticky .sh-pdp__sticky-atc {
+  flex: none;
+  margin-left: auto;
+  min-height: 44px;
+  padding: 0 20px;
+  border: 0;
+  border-radius: 8px;
+  background-color: var(--sh-accent);
+  background-image: linear-gradient(100deg, var(--sh-accent-soft) 0%, var(--sh-accent) 46%, var(--sh-accent-deep) 100%);
+  color: var(--sh-accent-fg);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: inset 0 0 0 1px var(--sh-accent-edge);
+}
+
+.sh-pdp .sh-pdp__sticky .sh-pdp__sticky-atc:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* While the bar is up, the two floating bubbles (theme.liquid's .whatsapp-icon,
+   bottom-left; snippets/hov-chatbot.liquid's #hov-chat-widget, bottom-right)
+   would sit on top of it. sh-product.js flags the root while the bar is
+   shown; they slide up by the bar's height and come back when it hides.
+   transform only — their own bottom/left/right logic is untouched. */
+html.sh-pdp-sticky-up .whatsapp-icon,
+html.sh-pdp-sticky-up #hov-chat-widget {
+  transform: translateY(-70px);
+  transition: transform 0.3s ease;
+}
+
+/* desktop never shows the bar, whatever JS thinks */
+@media (min-width: 990px) {
+  .sh-pdp__sticky { display: none; }
+}
+
+/* the fixed mobile bottom nav (.menu_toolbar, 50px, <576px only) owns the
+   bottom edge there — stack this bar directly above it */
+@media (max-width: 575.98px) {
+  .sh-pdp__sticky { bottom: 50px; }
+}
+
+/* ---------------------------------------------------------- responsive */
+
+@media (max-width: 989px) {
+  .sh-pdp__grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 26px;
+  }
+
+  .sh-pdp__title { font-size: clamp(1.4rem, 4.6vw, 1.8rem); }
+}
+
+@media (max-width: 599px) {
+  .sh-pdp__crumbs {
+    padding: 8px 14px;
+    font-size: 0.78rem;
+  }
+
+  .sh-pdp .sh-pdp__thumbs .sh-pdp__thumb { width: 60px; height: 60px; }
+
+  .sh-pdp__trust { grid-template-columns: minmax(0, 1fr); }
+
+  .sh-pdp__pack-card {
+    gap: 11px;
+    padding: 13px 14px;
+  }
+
+  .sh-pdp__buy { gap: 10px; }
+
+  .sh-pdp__qty { height: 48px; }
+  .sh-pdp .sh-pdp__qty button { width: 40px; }
+  .sh-pdp .sh-pdp__qty input { width: 36px; }
+
+  .sh-pdp .sh-pdp__buy .sh-pdp__atc {
+    min-height: 48px;
+    padding: 0 12px;
+    letter-spacing: 0.1em;
+  }
+}
+
+/* ---------------------------------------------------------- reduced motion */
+
+@media (prefers-reduced-motion: reduce) {
+  .sh-pdp__pack-card,
+  .sh-pdp__pack-radio,
+  .sh-pdp__pack-radio::after,
+  .sh-pdp .sh-pdp__thumbs .sh-pdp__thumb,
+  .sh-pdp__acc-icon,
+  .sh-pdp .sh-pdp__qty button,
+  .sh-pdp .sh-pdp__buy .sh-pdp__atc,
+  .sh-pdp .sh-pdp__paybtn .shopify-payment-button__button--unbranded {
+    transition: none !important;
+  }
+
+  .sh-pdp .sh-pdp__buy .sh-pdp__atc:hover:not([data-state]):not(:disabled) {
+    transform: none !important;
+  }
+
+  /* the bar still appears/disappears, it just stops sliding */
+  .sh-pdp__sticky,
+  html.sh-pdp-sticky-up .whatsapp-icon,
+  html.sh-pdp-sticky-up #hov-chat-widget {
+    transition: none !important;
+  }
+}

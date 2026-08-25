@@ -1,0 +1,165 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ritual scene harness</title>
+<link rel="stylesheet" href="assets/shudhi-home.css">
+<style>
+  /* The harness supplies only what layout/theme.liquid would: nothing that
+     could mask a bug in section 10 or 26. */
+  body { margin:0; background:#1b2411; font-family: 'Jost', system-ui, sans-serif; }
+  /* Debug crosshairs, toggled by ?probe=1. Registered in the SAME viewBox as
+     the scene, so if they land on the soap corners the overlay does too. */
+  .probe { display:none; }
+  html[data-probe] .probe { display:block; }
+</style></head><body>
+<section class="sh sh-ritual" id="ritual-benefits" style="--sh-ritual-h: 92;"
+         data-ritual-reveal data-ritual-cursor>
+
+  <img class="sh-ritual__bg" src="assets/Its a ritual.webp" alt=""
+       width="1536" height="1024" loading="eager" decoding="async">
+
+  <svg class="sh-ritual__scene" viewBox="0 0 1536 1024" preserveAspectRatio="xMidYMid slice"
+       aria-hidden="true" focusable="false">
+    <defs>
+    <radialGradient id="sh-ritual-harness-bloom">
+      <stop offset="0" stop-color="#fff3d8" stop-opacity=".20"/><stop offset=".38" stop-color="#ffeccb" stop-opacity=".11"/>
+      <stop offset=".70" stop-color="#f6e3bd" stop-opacity=".035"/><stop offset="1" stop-color="#f6e3bd" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="sh-ritual-harness-bead">
+      <stop offset="0" stop-color="#ffffff" stop-opacity=".85"/><stop offset=".55" stop-color="#e6f3ee" stop-opacity=".42"/>
+      <stop offset="1" stop-color="#cfe6dc" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="sh-ritual-harness-contact">
+      <stop offset="0" stop-color="#0b1206" stop-opacity=".46"/><stop offset=".62" stop-color="#0b1206" stop-opacity=".18"/>
+      <stop offset="1" stop-color="#0b1206" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="sh-ritual-harness-bounce">
+      <stop offset="0" stop-color="#ffe9bd" stop-opacity=".30"/><stop offset=".70" stop-color="#f0d7a4" stop-opacity=".08"/>
+      <stop offset="1" stop-color="#f0d7a4" stop-opacity="0"/>
+    </radialGradient></defs>
+    <g class="sh-ritual__stage">
+      <g class="sh-ritual__depth" data-ritual-depth="0.12">
+        <g class="sh-ritual__layer" style="--e:0s">
+          <ellipse class="sh-ritual__bloom" cx="776" cy="500" rx="420" ry="210" fill="url(#sh-ritual-harness-bloom)"/>
+        </g>
+      </g>
+      <g class="sh-ritual__depth" data-ritual-depth="0.35">
+        <g class="sh-ritual__layer" style="--e:.12s">
+          <path class="sh-ritual__arc" d="M470,330 C452,430 470,548 546,626 C620,700 700,690 776,690 C852,690 932,700 1006,626 C1082,548 1100,430 1082,330" fill="none" stroke="#dff0e8" stroke-opacity=".22" stroke-width="2.5" stroke-linecap="round"/>
+          <path class="sh-ritual__arc sh-ritual__arc--in" style="--d:-8s" d="M524,360 C510,442 528,536 588,598 C648,658 712,650 776,650 C840,650 904,658 964,598 C1024,536 1042,442 1028,360" fill="none" stroke="#ffffff" stroke-opacity=".13" stroke-width="1.6" stroke-linecap="round"/>
+        </g>
+      </g>
+      <g class="sh-ritual__depth" data-ritual-depth="0.5">
+        <g class="sh-ritual__layer" style="--e:.38s">
+          <g class="sh-ritual__rise">
+            <ellipse cx="778" cy="548" rx="152" ry="27" fill="url(#sh-ritual-harness-contact)"/>
+            <ellipse cx="778" cy="527" rx="118" ry="17" fill="url(#sh-ritual-harness-bounce)"/>
+          </g>
+          <ellipse class="sh-ritual__ring-amb" style="--d:0s" cx="776" cy="560" rx="62" ry="21" fill="none" stroke="#cfe6dc" stroke-opacity=".26" stroke-width="1.4"/>
+          <ellipse class="sh-ritual__ring-amb" style="--d:-6.3s" cx="776" cy="560" rx="112" ry="38" fill="none" stroke="#cfe6dc" stroke-opacity=".18" stroke-width="1.2"/>
+          <ellipse class="sh-ritual__ring-amb" style="--d:-12.6s" cx="776" cy="560" rx="164" ry="55" fill="none" stroke="#cfe6dc" stroke-opacity=".12" stroke-width="1"/>
+        </g>
+      </g>
+      <g class="sh-ritual__depth" data-ritual-depth="0.7">
+        <g class="sh-ritual__layer" style="--e:.26s"><circle class="sh-ritual__bead" cx="599" cy="547" r="4" fill="url(#sh-ritual-harness-bead)" style="--d:-6s; --o:.11" opacity=".11"/>
+<circle class="sh-ritual__bead" cx="736" cy="428" r="3" fill="url(#sh-ritual-harness-bead)" style="--d:-12s; --o:.12" opacity=".12"/>
+<circle class="sh-ritual__bead" cx="873" cy="639" r="2" fill="url(#sh-ritual-harness-bead)" style="--d:-5s; --o:.13" opacity=".13"/>
+<circle class="sh-ritual__bead" cx="1010" cy="520" r="4" fill="url(#sh-ritual-harness-bead)" style="--d:-11s; --o:.14" opacity=".14"/>
+<circle class="sh-ritual__bead" cx="527" cy="401" r="3" fill="url(#sh-ritual-harness-bead)" style="--d:-4s; --o:.15" opacity=".15"/>
+<circle class="sh-ritual__bead" cx="664" cy="612" r="2" fill="url(#sh-ritual-harness-bead)" style="--d:-10s; --o:.16" opacity=".16"/>
+<circle class="sh-ritual__bead" cx="801" cy="493" r="4" fill="url(#sh-ritual-harness-bead)" style="--d:-3s; --o:.17" opacity=".17"/>
+<circle class="sh-ritual__bead" cx="938" cy="374" r="3" fill="url(#sh-ritual-harness-bead)" style="--d:-9s; --o:.18" opacity=".18"/>
+<circle class="sh-ritual__bead" cx="1075" cy="585" r="2" fill="url(#sh-ritual-harness-bead)" style="--d:-2s; --o:.19" opacity=".19"/></g>
+      </g>
+      <g class="probe" stroke="#ff3b6b" stroke-width="3" fill="none">
+        <rect x="599" y="225" width="353" height="307"/>
+        <circle cx="776" cy="560" r="10"/><path d="M756,560h40M776,540v40"/>
+        <circle cx="470" cy="330" r="8"/><circle cx="1082" cy="330" r="8"/>
+        <path d="M0,250h1536M0,775h1536" stroke="#00e5ff" stroke-dasharray="14 10" stroke-width="2"/>
+      </g>
+    </g>
+  </svg>
+
+  <svg class="sh-ritual__air" viewBox="0 0 1536 1024" preserveAspectRatio="xMidYMid slice"
+       aria-hidden="true" focusable="false">
+    <defs>
+    <radialGradient id="sh-ritual-harness-drop">
+      <stop offset="0" stop-color="#ffffff" stop-opacity=".92"/><stop offset=".5" stop-color="#eaf6f0" stop-opacity=".5"/>
+      <stop offset="1" stop-color="#d6ece1" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="sh-ritual-harness-glow-aura"><stop offset="0" stop-color="#e8dcff" stop-opacity=".10"/><stop offset=".45" stop-color="#efe6f6" stop-opacity=".05"/><stop offset="1" stop-color="#efe6f6" stop-opacity="0"/></radialGradient>
+    <radialGradient id="sh-ritual-harness-glow-cleanse"><stop offset="0" stop-color="#cfe6dc" stop-opacity=".12"/><stop offset=".45" stop-color="#dcefe7" stop-opacity=".055"/><stop offset="1" stop-color="#dcefe7" stop-opacity="0"/></radialGradient>
+    <radialGradient id="sh-ritual-harness-glow-ayurveda"><stop offset="0" stop-color="#c8d9a4" stop-opacity=".11"/><stop offset=".45" stop-color="#d8e5bd" stop-opacity=".05"/><stop offset="1" stop-color="#d8e5bd" stop-opacity="0"/></radialGradient>
+    <radialGradient id="sh-ritual-harness-glow-intention"><stop offset="0" stop-color="#f2d9a8" stop-opacity=".11"/><stop offset=".45" stop-color="#f6e6c6" stop-opacity=".05"/><stop offset="1" stop-color="#f6e6c6" stop-opacity="0"/></radialGradient></defs>
+    <g class="sh-ritual__stage">
+      <g class="sh-ritual__depth" data-ritual-depth="0.5">
+        <ellipse class="sh-ritual__glow sh-ritual__glow--aura" cx="776" cy="405" rx="300" ry="145" fill="url(#sh-ritual-harness-glow-aura)"/>
+        <ellipse class="sh-ritual__glow sh-ritual__glow--cleanse" cx="776" cy="560" rx="340" ry="120" fill="url(#sh-ritual-harness-glow-cleanse)"/>
+        <ellipse class="sh-ritual__glow sh-ritual__glow--ayurveda" cx="620" cy="470" rx="250" ry="200" fill="url(#sh-ritual-harness-glow-ayurveda)"/>
+        <ellipse class="sh-ritual__glow sh-ritual__glow--intention" cx="900" cy="500" rx="250" ry="200" fill="url(#sh-ritual-harness-glow-intention)"/>
+      </g>
+      <g class="sh-ritual__depth" data-ritual-depth="0.85">
+        <g class="sh-ritual__layer" style="--e:.3s"><circle class="sh-ritual__bead sh-ritual__bead--near" cx="701" cy="461" r="5" fill="url(#sh-ritual-harness-drop)" style="--d:-4s; --o:.17" opacity=".17"/>
+<circle class="sh-ritual__bead sh-ritual__bead--near" cx="882" cy="558" r="4" fill="url(#sh-ritual-harness-drop)" style="--d:-8s; --o:.20" opacity=".20"/>
+<circle class="sh-ritual__bead sh-ritual__bead--near" cx="563" cy="385" r="3" fill="url(#sh-ritual-harness-drop)" style="--d:-1s; --o:.15" opacity=".15"/>
+<circle class="sh-ritual__bead sh-ritual__bead--near" cx="744" cy="482" r="5" fill="url(#sh-ritual-harness-drop)" style="--d:-5s; --o:.18" opacity=".18"/>
+<circle class="sh-ritual__bead sh-ritual__bead--near" cx="925" cy="579" r="4" fill="url(#sh-ritual-harness-drop)" style="--d:-9s; --o:.21" opacity=".21"/>
+<circle class="sh-ritual__bead sh-ritual__bead--near" cx="606" cy="406" r="3" fill="url(#sh-ritual-harness-drop)" style="--d:-2s; --o:.16" opacity=".16"/></g>
+      </g>
+      <g class="sh-ritual__depth" data-ritual-depth="0.5">
+        <ellipse class="sh-ritual__ring" style="--d:0s" cx="776" cy="560" rx="210" ry="72" fill="none" stroke="#e8f5ee" stroke-opacity=".5" stroke-width="1.6"/>
+        <ellipse class="sh-ritual__ring" style="--d:.18s" cx="776" cy="560" rx="270" ry="92" fill="none" stroke="#e8f5ee" stroke-opacity=".34" stroke-width="1.3"/>
+        <ellipse class="sh-ritual__ring" style="--d:.36s" cx="776" cy="560" rx="330" ry="112" fill="none" stroke="#e8f5ee" stroke-opacity=".2" stroke-width="1.1"/>
+        <g transform="rotate(27 776 530)"><circle class="sh-ritual__spark" cx="776" cy="530" r="7" fill="url(#sh-ritual-harness-drop)" style="--r:73px; --d:47ms"/></g>
+<g transform="rotate(-56 776 530)"><circle class="sh-ritual__spark" cx="776" cy="530" r="6" fill="url(#sh-ritual-harness-drop)" style="--r:86px; --d:94ms"/></g>
+<g transform="rotate(81 776 530)"><circle class="sh-ritual__spark" cx="776" cy="530" r="5" fill="url(#sh-ritual-harness-drop)" style="--r:99px; --d:141ms"/></g>
+<g transform="rotate(-2 776 530)"><circle class="sh-ritual__spark" cx="776" cy="530" r="4" fill="url(#sh-ritual-harness-drop)" style="--r:72px; --d:188ms"/></g>
+<g transform="rotate(-85 776 530)"><circle class="sh-ritual__spark" cx="776" cy="530" r="3" fill="url(#sh-ritual-harness-drop)" style="--r:85px; --d:235ms"/></g>
+<g transform="rotate(52 776 530)"><circle class="sh-ritual__spark" cx="776" cy="530" r="7" fill="url(#sh-ritual-harness-drop)" style="--r:98px; --d:282ms"/></g>
+<g transform="rotate(-31 776 530)"><circle class="sh-ritual__spark" cx="776" cy="530" r="6" fill="url(#sh-ritual-harness-drop)" style="--r:71px; --d:329ms"/></g>
+<g transform="rotate(106 776 530)"><circle class="sh-ritual__spark" cx="776" cy="530" r="5" fill="url(#sh-ritual-harness-drop)" style="--r:84px; --d:36ms"/></g>
+<g transform="rotate(23 776 530)"><circle class="sh-ritual__spark" cx="776" cy="530" r="4" fill="url(#sh-ritual-harness-drop)" style="--r:97px; --d:83ms"/></g>
+<g transform="rotate(-60 776 530)"><circle class="sh-ritual__spark" cx="776" cy="530" r="3" fill="url(#sh-ritual-harness-drop)" style="--r:70px; --d:130ms"/></g>
+<g transform="rotate(77 776 530)"><circle class="sh-ritual__spark" cx="776" cy="530" r="7" fill="url(#sh-ritual-harness-drop)" style="--r:83px; --d:177ms"/></g>
+<g transform="rotate(-6 776 530)"><circle class="sh-ritual__spark" cx="776" cy="530" r="6" fill="url(#sh-ritual-harness-drop)" style="--r:96px; --d:224ms"/></g>
+<g transform="rotate(-89 776 530)"><circle class="sh-ritual__spark" cx="776" cy="530" r="5" fill="url(#sh-ritual-harness-drop)" style="--r:69px; --d:271ms"/></g>
+<g transform="rotate(48 776 530)"><circle class="sh-ritual__spark" cx="776" cy="530" r="4" fill="url(#sh-ritual-harness-drop)" style="--r:82px; --d:318ms"/></g>
+<g transform="rotate(-35 776 530)"><circle class="sh-ritual__spark" cx="776" cy="530" r="3" fill="url(#sh-ritual-harness-drop)" style="--r:95px; --d:25ms"/></g>
+<g transform="rotate(102 776 530)"><circle class="sh-ritual__spark" cx="776" cy="530" r="7" fill="url(#sh-ritual-harness-drop)" style="--r:68px; --d:72ms"/></g>
+        <path class="sh-ritual__rim" d="M612,524 C660,540 892,540 940,524" fill="none" stroke="#fff6de" stroke-opacity="0" stroke-width="2.2" stroke-linecap="round"/>
+        <rect class="sh-ritual__hit" x="599" y="225" width="353" height="307" fill="transparent"/>
+      </g>
+    </g>
+  </svg>
+
+  <div class="sh-ritual__motes" aria-hidden="true"><i class="sh-ritual__mote" style="--x:49%; --y:75%; --s:5px; --d:-2s; --o:.19"></i><i class="sh-ritual__mote" style="--x:94%; --y:70%; --s:6px; --d:-4s; --o:.14"></i><i class="sh-ritual__mote" style="--x:47%; --y:65%; --s:4px; --d:-6s; --o:.21"></i><i class="sh-ritual__mote" style="--x:92%; --y:60%; --s:5px; --d:-8s; --o:.16"></i><i class="sh-ritual__mote" style="--x:45%; --y:55%; --s:6px; --d:-10s; --o:.23"></i><i class="sh-ritual__mote" style="--x:90%; --y:50%; --s:4px; --d:-12s; --o:.18"></i><i class="sh-ritual__mote" style="--x:43%; --y:45%; --s:5px; --d:-14s; --o:.13"></i><i class="sh-ritual__mote" style="--x:88%; --y:40%; --s:6px; --d:-16s; --o:.20"></i><i class="sh-ritual__mote" style="--x:41%; --y:35%; --s:4px; --d:-18s; --o:.15"></i><i class="sh-ritual__mote" style="--x:86%; --y:30%; --s:5px; --d:-20s; --o:.22"></i><i class="sh-ritual__mote" style="--x:39%; --y:25%; --s:6px; --d:-22s; --o:.17"></i><i class="sh-ritual__mote" style="--x:84%; --y:78%; --s:4px; --d:-1s; --o:.12"></i><i class="sh-ritual__mote" style="--x:37%; --y:73%; --s:5px; --d:-3s; --o:.19"></i><i class="sh-ritual__mote" style="--x:82%; --y:68%; --s:6px; --d:-5s; --o:.14"></i><i class="sh-ritual__mote" style="--x:35%; --y:63%; --s:4px; --d:-7s; --o:.21"></i><i class="sh-ritual__mote" style="--x:80%; --y:58%; --s:5px; --d:-9s; --o:.16"></i></div>
+  <div class="sh-ritual__torch" aria-hidden="true"></div>
+  <div class="sh-ritual__side" aria-hidden="true">Ritual Benefits</div>
+
+  <div class="sh-wrap">
+    <div class="sh-ritual__head">
+      <div class="sh-eyebrow sh-ritual__eyebrow"><span class="sh-ritual__eyebrow-in">More than a soap.</span></div>
+      <h2 class="sh-ritual__title sh-serif"><span class="sh-ritual__w"><span class="sh-ritual__w-in">It's</span></span> <span class="sh-ritual__w"><span class="sh-ritual__w-in">a</span></span> <span class="sh-ritual__w"><span class="sh-ritual__w-in">Ritual.</span></span></h2>
+      <div class="sh-ritual__ornament" aria-hidden="true"><i></i><span></span><i></i></div>
+    </div>
+    <div class="sh-ritual__cols">
+      <svg class="sh-ritual__connectors" viewBox="0 0 1000 400" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path class="sh-ritual__conn" data-ritual="aura" d="M430,200 Q385,100 340,100"/>
+<path class="sh-ritual__trace" data-ritual="aura" pathLength="1" d="M430,200 Q385,100 340,100"/>
+<path class="sh-ritual__conn" data-ritual="ayurveda" d="M430,200 Q385,300 340,300"/>
+<path class="sh-ritual__trace" data-ritual="ayurveda" pathLength="1" d="M430,200 Q385,300 340,300"/>
+<path class="sh-ritual__conn" data-ritual="cleanse" d="M570,200 Q615,100 660,100"/>
+<path class="sh-ritual__trace" data-ritual="cleanse" pathLength="1" d="M570,200 Q615,100 660,100"/>
+<path class="sh-ritual__conn" data-ritual="intention" d="M570,200 Q615,300 660,300"/>
+<path class="sh-ritual__trace" data-ritual="intention" pathLength="1" d="M570,200 Q615,300 660,300"/></svg>
+      <div class="sh-ritual__col sh-ritual__col--left"><div class="sh-ritual__item" data-ritual="aura"><svg class="sh-icon sh-icon--sparkle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 3v4M12 17v4M3 12h4M17 12h4"/><path d="M12 8c1 2.2 1.8 3 4 4-2.2 1-3 1.8-4 4-1-2.2-1.8-3-4-4 2.2-1 3-1.8 4-4Z"/></svg><div class="sh-ritual__body"><h3>Aura Cleansing</h3><p>Helps remove negative energy and uplift your aura.</p></div></div>
+<div class="sh-ritual__item" data-ritual="ayurveda"><svg class="sh-icon sh-icon--mortar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 10h14"/><path d="M6 10c0 4 2.5 7 6 7s6-3 6-7"/><path d="M12 17v3"/><path d="M9 20h6"/><path d="M15 4l2 4"/></svg><div class="sh-ritual__body"><h3>Sacred Ayurveda</h3><p>Crafted with powerful herbs known for their purifying properties.</p></div></div></div>
+      <div class="sh-ritual__center" aria-hidden="true"></div>
+      <div class="sh-ritual__col sh-ritual__col--right"><div class="sh-ritual__item" data-ritual="cleanse"><svg class="sh-icon sh-icon--drop" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11Z"/></svg><div class="sh-ritual__body"><h3>Deep &amp; Gentle Cleanse</h3><p>Cleanses deeply while nourishing your skin naturally.</p></div></div>
+<div class="sh-ritual__item" data-ritual="intention"><svg class="sh-icon sh-icon--heart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 20s-7-4.6-7-9.5A3.5 3.5 0 0 1 12 8a3.5 3.5 0 0 1 7 2.5C19 15.4 12 20 12 20Z"/></svg><div class="sh-ritual__body"><h3>Made with Intention</h3><p>Handmade in small batches with love, care &amp; mindfulness.</p></div></div></div>
+    </div>
+  </div>
+</section>
+<script>
+  if (location.search.indexOf('probe') > -1) document.documentElement.setAttribute('data-probe','');
+</script>
+<script src="assets/sh-ritual-scene.js" defer></script>
+</body></html>

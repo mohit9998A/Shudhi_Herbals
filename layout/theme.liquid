@@ -445,6 +445,17 @@ sits in normal flow, so that padding would now double-offset every inner page.
   {{ 'bootstrap.bundle.min.js' | asset_url | script_tag }}
   {{ 'instafeed.min.js' | asset_url | script_tag }}
   {{ 'jquery.fancybox.min.js' | asset_url | script_tag }}
+  <script>
+    /* History.js (bundled inside engo-plugins.js) re-serializes its whole
+       state store to sessionStorage on a 1s interval — measured as a
+       multi-second main-thread task colliding with the hero scrub. It honors
+       pre-set options (storeInterval defaults via ||), and its
+       beforeunload/unload flush still persists state, so an effectively
+       disabled interval loses nothing. Vendor file deliberately untouched. */
+    window.History = window.History || {};
+    window.History.options = window.History.options || {};
+    window.History.options.storeInterval = 3600000;
+  </script>
   {{ 'engo-plugins.js' | asset_url | script_tag }}
   {{ 'quickview.js' | asset_url | script_tag }}
   {% comment %}
