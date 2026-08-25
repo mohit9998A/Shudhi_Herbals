@@ -173,6 +173,37 @@
   }
 
   /* ---------------------------------------------------------------
+     Cart icon — open the theme's minicart drawer instead of leaving
+     for /cart. engo-scripts.js.liquid:1905 was meant to do this, but
+     its ready block throws first (jsmenu_fullwidth, :2141, on the
+     retired .js_height_hd header), so neither its open nor its close
+     handlers ever bind. Same .active contract as ajax-cart.js.liquid:357
+     and hov-chatbot.liquid:490. Delegated + bound once: boot() re-runs
+     on shopify:section:load and the header is re-rendered then.
+     --------------------------------------------------------------- */
+  var cartBound = false;
+  function cart() {
+    if (cartBound) return;
+    var panel = document.querySelector('.js-minicart');
+    var bg    = document.querySelector('.bg-minicart');
+    if (!panel || !bg) return;            // no drawer: icon falls through to href="/cart"
+    cartBound = true;
+
+    function open()  { panel.classList.add('active');    bg.classList.add('active'); }
+    function close() { panel.classList.remove('active'); bg.classList.remove('active'); }
+
+    document.addEventListener('click', function (e) {
+      var t = e.target;
+      if (t.closest && t.closest('.sh-cart')) { e.preventDefault(); open(); return; }
+      if (t.closest && t.closest('.close-mini-cart')) { close(); return; }
+      if (t === bg) close();
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && panel.classList.contains('active')) close();
+    });
+  }
+
+  /* ---------------------------------------------------------------
      Collection carousel
      --------------------------------------------------------------- */
   function carousel() {
@@ -415,6 +446,7 @@
     scrollState();
     drawer();
     search();
+    cart();
     carousel();
     toTop();
     anchors();
