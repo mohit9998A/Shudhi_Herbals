@@ -84,6 +84,9 @@
     if (tau < 0) tau = 0; else if (tau > 400) tau = 400;
 
     var mqReduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+    // Same breakpoint used mobile-wide (layout/theme.liquid). Below it, a real
+    // looping <video> replaces the scroll-scrubbed canvas — see initMobileHero().
+    var mqMobile = window.matchMedia('(max-width: 768px)');
     var ctx = canvas.getContext('2d', { alpha: false });
 
     var frames = new Array(total);
@@ -561,6 +564,33 @@
     }
 
     /* =====================================================================
+       Mobile: no scrub, no frame downloads — a real looping <video> instead,
+       pinned to whatever short height .sh-hero__pin resolves to in CSS.
+       Reduced-motion still wins over this: if both match, the poster stays
+       static (checked before this runs, in boot()).
+       ===================================================================== */
+    function initMobileHero() {
+      canvas.style.display = 'none';
+      hideLoader();
+      // Single source of truth: whatever .sh-hero__pin resolves to in CSS,
+      // rather than a duplicated magic number here.
+      root.style.height = getComputedStyle(pin).height;
+      pin.style.position = 'relative';
+      root.classList.add('is-scrolled');
+
+      if (!mqReduce.matches) {
+        var video = root.querySelector('.sh-hero__mobile-video');
+        if (video) {
+          video.src = video.getAttribute('data-src');
+          video.load();
+          var p = video.play();
+          if (p && p.catch) p.catch(function () {}); // ignore autoplay-blocked rejection
+          root.classList.add('is-mobile-video'); // CSS hides the poster <img> under this class
+        }
+      }
+    }
+
+    /* =====================================================================
        Lifecycle
        ===================================================================== */
     var ro = null, io = null, resizeTimer = null, verifyTimer = null;
@@ -581,6 +611,8 @@
       if (io) { io.disconnect(); io = null; }
       if (mqReduce.removeEventListener) mqReduce.removeEventListener('change', onMq);
       else if (mqReduce.removeListener) mqReduce.removeListener(onMq);
+      if (mqMobile.removeEventListener) mqMobile.removeEventListener('change', onMq);
+      else if (mqMobile.removeListener) mqMobile.removeListener(onMq);
     }
 
     function observe() {
@@ -606,6 +638,7 @@
     }
 
     function boot() {
+      if (mqMobile.matches) { initMobileHero(); return; }
       if (mqReduce.matches) { initReduced(); return; }
 
       // Wake on the inputs that CAUSE scroll as well as on scroll itself, so
@@ -664,6 +697,8 @@
 
     if (mqReduce.addEventListener) mqReduce.addEventListener('change', onMq);
     else if (mqReduce.addListener) mqReduce.addListener(onMq);
+    if (mqMobile.addEventListener) mqMobile.addEventListener('change', onMq);
+    else if (mqMobile.addListener) mqMobile.addListener(onMq);
 
     boot();
   }

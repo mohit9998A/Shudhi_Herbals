@@ -40,6 +40,13 @@
   {%- assign frame_ver = probe | split: '?' | last -%}
 {%- endif -%}
 
+{%- comment -%} Shared by the poster <img> and the mobile <video>'s poster attribute. {%- endcomment -%}
+{%- if s.poster != blank -%}
+  {%- assign poster_url = s.poster | image_url: width: 1600 -%}
+{%- else -%}
+  {%- assign poster_url = 'hero-poster.webp' | asset_url -%}
+{%- endif -%}
+
 <section class="sh sh-hero"
          id="hero"
          data-scrub="true"
@@ -49,13 +56,19 @@
 
     {%- comment -%} Poster: paints instantly, is the LCP element, and is the
         entire hero under prefers-reduced-motion. {%- endcomment -%}
-    {%- if s.poster != blank -%}
-      <img class="sh-hero__poster" src="{{ s.poster | image_url: width: 1600 }}"
-           alt="" width="1600" height="900" fetchpriority="high" decoding="async">
-    {%- else -%}
-      <img class="sh-hero__poster" src="{{ 'hero-poster.webp' | asset_url }}"
-           alt="" width="1280" height="720" fetchpriority="high" decoding="async">
-    {%- endif -%}
+    <img class="sh-hero__poster" src="{{ poster_url }}"
+         alt="" width="1600" height="900" fetchpriority="high" decoding="async">
+
+    {%- comment -%} Mobile-only: a real, continuously-looping video replaces the
+        scroll-scrubbed canvas below ~768px. No `src`/`autoplay` in the markup —
+        assets/shudhi-hero.js sets `.src` from `data-src` and calls `.play()` only
+        when `matchMedia('(max-width: 768px)')` matches, so desktop never requests
+        this file. See shudhi-hero.js: initMobileHero(). {%- endcomment -%}
+    <video class="sh-hero__mobile-video"
+           muted loop playsinline preload="none"
+           poster="{{ poster_url }}"
+           data-src="{{ 'sh-hero-mobile.mp4' | asset_url }}"
+           aria-hidden="true"></video>
 
     <canvas class="sh-hero__canvas"
             data-frame-base="{{ frame_base }}"
