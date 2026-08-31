@@ -133,13 +133,29 @@
         {%- assign li = 0 -%}
         {%- assign ri = 0 -%}
         {%- for b in section.blocks -%}
+          {%- comment -%}
+            End x deliberately OVERSHOOTS the cards' inner edges (≈303/697 at a
+            1200px wrap): the columns are z-1 over this z-0 svg, so the tip
+            tucks under its card and the line reads as attached at every width.
+            The card's ::before dot (shudhi-home.css) marks the attachment point.
+          {%- endcomment -%}
+          {%- comment -%}
+            y targets the card's real centre, not an even split of the track.
+            Cards are ~100px tall with a ~44px column gap (25:11), so card k of
+            c sits at (k*36 + 12.5) / (36c - 11) of the column height — for
+            three cards that is 13% / 50% / 87%, where the naive sixths formula
+            (17% / 50% / 83%) missed the outer cards by ~15px. Scaled to the
+            400-unit viewBox: y = (k*14400 + 5000) / (36c - 11).
+          {%- endcomment -%}
           {%- if b.settings.column == 'right' -%}
-            {%- assign y = ri | times: 800 | plus: 400 | divided_by: rc | divided_by: 2 -%}
-            {%- capture d %}M570,200 Q615,{{ y }} 660,{{ y }}{% endcapture -%}
+            {%- assign denom = rc | times: 36 | minus: 11 -%}
+            {%- assign y = ri | times: 14400 | plus: 5000 | divided_by: denom -%}
+            {%- capture d %}M585,200 Q640,{{ y }} 722,{{ y }}{% endcapture -%}
             {%- assign ri = ri | plus: 1 -%}
           {%- else -%}
-            {%- assign y = li | times: 800 | plus: 400 | divided_by: lc | divided_by: 2 -%}
-            {%- capture d %}M430,200 Q385,{{ y }} 340,{{ y }}{% endcapture -%}
+            {%- assign denom = lc | times: 36 | minus: 11 -%}
+            {%- assign y = li | times: 14400 | plus: 5000 | divided_by: denom -%}
+            {%- capture d %}M415,200 Q360,{{ y }} 278,{{ y }}{% endcapture -%}
             {%- assign li = li | plus: 1 -%}
           {%- endif -%}
           <path class="sh-ritual__conn" d="{{ d }}"/>

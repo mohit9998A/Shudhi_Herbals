@@ -985,8 +985,8 @@ a.sh-story__play:hover {
   pointer-events: none; z-index: 0; overflow: visible;
 }
 .sh-ritual__connectors path {
-  fill: none; stroke: rgba(201, 168, 106, .45);
-  stroke-width: 1; stroke-dasharray: 2 6; stroke-linecap: round;
+  fill: none; stroke: rgba(201, 168, 106, .5);
+  stroke-width: 1.3; stroke-dasharray: 2.5 7; stroke-linecap: round;
 }
 .sh-ritual__col { display: grid; gap: clamp(22px, 3.4vw, 44px); position: relative; z-index: 1; }
 /* The centre track: carries the soap cut-out the connectors converge on, and
@@ -1014,6 +1014,7 @@ a.sh-story__play:hover {
    glass — the trust bar's own comment puts "no longer glass" at ~.72.
    `background` is a flat colour and doubles as the no-blur fallback. */
 .sh-ritual__item {
+  position: relative;
   display: flex; align-items: center; gap: 16px;
   padding: 14px clamp(14px, 1.4vw, 20px);
   background: rgba(20, 18, 12, .68);
@@ -1590,6 +1591,8 @@ a.sh-story__play:hover {
   .sh-ritual__center { display: block; }
   .sh-ritual .sh-ritual__soap { width: min(62vw, 250px); }
   .sh-ritual .sh-ritual__connectors { display: none; }
+  /* No connectors to attach to at this width, so no attach-point dots. */
+  .sh-ritual__item::before { display: none; }
   /* The two rules that used to sit here — flex-direction:row and
      margin-left:0 on the left column — existed only to undo §10's
      row-reverse/text-align:right, which no longer exists. Both columns read
@@ -4354,8 +4357,9 @@ a.sh-story__play:hover {
 
 /* ---- Card interaction -------------------------------------------------- */
 /* perspective on the item is safe: it establishes a containing block and a
-   stacking context, and the item has no absolutely positioned descendants —
-   backdrop-filter had already made it a stacking context anyway. */
+   stacking context, and the one absolutely positioned descendant — the
+   ::before attach-point dot — carries only a 2D translateY, which perspective
+   leaves alone. backdrop-filter had already made it a stacking context anyway. */
 .sh-ritual__item {
   perspective: 760px;
   transition: border-color .45s var(--sh-r-ease-in),
@@ -4390,6 +4394,26 @@ a.sh-story__play:hover {
   border-color: rgba(201, 168, 106, .8); color: var(--sh-accent-soft);
 }
 
+/* The attach point: a small indicator lamp on the card's inner edge, exactly
+   where the connector tucks under it. Dark at rest; hover/focus fills it gold
+   with a glow, in step with the trace charging along the line — the "switch
+   on". 2D transform only (see the perspective note above). */
+.sh-ritual__item::before {
+  content: ""; position: absolute; top: 50%; width: 9px; height: 9px;
+  border-radius: 50%; transform: translateY(-50%);
+  background: var(--sh-green-900); border: 1px solid rgba(201, 168, 106, .55);
+  transition: background .45s var(--sh-r-ease-in),
+              box-shadow .45s var(--sh-r-ease-in),
+              border-color .45s var(--sh-r-ease-in);
+}
+.sh-ritual__col--left  .sh-ritual__item::before { right: -5px; }
+.sh-ritual__col--right .sh-ritual__item::before { left: -5px; }
+.sh-ritual__item:hover::before,
+.sh-ritual__item:focus-within::before {
+  background: var(--sh-accent-soft); border-color: var(--sh-accent-soft);
+  box-shadow: 0 0 10px 2px rgba(220, 192, 132, .55);
+}
+
 /* The others quiet. :not(:hover) on the siblings rather than a lift on the
    hovered one, so the active card stays where it is and it is the field around
    it that recedes.
@@ -4421,8 +4445,11 @@ a.sh-story__play:hover {
    Same reason stroke and stroke-width are restated here rather than left to
    the shorthand above. */
 .sh-ritual__connectors .sh-ritual__trace {
-  fill: none; stroke: var(--sh-accent-soft); stroke-width: 1.6; stroke-linecap: round;
+  fill: none; stroke: var(--sh-accent-soft); stroke-width: 2.2; stroke-linecap: round;
   stroke-dasharray: 1; stroke-dashoffset: 1; opacity: .85;
+  /* Constant on purpose: while dashoffset rests at 1 nothing is drawn, so the
+     glow only exists once the charge is. */
+  filter: drop-shadow(0 0 5px rgba(220, 192, 132, .55));
   transition: stroke-dashoffset .9s var(--sh-r-ease) .35s;
 }
 .sh-ritual__connectors .sh-ritual__conn { transition: stroke .5s var(--sh-r-ease) .35s; }
