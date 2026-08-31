@@ -4422,21 +4422,30 @@ a.sh-story__play:hover {
   opacity: 1; transition-duration: .5s; transition-delay: 0s;
 }
 
-.sh-ritual:has(.sh-ritual__item[data-ritual="aura"]:hover) .sh-ritual__trace[data-ritual="aura"],
-.sh-ritual:has(.sh-ritual__item[data-ritual="aura"]:focus-within) .sh-ritual__trace[data-ritual="aura"],
-.sh-ritual:has(.sh-ritual__item[data-ritual="cleanse"]:hover) .sh-ritual__trace[data-ritual="cleanse"],
-.sh-ritual:has(.sh-ritual__item[data-ritual="cleanse"]:focus-within) .sh-ritual__trace[data-ritual="cleanse"],
-.sh-ritual:has(.sh-ritual__item[data-ritual="ayurveda"]:hover) .sh-ritual__trace[data-ritual="ayurveda"],
-.sh-ritual:has(.sh-ritual__item[data-ritual="ayurveda"]:focus-within) .sh-ritual__trace[data-ritual="ayurveda"],
-.sh-ritual:has(.sh-ritual__item[data-ritual="intention"]:hover) .sh-ritual__trace[data-ritual="intention"],
-.sh-ritual:has(.sh-ritual__item[data-ritual="intention"]:focus-within) .sh-ritual__trace[data-ritual="intention"] {
+/* Paired by BLOCK INDEX, not by scene state. The old keys were the four scene
+   highlights (aura/cleanse/ayurveda/intention), so a card whose state was
+   "none" — Negativity Buster, Stress Buster — had no trace at all. data-i is
+   forloop.index0, identical in the connector loop and both column loops, and
+   six pairs is exhaustive because the schema caps max_blocks at 6. */
+.sh-ritual:has(.sh-ritual__item[data-i="0"]:hover) .sh-ritual__trace[data-i="0"],
+.sh-ritual:has(.sh-ritual__item[data-i="0"]:focus-within) .sh-ritual__trace[data-i="0"],
+.sh-ritual:has(.sh-ritual__item[data-i="1"]:hover) .sh-ritual__trace[data-i="1"],
+.sh-ritual:has(.sh-ritual__item[data-i="1"]:focus-within) .sh-ritual__trace[data-i="1"],
+.sh-ritual:has(.sh-ritual__item[data-i="2"]:hover) .sh-ritual__trace[data-i="2"],
+.sh-ritual:has(.sh-ritual__item[data-i="2"]:focus-within) .sh-ritual__trace[data-i="2"],
+.sh-ritual:has(.sh-ritual__item[data-i="3"]:hover) .sh-ritual__trace[data-i="3"],
+.sh-ritual:has(.sh-ritual__item[data-i="3"]:focus-within) .sh-ritual__trace[data-i="3"],
+.sh-ritual:has(.sh-ritual__item[data-i="4"]:hover) .sh-ritual__trace[data-i="4"],
+.sh-ritual:has(.sh-ritual__item[data-i="4"]:focus-within) .sh-ritual__trace[data-i="4"],
+.sh-ritual:has(.sh-ritual__item[data-i="5"]:hover) .sh-ritual__trace[data-i="5"],
+.sh-ritual:has(.sh-ritual__item[data-i="5"]:focus-within) .sh-ritual__trace[data-i="5"] {
   stroke-dashoffset: 0; transition-duration: .62s; transition-delay: 0s;
 }
 
 /* While any benefit is active the other connectors recede, so the drawn trace
    has something to be brighter than. */
-.sh-ritual:has(.sh-ritual__item[data-ritual]:hover) .sh-ritual__conn,
-.sh-ritual:has(.sh-ritual__item[data-ritual]:focus-within) .sh-ritual__conn {
+.sh-ritual:has(.sh-ritual__item[data-i]:hover) .sh-ritual__conn,
+.sh-ritual:has(.sh-ritual__item[data-i]:focus-within) .sh-ritual__conn {
   stroke: rgba(201, 168, 106, .18); transition-delay: 0s;
 }
 

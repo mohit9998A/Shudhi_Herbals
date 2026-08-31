@@ -276,7 +276,7 @@
         "title": "It's a Ritual.",
         "side_label": "Ritual Benefits",
         "ornament": true,
-        "height": 92,
+        "height": 60,
         "animate": true,
         "scene": true,
         "scene_cursor": true,
