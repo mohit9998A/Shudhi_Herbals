@@ -49,7 +49,7 @@
       {%- if s.body != blank -%}<p class="sh-story__text">{{ s.body }}</p>{%- endif -%}
 
       {%- if s.cta_label != blank -%}
-        <a href="{{ s.cta_link | default: '#rituals' }}" class="sh-btn sh-btn--ghost">
+        <a href="{{ s.cta_link | default: '#rituals' }}" class="sh-btn sh-btn--solid">
           {{ s.cta_label }} {% render 'sh-icon', name: 'arrow-right' %}
         </a>
       {%- endif -%}
@@ -134,6 +134,29 @@
     {%- endif -%}
 
   </div>
+
+  {%- comment -%}
+    Stat strip. Renders only where blocks are defined (the homepage), so the
+    /pages/our-story instance of this shared section is untouched. The value is
+    escaped FIRST, then any ★ is swapped for a gold span — user text stays
+    inert, the star markup is ours.
+  {%- endcomment -%}
+  {%- if section.blocks.size > 0 -%}
+    <div class="sh-wrap">
+      <div class="sh-story__stats"{% if s.animate %} data-reveal{% endif %}>
+        {%- for b in section.blocks -%}
+          {%- assign v = b.settings.value | escape | replace: '★', '<span class="sh-story__stat-star">★</span>' -%}
+          <div class="sh-story__stat" {{ b.shopify_attributes }}>
+            {% render 'sh-icon', name: b.settings.icon %}
+            <div class="sh-story__stat-body">
+              <strong>{{ v }}</strong>
+              <small>{{ b.settings.label | escape }}</small>
+            </div>
+          </div>
+        {%- endfor -%}
+      </div>
+    </div>
+  {%- endif -%}
 </section>
 
 {% schema %}
@@ -170,6 +193,24 @@
     { "type": "color", "id": "bg", "label": "Panel background", "default": "#f6ede1",
       "info": "The solid colour behind the copy. It is also what the photo's left edge fades into, so keep the two in step." }
   ],
-  "presets": [ { "name": "SH · Our Story" } ]
+  "blocks": [
+    { "type": "stat", "name": "Stat", "settings": [
+      { "type": "select", "id": "icon", "label": "Icon", "default": "heart", "options": [
+        { "value": "heart", "label": "Heart" }, { "value": "hands-heart", "label": "Hands & heart" },
+        { "value": "leaf", "label": "Leaf" }, { "value": "drop", "label": "Drop" },
+        { "value": "lotus", "label": "Lotus" }, { "value": "sparkle", "label": "Sparkle" },
+        { "value": "mortar", "label": "Mortar" }, { "value": "plant", "label": "Plant" },
+        { "value": "badge", "label": "Badge" }, { "value": "shield", "label": "Shield" } ] },
+      { "type": "text", "id": "value", "label": "Value", "default": "10K+", "info": "A ★ anywhere in the value renders gold." },
+      { "type": "text", "id": "label", "label": "Label", "default": "Happy Customers" }
+    ] }
+  ],
+  "max_blocks": 4,
+  "presets": [ { "name": "SH · Our Story", "blocks": [
+    { "type": "stat", "settings": { "icon": "heart",       "value": "10K+", "label": "Happy Customers" } },
+    { "type": "stat", "settings": { "icon": "hands-heart", "value": "Handmade in Small Batches", "label": "Made by hand" } },
+    { "type": "stat", "settings": { "icon": "leaf",        "value": "100%", "label": "Natural Ingredients" } },
+    { "type": "stat", "settings": { "icon": "badge",       "value": "5 ★", "label": "Customer Rating" } }
+  ] } ]
 }
 {% endschema %}
