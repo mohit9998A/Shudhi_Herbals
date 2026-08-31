@@ -163,13 +163,17 @@
       </div>
 
       {%- comment -%}
-        The centre track. Empty by design: it is what pushes the two columns
-        to the outside so the connectors have somewhere to converge. It stays
-        in the markup because the three flow children are what place the
-        columns in grid tracks 1 and 3 — the connector svg is absolutely
-        positioned and out of flow, so it cannot do that job.
+        The centre track: the soap cut-out the connectors converge on. Also
+        what pushes the two columns to the outside — the three flow children
+        are what place the columns in grid tracks 1 and 3, since the connector
+        svg is absolutely positioned and out of flow. aria-hidden + alt="":
+        pure branding, the cards carry the content. asset_img_url serves a
+        CDN-resized variant rather than the 2.4 MB original.
       {%- endcomment -%}
-      <div class="sh-ritual__center" aria-hidden="true"></div>
+      <div class="sh-ritual__center" aria-hidden="true">
+        <img class="sh-ritual__soap" src="{{ 'Morethanasoap.png' | asset_img_url: '760x' }}"
+             alt="" width="1374" height="1145" loading="lazy" decoding="async">
+      </div>
 
       {%- comment -%} Right column {%- endcomment -%}
       <div class="sh-ritual__col sh-ritual__col--right">

@@ -989,12 +989,18 @@ a.sh-story__play:hover {
   stroke-width: 1; stroke-dasharray: 2 6; stroke-linecap: round;
 }
 .sh-ritual__col { display: grid; gap: clamp(22px, 3.4vw, 44px); position: relative; z-index: 1; }
-/* Empty by design — the gap the photograph's soap bar shows through, and what
-   pushes the two columns far enough apart for the connectors to have somewhere
-   to converge. It stays in the markup because the three FLOW children are what
+/* The centre track: carries the soap cut-out the connectors converge on, and
+   what pushes the two columns far enough apart for them to have somewhere to
+   converge. It stays in the markup because the three FLOW children are what
    place the columns in grid tracks 1 and 3; the connector svg is absolutely
    positioned and out of flow, so it cannot do that job. */
 .sh-ritual__center { position: relative; z-index: 1; }
+/* (0,2,0) on purpose: §10's `.sh img` base rules are (0,1,1) and would tie a
+   bare class. Width caps at the track's own 380px maximum. */
+.sh-ritual .sh-ritual__soap {
+  display: block; width: min(100%, 380px); height: auto; margin-inline: auto;
+  filter: drop-shadow(0 30px 44px rgba(0, 0, 0, .5));
+}
 
 /* Frosted panel per benefit. The band's photo is busy behind the copy — leaves,
    water and highlights run straight under the .8rem description — so each item
@@ -1579,9 +1585,10 @@ a.sh-story__play:hover {
      `.sh img, .sh svg, .sh canvas { display: block }` is (0,1,1) and a bare
      (0,1,0) class loses to it — a media query adds no specificity, so this
      rule silently did nothing and the dotted connectors have been painting
-     across the stacked cards on every phone. __center is a div, has nothing
-     competing, and is left as it was. */
-  .sh-ritual__center { display: none; }
+     across the stacked cards on every phone. __center now carries the soap
+     cut-out, so it stays visible and the stack reads cards, soap, cards. */
+  .sh-ritual__center { display: block; }
+  .sh-ritual .sh-ritual__soap { width: min(62vw, 250px); }
   .sh-ritual .sh-ritual__connectors { display: none; }
   /* The two rules that used to sit here — flex-direction:row and
      margin-left:0 on the left column — existed only to undo §10's
@@ -4335,6 +4342,15 @@ a.sh-story__play:hover {
   opacity: 0; transition: opacity .7s var(--sh-r-ease-in) 1.53s;
 }
 .sh-ritual.is-armed.is-shown .sh-ritual__connectors { opacity: 1; }
+
+/* The soap lands between the heading (.8s window) and the cards (~1.17s+) —
+   same fails-open shape as everything above: rest = visible, .is-armed is the
+   pre-state, .is-shown clears it. */
+.sh-ritual.is-armed .sh-ritual__soap {
+  opacity: 0; transform: translateY(14px) scale(.97);
+  transition: opacity .8s var(--sh-r-ease) .95s, transform .8s var(--sh-r-ease) .95s;
+}
+.sh-ritual.is-armed.is-shown .sh-ritual__soap { opacity: 1; transform: none; }
 
 /* ---- Card interaction -------------------------------------------------- */
 /* perspective on the item is safe: it establishes a containing block and a
