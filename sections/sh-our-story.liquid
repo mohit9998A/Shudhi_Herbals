@@ -142,11 +142,14 @@
     inert, the star markup is ours.
   {%- endcomment -%}
   {%- if section.blocks.size > 0 -%}
-    <div class="sh-wrap">
-      <div class="sh-story__stats"{% if s.animate %} data-reveal{% endif %}>
+    {%- comment -%} Overlaid on the band's bottom edge — adds no height. A value
+        longer than a number gets --text, so text stats render small while the
+        numeric ones keep their weight. {%- endcomment -%}
+    <div class="sh-story__stats"{% if s.animate %} data-reveal{% endif %}>
+      <div class="sh-wrap sh-story__stats-row">
         {%- for b in section.blocks -%}
           {%- assign v = b.settings.value | escape | replace: '★', '<span class="sh-story__stat-star">★</span>' -%}
-          <div class="sh-story__stat" {{ b.shopify_attributes }}>
+          <div class="sh-story__stat{% if b.settings.value.size > 6 %} sh-story__stat--text{% endif %}" {{ b.shopify_attributes }}>
             {% render 'sh-icon', name: b.settings.icon %}
             <div class="sh-story__stat-body">
               <strong>{{ v }}</strong>

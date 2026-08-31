@@ -845,25 +845,31 @@ a.sh-story__play:hover {
 }
 
 /* ---- Stat strip -------------------------------------------------------- */
-/* Bottom of the band, per the reference: icon + big value + small label, four
-   across with hairline separators. Renders only where the section defines stat
-   blocks (the homepage); colours come from the band's own tokens above. */
+/* OVERLAID on the band's bottom edge, per the reference — position:absolute
+   inside .sh-story (relative, overflow:hidden at :715), so it adds NO height
+   to the band. The translucent cream keeps it legible where it crosses the
+   photo bleed; colours come from the band's own tokens above. Renders only
+   where the section defines stat blocks (the homepage). */
 .sh-story__stats {
-  display: grid; grid-template-columns: repeat(4, 1fr);
-  padding: clamp(22px, 3vw, 34px) 0 clamp(26px, 3.4vw, 40px);
-  position: relative;                        /* paints over the photo bleed */
+  position: absolute; left: 0; right: 0; bottom: 0; z-index: 3;
+  padding: 14px 0 16px;
+  background: rgba(246, 237, 225, .92);      /* the default --sh-story-bg, 92% */
+  border-top: 1px solid rgba(36, 29, 21, .08);
 }
+.sh-story__stats-row { display: grid; grid-template-columns: repeat(4, 1fr); }
 .sh-story__stat {
-  display: flex; align-items: center; justify-content: center; gap: 14px;
-  padding-inline: clamp(8px, 1.6vw, 24px);
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  padding-inline: clamp(8px, 1.4vw, 20px);
 }
 .sh-story__stat + .sh-story__stat { border-left: 1px solid rgba(36, 29, 21, .14); }
-.sh-story__stat > .sh-icon { width: 30px; height: 30px; flex: none; color: var(--sh-story-gold-ink); }
+.sh-story__stat > .sh-icon { width: 22px; height: 22px; flex: none; color: var(--sh-story-gold-ink); }
 .sh-story__stat-body strong {
   display: block; font-weight: 600; letter-spacing: .01em;
-  font-size: clamp(1.05rem, 1.6vw, 1.45rem); color: var(--sh-story-ink);
+  font-size: clamp(1rem, 1.25vw, 1.25rem); color: var(--sh-story-ink);
 }
-.sh-story__stat-body small { font-size: .78rem; color: var(--sh-story-body); }
+/* Text values (anything longer than a number) sit quiet and one-line. */
+.sh-story__stat--text .sh-story__stat-body strong { font-size: .92rem; letter-spacing: .02em; }
+.sh-story__stat-body small { font-size: .72rem; color: var(--sh-story-body); }
 .sh-story__stat-star { color: var(--sh-story-gold-ink); }
 
 /* ============================================================
@@ -1600,8 +1606,13 @@ a.sh-story__play:hover {
   .sh-story__text { margin-inline: auto; }
   .sh-story__play { width: 60px; height: 60px; }
   .sh-story__seal { width: clamp(104px, 30vw, 132px); }
-  /* 2x2 stat grid: separators only mid-row, never at a row's left edge. */
-  .sh-story__stats { grid-template-columns: 1fr 1fr; row-gap: 18px; }
+  /* 2x2 stat grid: separators only mid-row, never at a row's left edge.
+     position:static is the load-bearing line: on phones the copy owns the
+     band's lower half (the photo stacks on top), so the desktop overlay would
+     sit directly on the paragraph and the CTA — verified. Down here the strip
+     rejoins the flow below the copy instead. */
+  .sh-story__stats { position: static; padding: 10px 0 12px; }
+  .sh-story__stats-row { grid-template-columns: 1fr 1fr; row-gap: 12px; }
   .sh-story__stat { justify-content: flex-start; }
   .sh-story__stat:nth-child(odd) { border-left: 0; }
   .sh-trust__item > .sh-icon { width: 22px; height: 22px; padding: 5px; }
@@ -4750,6 +4761,7 @@ a.sh-story__play:hover {
   --sh-tm-rule: rgba(27, 42, 18, .14);
   --sh-tm-ring: rgba(184, 154, 98, .42);
   --sh-tm-fade: clamp(28px, 7%, 120px);
+  --sh-tm-gap:  clamp(10px, 1.2vw, 16px);
 
   position: relative;
   /* Mobile safety. The track is width:max-content and WILL push the document
