@@ -1,6 +1,7 @@
 /* ===========================================================================
    SHUDHI — STORY MOTION  (§28)
-   The Our Story page's motion layer, and nothing else.
+   The Our Story page's motion layer — plus two page-scoped resting overrides
+   at the end of the file (PAGE FRAME block).
 
    ---------------------------------------------------------------------------
    WHY THIS IS A SEPARATE FILE AND NOT §28 OF shudhi-home.css
@@ -697,3 +698,41 @@
   .sh-flow--steps .sh-flow__ring circle { transition: none !important; }
   .sh-flow--steps .sh-flow__step:hover > .sh-icon { transform: none !important; }
 }
+
+/* ===========================================================================
+   PAGE FRAME — TWO RESTING OVERRIDES
+   The deliberate exception to this file's "motion layer" charter: both rules
+   are resting design, but they are OUR STORY resting design, and this is the
+   one stylesheet fetched on Our Story rather than on every template. Both are
+   keyed on .sh-story-hero, which only templates/page.our-story.json places,
+   so neither can match on the ritual pages this sheet also reaches through
+   the sh-ritual-* sections.
+   =========================================================================== */
+
+/* ---- The seal reads light, not gold ------------------------------------- */
+/* §21 (shudhi-home.css:2400-2419) paints the seal --sh-gold in full — ring,
+   dots, arc labels, number. On THIS hero it reads in --sh-light instead: the
+   cream the headline's own non-em words already carry, so the seal sits with
+   the headline rather than with the gold accents. Stated per class, never as
+   `--sh-gold: …` on the band — the eyebrow, the gold em words and every gold
+   rule on the hero must stay gold. Nothing in §21's colour declarations is
+   !important, so specificity settles it: (0,2,0) over §21's bare (0,1,0)
+   classes, and the __num line restates §21's own `.sh` prefix to land (0,3,0)
+   over its (0,2,0). §21's ≤989px re-anchor only moves the box, so these hold
+   at every width. */
+.sh-story-hero .sh-gen__ring-c { stroke: var(--sh-light); }
+.sh-story-hero .sh-gen__dot    { fill: var(--sh-light); }
+.sh-story-hero .sh-gen__arc    { fill: var(--sh-light); }
+.sh.sh-story-hero .sh-gen__num { color: var(--sh-light); }
+
+/* ---- Flush under the header --------------------------------------------- */
+/* timber.scss.liquid:743 gives .main-content margin-top: $gutter (30px) and
+   zeroes it for .template-index alone; this template's body class is only
+   `template-page` (layout/theme.liquid:345 emits no page-suffix class), so
+   the dark hero hangs 30px below the sticky header with the white body
+   background showing through. Keyed on the hero's PRESENCE because there is
+   nothing else to key on without touching shared files: timber is compiled
+   for every template. Same :has() trade band 6's sibling recede already
+   makes — an engine without :has() simply never matches this rule and keeps
+   today's 30px stripe: degraded, never broken. */
+.main-content:has(.sh-story-hero) { margin-top: 0; }

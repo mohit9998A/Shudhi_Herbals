@@ -6193,7 +6193,7 @@
           "m1": {
             "type": "message",
             "settings": {
-              "text": "Free shipping on orders over ₹999"
+              "text": "Free shipping on all orders"
             }
           },
           "m2": {
@@ -6218,7 +6218,7 @@
           "enabled": true,
           "style": "marquee",
           "speed": 28,
-          "fallback_text": "Free shipping on orders over ₹999",
+          "fallback_text": "Free shipping on all orders",
           "bg": "#1b2411",
           "fg": "#c9a86a"
         }
@@ -6251,7 +6251,7 @@
             "settings": {
               "heading": "Customer Care",
               "menu": "",
-              "links": "Contact Us | /pages/contact\nFAQs | /pages/faqs\nShipping & Delivery | /policies/shipping-policy\nReturns & Refunds | /policies/refund-policy"
+              "links": "Contact Us | /pages/contact\nFAQs | /pages/faqs\nShipping & Delivery | /policies/shipping-policy\nReturns & Refunds | /policies/refund-policy\nhelp@shudhiherbals.com | mailto:help@shudhiherbals.com"
             }
           }
         },

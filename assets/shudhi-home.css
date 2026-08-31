@@ -1303,6 +1303,11 @@ a.sh-story__play:hover {
    one field. Padding is asymmetric: the top pad clears the header, the bottom
    is tighter so the band hands off to the section below.
    ============================================================ */
+/* timber's .main-content { margin-top: 30px } (timber.scss.liquid:743) is only
+   zeroed for template-index, so on every page opening with this band the white
+   body bg shows as a stripe under the solid header. Same fix
+   shudhi-story.css:738 already makes for .sh-story-hero. */
+.main-content:has(.sh-pagehead) { margin-top: 0; }
 .sh-pagehead {
   background: var(--sh-green-900); color: var(--sh-light);
   padding-block: clamp(46px, 6vw, 76px) clamp(36px, 4.5vw, 58px);
@@ -1343,6 +1348,35 @@ a.sh-story__play:hover {
   max-width: 52ch; margin-inline: auto; margin-top: 18px;
   text-wrap: balance;
 }
+/* Optional soap cut-out (show_soap) — same asset as the home ritual band, but
+   :991's rules are scoped .sh-ritual and don't reach here. Compound selector
+   for the same reason as :991 — a bare class loses to `.sh img` at :114. */
+.sh-pagehead .sh-pagehead__soap {
+  display: block;
+  width: min(100%, 380px);
+  height: auto;
+  margin-inline: auto;
+  filter: drop-shadow(0 30px 44px rgba(0,0,0,.5));
+}
+.sh-pagehead__soapwrap { margin-top: clamp(28px, 4vw, 44px); }
+@media (max-width: 768px) {
+  .sh-pagehead .sh-pagehead__soap { width: min(62vw, 250px); }  /* mirrors :1592 */
+}
+/* Light variant — the section adds the class itself when the merchant picks a
+   bright bg (color_brightness > 128), so a cream band never ships light-on-light
+   text. Same trio + values every light band declares on its root (.sh-story:710,
+   .sh-fgrid:1990, …): --sh-gold and --sh-muted-light both fail AA on cream. */
+.sh-pagehead--light {
+  --sh-story-ink:      #1b2a12;   /* heading + lede — 13.1:1 on cream */
+  --sh-story-gold-ink: #7a5d2e;   /* the gold dark enough to be READ — 5.3:1 */
+  color: var(--sh-story-ink);
+}
+.sh-pagehead--light .sh-pagehead__eyebrow { color: var(--sh-story-gold-ink); }
+/* Compound, not `.sh .sh-pagehead--light` — both classes sit on the SAME
+   element, so the descendant form never matches. (0,3,0) beats the base
+   colour on `.sh .sh-pagehead__text` (0,2,0) above. Full ink, not the usual
+   muted body tone — requested black for maximum legibility. */
+.sh.sh-pagehead--light .sh-pagehead__text { color: var(--sh-story-ink); }
 
 /* ============================================================
    14bb. STORY HERO — the Our Story page's opening block
