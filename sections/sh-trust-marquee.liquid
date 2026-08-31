@@ -108,9 +108,22 @@
             {%- unless block.settings.enabled -%}{%- continue -%}{%- endunless -%}
             {%- comment -%} See (4). {%- endcomment -%}
             <li class="sh-tmarquee__item"{% unless is_dupe %} {{ block.shopify_attributes }}{% endunless %}>
-              <span class="sh-tmarquee__medallion{% unless s.icon_motion %} is-still{% endunless %}">
-                {% render 'sh-trust-icon', mode: 'icon', name: block.settings.icon, gid: gid %}
-              </span>
+              {%- if block.settings.badge != blank -%}
+                {%- comment -%} A real certification stamp from Assets. alt="" —
+                    the label beside it carries the claim; mix-blend-mode in §26
+                    melts a white JPG ground into the tile. {%- endcomment -%}
+                {%- comment -%} asset_url, NOT asset_img_url: the resizing filter
+                    returns the no-image placeholder for .webp assets. These
+                    stamps are 25-70KB originals — served as-is. {%- endcomment -%}
+                <span class="sh-tmarquee__stamp">
+                  <img src="{{ block.settings.badge | asset_url }}" alt=""
+                       width="180" height="180" loading="lazy" decoding="async">
+                </span>
+              {%- else -%}
+                <span class="sh-tmarquee__medallion{% unless s.icon_motion %} is-still{% endunless %}">
+                  {% render 'sh-trust-icon', mode: 'icon', name: block.settings.icon, gid: gid %}
+                </span>
+              {%- endif -%}
               <span class="sh-tmarquee__text">
                 <b class="sh-tmarquee__label">{{ block.settings.title }}</b>
                 {%- if s.show_desc and block.settings.text != blank -%}
@@ -166,6 +179,8 @@
       { "type": "paragraph", "content": "You are responsible for being able to substantiate every claim shown here. Turn off any you cannot currently evidence." },
       { "type": "checkbox", "id": "enabled", "label": "Show this claim", "default": true,
         "info": "Turning this off removes the claim from the ribbon without losing its wording, so it can be restored later." },
+      { "type": "text", "id": "badge", "label": "Badge image (asset filename)",
+        "info": "Filename of an image already in the theme's Assets, e.g. ISOCERTIFIED.webp. Shown as a real certification stamp in place of the drawn icon; leave empty to keep the icon below." },
       { "type": "select", "id": "icon", "label": "Icon", "default": "lab", "options": [
         { "value": "lab", "label": "Flask — lab tested" },
         { "value": "iso", "label": "Seal — certified" },

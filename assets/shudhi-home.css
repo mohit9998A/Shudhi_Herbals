@@ -896,51 +896,14 @@ a.sh-story__play:hover {
    Changing any of these five numbers in isolation will bury a layer. */
 .sh-ritual {
   position: relative; overflow: hidden; color: var(--sh-light);
-  /* Asymmetric, unlike every other band in this file, and for a reason the
-     others do not have: the heading has to fit in the strip of scene ABOVE the
-     soap bar, and cover puts the bar's top edge at roughly 155px once the
-     floor below is in force. Head content is about 98px (eyebrow, rule, h2,
-     ornament), so the top inset has to stay under ~50px for the heading to
-     land in that strip instead of across the bar's face. The bottom inset is
-     untouched — it is what keeps the lower cards off the pond edge. */
-  padding-block: clamp(20px, 2.2vw, 34px) clamp(78px, 10vw, 138px);
+  padding-block: clamp(20px, 2.2vw, 34px) clamp(48px, 5vw, 78px);
   background: var(--sh-green-900);
   /* A floor, not a fixed height: the band still grows for a fifth and sixth
      benefit rather than clipping them. svh, not vh, so the mobile URL bar
-     collapsing does not resize the section under a running entrance.
-
-     THE CONTENT STAYS TOP-ANCHORED, and that is the whole reason this is a
-     plain min-height rather than a centred flex column. The photograph carries
-     the soap bar in its upper middle, and object-fit:cover pushes the bar
-     DOWN the section as the section grows. Centring the copy moved the heading
-     down by the same amount, so the heading sat on the SHUDHI wordmark at
-     every height — the two tracked each other and the overlap could not be
-     tuned out. Top-anchored, the heading's bottom edge is fixed by
-     padding-block while the wordmark keeps descending, and they separate.
-
-     The second term is a floor on that separation, and it carries a vw
-     component because the requirement is not a constant: a wider section
-     crops the photograph harder, which scales the bar up and lifts its top
-     edge toward the heading. Solving "bar's top edge sits BELOW the heading"
-     against the cover geometry —
-
-         barTop = (225 - band0) * scale,  scale = W/1536,
-         band0  = (1024 - H/scale) / 2
-
-     — calc(300px + 38vw) holds barTop at a near-constant ~155px across the
-     whole desktop range (154 at 1280, 155 at 1440, 156 at 1920, 158 at 2560),
-     which clears a ~130px heading everywhere with room to spare. The earlier
-     calc(400px + 24vw) only cleared the WORDMARK; it left barTop at 104px at
-     1440 and 72px at 1920, so the heading printed across the bar's face.
-
-     The same taller box is what stops the bar dominating the composition, and
-     it widens the visible crop band at every width, so the authored art in §26
-     sits further inside the contract than before rather than closer to it.
-
-     svh, not vh, so the mobile URL bar collapsing does not resize the section
-     under a running entrance. The mobile block at :1449 drops this to 0 —
-     stacked cards are already taller than any of it. */
-  min-height: max(calc(var(--sh-ritual-h, 92) * 1svh), calc(300px + 38vw));
+     collapsing does not resize the section under a running entrance. The
+     mobile block drops this to 0 — stacked cards are already taller than
+     any of it. */
+  min-height: calc(var(--sh-ritual-h, 92) * 1svh);
 }
 /* THE COMPOUND SELECTOR IS THE WHOLE POINT OF THIS RULE.
 
@@ -4806,6 +4769,10 @@ a.sh-story__play:hover {
 .sh-tmarquee__title { font-size: clamp(1.7rem, 3vw, 2.55rem); margin: 0; }
 .sh-tmarquee__body {
   margin: 10px auto 0; max-width: 46ch;
+  /* Explicit, not inherited: a bare-element rule leaks text-align:left onto
+     <p>, and inside a centred 46ch block a shorter line then sits visibly
+     off-centre under the centred title. */
+  text-align: center;
   color: var(--sh-story-body); font-size: .95rem; line-height: 1.6;
 }
 
@@ -4846,29 +4813,54 @@ a.sh-story__play:hover {
 /* See (1). */
 .sh-tmarquee.is-paused .sh-tmarquee__track { animation-play-state: paused; }
 
+/* THE TRAILING padding-right IS THE SEAM. Tiles are spaced by gap, and the
+   -50% loop only lands seamlessly when the repeat period equals
+   groupWidth + one gap — so each group carries its own trailing gap as
+   padding, and the TRACK carries no gap of its own. A gap on the track would
+   sit BETWEEN the two groups only, shifting the period by gap/2 and making
+   the loop tick once per cycle. */
 .sh-tmarquee__group {
-  display: flex; flex: none;
-  margin: 0; padding: 0; list-style: none;
+  display: flex; flex: none; align-items: stretch;
+  gap: var(--sh-tm-gap);
+  margin: 0; padding: 0 var(--sh-tm-gap) 0 0; list-style: none;
 }
 
 /* --- Item ------------------------------------------------------------- */
-/* Proportions echo .sh-trust__item at :655 so the two trust treatments read as
-   one family across the dark hero and this light band. */
+/* Card tiles, not naked rows: the marquee-logo-scroller reference pattern
+   ported onto the brand — near-white rounded plates on the deeper cream,
+   hairline ring, soft lift on hover. Ribbon height stays in the old range:
+   the padding the items lost went onto the track (below) so tile shadows
+   are not clipped by the --ruled hairlines. */
+.sh-tmarquee__track { padding-block: clamp(16px, 1.8vw, 22px); }
 .sh-tmarquee__item {
   position: relative; flex: none;
   display: flex; align-items: center; gap: 14px;
-  padding-inline: clamp(18px, 2.4vw, 38px);
-  padding-block: clamp(17px, 2vw, 26px);
+  padding-inline: clamp(16px, 1.8vw, 24px);
+  padding-block: clamp(10px, 1.2vw, 14px);
   white-space: nowrap;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, .55);
+  border: 1px solid rgba(122, 93, 46, .14);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .8),
+              0 2px 10px rgba(38, 53, 29, .06);
+  transition: transform .42s cubic-bezier(.22, .61, .36, 1),
+              border-color .42s cubic-bezier(.22, .61, .36, 1),
+              box-shadow .42s cubic-bezier(.22, .61, .36, 1);
 }
-/* The second selector is the seam between the two passes. Without it the
-   divider goes missing exactly once per loop, which is the kind of gap that
-   only ever gets noticed after launch. */
-.sh-tmarquee__item + .sh-tmarquee__item::before,
-.sh-tmarquee__group + .sh-tmarquee__group > .sh-tmarquee__item:first-child::before {
-  content: ""; position: absolute; left: 0; top: 50%;
-  transform: translateY(-50%);
-  width: 1px; height: 34px; background: var(--sh-tm-rule);
+
+/* --- Badge stamp ------------------------------------------------------ */
+/* A real certification mark from Assets. multiply melts the white JPG ground
+   into the tile, so stamps read as printed on the plate, not pasted over it.
+   Sized a step up from the drawn medallions — real seals carry their own text
+   and need it legible. */
+.sh-tmarquee__stamp {
+  position: relative; flex: none; display: grid; place-items: center;
+  width:  calc(var(--sh-tm-icon) * var(--sh-tm-scale) * 1.18);
+  height: calc(var(--sh-tm-icon) * var(--sh-tm-scale) * 1.18);
+}
+.sh-tmarquee .sh-tmarquee__stamp img {
+  width: 100%; height: 100%; object-fit: contain;
+  mix-blend-mode: multiply;
 }
 
 /* --- Medallion — see (4) ---------------------------------------------- */
@@ -4962,6 +4954,12 @@ a.sh-story__play:hover {
   .sh-tmarquee--hoverpause .sh-tmarquee__viewport:hover .sh-tmarquee__track {
     animation-play-state: paused;
   }
+  .sh-tmarquee__item:hover {
+    transform: translateY(-3px);
+    border-color: rgba(184, 154, 98, .6);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .95),
+                0 10px 24px rgba(38, 53, 29, .12);
+  }
   .sh-tmarquee__item:hover .sh-tmarquee__medallion {
     transform: scale(1.045);
     border-color: rgba(184, 154, 98, .75);
@@ -4998,11 +4996,7 @@ a.sh-story__play:hover {
      moving one. */
   .sh-tmarquee__item {
     flex-direction: column; gap: 9px; text-align: center;
-    padding-inline: 15px; padding-block: 18px;
-  }
-  .sh-tmarquee__item + .sh-tmarquee__item::before,
-  .sh-tmarquee__group + .sh-tmarquee__group > .sh-tmarquee__item:first-child::before {
-    height: 46px;
+    padding-inline: 15px; padding-block: 14px;
   }
   .sh-tmarquee__label { font-size: .64rem; letter-spacing: .12em; }
   .sh-tmarquee__desc  { font-size: .62rem; }

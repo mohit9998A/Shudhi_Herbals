@@ -156,14 +156,14 @@
     "trust_marquee": {
       "type": "sh-trust-marquee",
       "blocks": {
-        "c1": { "type": "claim", "settings": { "enabled": true, "icon": "lab",     "title": "Lab Tested",                "text": "Thoughtfully verified" } },
-        "c2": { "type": "claim", "settings": { "enabled": true, "icon": "iso",     "title": "ISO Certified",             "text": "Held to standard" } },
-        "c3": { "type": "claim", "settings": { "enabled": true, "icon": "batch",   "title": "Handmade in Small Batches", "text": "Made by hand" } },
-        "c4": { "type": "claim", "settings": { "enabled": true, "icon": "sls",     "title": "SLS & SLES Free",           "text": "No harsh surfactants" } },
-        "c5": { "type": "claim", "settings": { "enabled": true, "icon": "paraben", "title": "Paraben Free",              "text": "No synthetic preservatives" } },
-        "c6": { "type": "claim", "settings": { "enabled": true, "icon": "toxin",   "title": "Toxin Free",                "text": "Clean by formulation" } },
-        "c7": { "type": "claim", "settings": { "enabled": true, "icon": "cruelty", "title": "Cruelty Free",              "text": "Never tested on animals" } },
-        "c8": { "type": "claim", "settings": { "enabled": true, "icon": "natural", "title": "Natural Ingredients",       "text": "Rooted in Ayurveda" } }
+        "c1": { "type": "claim", "settings": { "enabled": true, "icon": "lab",     "badge": "Labtested.webp",     "title": "Lab Tested",                "text": "Thoughtfully verified" } },
+        "c2": { "type": "claim", "settings": { "enabled": true, "icon": "iso",     "badge": "ISOCERTIFIED.webp",  "title": "ISO Certified",             "text": "Held to standard" } },
+        "c3": { "type": "claim", "settings": { "enabled": true, "icon": "batch",   "badge": "madebyhand.webp",    "title": "Handmade in Small Batches", "text": "Made by hand" } },
+        "c4": { "type": "claim", "settings": { "enabled": true, "icon": "sls",     "badge": "SLSFREE.jpg",        "title": "SLS & SLES Free",           "text": "No harsh surfactants" } },
+        "c5": { "type": "claim", "settings": { "enabled": true, "icon": "paraben", "badge": "parabenfree.webp",   "title": "Paraben Free",              "text": "No synthetic preservatives" } },
+        "c6": { "type": "claim", "settings": { "enabled": true, "icon": "toxin",   "badge": "nontoxic.jpg",       "title": "Toxin Free",                "text": "Clean by formulation" } },
+        "c7": { "type": "claim", "settings": { "enabled": true, "icon": "cruelty", "badge": "crueltyfree.jpg",    "title": "Cruelty Free",              "text": "Never tested on animals" } },
+        "c8": { "type": "claim", "settings": { "enabled": true, "icon": "natural", "badge": "NaturalProduct.jpg", "title": "Natural Ingredients",       "text": "Rooted in Ayurveda" } }
       },
       "block_order": ["c1", "c2", "c3", "c4", "c5", "c6", "c7", "c8"],
       "settings": {
