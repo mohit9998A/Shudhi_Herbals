@@ -4767,11 +4767,13 @@ a.sh-story__play:hover {
 .sh-tmarquee .sh-eyebrow { color: var(--sh-story-gold-ink); }
 .sh-tmarquee__eyebrow .sh-icon { width: 14px; height: 14px; }
 .sh-tmarquee__title { font-size: clamp(1.7rem, 3vw, 2.55rem); margin: 0; }
-.sh-tmarquee__body {
+/* (0,2,0), not a bare (0,1,0) class: `.sh p { margin: 0 }` at :115 is (0,1,1)
+   and silently beats a lone class, so `margin: ... auto` never applied and the
+   46ch block sat LEFT inside the 62ch head at desktop widths — the exact trap
+   §10's margin note documents. text-align is explicit for the same reason:
+   a bare-element rule leaks text-align:left onto <p>. */
+.sh-tmarquee .sh-tmarquee__body {
   margin: 10px auto 0; max-width: 46ch;
-  /* Explicit, not inherited: a bare-element rule leaks text-align:left onto
-     <p>, and inside a centred 46ch block a shorter line then sits visibly
-     off-centre under the centred title. */
   text-align: center;
   color: var(--sh-story-body); font-size: .95rem; line-height: 1.6;
 }
