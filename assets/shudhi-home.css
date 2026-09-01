@@ -1053,29 +1053,79 @@ a.sh-story__play:hover {
 /* ============================================================
    11. MINDFUL RITUAL — "Transform Your Daily Bath"
    ============================================================ */
+/* Same two global leaks as .sh-story (:692-699), neutralised the same way:
+   houseofveda-modern.css:55 h2 colour, timber.scss.liquid:814 capitalize.
+   (0,1,1) beats bare h2 (0,0,1), so no !important is needed. `.sh-step h3`
+   below still sets its own colour — the plate stays a dark surface. */
+.sh-mindful h2 { color: inherit; text-transform: none; }
+
 .sh-mindful {
-  position: relative; overflow: hidden; color: var(--sh-light);
-  padding-block: clamp(78px, 9vw, 130px); background: var(--sh-green-900);
+  /* Light-surface tokens re-declared at .sh-story's values (:709-713) — the
+     originals are section-scoped on purpose (see :1746-1754 for the policy).
+     --sh-mindful-bg is overridden inline from the `bg` setting; the value here
+     is the fallback and documents what that setting expects. */
+  --sh-mindful-bg:   #f6ede1;   /* cream panel, and what the photo fades into */
+  --sh-mindful-ink:  #1b2a12;   /* heading — 13.1:1 on cream */
+  --sh-mindful-body: #474a3d;   /* paragraph — 7.8:1 */
+
+  position: relative; overflow: hidden;
+  background: var(--sh-mindful-bg); color: var(--sh-mindful-ink);
 }
-.sh-mindful__bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; }
-.sh-mindful::after {
-  content: ""; position: absolute; inset: 0; z-index: 1;
-  background: linear-gradient(95deg, rgba(14, 20, 9, .84) 0%, rgba(14, 20, 9, .55) 48%, rgba(14, 20, 9, .42) 100%);
-}
-.sh-mindful > .sh-wrap { position: relative; z-index: 2; }
+
 .sh-mindful__grid {
-  display: grid; grid-template-columns: 1fr 1.45fr;
-  gap: clamp(38px, 5vw, 80px); align-items: center;
+  display: grid;
+  grid-template-columns: minmax(0, 46%) minmax(0, 54%);
+  align-items: center;
+  min-height: var(--sh-mindful-h, 560px);
 }
-/* Colour set explicitly, never left to inherit: houseofveda-modern.css gives
-   `h1..h6` an explicit `color: var(--hov-dark)`, and an explicit colour on the
-   element always beats one inherited from the section — so the heading went
-   near-black on this dark backdrop. Same reason `.sh-step h3` sets one below. */
-.sh-mindful__title { font-size: clamp(1.8rem, 3.2vw, 2.7rem); margin-bottom: 22px; color: var(--sh-light); }
+
+/* Re-creates .sh-wrap's left gutter without putting the grid inside it — same
+   derivation as .sh-story__copy (:727-737); the photo must bleed to the
+   viewport edge. No 100vw anywhere: that ignores the scrollbar. */
+.sh-mindful__copy {
+  margin-left: auto; width: 100%;
+  max-width: calc(var(--sh-max) * .46);
+  padding: clamp(48px, 6vw, 86px) var(--sh-pad);
+}
+
+/* display:grid centres the IN-FLOW plate; keeping the plate in flow (photo
+   absolute behind it) guarantees the column is always tall enough for the
+   plate at any copy length or breakpoint. The larger start padding keeps the
+   glass clear of the feather's 17% fade zone. */
+.sh-mindful__media {
+  position: relative; align-self: stretch;
+  display: grid; align-items: center;
+  min-height: var(--sh-mindful-media-h, clamp(340px, 40vw, 560px));
+  padding: clamp(28px, 4vw, 48px) var(--sh-pad);
+  padding-inline-start: clamp(64px, 9vw, 150px);
+}
+/* (0,2,0), not a bare block class: `.sh img { height: auto }` is (0,1,1) and
+   for an abs-positioned REPLACED element height:auto resolves to the intrinsic
+   ratio even with inset:0 — the photo stopped 127px short of the band. */
+.sh .sh-mindful__photo {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  object-fit: cover;
+  /* Stated rather than merely absent, as at :746-750: the previous build
+     scrimmed the whole band and the split design shows the photo untreated. */
+  filter: none; opacity: 1;
+}
+/* Feathers the photo's left edge into the cream panel — identical technique
+   to .sh-story__media::after (:752-759). Fading to the `transparent` KEYWORD
+   is safe (premultiplied-alpha interpolation, no grey midpoint) and the same
+   var paints the section bg, so panel and feather can never drift. */
+.sh-mindful__media::after {
+  content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none;
+  background: linear-gradient(to right, var(--sh-mindful-bg) 0%, transparent 17%);
+}
+
+.sh-mindful__title { font-size: clamp(1.8rem, 3.2vw, 2.7rem); margin-bottom: 22px; }
 .sh-mindful__text {
-  font-size: .9rem; line-height: 1.8; color: var(--sh-muted-light);
-  max-width: 34ch; margin-bottom: 32px;
+  font-size: 1rem; line-height: 1.75; color: var(--sh-mindful-body);
+  max-width: 42ch; margin-bottom: 32px;
 }
+/* Global focus ring is --sh-gold, 1.95:1 on cream. Scoped to __copy, not the
+   section: the steps plate is still a dark surface. */
+.sh-mindful__copy a:focus-visible { outline-color: var(--sh-mindful-ink); }
 
 /* One frosted plate behind all four steps, not one per step: the arc joins them
    into a single sequence, so a shared surface is what that reads as. Tokens are
@@ -1095,6 +1145,10 @@ a.sh-story__play:hover {
 .sh-steps {
   --sh-steps-pad-x: clamp(14px, 1.6vw, 24px);
   --sh-steps-pad-y: 34px;
+  z-index: 2;                            /* above the feather's z-index:1 */
+  width: 100%;
+  max-width: calc(var(--sh-max) * .54);  /* ultra-wide cap */
+  justify-self: end;
   position: relative; display: grid; grid-template-columns: repeat(4, 1fr);
   gap: clamp(10px, 1.6vw, 24px);
   padding: var(--sh-steps-pad-y) var(--sh-steps-pad-x);
@@ -1536,7 +1590,6 @@ a.sh-story__play:hover {
   .sh-header__inner { grid-template-columns: auto 1fr; }
   .sh-hero__copy { max-width: 64%; }
   .sh-hero__pager { display: none; }
-  .sh-mindful__grid { grid-template-columns: 1fr; }
 
   /* Single column, photo first. The copy never sits ON the photo here — it
      keeps its own cream panel below — so there is nothing to scrim. */
@@ -1554,7 +1607,26 @@ a.sh-story__play:hover {
      and the photo is row 1 at exactly --sh-story-media-h, so this lands the
      seal's centre on the join without measuring anything at runtime. */
   .sh-story__seal { left: 50%; top: var(--sh-story-media-h); }
+
+  /* Single column, photo (with the steps plate) first — same stack as
+     .sh-story above; the copy keeps its own cream panel below. The plate is
+     in flow, so --sh-mindful-media-h is only a floor: the column can never be
+     shorter than plate + padding. */
+  .sh-mindful__grid {
+    --sh-mindful-media-h: clamp(320px, 52vw, 480px);
+    grid-template-columns: 1fr; min-height: 0;
+  }
+  .sh-mindful__media { order: -1; padding-inline: var(--sh-pad); }
+  /* Feather rotates with the stack: the seam is now the photo's bottom edge,
+     the one that meets the copy panel below. */
+  .sh-mindful__media::after {
+    background: linear-gradient(to bottom, transparent 76%, var(--sh-mindful-bg) 100%);
+  }
+  .sh-mindful__copy { margin-left: 0; max-width: none; padding-block: clamp(40px, 6vw, 64px); }
   .sh-mindful__text { max-width: 52ch; }
+  /* The desktop cap/right-pin served the 54% column; stacked, the plate fills
+     the padded width like the old wrapped layout did. */
+  .sh-steps { max-width: none; }
   .sh-footer__grid { grid-template-columns: 1fr 1fr; }
   .sh-footer__brand { grid-column: 1 / -1; order: -1; margin-bottom: 12px; }
 }
@@ -1601,6 +1673,9 @@ a.sh-story__play:hover {
   .sh-story__copy { text-align: center; }
   .sh-story__eyebrow { justify-content: center; }
   .sh-story__text { margin-inline: auto; }
+
+  .sh-mindful__copy { text-align: center; }
+  .sh-mindful__text { margin-inline: auto; }
   .sh-story__play { width: 60px; height: 60px; }
   .sh-story__seal { width: clamp(104px, 30vw, 132px); }
   /* 2x2 stat grid: separators only mid-row, never at a row's left edge.
@@ -1850,6 +1925,11 @@ a.sh-story__play:hover {
   background-color: var(--sh-split-bg);
   background-image: linear-gradient(135deg, rgba(27, 42, 18, .10), rgba(27, 42, 18, .04));
 }
+/* Band 4's bundled fallback artwork is a wide transparent branch, not a photo:
+   cover would zoom it to fill the column height and crowd the copy. Contain
+   shows the whole branch at its natural proportions, held against the right
+   viewport edge, with the panel colour showing through around it. */
+.sh-split--purpose .sh-split__photo { object-fit: contain; object-position: right center; }
 /* Feathers the photo's inner edge into the panel, mirrored by --sh-split-feather.
    Fading a colour to the `transparent` KEYWORD is safe: every current engine
    interpolates gradients in premultiplied alpha, so there is no grey midpoint to
@@ -4849,54 +4929,29 @@ a.sh-story__play:hover {
 /* See (1). */
 .sh-tmarquee.is-paused .sh-tmarquee__track { animation-play-state: paused; }
 
-/* THE TRAILING padding-right IS THE SEAM. Tiles are spaced by gap, and the
-   -50% loop only lands seamlessly when the repeat period equals
-   groupWidth + one gap — so each group carries its own trailing gap as
-   padding, and the TRACK carries no gap of its own. A gap on the track would
-   sit BETWEEN the two groups only, shifting the period by gap/2 and making
-   the loop tick once per cycle. */
 .sh-tmarquee__group {
-  display: flex; flex: none; align-items: stretch;
-  gap: var(--sh-tm-gap);
-  margin: 0; padding: 0 var(--sh-tm-gap) 0 0; list-style: none;
+  display: flex; flex: none;
+  margin: 0; padding: 0; list-style: none;
 }
 
 /* --- Item ------------------------------------------------------------- */
-/* Card tiles, not naked rows: the marquee-logo-scroller reference pattern
-   ported onto the brand — near-white rounded plates on the deeper cream,
-   hairline ring, soft lift on hover. Ribbon height stays in the old range:
-   the padding the items lost went onto the track (below) so tile shadows
-   are not clipped by the --ruled hairlines. */
-.sh-tmarquee__track { padding-block: clamp(16px, 1.8vw, 22px); }
+/* Proportions echo .sh-trust__item at :655 so the two trust treatments read as
+   one family across the dark hero and this light band. */
 .sh-tmarquee__item {
   position: relative; flex: none;
   display: flex; align-items: center; gap: 14px;
-  padding-inline: clamp(16px, 1.8vw, 24px);
-  padding-block: clamp(10px, 1.2vw, 14px);
+  padding-inline: clamp(18px, 2.4vw, 38px);
+  padding-block: clamp(17px, 2vw, 26px);
   white-space: nowrap;
-  border-radius: 16px;
-  background: rgba(255, 255, 255, .55);
-  border: 1px solid rgba(122, 93, 46, .14);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .8),
-              0 2px 10px rgba(38, 53, 29, .06);
-  transition: transform .42s cubic-bezier(.22, .61, .36, 1),
-              border-color .42s cubic-bezier(.22, .61, .36, 1),
-              box-shadow .42s cubic-bezier(.22, .61, .36, 1);
 }
-
-/* --- Badge stamp ------------------------------------------------------ */
-/* A real certification mark from Assets. multiply melts the white JPG ground
-   into the tile, so stamps read as printed on the plate, not pasted over it.
-   Sized a step up from the drawn medallions — real seals carry their own text
-   and need it legible. */
-.sh-tmarquee__stamp {
-  position: relative; flex: none; display: grid; place-items: center;
-  width:  calc(var(--sh-tm-icon) * var(--sh-tm-scale) * 1.18);
-  height: calc(var(--sh-tm-icon) * var(--sh-tm-scale) * 1.18);
-}
-.sh-tmarquee .sh-tmarquee__stamp img {
-  width: 100%; height: 100%; object-fit: contain;
-  mix-blend-mode: multiply;
+/* The second selector is the seam between the two passes. Without it the
+   divider goes missing exactly once per loop, which is the kind of gap that
+   only ever gets noticed after launch. */
+.sh-tmarquee__item + .sh-tmarquee__item::before,
+.sh-tmarquee__group + .sh-tmarquee__group > .sh-tmarquee__item:first-child::before {
+  content: ""; position: absolute; left: 0; top: 50%;
+  transform: translateY(-50%);
+  width: 1px; height: 34px; background: var(--sh-tm-rule);
 }
 
 /* --- Medallion — see (4) ---------------------------------------------- */
@@ -4990,12 +5045,6 @@ a.sh-story__play:hover {
   .sh-tmarquee--hoverpause .sh-tmarquee__viewport:hover .sh-tmarquee__track {
     animation-play-state: paused;
   }
-  .sh-tmarquee__item:hover {
-    transform: translateY(-3px);
-    border-color: rgba(184, 154, 98, .6);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .95),
-                0 10px 24px rgba(38, 53, 29, .12);
-  }
   .sh-tmarquee__item:hover .sh-tmarquee__medallion {
     transform: scale(1.045);
     border-color: rgba(184, 154, 98, .75);
@@ -5032,7 +5081,11 @@ a.sh-story__play:hover {
      moving one. */
   .sh-tmarquee__item {
     flex-direction: column; gap: 9px; text-align: center;
-    padding-inline: 15px; padding-block: 14px;
+    padding-inline: 15px; padding-block: 18px;
+  }
+  .sh-tmarquee__item + .sh-tmarquee__item::before,
+  .sh-tmarquee__group + .sh-tmarquee__group > .sh-tmarquee__item:first-child::before {
+    height: 46px;
   }
   .sh-tmarquee__label { font-size: .64rem; letter-spacing: .12em; }
   .sh-tmarquee__desc  { font-size: .62rem; }

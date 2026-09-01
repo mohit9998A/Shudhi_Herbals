@@ -1,6 +1,13 @@
 {%- comment -%}
   SHUDHI — "Transform Your Daily Bath into a Mindful Ritual"
 
+  Split band in the Our Story mould: cream copy panel on the left, untinted
+  photo bleeding to the right viewport edge, the panel colour feathered into
+  the photo's left edge by ::after on the media column. No full-band scrim —
+  the frosted steps plate carries its own legibility, so the photo shows at
+  natural brightness. The grid is deliberately NOT inside .sh-wrap: a
+  max-width wrapper would stop the photo short of the viewport edge.
+
   Four steps sit on a gentle wave (CSS alternates translateY per step) joined
   by a dashed arc. The arc path is generated from the actual block count so
   it still lands on the icon centres if a merchant deletes a step.
@@ -13,28 +20,28 @@
 {%- assign s = section.settings -%}
 {%- assign n = section.blocks.size -%}
 
-<section class="sh sh-mindful" id="rituals">
+<section class="sh sh-mindful" id="rituals" style="--sh-mindful-bg:{{ s.bg }};">
 
-  {%- if s.bg_image != blank -%}
-    <img class="sh-mindful__bg" src="{{ s.bg_image | image_url: width: 2000 }}" alt=""
-         width="2000" height="1100" loading="lazy" decoding="async">
-  {%- else -%}
-    <img class="sh-mindful__bg" src="{{ 'Transform your daily Bath.webp' | asset_url }}" alt=""
-         width="2000" height="1100" loading="lazy" decoding="async">
-  {%- endif -%}
+  <div class="sh-mindful__grid">
 
-  <div class="sh-wrap">
-    <div class="sh-mindful__grid">
+    <div class="sh-mindful__copy"{% if s.animate %} data-reveal{% endif %}>
+      <h2 class="sh-mindful__title sh-serif">{{ s.title }}</h2>
+      {%- if s.body != blank -%}<p class="sh-mindful__text">{{ s.body }}</p>{%- endif -%}
+      {%- if s.cta_label != blank -%}
+        <a href="{{ s.cta_link | default: '#collection' }}" class="sh-btn sh-btn--solid">
+          {{ s.cta_label }} {% render 'sh-icon', name: 'arrow-right' %}
+        </a>
+      {%- endif -%}
+    </div>
 
-      <div class="sh-mindful__copy"{% if s.animate %} data-reveal{% endif %}>
-        <h2 class="sh-mindful__title sh-serif">{{ s.title }}</h2>
-        {%- if s.body != blank -%}<p class="sh-mindful__text">{{ s.body }}</p>{%- endif -%}
-        {%- if s.cta_label != blank -%}
-          <a href="{{ s.cta_link | default: '#collection' }}" class="sh-btn sh-btn--outline">
-            {{ s.cta_label }}
-          </a>
-        {%- endif -%}
-      </div>
+    <div class="sh-mindful__media">
+      {%- if s.bg_image != blank -%}
+        <img class="sh-mindful__photo" src="{{ s.bg_image | image_url: width: 2000 }}" alt=""
+             width="2000" height="1100" loading="lazy" decoding="async">
+      {%- else -%}
+        <img class="sh-mindful__photo" src="{{ 'Transform your daily Bath.webp' | asset_url }}" alt=""
+             width="2000" height="1100" loading="lazy" decoding="async">
+      {%- endif -%}
 
       {%- if n > 0 -%}
         <div class="sh-steps" style="grid-template-columns:repeat({{ n }},1fr);">
@@ -79,6 +86,7 @@
       {%- endif -%}
 
     </div>
+
   </div>
 </section>
 
@@ -92,8 +100,9 @@
     { "type": "text", "id": "cta_label", "label": "Button text", "default": "Explore rituals" },
     { "type": "url", "id": "cta_link", "label": "Button link" },
     { "type": "header", "content": "Background" },
-    { "type": "image_picker", "id": "bg_image", "label": "Background image", "info": "Defaults to \"Transform your daily Bath.webp\" in Assets." },
+    { "type": "image_picker", "id": "bg_image", "label": "Photo", "info": "Fills the right-hand column and bleeds to the screen edge, shown at full brightness. Defaults to \"Transform your daily Bath.webp\" in Assets." },
     { "type": "header", "content": "Appearance" },
+    { "type": "color", "id": "bg", "label": "Panel background", "default": "#f6ede1", "info": "The colour behind the copy — also what the photo's edge fades into." },
     { "type": "checkbox", "id": "animate", "label": "Animate on scroll", "default": true }
   ],
   "blocks": [
