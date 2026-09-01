@@ -531,16 +531,17 @@ body.template-index .sh-header-sticky { margin-bottom: calc(-1 * var(--sh-header
 /* Copy */
 .sh-hero__content {
   position: absolute; inset: 0; z-index: 5;
-  display: flex; align-items: center;
-  padding-top: var(--sh-header-h); padding-bottom: 150px;
+  display: flex; align-items: flex-end;
+  padding-top: var(--sh-header-h); padding-bottom: clamp(140px, 29svh, 300px);
   pointer-events: none;
 }
 .sh-hero__content .sh-wrap { pointer-events: none; }
 .sh-hero__copy { max-width: 560px; color: var(--sh-light); pointer-events: auto; }
-.sh-hero__title { font-size: clamp(2.3rem, 4.6vw, 4.05rem); }
-.sh-hero__rule { width: 38px; height: 1px; background: var(--sh-gold); margin: 26px 0 20px; }
+.sh-hero__title { font-size: clamp(2rem, 3vw, 2.75rem); }
+.sh-hero__rule { display: none; width: 38px; height: 1px; background: var(--sh-gold); margin: 26px 0 20px; }
 .sh-hero__label {
-  color: var(--sh-gold); font-size: .82rem; letter-spacing: .04em; margin-bottom: 16px; font-weight: 500;
+  color: var(--sh-gold); font-size: .72rem; letter-spacing: .14em; text-transform: uppercase;
+  margin: 14px 0 26px; font-weight: 500;
 }
 .sh-hero__text {
   /* 1rem, not .93rem — the 16px floor for body copy. The 40ch cap means this
@@ -1633,7 +1634,7 @@ a.sh-story__play:hover {
 
 @media (max-width: 768px) {
   .sh-hero__pin { height: 46svh; }
-  .sh-hero__content { padding-top: calc(var(--sh-header-h) + 4px); padding-bottom: 82px; }
+  .sh-hero__content { align-items: center; padding-top: calc(var(--sh-header-h) + 4px); padding-bottom: 82px; }
   .sh-hero__copy { max-width: 100%; }
   .sh-hero__title { font-size: clamp(1.5rem, 6vw, 2rem); }
   .sh-hero__rule { margin: 10px 0 8px; }
