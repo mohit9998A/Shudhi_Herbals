@@ -60,11 +60,11 @@
         "smoothing": 36,
         "blend_frames": true,
         "animate_in": true,
-        "headline_l1": "The Ritual of <em>Purity</em>.",
-        "headline_l2": "",
-        "headline_l3": "",
-        "label": "Rooted in Ayurveda. Made for you.",
-        "body": "",
+        "headline_l1": "Purify Your Skin.",
+        "headline_l2": "Cleanse Your Aura.",
+        "headline_l3": "Elevate Your Ritual.",
+        "label": "Negativity Removal Cleansing Bar",
+        "body": "A ritual-inspired herbal soap with sacred Ayurvedic herbs to purify your skin, mind and energy.",
         "cta_label": "Shop the ritual",
         "cta2_label": "Discover the ritual",
         "show_scroll_hint": true,
@@ -256,46 +256,6 @@
     },
     "our_story": {
       "type": "sh-our-story",
-      "blocks": {
-        "st1": {
-          "type": "stat",
-          "settings": {
-            "icon": "heart",
-            "value": "10K+",
-            "label": "Happy Customers"
-          }
-        },
-        "st2": {
-          "type": "stat",
-          "settings": {
-            "icon": "hands-heart",
-            "value": "Handmade in Small Batches",
-            "label": "Made by hand"
-          }
-        },
-        "st3": {
-          "type": "stat",
-          "settings": {
-            "icon": "leaf",
-            "value": "100%",
-            "label": "Natural Ingredients"
-          }
-        },
-        "st4": {
-          "type": "stat",
-          "settings": {
-            "icon": "badge",
-            "value": "5 ★",
-            "label": "Customer Rating"
-          }
-        }
-      },
-      "block_order": [
-        "st1",
-        "st2",
-        "st3",
-        "st4"
-      ],
       "settings": {
         "eyebrow": "Our Story",
         "title_l1": "Rooted in Tradition.",

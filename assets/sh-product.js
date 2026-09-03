@@ -391,6 +391,18 @@
       }
     }
 
+    /* ------------------------------------------------ FAQ (theme editor only)
+       The accordion itself is native <details> + CSS. This only opens the
+       block a merchant selects in the editor sidebar so they can see what
+       they are editing. The listener lives on the root, which is discarded
+       on section unload, so there is nothing to clean up. */
+    root.addEventListener('shopify:block:select', function (evt) {
+      var item = evt.target && evt.target.closest
+        ? evt.target.closest('details.sh-pdp__faq-item')
+        : null;
+      if (item) item.open = true;
+    });
+
     /* ------------------------------------------------ registry */
 
     instances.push({

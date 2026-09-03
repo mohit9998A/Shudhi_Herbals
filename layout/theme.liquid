@@ -25,25 +25,48 @@
   
 {%- comment -%} [PLACEHOLDER] Add Shudhi Herbals' own Meta Pixel init here if wanted. (Previous store's pixel removed.) {%- endcomment -%}
   
-{% if request.page_type == 'product' %}  
+{% if request.page_type == 'product' %}
+{%- liquid
+  # Every string goes through | json (it adds the quotes), so a description
+  # with quotes or line breaks can no longer break the document. aggregateRating
+  # comes ONLY from the reviews.* metafields a reviews app writes — never from
+  # the manual fallback numbers in sections/sh-product.liquid.
+  assign ld_variant = product.selected_or_first_available_variant
+  assign ld_short = product.metafields.custom.short_description | metafield_text
+  assign ld_desc = ld_short | default: page_description | default: product.description
+  assign ld_rating = product.metafields.reviews.rating.value
+  assign ld_count = product.metafields.reviews.rating_count.value | plus: 0
+-%}
 <script type="application/ld+json">
 {
-  "@context": "https://schema.org/", 
-  "@type": "Product", 
-  "name": "{{ product.title | escape }}",
-  "image": "https:{{ product | img_url }}",
-  "description": "{{ product.description }}",
+  "@context": "https://schema.org/",
+  "@type": "Product",
+  "name": {{ product.title | json }},
+  {%- if product.featured_image %}
+  "image": {{ product.featured_image | image_url: width: 1200 | prepend: 'https:' | json }},
+  {%- endif %}
+  "description": {{ ld_desc | strip_html | strip | json }},
   "brand": {
     "@type": "Brand",
     "name": "Shudhi Herbals"
   },
-  "sku": "{{ product.selected_or_first_available_variant.sku }}",
+  {%- if ld_variant.sku != blank %}
+  "sku": {{ ld_variant.sku | json }},
+  {%- endif %}
+  {%- if ld_rating != blank and ld_count > 0 %}
+  "aggregateRating": {
+    "@type": "AggregateRating",
+    "ratingValue": {{ ld_rating.rating | json }},
+    "bestRating": {{ ld_rating.scale_max | json }},
+    "reviewCount": {{ ld_count | json }}
+  },
+  {%- endif %}
   "offers": {
     "@type": "Offer",
-    "url": "{{ canonical_url }}",
-    "priceCurrency": "INR",
-    "price": "{{ product.price | money_without_currency }}",
-    "availability": "https://schema.org/InStock"
+    "url": {{ canonical_url | json }},
+    "priceCurrency": {{ cart.currency.iso_code | json }},
+    "price": {{ product.price_min | divided_by: 100.0 | json }},
+    "availability": "https://schema.org/{% if product.available %}InStock{% else %}OutOfStock{% endif %}"
   }
 }
 </script>

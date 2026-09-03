@@ -11,6 +11,58 @@
   "sections": {
     "main": {
       "type": "sh-product",
+      "blocks": {
+        "faq_use": {
+          "type": "faq",
+          "settings": {
+            "question": "How do I use the bar?",
+            "answer": "<p>Work the bar into a light lather with water, massage gently over damp skin, then rinse. Use it morning or evening as part of your daily cleansing ritual, and let the bar dry between uses so it lasts longer.</p>"
+          }
+        },
+        "faq_inside": {
+          "type": "faq",
+          "settings": {
+            "question": "What is it made with?",
+            "answer": "<p>Each bar is handmade in small batches from herbs and pure essential oils, with no harsh chemicals: SLS and SLES free, paraben free, toxin free and cruelty free, and every batch is lab tested. If you have known allergies, please check the full ingredient list on the pack before use.</p>"
+          }
+        },
+        "faq_skin": {
+          "type": "faq",
+          "settings": {
+            "question": "Is it suitable for sensitive skin?",
+            "answer": "<p>It is made without harsh surfactants or synthetic preservatives, which makes it a gentler choice for everyday cleansing. As with any new skincare product, try a small patch test first and stop using it if irritation occurs.</p>"
+          }
+        },
+        "faq_last": {
+          "type": "faq",
+          "settings": {
+            "question": "How long does one bar last, and how should I store it?",
+            "answer": "<p>That depends on how often you use it. Keep the bar on a well-drained soap dish, away from standing water, and let it dry fully between uses; a dry bar lasts noticeably longer. The Pack of 3 and Pack of 5 are the easy way to keep a spare in every bathroom.</p>"
+          }
+        },
+        "faq_ship": {
+          "type": "faq",
+          "settings": {
+            "question": "Shipping, tracking and returns",
+            "answer": "<p>Shipping is free on every order. You will get a confirmation email when you order and again when it is dispatched, with a tracking link. If anything is not right with your order, write to <a href=\"mailto:help@shudhiherbals.com\">help@shudhiherbals.com</a> and we will help.</p>"
+          }
+        },
+        "details": {
+          "type": "details",
+          "settings": {
+            "title": "Product details",
+            "show_description": false
+          }
+        }
+      },
+      "block_order": [
+        "faq_use",
+        "faq_inside",
+        "faq_skin",
+        "faq_last",
+        "faq_ship",
+        "details"
+      ],
       "settings": {
         "show_breadcrumb": true,
         "show_wishlist": true,
@@ -28,8 +80,12 @@
         "tax_note": "(Inc of all taxes.)",
         "sticky_bar": true,
         "show_categories": true,
-        "show_details": true,
-        "show_reviews": true
+        "show_reviews": true,
+        "rating_value": 4.9,
+        "rating_count": 52,
+        "short_description": "A <b>handmade Ayurvedic cleansing bar</b>, crafted in small batches with <b>herbs and pure essential oils</b>. Free from SLS, SLES, parabens and harsh chemicals, it turns an everyday wash into a calm, grounding ritual to <b>purify, protect and renew</b>. Cruelty free, lab tested, 100 g.",
+        "dispatch_note": "",
+        "faq_open_first": false
       }
     },
     "1669027567072551a2": {
