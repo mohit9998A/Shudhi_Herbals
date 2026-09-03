@@ -126,28 +126,126 @@
   align-items: start;
 }
 
+/* Desktop placement only. DOM order is gallery, info, perks, why, so the
+   one-column layout below 990px needs no overrides and reads
+   gallery -> buy box -> benefits -> why. The 1fr last row is load-bearing:
+   the info column spans all three rows, and with 1fr its extra height lands
+   under the why panel instead of opening gaps between the left blocks. */
+@media (min-width: 990px) {
+  .sh-pdp__grid { grid-template-rows: auto auto 1fr; row-gap: 20px; }
+  .sh-pdp__gallery { grid-column: 1; grid-row: 1; }
+  .sh-pdp__perks   { grid-column: 1; grid-row: 2; }
+  .sh-pdp__why     { grid-column: 1; grid-row: 3; align-self: start; }
+  .sh-pdp__info    { grid-column: 2; grid-row: 1 / span 3; }
+}
+
 /* ---------------------------------------------------------- gallery */
+
+.sh-pdp__gallery { min-width: 0; }
+
+.sh-pdp__stage {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--sh-pdp-radius);
+  background: var(--sh-pdp-tint);
+  touch-action: pan-y pinch-zoom;
+}
 
 .sh-pdp__slide { display: none; margin: 0; }
 .sh-pdp__slide.is-active { display: block; }
 
-.sh-pdp__slide img,
-.sh-pdp__placeholder {
+/* crossfade only after the first user navigation (.is-live): an opacity-from-0
+   keyframe on the initial slide would delay the LCP paint */
+.sh-pdp__stage.is-live .sh-pdp__slide.is-active { animation: sh-pdp-slide-in 0.22s ease both; }
+@keyframes sh-pdp-slide-in { from { opacity: 0; } }
+
+/* (0,2,1): aspect-ratio on the img, not the stage — it degrades to the natural
+   ratio on engines without it, and the width/height attributes already
+   describe the same square, so nothing shifts */
+.sh-pdp .sh-pdp__slide img,
+.sh-pdp .sh-pdp__placeholder {
   display: block;
   width: 100%;
   height: auto;
-  border-radius: 8px;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  border-radius: 0;
+  cursor: zoom-in;
+  -webkit-user-drag: none;
 }
 
-.sh-pdp__thumbs {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 14px;
+/* arrows + zoom pill: (0,3,0) over `.sh button:not(.sh-btn)` (0,2,1) */
+.sh-pdp .sh-pdp__stage .sh-pdp__nav {
+  position: absolute;
+  top: 50%;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  margin-top: -20px;
+  border: 1px solid var(--sh-pdp-line);
+  border-radius: 50%;
+  background: rgba(253, 251, 247, 0.92);
+  color: var(--sh-story-ink);
+  box-shadow: 0 4px 14px rgba(27, 42, 18, 0.12);
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.2s ease;
 }
+
+.sh-pdp__nav--prev { left: 12px; }
+.sh-pdp__nav--next { right: 12px; }
+
+.sh-pdp .sh-pdp__stage .sh-pdp__nav:hover { background: #fff; transform: scale(1.05); }
+.sh-pdp .sh-pdp__stage .sh-pdp__nav .sh-icon { width: 18px; height: 18px; }
+
+.sh-pdp .sh-pdp__stage .sh-pdp__zoom {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border: 1px solid var(--sh-pdp-line);
+  border-radius: 999px;
+  background: rgba(253, 251, 247, 0.94);
+  color: var(--sh-story-ink);
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  box-shadow: 0 4px 14px rgba(27, 42, 18, 0.12);
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.sh-pdp .sh-pdp__stage .sh-pdp__zoom:hover { background: var(--sh-story-ink); color: #f4efe6; }
+.sh-pdp .sh-pdp__stage .sh-pdp__zoom .sh-icon { width: 15px; height: 15px; }
+
+/* Thumbs: the base is a horizontal strip (phones, tablets); desktop hangs it
+   as a rail on the left, absolutely positioned so it is exactly the stage's
+   height and scrolls when a product has many images. The rail comes AFTER
+   the stage in the DOM on purpose (header note 4: first <img> = main image). */
+.sh-pdp__thumbs {
+  position: relative;
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+  padding: 2px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x proximity;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.sh-pdp__thumbs::-webkit-scrollbar { display: none; }
 
 .sh-pdp .sh-pdp__thumbs .sh-pdp__thumb {
   display: block;
+  flex: none;
   width: 72px;
   height: 72px;
   padding: 0;
@@ -157,6 +255,7 @@
   overflow: hidden;
   cursor: pointer;
   opacity: 0.75;
+  scroll-snap-align: center;
   transition: border-color 0.2s ease, opacity 0.2s ease;
 }
 
@@ -168,6 +267,7 @@
 }
 
 .sh-pdp .sh-pdp__thumbs .sh-pdp__thumb:hover { opacity: 1; }
+.sh-pdp .sh-pdp__thumbs .sh-pdp__thumb:focus-visible { outline-offset: -3px; }
 
 .sh-pdp .sh-pdp__thumbs .sh-pdp__thumb[aria-current="true"] {
   opacity: 1;
@@ -175,6 +275,22 @@
   box-shadow: inset 0 0 0 1px var(--sh-story-ink);
 }
 
+@media (min-width: 990px) {
+  .sh-pdp__gallery--rail { position: relative; padding-left: 90px; }   /* 76 rail + 14 gap */
+
+  .sh-pdp__gallery--rail .sh-pdp__thumbs {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 76px;
+    margin: 0;
+    flex-direction: column;
+    overflow-x: hidden;
+    overflow-y: auto;
+    scroll-snap-type: y proximity;
+  }
+}
 /* ---------------------------------------------------------- title row */
 
 .sh-pdp__head {
@@ -251,7 +367,7 @@
   overflow: hidden;
 }
 
-.sh-pdp__stars-base { width: 100%; opacity: 0.55; }
+.sh-pdp__stars-base { width: 100%; opacity: 0.8; }   /* ~3.8:1 on the cream page ground */
 
 .sh-pdp__stars-fill {
   width: var(--sh-rating, 0%);
@@ -836,7 +952,16 @@
 .sh-pdp__faq-q::-webkit-details-marker { display: none; }
 
 /* .sh-pdp h3 (top of file) already resets colour, transform and margin */
+.sh-pdp__faq-glyph {
+  width: 18px;
+  height: 18px;
+  flex: none;
+  color: var(--sh-story-gold-ink);
+}
+
 .sh-pdp__faq-title {
+  flex: 1 1 auto;
+  min-width: 0;
   font-size: 1.08rem;
   font-weight: 500;
   transition: color 0.25s ease;
@@ -955,6 +1080,384 @@
 
 .sh-pdp__facts dt { font-weight: 600; color: var(--sh-story-ink); }
 .sh-pdp__facts dd { margin: 0; }
+
+/* ---------------------------------------------------------- benefit strip */
+
+.sh-pdp__perks {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin: 0;
+  padding: 16px 18px;
+  background: var(--sh-pdp-tint);
+  border: 1px solid var(--sh-pdp-line);
+  border-radius: var(--sh-pdp-radius);
+}
+
+.sh-pdp__perk {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+/* mirrors .sh-collection__strip-item (shudhi-home.css) so the two strips read as one family */
+.sh-pdp__perk > .sh-icon {
+  width: 40px;
+  height: 40px;
+  padding: 9px;
+  flex: none;
+  border: 1px solid rgba(27, 42, 18, 0.18);
+  border-radius: 50%;
+  color: var(--sh-story-gold-ink);
+}
+
+.sh-pdp__perk-copy { display: block; min-width: 0; }
+
+.sh-pdp__perk b {
+  display: block;
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: var(--sh-story-ink);
+}
+
+.sh-pdp__perk small {
+  display: block;
+  margin-top: 2px;
+  font-size: 0.7rem;
+  line-height: 1.35;
+  color: var(--sh-story-body);
+}
+
+/* the left column is ~470px at 990-1199 — four items do not fit there either */
+@media (max-width: 599px), (min-width: 990px) and (max-width: 1199px) {
+  .sh-pdp__perks {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px 10px;
+    padding: 14px;
+  }
+}
+
+/* ---------------------------------------------------------- why you'll love it */
+
+.sh-pdp__why {
+  position: relative;
+  overflow: hidden;
+  padding: clamp(24px, 3vw, 36px) clamp(18px, 2.4vw, 30px);
+  border-radius: var(--sh-pdp-radius);
+  background: var(--sh-green-900, #1b2411);
+  color: var(--sh-light, #f4efe6);
+}
+
+/* inset:0 sizes the photo, so `.sh img { height: auto }` cannot shorten it */
+.sh-pdp .sh-pdp__why-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: var(--sh-pdp-why-photo, 0.18);
+  pointer-events: none;
+}
+
+.sh-pdp__why-in { position: relative; z-index: 1; }
+
+/* (0,2,0) beats `.sh-pdp h2 { color: inherit }` (0,1,1) */
+.sh-pdp .sh-pdp__why-title {
+  margin: 0 0 clamp(18px, 2.4vw, 26px);
+  text-align: center;
+  color: var(--sh-light, #f4efe6);
+  font-size: clamp(1.35rem, 1.8vw, 1.7rem);
+  font-weight: 500;
+}
+
+/* `.sh em` is sans !important at (0,1,1); this is (0,2,1) !important */
+.sh-pdp .sh-pdp__why-title em {
+  font-style: normal;
+  color: var(--sh-gold, #c9a86a);
+  font-family: var(--sh-serif) !important;
+}
+
+.sh-pdp__why-grid {
+  --sh-why-gap: 16px;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 20px var(--sh-why-gap);
+  margin: 0;
+  padding: 0;
+}
+
+.sh-pdp__why-item {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  align-content: start;
+  gap: 8px;
+  text-align: center;
+}
+
+/* hairline hung in the middle of the column gap — the .sh-fgrid recipe */
+.sh-pdp__why-item::after {
+  content: "";
+  position: absolute;
+  top: 10%;
+  bottom: 10%;
+  right: calc(var(--sh-why-gap) / -2);
+  width: 1px;
+  background: rgba(244, 239, 230, 0.18);
+  pointer-events: none;
+}
+
+.sh-pdp__why-item:last-child::after,
+.sh-pdp__why-item:nth-child(4n)::after { display: none; }
+
+.sh-pdp__why-icon {
+  display: inline-grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border: 1px solid rgba(201, 168, 106, 0.45);
+  border-radius: 50%;
+  color: var(--sh-gold, #c9a86a);
+  transition: transform 0.3s ease;
+}
+
+.sh-pdp__why-icon .sh-icon { width: 22px; height: 22px; }
+.sh-pdp__why-item:hover .sh-pdp__why-icon { transform: scale(1.08); }
+
+.sh-pdp .sh-pdp__why-label {
+  font-size: 0.92rem;
+  font-weight: 500;
+  line-height: 1.3;
+  color: var(--sh-light, #f4efe6);
+}
+
+.sh-pdp .sh-pdp__why-text {
+  margin: 0;
+  max-width: 22ch;
+  font-size: 0.76rem;
+  line-height: 1.55;
+  color: rgba(244, 239, 230, 0.74);
+}
+
+@media (max-width: 599px), (min-width: 990px) and (max-width: 1199px) {
+  .sh-pdp__why-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .sh-pdp__why-item:nth-child(2n)::after { display: none; }
+}
+
+/* ---------------------------------------------------------- social proof */
+
+.sh-pdp__proof {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.3fr) minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(18px, 3vw, 40px);
+  margin-top: clamp(28px, 4vw, 48px);
+  padding: clamp(18px, 2.4vw, 28px) clamp(18px, 3vw, 36px);
+  background: var(--sh-pdp-tint);
+  border: 1px solid var(--sh-pdp-line);
+  border-radius: var(--sh-pdp-radius);
+}
+
+.sh-pdp__proof--two { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+
+.sh-pdp .sh-pdp__proof-title {
+  margin: 0 0 10px;
+  font-size: 1.05rem;
+  font-weight: 500;
+  color: var(--sh-story-ink);
+}
+
+.sh-pdp__proof-avatars { display: flex; align-items: center; }
+
+.sh-pdp__avatar {
+  display: inline-grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  margin-left: -10px;
+  overflow: hidden;
+  border: 2px solid var(--sh-pdp-tint);
+  border-radius: 50%;
+  background: #d9d3c4;
+  color: var(--sh-story-ink);
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+
+.sh-pdp__avatar:first-child { margin-left: 0; }
+.sh-pdp__avatar:nth-child(2n) { background: #cfd8c3; }
+.sh-pdp__avatar:nth-child(3n) { background: #e6d6b8; }
+.sh-pdp__avatar .sh-icon { width: 18px; height: 18px; opacity: 0.7; }
+.sh-pdp .sh-pdp__avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+.sh-pdp__avatar--more {
+  background: var(--sh-story-ink);
+  color: #f4efe6;
+  font-size: 0.66rem;
+}
+
+.sh-pdp__proof-quote { margin: 0; text-align: center; }
+.sh-pdp__proof-quote .sh-pdp__stars { display: block; margin: 0 auto 8px; }
+.sh-pdp__proof .sh-pdp__stars-fill { animation: none; }
+.sh-pdp__proof .sh-pdp__stars-fill::after { display: none; }
+.sh-pdp .sh-pdp__proof-quote blockquote { margin: 0; }
+
+.sh-pdp .sh-pdp__proof-quote p {
+  margin: 0;
+  font-size: 0.98rem;
+  line-height: 1.55;
+  color: var(--sh-story-ink);
+}
+
+.sh-pdp__proof-quote figcaption {
+  margin-top: 6px;
+  font-size: 0.8rem;
+  color: var(--sh-story-body);
+}
+
+.sh-pdp__proof-tiles { display: grid; gap: 10px; margin: 0; padding: 0; }
+
+.sh-pdp__proof-tile {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 11px 14px;
+  background: var(--sh-pdp-card);
+  border: 1px solid var(--sh-pdp-line);
+  border-radius: 8px;
+}
+
+/* mirrors .sh-pdp__trust-item */
+.sh-pdp__proof-tile > .sh-icon {
+  width: 34px;
+  height: 34px;
+  padding: 7px;
+  flex: none;
+  background: var(--sh-story-ink);
+  color: #f4efe6;
+  border-radius: 8px;
+}
+
+.sh-pdp__proof-tile b { display: block; font-size: 0.86rem; font-weight: 600; color: var(--sh-story-ink); }
+.sh-pdp__proof-tile small { display: block; font-size: 0.78rem; color: var(--sh-story-body); }
+
+@media (max-width: 989px) {
+  .sh-pdp__proof,
+  .sh-pdp__proof--two { grid-template-columns: minmax(0, 1fr); text-align: center; }
+  .sh-pdp__proof-avatars { justify-content: center; }
+}
+
+/* ---------------------------------------------------------- lightbox */
+
+/* No `display` on the base rule: the UA's dialog:not([open]) { display: none }
+   must stand. showModal() puts it in the top layer, so no z-index games with
+   the chat widget. The scroll lock is a class on <html> — never
+   body.style.overflow, which three theme scripts already write. */
+.sh-pdp .sh-pdp__lightbox {
+  position: fixed;
+  inset: 0;
+  width: auto;
+  height: auto;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: rgba(14, 19, 9, 0.97);
+  color: var(--sh-light, #f4efe6);
+}
+
+.sh-pdp .sh-pdp__lightbox[open] { display: grid; grid-template-rows: auto minmax(0, 1fr); }
+.sh-pdp__lightbox::backdrop { background: rgba(14, 19, 9, 0.6); }
+
+.sh-pdp__lb-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px;
+}
+
+.sh-pdp__lb-actions { display: flex; gap: 8px; }
+
+.sh-pdp__lb-count {
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  color: rgba(244, 239, 230, 0.8);
+  font-variant-numeric: tabular-nums;
+}
+
+.sh-pdp__lb-stage {
+  position: relative;
+  min-height: 0;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  overscroll-behavior: contain;
+}
+
+/* (0,2,1): beats `.sh-pdp img { max-width: 100% }` and `.sh img { height: auto }` */
+.sh-pdp .sh-pdp__lightbox img {
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  cursor: zoom-in;
+  user-select: none;
+  -webkit-user-drag: none;
+  transform-origin: var(--sh-lb-ox, 50%) var(--sh-lb-oy, 50%);
+  transition: opacity 0.2s ease, transform 0.25s ease;
+}
+
+.sh-pdp .sh-pdp__lightbox.is-loading img { opacity: 0; }
+.sh-pdp .sh-pdp__lightbox.is-zoomed img { transform: scale(2); cursor: zoom-out; }
+
+.sh-pdp__lb-stage::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 36px;
+  height: 36px;
+  margin: -18px 0 0 -18px;
+  border: 2px solid rgba(244, 239, 230, 0.25);
+  border-top-color: #f4efe6;
+  border-radius: 50%;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.sh-pdp__lightbox.is-loading .sh-pdp__lb-stage::after { opacity: 1; animation: sh-pdp-spin 0.8s linear infinite; }
+@keyframes sh-pdp-spin { to { transform: rotate(360deg); } }
+
+/* (0,3,0) over `.sh button:not(.sh-btn)` (0,2,1) */
+.sh-pdp .sh-pdp__lightbox .sh-pdp__lb-btn {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid rgba(244, 239, 230, 0.25);
+  border-radius: 50%;
+  background: rgba(244, 239, 230, 0.1);
+  color: inherit;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.sh-pdp .sh-pdp__lightbox .sh-pdp__lb-btn:hover { background: rgba(244, 239, 230, 0.2); }
+.sh-pdp .sh-pdp__lightbox .sh-pdp__lb-btn[aria-pressed="true"] { background: var(--sh-gold, #c9a86a); color: #1e1810; }
+.sh-pdp .sh-pdp__lightbox .sh-pdp__lb-btn .sh-icon { width: 20px; height: 20px; }
+.sh-pdp .sh-pdp__lightbox .sh-pdp__lb-nav { position: absolute; top: 50%; margin-top: -22px; z-index: 1; }
+.sh-pdp__lb-nav--prev { left: 16px; }
+.sh-pdp__lb-nav--next { right: 16px; }
+
+/* (0,3,1) !important over `.sh-pdp button:focus-visible` — a dark ring is invisible here */
+.sh-pdp .sh-pdp__lightbox button:focus-visible { outline-color: var(--sh-gold, #c9a86a) !important; }
+
+html.sh-pdp-lightbox-open { overflow: hidden; }
 
 /* ---------------------------------------------------------- reviews */
 
@@ -1109,6 +1612,16 @@ html.sh-pdp-sticky-up #hov-chat-widget {
   .sh-pdp__faq-q { padding: 13px 0; }
   .sh-pdp__faq-title { font-size: 1rem; }
   .sh-pdp__faq-a-in { padding: 0 0 16px; }
+
+  .sh-pdp .sh-pdp__stage .sh-pdp__nav { width: 36px; height: 36px; margin-top: -18px; }
+  .sh-pdp .sh-pdp__stage .sh-pdp__zoom { padding: 9px; }
+  .sh-pdp .sh-pdp__stage .sh-pdp__zoom span {
+    position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0);   /* icon only; the aria-label carries the name */
+  }
+  .sh-pdp .sh-pdp__lightbox .sh-pdp__lb-btn { width: 40px; height: 40px; }
+  .sh-pdp .sh-pdp__lightbox .sh-pdp__lb-nav { margin-top: -20px; }
+  .sh-pdp__lb-nav--prev { left: 8px; }
+  .sh-pdp__lb-nav--next { right: 8px; }
 }
 
 /* ---------------------------------------------------------- reduced motion */
@@ -1150,4 +1663,31 @@ html.sh-pdp-sticky-up #hov-chat-widget {
   }
 
   .sh-pdp__faq-item::details-content { transition: none !important; }
+
+  /* gallery + lightbox: no crossfade, no hover lift, no spinner */
+  .sh-pdp__stage.is-live .sh-pdp__slide.is-active { animation: none !important; }
+  .sh-pdp .sh-pdp__stage .sh-pdp__nav,
+  .sh-pdp .sh-pdp__stage .sh-pdp__zoom,
+  .sh-pdp__why-icon,
+  .sh-pdp .sh-pdp__lightbox img,
+  .sh-pdp .sh-pdp__lightbox .sh-pdp__lb-btn { transition: none !important; }
+  .sh-pdp .sh-pdp__stage .sh-pdp__nav:hover,
+  .sh-pdp__why-item:hover .sh-pdp__why-icon { transform: none !important; }
+  .sh-pdp__lightbox.is-loading .sh-pdp__lb-stage::after { animation: none !important; }
+}
+
+/* ---------------------------------------------------------- print */
+
+@media print {
+  .sh-pdp__lightbox,
+  .sh-pdp__nav,
+  .sh-pdp__zoom,
+  .sh-pdp__thumbs { display: none !important; }
+
+  /* cream-on-dark would print as cream-on-white */
+  .sh-pdp__why { background: #fff; color: #000; border: 1px solid #ccc; }
+  .sh-pdp .sh-pdp__why-bg { display: none; }
+  .sh-pdp .sh-pdp__why-title,
+  .sh-pdp .sh-pdp__why-label { color: #000; }
+  .sh-pdp .sh-pdp__why-text { color: #333; }
 }

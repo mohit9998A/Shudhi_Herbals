@@ -65,9 +65,17 @@
      are display-only: layout/theme.liquid emits aggregateRating solely from
      the reviews.rating / reviews.rating_count metafields a reviews app writes.
 
+  8. Gallery order is product media first, then any gallery_image blocks
+     (data-media-id="b-<block id>"), in the stage AND the thumb rail alike.
+     The rail is rendered after the stage so the first <img> in the section
+     stays the main 1100px image (note 4, and the LCP element). The Zoom
+     viewer is a native <dialog>: every close path ends in dialog.close() and
+     the one 'close' listener does the teardown; its scroll lock is a class on
+     <html>, never body.style.overflow, which three theme scripts already write.
+
   Heading outline: h1 = product title (this is the page's h1 — the legacy
   layout used h1 here too), h2 = "Frequently asked questions" (visually
-  hidden) and Reviews, h3 = FAQ questions.
+  hidden), the why panel and Reviews, h3 = FAQ questions and why items.
 {%- endcomment -%}
 
 {{ 'shudhi-product.css' | asset_url | stylesheet_tag }}
@@ -97,7 +105,7 @@
   assign rv = product.metafields.reviews.rating.value
   assign rc = product.metafields.reviews.rating_count.value | plus: 0
   assign rating_real = false
-  if rv != blank and rc > 0
+  if rv.rating != blank and rc > 0
     assign rating_val = rv.rating | times: 1.0
     assign rating_max = rv.scale_max | default: 5 | times: 1.0
     assign rating_count = rc
@@ -122,6 +130,32 @@
       assign show_reviews = true
     endif
   endif
+
+  # Block families rendered in different places — counted first (never
+  # `where`), so an empty family leaves no empty box behind.
+  assign gallery_extra = 0
+  assign perk_count = 0
+  assign why_count = 0
+  assign avatar_count = 0
+  for block in section.blocks
+    case block.type
+      when 'gallery_image'
+        if block.settings.image != blank
+          assign gallery_extra = gallery_extra | plus: 1
+        endif
+      when 'perk'
+        if block.settings.title != blank
+          assign perk_count = perk_count | plus: 1
+        endif
+      when 'why'
+        if block.settings.title != blank
+          assign why_count = why_count | plus: 1
+        endif
+      when 'avatar'
+        assign avatar_count = avatar_count | plus: 1
+    endcase
+  endfor
+  assign gallery_count = product.media.size | plus: gallery_extra
 -%}
 
 <section class="sh sh-product sh-pdp"
@@ -130,6 +164,18 @@
          data-sh-money-currency="{{ shop.money_with_currency_format | escape }}"
          style="--sh-pdp-bg:{{ s.bg }};--sh-pdp-pad-top:{{ s.pad_top }}px;--sh-pdp-pad-bottom:{{ s.pad_bottom }}px;">
   <div class="sh-wrap">
+
+    {%- comment -%} One star glyph + gold gradient shared by the rating row and
+        the proof bar; a zero-size svg, so where it sits in the flow is free. {%- endcomment -%}
+    {%- capture star_row -%}
+      <use href="#sh-star-{{ section.id }}" x="0" width="20" height="20"/><use href="#sh-star-{{ section.id }}" x="24" width="20" height="20"/><use href="#sh-star-{{ section.id }}" x="48" width="20" height="20"/><use href="#sh-star-{{ section.id }}" x="72" width="20" height="20"/><use href="#sh-star-{{ section.id }}" x="96" width="20" height="20"/>
+    {%- endcapture -%}
+    <svg class="sh-pdp__stars-defs" width="0" height="0" aria-hidden="true" focusable="false">
+      <defs>
+        <symbol id="sh-star-{{ section.id }}" viewBox="0 0 22 20" overflow="visible"><path d="M10.525.464a.5.5 0 0 1 .95 0l2.107 6.482a.5.5 0 0 0 .475.346h6.817a.5.5 0 0 1 .294.904l-5.515 4.007a.5.5 0 0 0-.181.559l2.106 6.483a.5.5 0 0 1-.77.559l-5.514-4.007a.5.5 0 0 0-.588 0l-5.514 4.007a.5.5 0 0 1-.77-.56l2.106-6.482a.5.5 0 0 0-.181-.56L.832 8.197a.5.5 0 0 1 .294-.904h6.817a.5.5 0 0 0 .475-.346z"/></symbol>
+        <linearGradient id="sh-star-gold-{{ section.id }}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ac8940"/><stop offset="1" stop-color="#7a5d2e"/></linearGradient>
+      </defs>
+    </svg>
 
     {%- if s.show_breadcrumb -%}
       <nav class="sh-pdp__crumbs" aria-label="Breadcrumb">
@@ -141,43 +187,87 @@
 
     <div class="sh-pdp__grid">
 
-      <div class="sh-pdp__gallery">
-        <div class="sh-pdp__stage">
+      <div class="sh-pdp__gallery{% if gallery_count > 1 %} sh-pdp__gallery--rail{% endif %}">
+        <div class="sh-pdp__stage" data-sh-stage>
+          {%- assign gi = 0 -%}
           {%- for media in product.media -%}
-            <figure class="sh-pdp__slide{% if forloop.first %} is-active{% endif %}"
+            {%- assign gi = gi | plus: 1 -%}
+            <figure class="sh-pdp__slide{% if gi == 1 %} is-active{% endif %}"
                     data-media-id="{{ media.id }}">
               <img src="{{ media.preview_image | image_url: width: 1100 }}"
                    srcset="{{ media.preview_image | image_url: width: 480 }} 480w,
                            {{ media.preview_image | image_url: width: 740 }} 740w,
                            {{ media.preview_image | image_url: width: 1100 }} 1100w,
                            {{ media.preview_image | image_url: width: 1600 }} 1600w"
-                   sizes="(max-width: 989px) 100vw, 55vw"
+                   sizes="(max-width: 989px) 100vw, 50vw"
                    width="{{ media.preview_image.width }}"
                    height="{{ media.preview_image.height }}"
                    alt="{{ media.alt | default: product.title | escape }}"
-                   {% if forloop.first %}fetchpriority="high"{% else %}loading="lazy"{% endif %}>
+                   data-large="{{ media.preview_image | image_url: width: 2048 }}"
+                   {% if gi == 1 %}fetchpriority="high"{% else %}loading="lazy" decoding="async"{% endif %}>
             </figure>
           {%- endfor -%}
-          {%- if product.media.size == 0 -%}
+          {%- for block in section.blocks -%}
+            {%- if block.type == 'gallery_image' and block.settings.image != blank -%}
+              {%- assign gi = gi | plus: 1 -%}
+              <figure class="sh-pdp__slide{% if gi == 1 %} is-active{% endif %}"
+                      data-media-id="b-{{ block.id }}" {{ block.shopify_attributes }}>
+                <img src="{{ block.settings.image | image_url: width: 1100 }}"
+                     srcset="{{ block.settings.image | image_url: width: 480 }} 480w,
+                             {{ block.settings.image | image_url: width: 740 }} 740w,
+                             {{ block.settings.image | image_url: width: 1100 }} 1100w,
+                             {{ block.settings.image | image_url: width: 1600 }} 1600w"
+                     sizes="(max-width: 989px) 100vw, 50vw"
+                     width="{{ block.settings.image.width }}"
+                     height="{{ block.settings.image.height }}"
+                     alt="{{ block.settings.alt | default: block.settings.image.alt | default: product.title | escape }}"
+                     data-large="{{ block.settings.image | image_url: width: 2048 }}"
+                     {% if gi == 1 %}fetchpriority="high"{% else %}loading="lazy" decoding="async"{% endif %}>
+              </figure>
+            {%- endif -%}
+          {%- endfor -%}
+          {%- if gallery_count == 0 -%}
             <figure class="sh-pdp__slide is-active">
               {{ 'product-1' | placeholder_svg_tag: 'sh-pdp__placeholder' }}
             </figure>
           {%- endif -%}
+          {%- if gallery_count > 1 -%}
+            <button type="button" class="sh-pdp__nav sh-pdp__nav--prev" data-sh-nav="-1" aria-label="Previous image">
+              {% render 'sh-icon', name: 'chevron-left', sw: 1.6 %}
+            </button>
+            <button type="button" class="sh-pdp__nav sh-pdp__nav--next" data-sh-nav="1" aria-label="Next image">
+              {% render 'sh-icon', name: 'chevron-right', sw: 1.6 %}
+            </button>
+          {%- endif -%}
+          {%- if s.show_zoom and gallery_count > 0 -%}
+            <button type="button" class="sh-pdp__zoom" data-sh-zoom aria-haspopup="dialog" aria-label="Zoom image">
+              {% render 'sh-icon', name: 'search', sw: 1.6 %}<span>Zoom</span>
+            </button>
+          {%- endif -%}
+          <span class="sh-visually-hidden" aria-live="polite" data-sh-gallery-sr></span>
         </div>
 
-        {%- if product.media.size > 1 -%}
-          <div class="sh-pdp__thumbs">
+        {%- if gallery_count > 1 -%}
+          {%- comment -%} After the stage on purpose — header note 8. {%- endcomment -%}
+          <div class="sh-pdp__thumbs" data-sh-thumbs>
+            {%- assign ti = 0 -%}
             {%- for media in product.media -%}
-              <button type="button"
-                      class="sh-pdp__thumb"
-                      data-media-id="{{ media.id }}"
-                      aria-label="View image {{ forloop.index }} of {{ product.media.size }}"
-                      {% if forloop.first %}aria-current="true"{% endif %}>
-                <img src="{{ media.preview_image | image_url: width: 160 }}"
-                     width="80" height="80"
-                     alt=""
-                     loading="lazy">
+              {%- assign ti = ti | plus: 1 -%}
+              <button type="button" class="sh-pdp__thumb" data-media-id="{{ media.id }}"
+                      aria-label="View image {{ ti }} of {{ gallery_count }}"
+                      {% if ti == 1 %}aria-current="true"{% endif %}>
+                <img src="{{ media.preview_image | image_url: width: 160 }}" width="80" height="80" alt="" loading="lazy">
               </button>
+            {%- endfor -%}
+            {%- for block in section.blocks -%}
+              {%- if block.type == 'gallery_image' and block.settings.image != blank -%}
+                {%- assign ti = ti | plus: 1 -%}
+                <button type="button" class="sh-pdp__thumb" data-media-id="b-{{ block.id }}"
+                        aria-label="View image {{ ti }} of {{ gallery_count }}"
+                        {% if ti == 1 %}aria-current="true"{% endif %}>
+                  <img src="{{ block.settings.image | image_url: width: 160 }}" width="80" height="80" alt="" loading="lazy">
+                </button>
+              {%- endif -%}
             {%- endfor -%}
           </div>
         {%- endif -%}
@@ -205,18 +295,8 @@
               the fifth star. role="img" sits on the stars alone — a link inside
               role="img" would vanish from the accessibility tree. The count-up
               on the number is shudhi-home.js's site-wide [data-count-to]. {%- endcomment -%}
-          {%- capture star_row -%}
-            <use href="#sh-star-{{ section.id }}" x="0" width="20" height="20"/><use href="#sh-star-{{ section.id }}" x="24" width="20" height="20"/><use href="#sh-star-{{ section.id }}" x="48" width="20" height="20"/><use href="#sh-star-{{ section.id }}" x="72" width="20" height="20"/><use href="#sh-star-{{ section.id }}" x="96" width="20" height="20"/>
-          {%- endcapture -%}
           <div class="sh-pdp__rating" style="--sh-rating:{{ rating_pct }}%">
-            <span class="sh-pdp__stars" role="img" aria-label="Rated {{ rating_txt }} out of {{ rating_max | round }}">
-              <svg class="sh-pdp__stars-defs" width="0" height="0" aria-hidden="true" focusable="false">
-                <defs>
-                  <symbol id="sh-star-{{ section.id }}" viewBox="0 0 22 20" overflow="visible"><path d="M10.525.464a.5.5 0 0 1 .95 0l2.107 6.482a.5.5 0 0 0 .475.346h6.817a.5.5 0 0 1 .294.904l-5.515 4.007a.5.5 0 0 0-.181.559l2.106 6.483a.5.5 0 0 1-.77.559l-5.514-4.007a.5.5 0 0 0-.588 0l-5.514 4.007a.5.5 0 0 1-.77-.56l2.106-6.482a.5.5 0 0 0-.181-.56L.832 8.197a.5.5 0 0 1 .294-.904h6.817a.5.5 0 0 0 .475-.346z"/></symbol>
-                  <linearGradient id="sh-star-gold-{{ section.id }}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c4a35d"/><stop offset="1" stop-color="#7a5d2e"/></linearGradient>
-                </defs>
-              </svg>
-              <span class="sh-pdp__stars-base" aria-hidden="true">
+            <span class="sh-pdp__stars" role="img" aria-label="Rated {{ rating_txt }} out of {{ rating_max | round }}">              <span class="sh-pdp__stars-base" aria-hidden="true">
                 <svg class="sh-pdp__stars-svg" viewBox="0 0 116 20" fill="none" stroke="currentColor" stroke-width="1.1" aria-hidden="true" focusable="false">{{ star_row }}</svg>
               </span>
               <span class="sh-pdp__stars-fill" aria-hidden="true">
@@ -421,7 +501,19 @@
           the legacy "More Information" rows (snippets/tab-product-details.liquid
           :98-172) so no regulatory copy a merchant entered in admin disappears.
         {%- endcomment -%}
-        {%- if section.blocks.size > 0 -%}
+        {%- liquid
+          # count the rows that will actually render, so an all-blank block list
+          # never leaves an empty bordered box (and a hidden heading) behind
+          assign faq_count = 0
+          for block in section.blocks
+            if block.type == 'details'
+              assign faq_count = faq_count | plus: 1
+            elsif block.type == 'faq' and block.settings.question != blank and block.settings.answer != blank
+              assign faq_count = faq_count | plus: 1
+            endif
+          endfor
+        -%}
+        {%- if faq_count > 0 -%}
           <div class="sh-pdp__faq">
             {%- comment -%} Keeps the outline h1 -> h2 -> h3 now that the Reviews h2
                 only renders with real review data. {%- endcomment -%}
@@ -435,6 +527,9 @@
                              {% if s.faq_open_first and faq_opened == false %}open{% endif %}
                              {{ block.shopify_attributes }}>
                       <summary class="sh-pdp__faq-q">
+                        {%- if block.settings.icon != blank and block.settings.icon != 'none' -%}
+                          {% render 'sh-icon', name: block.settings.icon, sw: 1.5, class: 'sh-pdp__faq-glyph' %}
+                        {%- endif -%}
                         <h3 class="sh-pdp__faq-title">{{ block.settings.question }}</h3>
                         {% render 'sh-icon', name: 'plus', sw: 1.6, class: 'sh-pdp__faq-icon' %}
                       </summary>
@@ -448,6 +543,9 @@
                   {%- assign mf = product.metafields.custom -%}
                   <details class="sh-pdp__faq-item" name="sh-pdp-faq-{{ section.id }}" {{ block.shopify_attributes }}>
                     <summary class="sh-pdp__faq-q">
+                      {%- if block.settings.icon != blank and block.settings.icon != 'none' -%}
+                        {% render 'sh-icon', name: block.settings.icon, sw: 1.5, class: 'sh-pdp__faq-glyph' %}
+                      {%- endif -%}
                       <h3 class="sh-pdp__faq-title">{{ block.settings.title | default: 'Product details' }}</h3>
                       {% render 'sh-icon', name: 'plus', sw: 1.6, class: 'sh-pdp__faq-icon' %}
                     </summary>
@@ -487,7 +585,113 @@
         {%- endif -%}
 
       </div>
+
+      {%- if s.show_perks and perk_count > 0 -%}
+        <ul class="sh-pdp__perks" role="list">
+          {%- for block in section.blocks -%}
+            {%- if block.type == 'perk' and block.settings.title != blank -%}
+              <li class="sh-pdp__perk" {{ block.shopify_attributes }}>
+                {% render 'sh-icon', name: block.settings.icon, sw: 1.3 %}
+                <span class="sh-pdp__perk-copy">
+                  <b>{{ block.settings.title }}</b>
+                  {%- if block.settings.text != blank -%}<small>{{ block.settings.text }}</small>{%- endif -%}
+                </span>
+              </li>
+            {%- endif -%}
+          {%- endfor -%}
+        </ul>
+      {%- endif -%}
+
+      {%- if s.show_why and why_count > 0 -%}
+        {%- assign why_photo = s.why_bg_strength | default: 18 | divided_by: 100.0 -%}
+        <div class="sh-pdp__why" style="--sh-pdp-why-photo:{{ why_photo }}">
+          {%- if s.why_bg_image != blank -%}
+            <img class="sh-pdp__why-bg" src="{{ s.why_bg_image | image_url: width: 1400 }}" alt=""
+                 width="1400" height="{{ 1400 | divided_by: s.why_bg_image.aspect_ratio | round }}" loading="lazy" decoding="async">
+          {%- else -%}
+            <img class="sh-pdp__why-bg" src="{{ 'Transform your daily Bath.webp' | asset_url }}" alt=""
+                 width="2000" height="1100" loading="lazy" decoding="async">
+          {%- endif -%}
+          <div class="sh-pdp__why-in">
+            {%- if s.why_heading != blank or s.why_heading_em != blank -%}
+              <h2 class="sh-pdp__why-title sh-serif">{{ s.why_heading }}{% if s.why_heading_em != blank %} <em>{{ s.why_heading_em }}</em>{% endif %}</h2>
+            {%- endif -%}
+            <ul class="sh-pdp__why-grid" role="list">
+              {%- for block in section.blocks -%}
+                {%- if block.type == 'why' and block.settings.title != blank -%}
+                  <li class="sh-pdp__why-item" {{ block.shopify_attributes }}>
+                    <span class="sh-pdp__why-icon">{% render 'sh-icon', name: block.settings.icon, sw: 1.3 %}</span>
+                    <h3 class="sh-pdp__why-label">{{ block.settings.title }}</h3>
+                    {%- if block.settings.text != blank -%}<p class="sh-pdp__why-text">{{ block.settings.text | escape }}</p>{%- endif -%}
+                  </li>
+                {%- endif -%}
+              {%- endfor -%}
+            </ul>
+          </div>
+        </div>
+      {%- endif -%}
     </div>
+
+    {%- if s.show_proof -%}
+      {%- comment -%} The shipping line follows Theme settings > Cart Drawer, so it
+          can never disagree with the drawer's own free-shipping bar. {%- endcomment -%}
+      {%- assign fs = settings.free_shipping_threshold | default: 500 -%}
+      <div class="sh-pdp__proof{% if s.proof_quote == blank %} sh-pdp__proof--two{% endif %}">
+        <div class="sh-pdp__proof-love">
+          {%- if s.proof_heading != blank -%}<p class="sh-pdp__proof-title sh-serif">{{ s.proof_heading }}</p>{%- endif -%}
+          {%- if avatar_count > 0 or s.proof_more != blank -%}
+            <div class="sh-pdp__proof-avatars" aria-hidden="true">
+              {%- for block in section.blocks -%}
+                {%- if block.type == 'avatar' -%}
+                  <span class="sh-pdp__avatar" {{ block.shopify_attributes }}>
+                    {%- if block.settings.image != blank -%}
+                      <img src="{{ block.settings.image | image_url: width: 96 }}" width="40" height="40" alt="" loading="lazy">
+                    {%- elsif block.settings.name != blank -%}
+                      {{- block.settings.name | strip | slice: 0 | upcase -}}
+                    {%- else -%}
+                      {% render 'sh-icon', name: 'user', sw: 1.5 %}
+                    {%- endif -%}
+                  </span>
+                {%- endif -%}
+              {%- endfor -%}
+              {%- if s.proof_more != blank -%}<span class="sh-pdp__avatar sh-pdp__avatar--more">{{ s.proof_more }}</span>{%- endif -%}
+            </div>
+          {%- endif -%}
+        </div>
+
+        {%- if s.proof_quote != blank -%}
+          <figure class="sh-pdp__proof-quote">
+            <span class="sh-pdp__stars" role="img" aria-label="Rated {{ s.proof_stars }} out of 5" style="--sh-rating:{{ s.proof_stars | times: 20 }}%">
+              <span class="sh-pdp__stars-base" aria-hidden="true"><svg class="sh-pdp__stars-svg" viewBox="0 0 116 20" fill="none" stroke="currentColor" stroke-width="1.1" aria-hidden="true" focusable="false">{{ star_row }}</svg></span>
+              <span class="sh-pdp__stars-fill" aria-hidden="true"><svg class="sh-pdp__stars-svg" viewBox="0 0 116 20" fill="url(#sh-star-gold-{{ section.id }})" aria-hidden="true" focusable="false">{{ star_row }}</svg></span>
+            </span>
+            <blockquote><p>“{{ s.proof_quote | escape }}”</p></blockquote>
+            {%- if s.proof_author != blank -%}<figcaption>— {{ s.proof_author | escape }}</figcaption>{%- endif -%}
+          </figure>
+        {%- endif -%}
+
+        <ul class="sh-pdp__proof-tiles" role="list">
+          {%- if s.tile_1_title != blank -%}
+            <li class="sh-pdp__proof-tile">
+              {% render 'sh-icon', name: s.tile_1_icon %}
+              <span class="sh-pdp__proof-tile-copy">
+                <b>{{ s.tile_1_title }}</b>
+                <small>{% if s.tile_1_text != blank %}{{ s.tile_1_text }}{% else %}On orders above {{ fs | times: 100 | money_without_trailing_zeros }}{% endif %}</small>
+              </span>
+            </li>
+          {%- endif -%}
+          {%- if s.tile_2_title != blank -%}
+            <li class="sh-pdp__proof-tile">
+              {% render 'sh-icon', name: s.tile_2_icon %}
+              <span class="sh-pdp__proof-tile-copy">
+                <b>{{ s.tile_2_title }}</b>
+                {%- if s.tile_2_text != blank -%}<small>{{ s.tile_2_text }}</small>{%- endif -%}
+              </span>
+            </li>
+          {%- endif -%}
+        </ul>
+      </div>
+    {%- endif -%}
 
     {%- if show_reviews -%}
       <div class="sh-pdp__reviews" id="sh-reviews">
@@ -523,6 +727,27 @@
         {%- if initial.available %}Add to cart{% else %}Sold out{% endif -%}
       </button>
     </aside>
+  {%- endif -%}
+
+  {%- if gallery_count > 0 -%}
+    {%- comment -%} Zoom viewer. No src on the image until it opens, so nothing
+        loads for visitors who never zoom. Header note 8. {%- endcomment -%}
+    <dialog class="sh-pdp__lightbox" data-sh-lightbox aria-label="{{ product.title | escape }} — image viewer">
+      <div class="sh-pdp__lb-bar">
+        <span class="sh-pdp__lb-count" data-sh-lb-count aria-live="polite"></span>
+        <span class="sh-pdp__lb-actions">
+          <button type="button" class="sh-pdp__lb-btn" data-sh-lb-zoom aria-label="Magnify" aria-pressed="false">{% render 'sh-icon', name: 'search', sw: 1.6 %}</button>
+          <button type="button" class="sh-pdp__lb-btn" data-sh-lb-close aria-label="Close">{% render 'sh-icon', name: 'close', sw: 1.6 %}</button>
+        </span>
+      </div>
+      <div class="sh-pdp__lb-stage" data-sh-lb-stage>
+        <img class="sh-pdp__lb-img" data-sh-lb-img alt="" decoding="async">
+      </div>
+      {%- if gallery_count > 1 -%}
+        <button type="button" class="sh-pdp__lb-btn sh-pdp__lb-nav sh-pdp__lb-nav--prev" data-sh-lb-nav="-1" aria-label="Previous image">{% render 'sh-icon', name: 'chevron-left', sw: 1.6 %}</button>
+        <button type="button" class="sh-pdp__lb-btn sh-pdp__lb-nav sh-pdp__lb-nav--next" data-sh-lb-nav="1" aria-label="Next image">{% render 'sh-icon', name: 'chevron-right', sw: 1.6 %}</button>
+      {%- endif -%}
+    </dialog>
   {%- endif -%}
 
   <script type="application/json" data-sh-variants>{{ product.variants | json }}</script>
@@ -573,6 +798,42 @@
     { "type": "checkbox", "id": "sticky_bar", "label": "Show sticky add-to-cart bar", "default": true,
       "info": "Phones and tablets only. Appears once the buy buttons scroll out of view." },
 
+    { "type": "header", "content": "Gallery" },
+    { "type": "checkbox", "id": "show_zoom", "label": "Show the Zoom button", "default": true,
+      "info": "Opens a full-screen viewer. Add \"Gallery image\" blocks for photos that are not on the product itself." },
+
+    { "type": "header", "content": "Benefit strip" },
+    { "type": "checkbox", "id": "show_perks", "label": "Show the strip under the gallery", "default": true,
+      "info": "Built from the \"Benefit\" blocks. Hidden when there are none." },
+
+    { "type": "header", "content": "Why you'll love it" },
+    { "type": "checkbox", "id": "show_why", "label": "Show the panel", "default": true,
+      "info": "Built from the \"Why you'll love it\" blocks. Hidden when there are none." },
+    { "type": "text", "id": "why_heading", "label": "Heading", "default": "Why You’ll Love It" },
+    { "type": "text", "id": "why_heading_em", "label": "Heading — gold words" },
+    { "type": "image_picker", "id": "why_bg_image", "label": "Background photo",
+      "info": "Faint, behind the text. Without one the theme's forest photo is used." },
+    { "type": "range", "id": "why_bg_strength", "label": "Photo strength", "min": 0, "max": 60, "step": 2, "unit": "%", "default": 18 },
+
+    { "type": "header", "content": "Social proof bar" },
+    { "type": "checkbox", "id": "show_proof", "label": "Show the bar", "default": true },
+    { "type": "text", "id": "proof_heading", "label": "Headline", "default": "Loved by 10,000+ customers",
+      "info": "Shown to every visitor — keep it to a number you can stand behind." },
+    { "type": "text", "id": "proof_more", "label": "Avatar chip", "default": "+10K" },
+    { "type": "range", "id": "proof_stars", "label": "Stars", "min": 1, "max": 5, "step": 1, "default": 5 },
+    { "type": "textarea", "id": "proof_quote", "label": "Quote",
+      "info": "A real customer review, quoted with permission. Leave empty to hide the middle column." },
+    { "type": "text", "id": "proof_author", "label": "Quote author", "info": "First name and initial, e.g. \"Priya S.\"" },
+    { "type": "select", "id": "tile_1_icon", "label": "Tile 1 icon", "default": "truck",
+      "options": [ { "value": "truck", "label": "Truck" }, { "value": "badge", "label": "Badge" }, { "value": "shield", "label": "Shield" }, { "value": "clock", "label": "Clock" }, { "value": "heart-check", "label": "Heart with check" }, { "value": "lock", "label": "Lock" }, { "value": "leaf", "label": "Leaf" } ] },
+    { "type": "text", "id": "tile_1_title", "label": "Tile 1 title", "default": "Free shipping" },
+    { "type": "text", "id": "tile_1_text", "label": "Tile 1 text",
+      "info": "Leave empty to show \"On orders above <threshold>\", which follows Theme settings > Cart Drawer > Free shipping threshold." },
+    { "type": "select", "id": "tile_2_icon", "label": "Tile 2 icon", "default": "badge",
+      "options": [ { "value": "truck", "label": "Truck" }, { "value": "badge", "label": "Badge" }, { "value": "shield", "label": "Shield" }, { "value": "clock", "label": "Clock" }, { "value": "heart-check", "label": "Heart with check" }, { "value": "lock", "label": "Lock" }, { "value": "leaf", "label": "Leaf" } ] },
+    { "type": "text", "id": "tile_2_title", "label": "Tile 2 title", "default": "Safe delivery" },
+    { "type": "text", "id": "tile_2_text", "label": "Tile 2 text", "default": "Damaged or wrong item? We replace it" },
+
     { "type": "header", "content": "Below the buy box" },
     { "type": "text", "id": "dispatch_note", "label": "Note above the FAQ",
       "info": "Gold pill under Buy it now, e.g. \"Same-day dispatch for orders placed before 1 PM (Mon–Sat)\". Leave empty to hide." },
@@ -581,17 +842,42 @@
     { "type": "checkbox", "id": "show_reviews", "label": "Show reviews", "default": true,
       "info": "Renders only once a reviews app has written data for this product." }
   ],
-  "max_blocks": 8,
+    "max_blocks": 30,
   "blocks": [
     { "type": "faq", "name": "FAQ", "settings": [
+      { "type": "select", "id": "icon", "label": "Icon before the question", "default": "leaf",
+        "options": [ { "value": "none", "label": "None" }, { "value": "bubbles", "label": "Lather" }, { "value": "leaf", "label": "Leaf" }, { "value": "face-sparkle", "label": "Glowing skin" }, { "value": "clock", "label": "Clock" }, { "value": "truck", "label": "Truck" }, { "value": "file", "label": "Document" }, { "value": "drop", "label": "Drop" }, { "value": "sparkle", "label": "Sparkle" }, { "value": "shield", "label": "Shield" }, { "value": "mail", "label": "Mail" }, { "value": "badge", "label": "Badge" } ] },
       { "type": "text", "id": "question", "label": "Question", "default": "How do I use the bar?" },
       { "type": "richtext", "id": "answer", "label": "Answer",
         "default": "<p>Work the bar into a light lather with water, massage gently over damp skin, then rinse.</p>" }
     ] },
     { "type": "details", "name": "Product details", "limit": 1, "settings": [
+      { "type": "select", "id": "icon", "label": "Icon before the title", "default": "file",
+        "options": [ { "value": "none", "label": "None" }, { "value": "file", "label": "Document" }, { "value": "badge", "label": "Badge" }, { "value": "leaf", "label": "Leaf" }, { "value": "shield", "label": "Shield" }, { "value": "mail", "label": "Mail" } ] },
       { "type": "text", "id": "title", "label": "Row title", "default": "Product details" },
       { "type": "checkbox", "id": "show_description", "label": "Include the product description", "default": false,
         "info": "Off by default: this product's admin description only repeats the title." }
+    ] },
+    { "type": "gallery_image", "name": "Gallery image", "limit": 4, "settings": [
+      { "type": "image_picker", "id": "image", "label": "Image",
+        "info": "Shown after the product's own photos, in block order. Square images match the main photo; other shapes are cropped square here and shown whole in Zoom." },
+      { "type": "text", "id": "alt", "label": "Alt text", "info": "Falls back to the image's own alt text, then the product title." }
+    ] },
+    { "type": "perk", "name": "Benefit", "limit": 4, "settings": [
+      { "type": "select", "id": "icon", "label": "Icon", "default": "leaf-line",
+        "options": [ { "value": "lotus", "label": "Lotus" }, { "value": "hand-line", "label": "Hand" }, { "value": "rabbit-line", "label": "Rabbit" }, { "value": "flask-line", "label": "Flask" }, { "value": "leaf-line", "label": "Leaf" }, { "value": "heart-line", "label": "Heart" }, { "value": "mortar", "label": "Mortar & pestle" }, { "value": "wheat", "label": "Wheat" }, { "value": "badge", "label": "Badge" }, { "value": "shield", "label": "Shield" }, { "value": "sparkle", "label": "Sparkle" }, { "value": "drop", "label": "Drop" }, { "value": "recycle", "label": "Recycle" }, { "value": "sun", "label": "Sun" } ] },
+      { "type": "text", "id": "title", "label": "Title", "default": "Ayurvedic" },
+      { "type": "text", "id": "text", "label": "Sub-label", "default": "Time-honoured herbs" }
+    ] },
+    { "type": "why", "name": "Why you'll love it — item", "limit": 4, "settings": [
+      { "type": "select", "id": "icon", "label": "Icon", "default": "sparkle",
+        "options": [ { "value": "sparkle", "label": "Sparkle" }, { "value": "shield", "label": "Shield" }, { "value": "leaf-line", "label": "Leaf" }, { "value": "meditate", "label": "Meditate" }, { "value": "lotus", "label": "Lotus" }, { "value": "drop", "label": "Drop" }, { "value": "sun", "label": "Sun" }, { "value": "heart-check", "label": "Heart with check" }, { "value": "hands-heart", "label": "Hands & heart" }, { "value": "face-sparkle", "label": "Glowing skin" }, { "value": "bubbles", "label": "Lather" }, { "value": "plant", "label": "Plant" } ] },
+      { "type": "text", "id": "title", "label": "Title", "default": "Purifies Energy" },
+      { "type": "textarea", "id": "text", "label": "Text", "info": "Two short lines read best." }
+    ] },
+    { "type": "avatar", "name": "Customer avatar", "limit": 5, "settings": [
+      { "type": "image_picker", "id": "image", "label": "Photo", "info": "Square, at least 96×96. Without a photo a neutral circle with the initial is shown." },
+      { "type": "text", "id": "name", "label": "Name (for the initial)", "info": "Optional. Only the first letter is shown." }
     ] }
   ]
 }

@@ -5137,3 +5137,221 @@ a.sh-story__play:hover {
     transition: none !important; transition-delay: 0s !important;
   }
 }
+
+
+/* ============================================================
+   28. FAQ — sections/sh-faq.liquid
+   The homepage band between Mindful Ritual and the footer: sticky editorial
+   intro on the left, native <details> rows on the right. Cream-2 surface, a
+   half-step deeper than the mindful band above, so the page steps cream ->
+   deeper cream -> forest green into the footer instead of two creams meeting
+   at a seam.
+
+   Appended as a self-contained block with its own breakpoints and its own
+   reduced-motion tier, like §27.
+
+   1. THE ACCORDION IS CSS-ONLY. ::details-content (Chrome 131, Safari 18.4,
+      Firefox 138) is the content box of a <details>; a 0fr -> 1fr grid track
+      animates it both ways, including the sibling that `name` auto-closes, and
+      the discrete content-visibility transition keeps the closing pane painted
+      until the track has collapsed. Engines without the pseudo drop those two
+      rules and snap natively. Keep the pseudo in rules of its own: one
+      unsupported selector invalidates a whole selector list. Same build as
+      shudhi-product.css §FAQ, which shipped first.
+
+   2. FOCUS IS A box-shadow RIM. style-main carries a universal
+      `outline: 0 !important`, and <summary> is not in the :245 focus list
+      (a/button/input/[tabindex]) — so the ring is drawn as an inset shadow.
+
+   3. SPECIFICITY NOTES ARE INLINE where a rule must beat a .sh reset:
+      `.sh h1..h6, .sh p { margin: 0 }` (:111) and `.sh ul { list-style: none }`
+      (:113) are (0,1,1); a bare class loses to them.
+   ============================================================ */
+
+/* Legacy heading rules uppercase h2/h3 site-wide; every sh-* section opts out. */
+.sh-faq h2, .sh-faq h3 { color: inherit; text-transform: none; margin: 0; }
+
+.sh-faq {
+  /* Light-surface trio re-declared, not referenced — same trade as §27:4813. */
+  --sh-faq-ink:      #1b2a12;   /* heading + questions — 13.1:1 on cream-2 */
+  --sh-faq-body:     #474a3d;   /* supporting line + answers — 7.8:1 */
+  --sh-faq-gold-ink: #7a5d2e;   /* numerals, icon, open/hover question — 5.3:1 */
+  --sh-faq-line:     rgba(27, 42, 18, .16);
+  --sh-faq-ease:     cubic-bezier(.22, .61, .36, 1);
+  /* Overridden inline from the `bg` setting; this is the fallback. */
+  --sh-faq-bg:       #e9e0cf;
+
+  position: relative;
+  background: var(--sh-faq-bg); color: var(--sh-faq-ink);
+  padding-block: clamp(56px, 7vw, 104px);
+}
+
+.sh-faq__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  gap: clamp(40px, 6vw, 96px);
+  align-items: start;              /* required, or the sticky intro has no room to slide */
+}
+
+/* --- Intro --------------------------------------------------------------- */
+.sh-faq__intro { position: sticky; top: calc(var(--sh-header-h) + 32px); }
+
+.sh-faq__eyebrow {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 16px; color: var(--sh-faq-gold-ink);
+}
+.sh-faq .sh-eyebrow { color: var(--sh-faq-gold-ink); }
+.sh-faq__eyebrow .sh-icon { width: 14px; height: 14px; }
+
+.sh-faq__title { font-size: clamp(2rem, 3.4vw, 3rem); max-width: 12ch; }
+
+/* (0,2,0) over `.sh p { margin: 0 }` (0,1,1) — see (3). */
+.sh-faq .sh-faq__body {
+  margin: 18px 0 0; max-width: 40ch;
+  font-size: 1rem; line-height: 1.75; color: var(--sh-faq-body);
+}
+
+.sh-faq__cta { margin-top: 32px; padding-top: 26px; border-top: 1px solid var(--sh-faq-line); }
+.sh-faq .sh-faq__note {
+  margin: 0 0 14px;
+  font-size: .68rem; letter-spacing: .22em; text-transform: uppercase; font-weight: 500;
+  color: var(--sh-faq-gold-ink);
+}
+/* Global focus ring is --sh-gold, 1.95:1 on cream — swap for the ink, as §12 does. */
+.sh-faq__cta a:focus-visible { outline-color: var(--sh-faq-ink); }
+
+/* Intro stagger — the §18 shape (:1991-2001): the container's own fade is
+   cancelled and the children ride in 90ms apart, capped at n+4. */
+.sh-faq__head[data-reveal] { opacity: 1; transform: none; transition: none; }
+.sh-faq__head[data-reveal] > * {
+  opacity: 0; transform: translateY(20px);
+  transition: opacity .7s var(--sh-faq-ease), transform .7s var(--sh-faq-ease);
+}
+.sh-faq__head[data-reveal].is-in > * { opacity: 1; transform: none; }
+.sh-faq__head[data-reveal] > *:nth-child(2)   { transition-delay: .09s; }
+.sh-faq__head[data-reveal] > *:nth-child(3)   { transition-delay: .18s; }
+.sh-faq__head[data-reveal] > *:nth-child(n+4) { transition-delay: .27s; }
+
+/* --- Rows ---------------------------------------------------------------- */
+.sh-faq__list { border-top: 1px solid var(--sh-faq-line); }
+
+.sh-faq__item { border-bottom: 1px solid var(--sh-faq-line); }
+
+/* A shorter rise than the 26px site default: fifteen rows arriving from 26px
+   read as a wave, 12px reads as settling. (0,2,0) ties :234 and wins on order. */
+.sh-faq__item[data-reveal] { transform: translateY(12px); }
+/* Rows that enter the viewport together fan in 60ms apart; anything past the
+   eighth is below the fold on every breakpoint and arrives on its own trigger. */
+.sh-faq__item[data-reveal]:nth-child(2) { transition-delay: .06s; }
+.sh-faq__item[data-reveal]:nth-child(3) { transition-delay: .12s; }
+.sh-faq__item[data-reveal]:nth-child(4) { transition-delay: .18s; }
+.sh-faq__item[data-reveal]:nth-child(5) { transition-delay: .24s; }
+.sh-faq__item[data-reveal]:nth-child(6) { transition-delay: .30s; }
+.sh-faq__item[data-reveal]:nth-child(7) { transition-delay: .36s; }
+.sh-faq__item[data-reveal]:nth-child(8) { transition-delay: .42s; }
+
+.sh-faq__q {
+  display: flex; align-items: baseline; gap: 18px;
+  padding: 22px 0;
+  cursor: pointer; list-style: none;
+  border-radius: 2px;
+}
+/* Marker removal, one engine per rule — see (1) on selector lists. */
+.sh-faq__q::-webkit-details-marker { display: none; }
+.sh-faq__q::marker { content: ''; }
+
+/* See (2). Inset so it never collides with the row hairlines. */
+.sh-faq__q:focus-visible { box-shadow: inset 0 0 0 2px var(--sh-faq-ink); }
+
+.sh-faq__n {
+  flex: none; width: 34px;
+  font-size: .68rem; letter-spacing: .2em; font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  color: var(--sh-faq-gold-ink);
+}
+
+.sh-faq__q-text {
+  flex: 1 1 auto; min-width: 0;
+  font-size: clamp(1.12rem, 1.5vw, 1.36rem); font-weight: 500;
+  line-height: 1.3; letter-spacing: 0;
+  transition: color .25s ease;
+}
+
+.sh-faq__icon {
+  flex: none; width: 16px; height: 16px;
+  align-self: center;
+  color: var(--sh-faq-gold-ink);
+  transition: transform .3s var(--sh-faq-ease);
+}
+
+.sh-faq__q:hover .sh-faq__q-text,
+.sh-faq__item[open] > .sh-faq__q .sh-faq__q-text { color: var(--sh-faq-gold-ink); }
+.sh-faq__item[open] > .sh-faq__q .sh-faq__icon { transform: rotate(45deg); }
+
+/* Two wrappers on purpose: __a is the 0fr grid item (no padding, or it would
+   show through at the closed state); __a-in carries the padding. */
+.sh-faq__a { min-height: 0; overflow: hidden; }
+
+.sh-faq__a-in {
+  padding: 0 44px 26px 0;           /* right inset clears the icon column */
+  max-width: 58ch;
+  font-size: .95rem; line-height: 1.75; color: var(--sh-faq-body);
+  opacity: 0; transform: translateY(6px);
+  transition: opacity .28s ease .06s, transform .32s var(--sh-faq-ease) .06s;
+}
+/* Answers sit under the question, not under the numeral: 34px + 18px gap. */
+.sh-faq--numbered .sh-faq__a-in { padding-left: 52px; }
+.sh-faq__item[open] .sh-faq__a-in { opacity: 1; transform: none; }
+
+/* Richtext answers. (0,2,1) over `.sh p` / `.sh ul` / `.sh a` (0,1,1). */
+.sh-faq .sh-faq__a-in p { margin: 0 0 .8em; }
+.sh-faq .sh-faq__a-in p:last-child { margin-bottom: 0; }
+.sh-faq .sh-faq__a-in ul,
+.sh-faq .sh-faq__a-in ol { margin: 0 0 .8em; padding-left: 1.2em; list-style: disc; }
+.sh-faq .sh-faq__a-in ol { list-style: decimal; }
+.sh-faq .sh-faq__a-in a { color: var(--sh-faq-gold-ink); text-decoration: underline; text-underline-offset: .16em; }
+.sh-faq .sh-faq__a-in a:hover { color: var(--sh-faq-ink); }
+
+/* See (1). Each pseudo in a rule of its own. */
+.sh-faq__item::details-content {
+  display: grid;
+  grid-template-rows: 0fr;
+  content-visibility: hidden;
+  transition: grid-template-rows .32s var(--sh-faq-ease),
+              content-visibility .32s allow-discrete;
+}
+.sh-faq__item[open]::details-content {
+  grid-template-rows: 1fr;
+  content-visibility: visible;
+}
+
+/* --- Breakpoints --------------------------------------------------------- */
+@media (max-width: 989px) {
+  .sh-faq__grid { grid-template-columns: 1fr; gap: 36px; }
+  .sh-faq__intro { position: static; }
+  .sh-faq__title { max-width: none; }
+  .sh-faq .sh-faq__body { max-width: 52ch; }
+}
+
+@media (max-width: 599px) {
+  .sh-faq { padding-block: 52px 60px; }
+  .sh-faq__q { padding: 18px 0; gap: 14px; }        /* still a 60px+ touch row */
+  .sh-faq__q-text { font-size: 1.1rem; }
+  .sh-faq__n { width: 30px; }
+  .sh-faq__a-in { padding: 0 34px 20px 0; }
+  .sh-faq--numbered .sh-faq__a-in { padding-left: 44px; }   /* 30px + 14px gap */
+}
+
+/* --- Reduced motion ------------------------------------------------------ */
+@media (prefers-reduced-motion: reduce) {
+  /* :1751 covers the elements CARRYING [data-reveal]; the intro stagger lives
+     on its children, so they need their own release — same as §27:5135. */
+  .sh-faq__head[data-reveal] > * {
+    opacity: 1 !important; transform: none !important;
+    transition: none !important; transition-delay: 0s !important;
+  }
+  .sh-faq__icon, .sh-faq__q-text { transition: none !important; }
+  /* Answers appear in place; panes snap open and closed. */
+  .sh-faq__a-in { opacity: 1 !important; transform: none !important; transition: none !important; }
+  .sh-faq__item::details-content { transition: none !important; }
+}

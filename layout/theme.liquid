@@ -53,7 +53,7 @@
   {%- if ld_variant.sku != blank %}
   "sku": {{ ld_variant.sku | json }},
   {%- endif %}
-  {%- if ld_rating != blank and ld_count > 0 %}
+  {%- if ld_rating.rating != blank and ld_count > 0 %}
   "aggregateRating": {
     "@type": "AggregateRating",
     "ratingValue": {{ ld_rating.rating | json }},

@@ -395,6 +395,144 @@
         "cta_label": "Explore rituals",
         "animate": true
       }
+    },
+    "faq": {
+      "type": "sh-faq",
+      "blocks": {
+        "q1": {
+          "type": "faq",
+          "settings": {
+            "question": "What is the Negativity Removal Cleansing Bar?",
+            "answer": "<p>The Negativity Removal Cleansing Bar is our hero handcrafted herbal cleansing bar, inspired by four generations of traditional herbal wisdom. It combines carefully selected herbs and essential oils with a mindful cleansing ritual.</p>"
+          }
+        },
+        "q2": {
+          "type": "faq",
+          "settings": {
+            "question": "Is it just a regular soap?",
+            "answer": "<p>Not quite. It is designed as more than a cleansing bar — it is a daily ritual that brings together cleansing, intention, and traditional herbal wisdom.</p>"
+          }
+        },
+        "q3": {
+          "type": "faq",
+          "settings": {
+            "question": "What makes Shudhi Herbals different?",
+            "answer": "<p>Our approach combines handcrafted herbal formulations, traditional family wisdom, carefully selected ingredients, and our proprietary preparation ritual to create a distinctive wellness experience.</p>"
+          }
+        },
+        "q4": {
+          "type": "faq",
+          "settings": {
+            "question": "What is the Shudhi Ritual™?",
+            "answer": "<p>The Shudhi Ritual™ is our proprietary preparation philosophy, inspired by generations of family herbal wisdom. Selected ingredients undergo a unique multi-stage preparation process before becoming part of the final product.</p>"
+          }
+        },
+        "q5": {
+          "type": "faq",
+          "settings": {
+            "question": "Why don’t you reveal the complete Shudhi Ritual™?",
+            "answer": "<p>The ritual is part of our family’s proprietary tradition, refined and preserved across generations. We share the philosophy behind it while keeping the detailed methodology private.</p>"
+          }
+        },
+        "q6": {
+          "type": "faq",
+          "settings": {
+            "question": "Does the cleansing bar remove negative energy?",
+            "answer": "<p>The concept of energetic cleansing is part of the traditional and wellness philosophy behind the product. It is intended to create a mindful cleansing experience and is not represented as a medical treatment or scientifically proven method of treating any medical or psychological condition.</p>"
+          }
+        },
+        "q7": {
+          "type": "faq",
+          "settings": {
+            "question": "How do I use the Negativity Removal Cleansing Bar?",
+            "answer": "<p>Wet your skin and the bar, create a rich lather, gently massage over the body, and rinse thoroughly. You may also pair your bath with a moment of mindful breathing or positive intention.</p>"
+          }
+        },
+        "q8": {
+          "type": "faq",
+          "settings": {
+            "question": "Can I use it on my face?",
+            "answer": "<p>The Negativity Removal Cleansing Bar is intended primarily as a body cleansing bar. Unless specifically labelled for facial use, we recommend avoiding use on the face.</p>"
+          }
+        },
+        "q9": {
+          "type": "faq",
+          "settings": {
+            "question": "Is the soap suitable for daily use?",
+            "answer": "<p>It is designed for regular cleansing, subject to your individual skin tolerance. If irritation or discomfort occurs, discontinue use.</p>"
+          }
+        },
+        "q10": {
+          "type": "faq",
+          "settings": {
+            "question": "Why may my bar look slightly different from another bar?",
+            "answer": "<p>Our products are handcrafted in small batches using natural/herbal ingredients, so slight variations in colour, texture, fragrance, and botanical appearance are natural and do not necessarily indicate a defect.</p>"
+          }
+        },
+        "q11": {
+          "type": "faq",
+          "settings": {
+            "question": "How should I store the cleansing bar?",
+            "answer": "<p>Keep it in a cool, dry place and allow it to drain and dry between uses. A well-draining soap dish can help extend the life of the bar.</p>"
+          }
+        },
+        "q12": {
+          "type": "faq",
+          "settings": {
+            "question": "What if my product arrives damaged or incorrect?",
+            "answer": "<p>Please contact us within 48 hours of delivery with your order number and clear photographs/videos of the package and product. For damage or missing/incorrect items, an unboxing video is strongly recommended and may be required for verification. Please refer to our <a href=\"/policies/refund-policy\">Refund, Return &amp; Cancellation Policy</a> for complete details.</p>"
+          }
+        },
+        "q13": {
+          "type": "faq",
+          "settings": {
+            "question": "How long does delivery take?",
+            "answer": "<p>We offer free shipping across India. Orders are generally delivered within 2–5 business days in metro cities and 4–7 business days in other locations, subject to the destination and courier service.</p>"
+          }
+        },
+        "q14": {
+          "type": "faq",
+          "settings": {
+            "question": "Do you offer Cash on Delivery?",
+            "answer": "<p>Yes. COD is available for eligible orders and locations across India. COD orders may be subject to verification before dispatch.</p>"
+          }
+        },
+        "q15": {
+          "type": "faq",
+          "settings": {
+            "question": "Are Shudhi Herbals products handmade?",
+            "answer": "<p>Yes. Our products are handcrafted and prepared in small batches in India, with care given to every stage of the process.</p>"
+          }
+        }
+      },
+      "block_order": [
+        "q1",
+        "q2",
+        "q3",
+        "q4",
+        "q5",
+        "q6",
+        "q7",
+        "q8",
+        "q9",
+        "q10",
+        "q11",
+        "q12",
+        "q13",
+        "q14",
+        "q15"
+      ],
+      "settings": {
+        "eyebrow": "Good to know",
+        "title": "Frequently Asked Questions",
+        "body": "Everything about the Negativity Removal Cleansing Bar, the Shudhi Ritual™ and your order — answered simply.",
+        "cta_note": "Still have questions?",
+        "cta_label": "Contact us",
+        "show_numbers": true,
+        "open_first": true,
+        "animate": true,
+        "bg": "#e9e0cf"
+      }
     }
   },
   "order": [
@@ -403,6 +541,7 @@
     "trust_marquee",
     "our_story",
     "ritual_benefits",
-    "mindful_ritual"
+    "mindful_ritual",
+    "faq"
   ]
 }
