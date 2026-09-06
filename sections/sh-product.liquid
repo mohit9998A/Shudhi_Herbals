@@ -57,8 +57,25 @@
      styles `.template-product .hov-breadcrumb` as a grey pill entirely in
      !important, and out-specifying that is a war not worth fighting.
 
+  7. The star row, the short description and the FAQ under Buy it now are
+     merchant content in templates/product.json (section settings + blocks),
+     so they apply to EVERY product rendered by product.json. A second
+     product needs its own product.<name>.json, or the custom.short_description
+     metafield, which overrides the section's copy. The manual rating numbers
+     are display-only: layout/theme.liquid emits aggregateRating solely from
+     the reviews.rating / reviews.rating_count metafields a reviews app writes.
+
+  8. Gallery order is product media first, then any gallery_image blocks
+     (data-media-id="b-<block id>"), in the stage AND the thumb rail alike.
+     The rail is rendered after the stage so the first <img> in the section
+     stays the main 1100px image (note 4, and the LCP element). The Zoom
+     viewer is a native <dialog>: every close path ends in dialog.close() and
+     the one 'close' listener does the teardown; its scroll lock is a class on
+     <html>, never body.style.overflow, which three theme scripts already write.
+
   Heading outline: h1 = product title (this is the page's h1 — the legacy
-  layout used h1 here too), h2 = Reviews, h3 = accordion summaries.
+  layout used h1 here too), h2 = "Frequently asked questions" (visually
+  hidden), the why panel and Reviews, h3 = FAQ questions and why items.
 {%- endcomment -%}
 
 {{ 'shudhi-product.css' | asset_url | stylesheet_tag }}
@@ -81,6 +98,73 @@
   if initial == blank
     assign initial = product.selected_or_first_available_variant
   endif
+
+  # Rating: real app data (Shopify's standard reviews.* definitions, written
+  # by Judge.me and friends) wins; the section's manual numbers fall back;
+  # nothing renders at count 0.
+  assign rv = product.metafields.reviews.rating.value
+  assign rc = product.metafields.reviews.rating_count.value | plus: 0
+  assign rating_real = false
+  if rv.rating != blank and rc > 0
+    assign rating_val = rv.rating | times: 1.0
+    assign rating_max = rv.scale_max | default: 5 | times: 1.0
+    assign rating_count = rc
+    assign rating_real = true
+  else
+    assign rating_val = s.rating_value | times: 1.0
+    assign rating_max = 5.0
+    assign rating_count = s.rating_count | plus: 0
+  endif
+  assign rating_pct = rating_val | divided_by: rating_max | times: 100 | round: 1
+  assign rating_txt = rating_val | round: 1
+  assign show_rating = false
+  if rating_count > 0 and rating_val > 0
+    assign show_rating = true
+  endif
+
+  # The Reviews block renders only when it has something to show, and the
+  # review count links to it only then.
+  assign show_reviews = false
+  if s.show_reviews
+    if rating_real or product.metafields.judgeme.widget != blank
+      assign show_reviews = true
+    endif
+  endif
+
+  # Block families rendered in different places — counted first (never
+  # `where`), so an empty family leaves no empty box behind.
+  assign gallery_extra = 0
+  assign perk_count = 0
+  assign why_count = 0
+  assign avatar_count = 0
+  for block in section.blocks
+    case block.type
+      when 'gallery_image'
+        if block.settings.image != blank
+          assign gallery_extra = gallery_extra | plus: 1
+        endif
+      when 'perk'
+        if block.settings.title != blank
+          assign perk_count = perk_count | plus: 1
+        endif
+      when 'why'
+        if block.settings.title != blank
+          assign why_count = why_count | plus: 1
+        endif
+      when 'avatar'
+        assign avatar_count = avatar_count | plus: 1
+    endcase
+  endfor
+  assign gallery_count = product.media.size | plus: gallery_extra
+
+  # Checkout coupon, in cents, resolved once and read by the pack cards and the
+  # strip under them. This is a REAL Shopify discount code the merchant creates
+  # in admin — the theme only advertises it, it can never apply it. A blank code
+  # or a zero amount switches every coupon line off in one place.
+  assign coupon_cents = 0
+  if s.coupon_enable and s.coupon_code != blank and s.coupon_value > 0
+    assign coupon_cents = s.coupon_value | times: 100
+  endif
 -%}
 
 <section class="sh sh-product sh-pdp"
@@ -89,6 +173,18 @@
          data-sh-money-currency="{{ shop.money_with_currency_format | escape }}"
          style="--sh-pdp-bg:{{ s.bg }};--sh-pdp-pad-top:{{ s.pad_top }}px;--sh-pdp-pad-bottom:{{ s.pad_bottom }}px;">
   <div class="sh-wrap">
+
+    {%- comment -%} One star glyph + gold gradient shared by the rating row and
+        the proof bar; a zero-size svg, so where it sits in the flow is free. {%- endcomment -%}
+    {%- capture star_row -%}
+      <use href="#sh-star-{{ section.id }}" x="0" width="20" height="20"/><use href="#sh-star-{{ section.id }}" x="24" width="20" height="20"/><use href="#sh-star-{{ section.id }}" x="48" width="20" height="20"/><use href="#sh-star-{{ section.id }}" x="72" width="20" height="20"/><use href="#sh-star-{{ section.id }}" x="96" width="20" height="20"/>
+    {%- endcapture -%}
+    <svg class="sh-pdp__stars-defs" width="0" height="0" aria-hidden="true" focusable="false">
+      <defs>
+        <symbol id="sh-star-{{ section.id }}" viewBox="0 0 22 20" overflow="visible"><path d="M10.525.464a.5.5 0 0 1 .95 0l2.107 6.482a.5.5 0 0 0 .475.346h6.817a.5.5 0 0 1 .294.904l-5.515 4.007a.5.5 0 0 0-.181.559l2.106 6.483a.5.5 0 0 1-.77.559l-5.514-4.007a.5.5 0 0 0-.588 0l-5.514 4.007a.5.5 0 0 1-.77-.56l2.106-6.482a.5.5 0 0 0-.181-.56L.832 8.197a.5.5 0 0 1 .294-.904h6.817a.5.5 0 0 0 .475-.346z"/></symbol>
+        <linearGradient id="sh-star-gold-{{ section.id }}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ac8940"/><stop offset="1" stop-color="#7a5d2e"/></linearGradient>
+      </defs>
+    </svg>
 
     {%- if s.show_breadcrumb -%}
       <nav class="sh-pdp__crumbs" aria-label="Breadcrumb">
@@ -100,43 +196,87 @@
 
     <div class="sh-pdp__grid">
 
-      <div class="sh-pdp__gallery">
-        <div class="sh-pdp__stage">
+      <div class="sh-pdp__gallery{% if gallery_count > 1 %} sh-pdp__gallery--rail{% endif %}">
+        <div class="sh-pdp__stage" data-sh-stage>
+          {%- assign gi = 0 -%}
           {%- for media in product.media -%}
-            <figure class="sh-pdp__slide{% if forloop.first %} is-active{% endif %}"
+            {%- assign gi = gi | plus: 1 -%}
+            <figure class="sh-pdp__slide{% if gi == 1 %} is-active{% endif %}"
                     data-media-id="{{ media.id }}">
               <img src="{{ media.preview_image | image_url: width: 1100 }}"
                    srcset="{{ media.preview_image | image_url: width: 480 }} 480w,
                            {{ media.preview_image | image_url: width: 740 }} 740w,
                            {{ media.preview_image | image_url: width: 1100 }} 1100w,
                            {{ media.preview_image | image_url: width: 1600 }} 1600w"
-                   sizes="(max-width: 989px) 100vw, 55vw"
+                   sizes="(max-width: 989px) 100vw, 50vw"
                    width="{{ media.preview_image.width }}"
                    height="{{ media.preview_image.height }}"
                    alt="{{ media.alt | default: product.title | escape }}"
-                   {% if forloop.first %}fetchpriority="high"{% else %}loading="lazy"{% endif %}>
+                   data-large="{{ media.preview_image | image_url: width: 2048 }}"
+                   {% if gi == 1 %}fetchpriority="high"{% else %}loading="lazy" decoding="async"{% endif %}>
             </figure>
           {%- endfor -%}
-          {%- if product.media.size == 0 -%}
+          {%- for block in section.blocks -%}
+            {%- if block.type == 'gallery_image' and block.settings.image != blank -%}
+              {%- assign gi = gi | plus: 1 -%}
+              <figure class="sh-pdp__slide{% if gi == 1 %} is-active{% endif %}"
+                      data-media-id="b-{{ block.id }}" {{ block.shopify_attributes }}>
+                <img src="{{ block.settings.image | image_url: width: 1100 }}"
+                     srcset="{{ block.settings.image | image_url: width: 480 }} 480w,
+                             {{ block.settings.image | image_url: width: 740 }} 740w,
+                             {{ block.settings.image | image_url: width: 1100 }} 1100w,
+                             {{ block.settings.image | image_url: width: 1600 }} 1600w"
+                     sizes="(max-width: 989px) 100vw, 50vw"
+                     width="{{ block.settings.image.width }}"
+                     height="{{ block.settings.image.height }}"
+                     alt="{{ block.settings.alt | default: block.settings.image.alt | default: product.title | escape }}"
+                     data-large="{{ block.settings.image | image_url: width: 2048 }}"
+                     {% if gi == 1 %}fetchpriority="high"{% else %}loading="lazy" decoding="async"{% endif %}>
+              </figure>
+            {%- endif -%}
+          {%- endfor -%}
+          {%- if gallery_count == 0 -%}
             <figure class="sh-pdp__slide is-active">
               {{ 'product-1' | placeholder_svg_tag: 'sh-pdp__placeholder' }}
             </figure>
           {%- endif -%}
+          {%- if gallery_count > 1 -%}
+            <button type="button" class="sh-pdp__nav sh-pdp__nav--prev" data-sh-nav="-1" aria-label="Previous image">
+              {% render 'sh-icon', name: 'chevron-left', sw: 1.6 %}
+            </button>
+            <button type="button" class="sh-pdp__nav sh-pdp__nav--next" data-sh-nav="1" aria-label="Next image">
+              {% render 'sh-icon', name: 'chevron-right', sw: 1.6 %}
+            </button>
+          {%- endif -%}
+          {%- if s.show_zoom and gallery_count > 0 -%}
+            <button type="button" class="sh-pdp__zoom" data-sh-zoom aria-haspopup="dialog" aria-label="Zoom image">
+              {% render 'sh-icon', name: 'search', sw: 1.6 %}<span>Zoom</span>
+            </button>
+          {%- endif -%}
+          <span class="sh-visually-hidden" aria-live="polite" data-sh-gallery-sr></span>
         </div>
 
-        {%- if product.media.size > 1 -%}
-          <div class="sh-pdp__thumbs">
+        {%- if gallery_count > 1 -%}
+          {%- comment -%} After the stage on purpose — header note 8. {%- endcomment -%}
+          <div class="sh-pdp__thumbs" data-sh-thumbs>
+            {%- assign ti = 0 -%}
             {%- for media in product.media -%}
-              <button type="button"
-                      class="sh-pdp__thumb"
-                      data-media-id="{{ media.id }}"
-                      aria-label="View image {{ forloop.index }} of {{ product.media.size }}"
-                      {% if forloop.first %}aria-current="true"{% endif %}>
-                <img src="{{ media.preview_image | image_url: width: 160 }}"
-                     width="80" height="80"
-                     alt=""
-                     loading="lazy">
+              {%- assign ti = ti | plus: 1 -%}
+              <button type="button" class="sh-pdp__thumb" data-media-id="{{ media.id }}"
+                      aria-label="View image {{ ti }} of {{ gallery_count }}"
+                      {% if ti == 1 %}aria-current="true"{% endif %}>
+                <img src="{{ media.preview_image | image_url: width: 160 }}" width="80" height="80" alt="" loading="lazy">
               </button>
+            {%- endfor -%}
+            {%- for block in section.blocks -%}
+              {%- if block.type == 'gallery_image' and block.settings.image != blank -%}
+                {%- assign ti = ti | plus: 1 -%}
+                <button type="button" class="sh-pdp__thumb" data-media-id="b-{{ block.id }}"
+                        aria-label="View image {{ ti }} of {{ gallery_count }}"
+                        {% if ti == 1 %}aria-current="true"{% endif %}>
+                  <img src="{{ block.settings.image | image_url: width: 160 }}" width="80" height="80" alt="" loading="lazy">
+                </button>
+              {%- endif -%}
             {%- endfor -%}
           </div>
         {%- endif -%}
@@ -158,17 +298,108 @@
           {%- endif -%}
         </div>
 
+        {%- if show_rating -%}
+          {%- comment -%} Two copies of the same five stars: an outline base and
+              a gold layer clipped to --sh-rating, so 4.9 paints nine tenths of
+              the fifth star. role="img" sits on the stars alone — a link inside
+              role="img" would vanish from the accessibility tree. The count-up
+              on the number is shudhi-home.js's site-wide [data-count-to]. {%- endcomment -%}
+          <div class="sh-pdp__rating" style="--sh-rating:{{ rating_pct }}%">
+            <span class="sh-pdp__stars" role="img" aria-label="Rated {{ rating_txt }} out of {{ rating_max | round }}">              <span class="sh-pdp__stars-base" aria-hidden="true">
+                <svg class="sh-pdp__stars-svg" viewBox="0 0 116 20" fill="none" stroke="currentColor" stroke-width="1.1" aria-hidden="true" focusable="false">{{ star_row }}</svg>
+              </span>
+              <span class="sh-pdp__stars-fill" aria-hidden="true">
+                <svg class="sh-pdp__stars-svg" viewBox="0 0 116 20" fill="url(#sh-star-gold-{{ section.id }})" aria-hidden="true" focusable="false">{{ star_row }}</svg>
+              </span>
+            </span>
+            <span class="sh-pdp__rating-num sh-serif" aria-hidden="true">{{ rating_txt }}</span>
+            {%- if show_reviews -%}
+              <a class="sh-pdp__rating-count" href="#sh-reviews"><span data-count-to="{{ rating_count }}">{{ rating_count }}</span> {% if rating_count == 1 %}review{% else %}reviews{% endif %}</a>
+            {%- else -%}
+              <span class="sh-pdp__rating-count"><span data-count-to="{{ rating_count }}">{{ rating_count }}</span> {% if rating_count == 1 %}review{% else %}reviews{% endif %}</span>
+            {%- endif -%}
+          </div>
+        {%- endif -%}
+
+        {%- comment -%} Short description: the product's custom.short_description
+            metafield if set, else the section's copy from templates/product.json. {%- endcomment -%}
+        {%- if product.metafields.custom.short_description.value != blank -%}
+          <div class="sh-pdp__blurb">{{ product.metafields.custom.short_description | metafield_tag }}</div>
+        {%- elsif s.short_description != blank -%}
+          <div class="sh-pdp__blurb"><p>{{ s.short_description }}</p></div>
+        {%- endif -%}
+
+        {%- liquid
+          # MRP for the pre-selected pack, resolved exactly the way each pack card
+          # below resolves its own: a real compare-at price in admin wins, else the
+          # matching "Pack option" block's MRP. Server-rendered so the offer is
+          # visible with JS off; sh-product.js then mirrors the checked radio,
+          # which carries the same two numbers as data attributes.
+          assign lead_mrp = 0
+          if initial.compare_at_price > initial.price
+            assign lead_mrp = initial.compare_at_price
+          endif
+          assign lead_pos = 0
+          for v in product.variants
+            if v.id == initial.id
+              assign lead_pos = forloop.index
+            endif
+          endfor
+          assign lead_seen = 0
+          for b in section.blocks
+            if b.type == 'pack'
+              assign lead_seen = lead_seen | plus: 1
+              if lead_seen == lead_pos and lead_mrp == 0
+                assign lead_mrp = b.settings.mrp | times: 100
+              endif
+            endif
+          endfor
+          # An "MRP" at or below the selling price is not an offer — drop it.
+          if lead_mrp <= initial.price
+            assign lead_mrp = 0
+          endif
+          assign lead_off = 0
+          if lead_mrp > 0
+            assign lead_off = lead_mrp | minus: initial.price | times: 100.0 | divided_by: lead_mrp | round
+          endif
+        -%}
         <p class="sh-pdp__cost">
           <span class="sh-pdp__price" data-sh-price>{{ initial.price | money_with_currency }}</span>
+          {%- comment -%} .sh-pdp__was / .sh-pdp__off carry no "price" substring, so
+              hov-wishlist.js's '[class*="price"]:not([class*="compare"])' scrape
+              still lands on .sh-pdp__price above — header note 4. {%- endcomment -%}
+          <s class="sh-pdp__was sh-pdp__was--lead{% if lead_mrp == 0 %} is-hidden{% endif %}" data-sh-lead-was>
+            <span class="sh-visually-hidden">M.R.P.</span>
+            <span data-sh-lead-was-amount>{{ lead_mrp | money }}</span>
+          </s>
+          <span class="sh-pdp__off{% if lead_off == 0 %} is-hidden{% endif %}" data-sh-lead-off>{{ lead_off }}% OFF</span>
           {%- if s.tax_note != blank -%}
             <span class="sh-pdp__tax">{{ s.tax_note }}</span>
           {%- endif -%}
         </p>
 
-        {%- if s.countdown_enable and s.countdown_end_date != blank -%}
+        {%- liquid
+          # "minutes" needs no date to be valid; "date" is dead without one.
+          assign cd_on = false
+          if s.countdown_enable
+            if s.countdown_mode == 'minutes'
+              assign cd_on = true
+            elsif s.countdown_end_date != blank
+              assign cd_on = true
+            endif
+          endif
+        -%}
+        {%- if cd_on -%}
           {%- assign cd_time = s.countdown_end_time | default: '23:59' -%}
           <div class="sh-pdp__timer"
                data-sh-timer
+               data-sh-timer-mode="{{ s.countdown_mode }}"
+               data-sh-timer-minutes="{{ s.countdown_minutes }}"
+               {% comment %} Keyed per product, so two PDPs open in one session do
+                   not share a window. sh-product.js stamps the deadline against it.
+                   Whitespace-trimming this comment would weld the two attributes
+                   together. {% endcomment %}
+               data-sh-timer-key="sh-pdp-offer-{{ product.id }}"
                data-sh-deadline="{{ s.countdown_end_date }}T{{ cd_time }}"
                hidden>
             <span class="sh-pdp__timer-label">{{ s.countdown_text }}</span>
@@ -200,46 +431,101 @@
 
               {%- for variant in product.variants -%}
                 {%- liquid
+                  # "Pack option" blocks pair with variants top to bottom: the 1st
+                  # pack block re-titles the 1st variant and so on. A variant with
+                  # no block keeps its admin title and the auto captions below, so
+                  # adding a variant in admin can never blank a card. forloop is
+                  # captured first — the block loop shadows it.
+                  assign vidx = forloop.index
+                  assign pk_title = ''
+                  assign pk_note = ''
+                  assign pk_flag = ''
+                  assign pk_mrp = 0
+                  assign pk_attrs = ''
+                  assign pk_seen = 0
+                  for b in section.blocks
+                    if b.type == 'pack'
+                      assign pk_seen = pk_seen | plus: 1
+                      if pk_seen == vidx
+                        assign pk_title = b.settings.title
+                        assign pk_note = b.settings.note
+                        assign pk_flag = b.settings.flag
+                        assign pk_mrp = b.settings.mrp | times: 100
+                        assign pk_attrs = b.shopify_attributes
+                      endif
+                    endif
+                  endfor
+
+                  # MRP. A real compare-at price in admin always wins: it is what
+                  # Shopify itself reports and what every other surface (search,
+                  # cards, Shop app) already shows. The block's number is the
+                  # stand-in until admin carries one, and is ignored unless it is
+                  # genuinely above the selling price.
+                  assign mrp = 0
+                  if variant.compare_at_price > variant.price
+                    assign mrp = variant.compare_at_price
+                  elsif pk_mrp > variant.price
+                    assign mrp = pk_mrp
+                  endif
+
                   assign saving = 0
                   assign pct = 0
-                  if variant.compare_at_price > variant.price
-                    assign saving = variant.compare_at_price | minus: variant.price
-                    assign pct = saving | times: 100.0 | divided_by: variant.compare_at_price | round
+                  if mrp > 0
+                    assign saving = mrp | minus: variant.price
+                    assign pct = saving | times: 100.0 | divided_by: mrp | round
                   elsif variant.metafields.custom.discount_percent != blank
-                    # No compare-at price in admin: fall back to the badge the legacy
-                    # swatch read (snippets/swatch.liquid:143). Badge only — there is no
-                    # struck price or saving to show without a real compare-at.
+                    # No MRP from either source: fall back to the badge the legacy
+                    # swatch read (snippets/swatch.liquid:143). Badge only — there is
+                    # no struck price or saving to show without a real MRP.
                     assign pct = variant.metafields.custom.discount_percent | plus: 0
                   endif
+
+                  # Price after the checkout coupon. Never rendered below zero, and
+                  # never rendered at all when the coupon is switched off.
+                  assign final_price = 0
+                  if coupon_cents > 0 and variant.price > coupon_cents
+                    assign final_price = variant.price | minus: coupon_cents
+                  endif
+
                   assign is_popular = false
                   if forloop.index == s.most_popular_position and variant.available
                     assign is_popular = true
                   endif
                 -%}
-                <label class="sh-pdp__pack{% if variant.available == false %} is-soldout{% endif %}">
+                <label class="sh-pdp__pack{% if variant.available == false %} is-soldout{% endif %}" {{ pk_attrs }}>
+                  {%- comment -%} data-mrp / data-off / data-final hand sh-product.js
+                      the numbers Liquid already resolved, so switching packs needs no
+                      second copy of this arithmetic in JS. {%- endcomment -%}
                   <input type="radio"
                          class="sh-pdp__pack-input sh-visually-hidden"
                          name="sh-pack-{{ section.id }}"
                          value="{{ variant.id }}"
                          data-variant-id="{{ variant.id }}"
+                         data-mrp="{{ mrp }}"
+                         data-off="{{ pct }}"
+                         data-final="{{ final_price }}"
                          {% if variant.featured_media %}data-media-id="{{ variant.featured_media.id }}"{% endif %}
                          {% if variant.id == initial.id %}checked{% endif %}
                          {% unless variant.available %}disabled{% endunless %}>
                   <span class="sh-pdp__pack-card">
-                    {%- if is_popular -%}
+                    {%- if pk_flag != blank -%}
+                      <span class="sh-pdp__pack-flag">{{ pk_flag | escape }}</span>
+                    {%- elsif is_popular -%}
                       <span class="sh-pdp__pack-flag">Most popular</span>
                     {%- endif -%}
                     <span class="sh-pdp__pack-radio" aria-hidden="true"></span>
                     <span class="sh-pdp__pack-main">
                       <span class="sh-pdp__pack-name">
-                        {{ variant.title }}
+                        {{ pk_title | default: variant.title | escape }}
                         {%- if pct > 0 %}
-                          <span class="sh-pdp__pack-off">{{ pct }}% off</span>
+                          <span class="sh-pdp__pack-off">{{ pct }}% OFF</span>
                         {%- endif -%}
                       </span>
                       <span class="sh-pdp__pack-note">
                         {%- if variant.available == false -%}
                           Sold out
+                        {%- elsif pk_note != blank -%}
+                          {{ pk_note | escape }}
                         {%- elsif saving == 0 -%}
                           Standard price
                         {%- elsif saving == max_saving -%}
@@ -249,13 +535,30 @@
                         {%- endif -%}
                       </span>
                     </span>
+                    {%- comment -%} A top-down ladder, each rung struck by the one
+                        under it: M.R.P. -> pack price -> price with the code. The
+                        live number is last and is the only one not struck, so the
+                        cut always reads as "down to this". The struck rungs carry
+                        a visually-hidden label each — five bare numbers in a row
+                        are meaningless read aloud. {%- endcomment -%}
                     <span class="sh-pdp__pack-money">
-                      <span class="sh-pdp__pack-amount">{{ variant.price | money }}</span>
-                      {%- if saving > 0 -%}
+                      {%- if mrp > 0 -%}
                         <s class="sh-pdp__was">
-                          <span class="sh-visually-hidden">Regular price</span>
-                          {{ variant.compare_at_price | money }}
+                          <span class="sh-visually-hidden">M.R.P.</span>
+                          {{ mrp | money }}
                         </s>
+                      {%- endif -%}
+                      {%- if final_price > 0 and variant.available -%}
+                        <s class="sh-pdp__cut">
+                          <span class="sh-visually-hidden">Price before the code</span>
+                          {{ variant.price | money }}
+                        </s>
+                        <span class="sh-pdp__pack-amount sh-pdp__pack-amount--final">{{ final_price | money }}</span>
+                        <span class="sh-pdp__pack-with">
+                          {% render 'sh-icon', name: 'tag', sw: 1.6 %}with code
+                        </span>
+                      {%- else -%}
+                        <span class="sh-pdp__pack-amount">{{ variant.price | money }}</span>
                       {%- endif -%}
                     </span>
                   </span>
@@ -267,9 +570,12 @@
             </noscript>
           {%- endunless -%}
 
+          {%- comment -%} Both rows follow lead_mrp (resolved above the price row),
+              not initial.compare_at_price, so a pack whose MRP comes from its block
+              still gets a saving line. {%- endcomment -%}
           {%- assign initial_saving = 0 -%}
-          {%- if initial.compare_at_price > initial.price -%}
-            {%- assign initial_saving = initial.compare_at_price | minus: initial.price -%}
+          {%- if lead_mrp > initial.price -%}
+            {%- assign initial_saving = lead_mrp | minus: initial.price -%}
           {%- endif -%}
           <p class="sh-pdp__saving{% if initial_saving == 0 %} is-hidden{% endif %}"
              data-sh-saving aria-live="polite">
@@ -278,6 +584,20 @@
               <strong data-sh-saving-amount>{{ initial_saving | money }}</strong>
               on this order</span>
           </p>
+
+          {%- if coupon_cents > 0 -%}
+            {%- assign initial_final = 0 -%}
+            {%- if initial.price > coupon_cents -%}
+              {%- assign initial_final = initial.price | minus: coupon_cents -%}
+            {%- endif -%}
+            <p class="sh-pdp__coupon{% if initial_final == 0 %} is-hidden{% endif %}"
+               data-sh-coupon aria-live="polite">
+              {% render 'sh-icon', name: 'tag', sw: 1.6 %}
+              <span>Extra {{ coupon_cents | money }} off with code
+                <b class="sh-pdp__coupon-code">{{ s.coupon_code | escape }}</b>
+                — you pay <strong data-sh-coupon-amount>{{ initial_final | money }}</strong> at checkout</span>
+            </p>
+          {%- endif -%}
 
           <div class="sh-pdp__trust">
             <div class="sh-pdp__trust-item">
@@ -324,6 +644,95 @@
 
         {% endform %}
 
+        {%- if s.dispatch_note != blank -%}
+          <p class="sh-pdp__note">
+            {% render 'sh-icon', name: 'clock', sw: 1.6 %}
+            <span>{{ s.dispatch_note }}</span>
+          </p>
+        {%- endif -%}
+
+        {%- comment -%}
+          FAQ accordion, straight under Buy it now. Native <details>/<summary>:
+          `name` makes it one-open-at-a-time in the browser, ::details-content
+          in shudhi-product.css animates open AND close (older engines snap —
+          still fully usable), and no JS is involved. The "details" block keeps
+          the legacy "More Information" rows (snippets/tab-product-details.liquid
+          :98-172) so no regulatory copy a merchant entered in admin disappears.
+        {%- endcomment -%}
+        {%- liquid
+          # count the rows that will actually render, so an all-blank block list
+          # never leaves an empty bordered box (and a hidden heading) behind
+          assign faq_count = 0
+          for block in section.blocks
+            if block.type == 'details'
+              assign faq_count = faq_count | plus: 1
+            elsif block.type == 'faq' and block.settings.question != blank and block.settings.answer != blank
+              assign faq_count = faq_count | plus: 1
+            endif
+          endfor
+        -%}
+        {%- if faq_count > 0 -%}
+          <div class="sh-pdp__faq">
+            {%- comment -%} Keeps the outline h1 -> h2 -> h3 now that the Reviews h2
+                only renders with real review data. {%- endcomment -%}
+            <h2 class="sh-visually-hidden">Frequently asked questions</h2>
+            {%- assign faq_opened = false -%}
+            {%- for block in section.blocks -%}
+              {%- case block.type -%}
+                {%- when 'faq' -%}
+                  {%- if block.settings.question != blank and block.settings.answer != blank -%}
+                    <details class="sh-pdp__faq-item" name="sh-pdp-faq-{{ section.id }}"
+                             {% if s.faq_open_first and faq_opened == false %}open{% endif %}
+                             {{ block.shopify_attributes }}>
+                      <summary class="sh-pdp__faq-q">
+                        {%- if block.settings.icon != blank and block.settings.icon != 'none' -%}
+                          {% render 'sh-icon', name: block.settings.icon, sw: 1.5, class: 'sh-pdp__faq-glyph' %}
+                        {%- endif -%}
+                        <h3 class="sh-pdp__faq-title">{{ block.settings.question }}</h3>
+                        {% render 'sh-icon', name: 'plus', sw: 1.6, class: 'sh-pdp__faq-icon' %}
+                      </summary>
+                      <div class="sh-pdp__faq-a">
+                        <div class="sh-pdp__faq-a-in">{{ block.settings.answer }}</div>
+                      </div>
+                    </details>
+                    {%- assign faq_opened = true -%}
+                  {%- endif -%}
+                {%- when 'details' -%}
+                  {%- assign mf = product.metafields.custom -%}
+                  <details class="sh-pdp__faq-item" name="sh-pdp-faq-{{ section.id }}" {{ block.shopify_attributes }}>
+                    <summary class="sh-pdp__faq-q">
+                      {%- if block.settings.icon != blank and block.settings.icon != 'none' -%}
+                        {% render 'sh-icon', name: block.settings.icon, sw: 1.5, class: 'sh-pdp__faq-glyph' %}
+                      {%- endif -%}
+                      <h3 class="sh-pdp__faq-title">{{ block.settings.title | default: 'Product details' }}</h3>
+                      {% render 'sh-icon', name: 'plus', sw: 1.6, class: 'sh-pdp__faq-icon' %}
+                    </summary>
+                    <div class="sh-pdp__faq-a">
+                      <div class="sh-pdp__faq-a-in">
+                        {%- if block.settings.show_description and product.description != blank -%}
+                          <div class="sh-pdp__faq-desc">{{ product.description }}</div>
+                        {%- endif -%}
+                        <dl class="sh-pdp__facts">
+                          {%- if mf.brand != blank -%}<dt>Brand</dt><dd>{{ mf.brand }}</dd>{%- endif -%}
+                          <dt>Country of Origin</dt><dd>India</dd>
+                          <dt>Marketed by</dt><dd>Shudhi Herbals</dd>
+                          {%- if mf.net_weight != blank -%}<dt>Net Weight</dt><dd>{{ mf.net_weight }}</dd>{%- endif -%}
+                          {%- if mf.unit_price != blank -%}<dt>Unit Price</dt><dd>{{ mf.unit_price }}</dd>{%- endif -%}
+                          {%- if mf.pack_type != blank -%}<dt>Pack Type</dt><dd>{{ mf.pack_type }}</dd>{%- endif -%}
+                          {%- if mf.manufacturer != blank -%}<dt>Manufacturer</dt><dd>{{ mf.manufacturer }}</dd>{%- endif -%}
+                          {%- if mf.manufacturer_address != blank -%}<dt>Manufacturer Address 1</dt><dd>{{ mf.manufacturer_address }}</dd>{%- endif -%}
+                          {%- if mf.manufacturer_address1 != blank -%}<dt>Manufacturer Address 2</dt><dd>{{ mf.manufacturer_address1 }}</dd>{%- endif -%}
+                          {%- if mf.shelf_life != blank -%}<dt>Shelf Life</dt><dd>{{ mf.shelf_life }}</dd>{%- endif -%}
+                          {%- if mf.product_dimension != blank -%}<dt>Product Dimension</dt><dd>{{ mf.product_dimension }}</dd>{%- endif -%}
+                        </dl>
+                      </div>
+                    </div>
+                  </details>
+              {%- endcase -%}
+            {%- endfor -%}
+          </div>
+        {%- endif -%}
+
         {%- if s.show_categories and product.collections.size > 0 -%}
           <p class="sh-pdp__meta">
             <span class="sh-pdp__meta-label">Categories:</span>
@@ -334,83 +743,115 @@
         {%- endif -%}
 
       </div>
-    </div>
 
-    {%- if s.show_details -%}
-      {%- comment -%}
-        The store's product descriptions carry [tag]...[/tag] shortcode pairs
-        that the legacy layout parsed into a Bootstrap accordion
-        (snippets/product-extended.liquid:580-701). Same parsing, native
-        <details>/<summary> instead — no collapse JS. The first pane present
-        ships open. A description with no shortcodes at all falls back to one
-        plain "Description" pane so nothing a merchant wrote can vanish.
-      {%- endcomment -%}
-      {%- assign acc_keys = 'description,ingredients,brewing_instruction,certifications,brand_overview,more_information' | split: ',' -%}
-      {%- assign acc_titles = 'Description,Ingredients,Brewing Instruction,Certifications,Brand Overview,More Information' | split: ',' -%}
-      {%- assign acc_any = false -%}
-      {%- for key in acc_keys -%}
-        {%- assign open_tag = '[' | append: key | append: ']' -%}
-        {%- if product.description contains open_tag -%}
-          {%- assign acc_any = true -%}
-        {%- endif -%}
-      {%- endfor -%}
-
-        <div class="sh-pdp__details">
-          {%- assign acc_opened = false -%}
-          {%- if acc_any -%}
-            {%- for key in acc_keys -%}
-              {%- assign open_tag = '[' | append: key | append: ']' -%}
-              {%- assign close_tag = '[/' | append: key | append: ']' -%}
-              {%- if product.description contains open_tag -%}
-                {%- assign pane = product.description | split: close_tag | first | split: open_tag | last -%}
-                <details class="sh-pdp__acc"{% unless acc_opened %} open{% endunless %}>
-                  <summary>
-                    <h3 class="sh-pdp__acc-title">{{ acc_titles[forloop.index0] }}</h3>
-                    {% render 'sh-icon', name: 'plus', sw: 1.6, class: 'sh-pdp__acc-icon' %}
-                  </summary>
-                  <div class="sh-pdp__acc-body">{{ pane }}</div>
-                </details>
-                {%- assign acc_opened = true -%}
-              {%- endif -%}
-            {%- endfor -%}
-          {%- elsif product.description != blank -%}
-            <details class="sh-pdp__acc" open>
-              <summary>
-                <h3 class="sh-pdp__acc-title">Description</h3>
-                {% render 'sh-icon', name: 'plus', sw: 1.6, class: 'sh-pdp__acc-icon' %}
-              </summary>
-              <div class="sh-pdp__acc-body">{{ product.description }}</div>
-            </details>
-          {%- endif -%}
-
-          {%- comment -%} The legacy "More Information" tab
-              (snippets/tab-product-details.liquid:98-172): the same metafield
-              rows, plus its two fixed lines, so no regulatory copy a merchant
-              entered in admin disappears with the redesign. {%- endcomment -%}
-          {%- assign mf = product.metafields.custom -%}
-          <details class="sh-pdp__acc">
-            <summary>
-              <h3 class="sh-pdp__acc-title">More Information</h3>
-              {% render 'sh-icon', name: 'plus', sw: 1.6, class: 'sh-pdp__acc-icon' %}
-            </summary>
-            <dl class="sh-pdp__acc-body sh-pdp__facts">
-              {%- if mf.brand != blank -%}<dt>Brand</dt><dd>{{ mf.brand }}</dd>{%- endif -%}
-              <dt>Country of Origin</dt><dd>India</dd>
-              <dt>Marketed by</dt><dd>Shudhi Herbals</dd>
-              {%- if mf.net_weight != blank -%}<dt>Net Weight</dt><dd>{{ mf.net_weight }}</dd>{%- endif -%}
-              {%- if mf.unit_price != blank -%}<dt>Unit Price</dt><dd>{{ mf.unit_price }}</dd>{%- endif -%}
-              {%- if mf.pack_type != blank -%}<dt>Pack Type</dt><dd>{{ mf.pack_type }}</dd>{%- endif -%}
-              {%- if mf.manufacturer != blank -%}<dt>Manufacturer</dt><dd>{{ mf.manufacturer }}</dd>{%- endif -%}
-              {%- if mf.manufacturer_address != blank -%}<dt>Manufacturer Address 1</dt><dd>{{ mf.manufacturer_address }}</dd>{%- endif -%}
-              {%- if mf.manufacturer_address1 != blank -%}<dt>Manufacturer Address 2</dt><dd>{{ mf.manufacturer_address1 }}</dd>{%- endif -%}
-              {%- if mf.shelf_life != blank -%}<dt>Shelf Life</dt><dd>{{ mf.shelf_life }}</dd>{%- endif -%}
-              {%- if mf.product_dimension != blank -%}<dt>Product Dimension</dt><dd>{{ mf.product_dimension }}</dd>{%- endif -%}
-            </dl>
-          </details>
-        </div>
+      {%- if s.show_perks and perk_count > 0 -%}
+        <ul class="sh-pdp__perks" role="list">
+          {%- for block in section.blocks -%}
+            {%- if block.type == 'perk' and block.settings.title != blank -%}
+              <li class="sh-pdp__perk" {{ block.shopify_attributes }}>
+                {% render 'sh-icon', name: block.settings.icon, sw: 1.3 %}
+                <span class="sh-pdp__perk-copy">
+                  <b>{{ block.settings.title }}</b>
+                  {%- if block.settings.text != blank -%}<small>{{ block.settings.text }}</small>{%- endif -%}
+                </span>
+              </li>
+            {%- endif -%}
+          {%- endfor -%}
+        </ul>
       {%- endif -%}
 
-    {%- if s.show_reviews -%}
+      {%- if s.show_why and why_count > 0 -%}
+        {%- assign why_photo = s.why_bg_strength | default: 18 | divided_by: 100.0 -%}
+        <div class="sh-pdp__why" style="--sh-pdp-why-photo:{{ why_photo }}">
+          {%- if s.why_bg_image != blank -%}
+            <img class="sh-pdp__why-bg" src="{{ s.why_bg_image | image_url: width: 1400 }}" alt=""
+                 width="1400" height="{{ 1400 | divided_by: s.why_bg_image.aspect_ratio | round }}" loading="lazy" decoding="async">
+          {%- else -%}
+            <img class="sh-pdp__why-bg" src="{{ 'Transform your daily Bath.webp' | asset_url }}" alt=""
+                 width="2000" height="1100" loading="lazy" decoding="async">
+          {%- endif -%}
+          <div class="sh-pdp__why-in">
+            {%- if s.why_heading != blank or s.why_heading_em != blank -%}
+              <h2 class="sh-pdp__why-title sh-serif">{{ s.why_heading }}{% if s.why_heading_em != blank %} <em>{{ s.why_heading_em }}</em>{% endif %}</h2>
+            {%- endif -%}
+            <ul class="sh-pdp__why-grid" role="list">
+              {%- for block in section.blocks -%}
+                {%- if block.type == 'why' and block.settings.title != blank -%}
+                  <li class="sh-pdp__why-item" {{ block.shopify_attributes }}>
+                    <span class="sh-pdp__why-icon">{% render 'sh-icon', name: block.settings.icon, sw: 1.3 %}</span>
+                    <h3 class="sh-pdp__why-label">{{ block.settings.title }}</h3>
+                    {%- if block.settings.text != blank -%}<p class="sh-pdp__why-text">{{ block.settings.text | escape }}</p>{%- endif -%}
+                  </li>
+                {%- endif -%}
+              {%- endfor -%}
+            </ul>
+          </div>
+        </div>
+      {%- endif -%}
+    </div>
+
+    {%- if s.show_proof -%}
+      {%- comment -%} The shipping line follows Theme settings > Cart Drawer, so it
+          can never disagree with the drawer's own free-shipping bar. {%- endcomment -%}
+      {%- assign fs = settings.free_shipping_threshold | default: 500 -%}
+      <div class="sh-pdp__proof{% if s.proof_quote == blank %} sh-pdp__proof--two{% endif %}">
+        <div class="sh-pdp__proof-love">
+          {%- if s.proof_heading != blank -%}<p class="sh-pdp__proof-title sh-serif">{{ s.proof_heading }}</p>{%- endif -%}
+          {%- if avatar_count > 0 or s.proof_more != blank -%}
+            <div class="sh-pdp__proof-avatars" aria-hidden="true">
+              {%- for block in section.blocks -%}
+                {%- if block.type == 'avatar' -%}
+                  <span class="sh-pdp__avatar" {{ block.shopify_attributes }}>
+                    {%- if block.settings.image != blank -%}
+                      <img src="{{ block.settings.image | image_url: width: 96 }}" width="40" height="40" alt="" loading="lazy">
+                    {%- elsif block.settings.name != blank -%}
+                      {{- block.settings.name | strip | slice: 0 | upcase -}}
+                    {%- else -%}
+                      {% render 'sh-icon', name: 'user', sw: 1.5 %}
+                    {%- endif -%}
+                  </span>
+                {%- endif -%}
+              {%- endfor -%}
+              {%- if s.proof_more != blank -%}<span class="sh-pdp__avatar sh-pdp__avatar--more">{{ s.proof_more }}</span>{%- endif -%}
+            </div>
+          {%- endif -%}
+        </div>
+
+        {%- if s.proof_quote != blank -%}
+          <figure class="sh-pdp__proof-quote">
+            <span class="sh-pdp__stars" role="img" aria-label="Rated {{ s.proof_stars }} out of 5" style="--sh-rating:{{ s.proof_stars | times: 20 }}%">
+              <span class="sh-pdp__stars-base" aria-hidden="true"><svg class="sh-pdp__stars-svg" viewBox="0 0 116 20" fill="none" stroke="currentColor" stroke-width="1.1" aria-hidden="true" focusable="false">{{ star_row }}</svg></span>
+              <span class="sh-pdp__stars-fill" aria-hidden="true"><svg class="sh-pdp__stars-svg" viewBox="0 0 116 20" fill="url(#sh-star-gold-{{ section.id }})" aria-hidden="true" focusable="false">{{ star_row }}</svg></span>
+            </span>
+            <blockquote><p>“{{ s.proof_quote | escape }}”</p></blockquote>
+            {%- if s.proof_author != blank -%}<figcaption>— {{ s.proof_author | escape }}</figcaption>{%- endif -%}
+          </figure>
+        {%- endif -%}
+
+        <ul class="sh-pdp__proof-tiles" role="list">
+          {%- if s.tile_1_title != blank -%}
+            <li class="sh-pdp__proof-tile">
+              {% render 'sh-icon', name: s.tile_1_icon %}
+              <span class="sh-pdp__proof-tile-copy">
+                <b>{{ s.tile_1_title }}</b>
+                <small>{% if s.tile_1_text != blank %}{{ s.tile_1_text }}{% else %}On orders above {{ fs | times: 100 | money_without_trailing_zeros }}{% endif %}</small>
+              </span>
+            </li>
+          {%- endif -%}
+          {%- if s.tile_2_title != blank -%}
+            <li class="sh-pdp__proof-tile">
+              {% render 'sh-icon', name: s.tile_2_icon %}
+              <span class="sh-pdp__proof-tile-copy">
+                <b>{{ s.tile_2_title }}</b>
+                {%- if s.tile_2_text != blank -%}<small>{{ s.tile_2_text }}</small>{%- endif -%}
+              </span>
+            </li>
+          {%- endif -%}
+        </ul>
+      </div>
+    {%- endif -%}
+
+    {%- if show_reviews -%}
       <div class="sh-pdp__reviews" id="sh-reviews">
         <h2 class="sh-pdp__reviews-title sh-serif">Reviews</h2>
         {%- comment -%} Same Judge.me embed the legacy tabs used
@@ -446,6 +887,27 @@
     </aside>
   {%- endif -%}
 
+  {%- if gallery_count > 0 -%}
+    {%- comment -%} Zoom viewer. No src on the image until it opens, so nothing
+        loads for visitors who never zoom. Header note 8. {%- endcomment -%}
+    <dialog class="sh-pdp__lightbox" data-sh-lightbox aria-label="{{ product.title | escape }} — image viewer">
+      <div class="sh-pdp__lb-bar">
+        <span class="sh-pdp__lb-count" data-sh-lb-count aria-live="polite"></span>
+        <span class="sh-pdp__lb-actions">
+          <button type="button" class="sh-pdp__lb-btn" data-sh-lb-zoom aria-label="Magnify" aria-pressed="false">{% render 'sh-icon', name: 'search', sw: 1.6 %}</button>
+          <button type="button" class="sh-pdp__lb-btn" data-sh-lb-close aria-label="Close">{% render 'sh-icon', name: 'close', sw: 1.6 %}</button>
+        </span>
+      </div>
+      <div class="sh-pdp__lb-stage" data-sh-lb-stage>
+        <img class="sh-pdp__lb-img" data-sh-lb-img alt="" decoding="async">
+      </div>
+      {%- if gallery_count > 1 -%}
+        <button type="button" class="sh-pdp__lb-btn sh-pdp__lb-nav sh-pdp__lb-nav--prev" data-sh-lb-nav="-1" aria-label="Previous image">{% render 'sh-icon', name: 'chevron-left', sw: 1.6 %}</button>
+        <button type="button" class="sh-pdp__lb-btn sh-pdp__lb-nav sh-pdp__lb-nav--next" data-sh-lb-nav="1" aria-label="Next image">{% render 'sh-icon', name: 'chevron-right', sw: 1.6 %}</button>
+      {%- endif -%}
+    </dialog>
+  {%- endif -%}
+
   <script type="application/json" data-sh-variants>{{ product.variants | json }}</script>
 </section>
 
@@ -463,6 +925,15 @@
     { "type": "range", "id": "pad_top", "label": "Top padding", "min": 0, "max": 80, "step": 4, "unit": "px", "default": 24 },
     { "type": "range", "id": "pad_bottom", "label": "Bottom padding", "min": 0, "max": 80, "step": 4, "unit": "px", "default": 48 },
 
+    { "type": "header", "content": "Rating & short description" },
+    { "type": "range", "id": "rating_value", "label": "Star rating (manual fallback)", "min": 0, "max": 5, "step": 0.1, "default": 4.9,
+      "info": "Used only until a reviews app fills Shopify's standard reviews.rating metafield on the product — real data then takes over automatically. Manual numbers never reach search engines." },
+    { "type": "number", "id": "rating_count", "label": "Review count (manual fallback)", "default": 52,
+      "info": "0 hides the whole star row." },
+    { "type": "inline_richtext", "id": "short_description", "label": "Short description",
+      "default": "A <b>handmade Ayurvedic cleansing bar</b>, crafted in small batches with <b>herbs and pure essential oils</b>. Free from SLS, SLES, parabens and harsh chemicals, it turns an everyday wash into a calm, grounding ritual to <b>purify, protect and renew</b>. Cruelty free, lab tested, 100 g.",
+      "info": "Two or three lines under the rating; bold the phrases that matter. A product's custom.short_description metafield overrides this." },
+
     { "type": "header", "content": "Pack options" },
     { "type": "range", "id": "most_popular_position", "label": "\"Most popular\" option", "min": 1, "max": 6, "step": 1, "default": 2,
       "info": "Which option gets the badge and is pre-selected, counted top to bottom. Ignored when that option is sold out, when the product has a single variant, or when the visitor arrives on a link to a specific option." },
@@ -470,10 +941,26 @@
     { "type": "header", "content": "Offer countdown" },
     { "type": "checkbox", "id": "countdown_enable", "label": "Enable countdown", "default": false },
     { "type": "text", "id": "countdown_text", "label": "Countdown text", "default": "Hurry! Offer expires in" },
+    { "type": "select", "id": "countdown_mode", "label": "Countdown type", "default": "minutes",
+      "options": [
+        { "value": "minutes", "label": "Limited period — minutes from arrival" },
+        { "value": "date", "label": "Fixed end date" }
+      ],
+      "info": "\"Minutes\" runs a short window per shopper, shown as MM:SS. \"Fixed end date\" counts to one moment for everybody and uses the two date fields below." },
+    { "type": "range", "id": "countdown_minutes", "label": "Minutes on the clock", "min": 5, "max": 60, "step": 5, "unit": "min", "default": 10,
+      "info": "\"Minutes\" type only. The window is stamped once per browsing session, so moving between pages does not hand the shopper a fresh clock, and it does not restart after it runs out." },
     { "type": "text", "id": "countdown_end_date", "label": "Offer end date",
-      "info": "YYYY-MM-DD, e.g. 2026-09-15. Leave empty to hide the countdown." },
+      "info": "\"Fixed end date\" type only. YYYY-MM-DD, e.g. 2026-09-15. Leave empty to hide the countdown." },
     { "type": "text", "id": "countdown_end_time", "label": "Offer end time", "default": "23:59",
       "info": "24-hour HH:MM, in each shopper's local time. The countdown hides itself once this moment passes — it never restarts per visit." },
+
+    { "type": "header", "content": "Checkout coupon" },
+    { "type": "checkbox", "id": "coupon_enable", "label": "Show the coupon line", "default": true,
+      "info": "Advertises a discount code on each pack and under the pack list. The theme cannot apply it — create the code in Shopify admin > Discounts first, or shoppers will hit a dead code at checkout." },
+    { "type": "text", "id": "coupon_code", "label": "Discount code", "default": "SHUDHI50",
+      "info": "Must match the code in admin exactly, including case." },
+    { "type": "number", "id": "coupon_value", "label": "Amount off", "default": 50,
+      "info": "In rupees, not paise. A flat amount off the pack price — set the same value on the admin discount." },
 
     { "type": "header", "content": "Trust panel" },
     { "type": "text", "id": "trust_line_1", "label": "Left title", "default": "No hidden fees" },
@@ -485,10 +972,97 @@
     { "type": "checkbox", "id": "sticky_bar", "label": "Show sticky add-to-cart bar", "default": true,
       "info": "Phones and tablets only. Appears once the buy buttons scroll out of view." },
 
+    { "type": "header", "content": "Gallery" },
+    { "type": "checkbox", "id": "show_zoom", "label": "Show the Zoom button", "default": true,
+      "info": "Opens a full-screen viewer. Add \"Gallery image\" blocks for photos that are not on the product itself." },
+
+    { "type": "header", "content": "Benefit strip" },
+    { "type": "checkbox", "id": "show_perks", "label": "Show the strip under the gallery", "default": true,
+      "info": "Built from the \"Benefit\" blocks. Hidden when there are none." },
+
+    { "type": "header", "content": "Why you'll love it" },
+    { "type": "checkbox", "id": "show_why", "label": "Show the panel", "default": true,
+      "info": "Built from the \"Why you'll love it\" blocks. Hidden when there are none." },
+    { "type": "text", "id": "why_heading", "label": "Heading", "default": "Why You’ll Love It" },
+    { "type": "text", "id": "why_heading_em", "label": "Heading — gold words" },
+    { "type": "image_picker", "id": "why_bg_image", "label": "Background photo",
+      "info": "Faint, behind the text. Without one the theme's forest photo is used." },
+    { "type": "range", "id": "why_bg_strength", "label": "Photo strength", "min": 0, "max": 60, "step": 2, "unit": "%", "default": 18 },
+
+    { "type": "header", "content": "Social proof bar" },
+    { "type": "checkbox", "id": "show_proof", "label": "Show the bar", "default": true },
+    { "type": "text", "id": "proof_heading", "label": "Headline", "default": "Loved by 10,000+ customers",
+      "info": "Shown to every visitor — keep it to a number you can stand behind." },
+    { "type": "text", "id": "proof_more", "label": "Avatar chip", "default": "+10K" },
+    { "type": "range", "id": "proof_stars", "label": "Stars", "min": 1, "max": 5, "step": 1, "default": 5 },
+    { "type": "textarea", "id": "proof_quote", "label": "Quote",
+      "info": "A real customer review, quoted with permission. Leave empty to hide the middle column." },
+    { "type": "text", "id": "proof_author", "label": "Quote author", "info": "First name and initial, e.g. \"Priya S.\"" },
+    { "type": "select", "id": "tile_1_icon", "label": "Tile 1 icon", "default": "truck",
+      "options": [ { "value": "truck", "label": "Truck" }, { "value": "badge", "label": "Badge" }, { "value": "shield", "label": "Shield" }, { "value": "clock", "label": "Clock" }, { "value": "heart-check", "label": "Heart with check" }, { "value": "lock", "label": "Lock" }, { "value": "leaf", "label": "Leaf" } ] },
+    { "type": "text", "id": "tile_1_title", "label": "Tile 1 title", "default": "Free shipping" },
+    { "type": "text", "id": "tile_1_text", "label": "Tile 1 text",
+      "info": "Leave empty to show \"On orders above <threshold>\", which follows Theme settings > Cart Drawer > Free shipping threshold." },
+    { "type": "select", "id": "tile_2_icon", "label": "Tile 2 icon", "default": "badge",
+      "options": [ { "value": "truck", "label": "Truck" }, { "value": "badge", "label": "Badge" }, { "value": "shield", "label": "Shield" }, { "value": "clock", "label": "Clock" }, { "value": "heart-check", "label": "Heart with check" }, { "value": "lock", "label": "Lock" }, { "value": "leaf", "label": "Leaf" } ] },
+    { "type": "text", "id": "tile_2_title", "label": "Tile 2 title", "default": "Safe delivery" },
+    { "type": "text", "id": "tile_2_text", "label": "Tile 2 text", "default": "Damaged or wrong item? We replace it" },
+
     { "type": "header", "content": "Below the buy box" },
+    { "type": "text", "id": "dispatch_note", "label": "Note above the FAQ",
+      "info": "Gold pill under Buy it now, e.g. \"Same-day dispatch for orders placed before 1 PM (Mon–Sat)\". Leave empty to hide." },
+    { "type": "checkbox", "id": "faq_open_first", "label": "Open the first FAQ by default", "default": false },
     { "type": "checkbox", "id": "show_categories", "label": "Show categories", "default": true },
-    { "type": "checkbox", "id": "show_details", "label": "Show product details accordion", "default": true },
-    { "type": "checkbox", "id": "show_reviews", "label": "Show reviews", "default": true }
+    { "type": "checkbox", "id": "show_reviews", "label": "Show reviews", "default": true,
+      "info": "Renders only once a reviews app has written data for this product." }
+  ],
+    "max_blocks": 30,
+  "blocks": [
+    { "type": "pack", "name": "Pack option", "limit": 6, "settings": [
+      { "type": "paragraph", "content": "Pack options pair with the product's variants top to bottom — the first of these re-dresses the first variant. A variant with no block keeps its admin title. The price charged is always the variant's own price in Shopify admin; nothing here changes it." },
+      { "type": "text", "id": "title", "label": "Name", "default": "Buy 1 — Standard Pack",
+        "info": "Replaces the variant title on the card, e.g. \"Buy 3 — Ritual Pack\". Leave empty to keep the admin title." },
+      { "type": "text", "id": "note", "label": "Sub-line", "default": "Perfect to experience the ritual" },
+      { "type": "text", "id": "flag", "label": "Badge",
+        "info": "The pill above the card, e.g. \"⭐ Most Popular\". Leave empty and the card falls back to the \"Most popular\" position set above." },
+      { "type": "number", "id": "mrp", "label": "M.R.P.",
+        "info": "In rupees, not paise — the struck-through price the discount is calculated from. IGNORED once this variant has a real compare-at price in Shopify admin, which is the better place for it, and ignored if it is not above the selling price." }
+    ] },
+    { "type": "faq", "name": "FAQ", "settings": [
+      { "type": "select", "id": "icon", "label": "Icon before the question", "default": "leaf",
+        "options": [ { "value": "none", "label": "None" }, { "value": "bubbles", "label": "Lather" }, { "value": "leaf", "label": "Leaf" }, { "value": "face-sparkle", "label": "Glowing skin" }, { "value": "clock", "label": "Clock" }, { "value": "truck", "label": "Truck" }, { "value": "file", "label": "Document" }, { "value": "drop", "label": "Drop" }, { "value": "sparkle", "label": "Sparkle" }, { "value": "shield", "label": "Shield" }, { "value": "mail", "label": "Mail" }, { "value": "badge", "label": "Badge" } ] },
+      { "type": "text", "id": "question", "label": "Question", "default": "How do I use the bar?" },
+      { "type": "richtext", "id": "answer", "label": "Answer",
+        "default": "<p>Work the bar into a light lather with water, massage gently over damp skin, then rinse.</p>" }
+    ] },
+    { "type": "details", "name": "Product details", "limit": 1, "settings": [
+      { "type": "select", "id": "icon", "label": "Icon before the title", "default": "file",
+        "options": [ { "value": "none", "label": "None" }, { "value": "file", "label": "Document" }, { "value": "badge", "label": "Badge" }, { "value": "leaf", "label": "Leaf" }, { "value": "shield", "label": "Shield" }, { "value": "mail", "label": "Mail" } ] },
+      { "type": "text", "id": "title", "label": "Row title", "default": "Product details" },
+      { "type": "checkbox", "id": "show_description", "label": "Include the product description", "default": false,
+        "info": "Off by default: this product's admin description only repeats the title." }
+    ] },
+    { "type": "gallery_image", "name": "Gallery image", "limit": 4, "settings": [
+      { "type": "image_picker", "id": "image", "label": "Image",
+        "info": "Shown after the product's own photos, in block order. Square images match the main photo; other shapes are cropped square here and shown whole in Zoom." },
+      { "type": "text", "id": "alt", "label": "Alt text", "info": "Falls back to the image's own alt text, then the product title." }
+    ] },
+    { "type": "perk", "name": "Benefit", "limit": 4, "settings": [
+      { "type": "select", "id": "icon", "label": "Icon", "default": "leaf-line",
+        "options": [ { "value": "lotus", "label": "Lotus" }, { "value": "hand-line", "label": "Hand" }, { "value": "rabbit-line", "label": "Rabbit" }, { "value": "flask-line", "label": "Flask" }, { "value": "leaf-line", "label": "Leaf" }, { "value": "heart-line", "label": "Heart" }, { "value": "mortar", "label": "Mortar & pestle" }, { "value": "wheat", "label": "Wheat" }, { "value": "badge", "label": "Badge" }, { "value": "shield", "label": "Shield" }, { "value": "sparkle", "label": "Sparkle" }, { "value": "drop", "label": "Drop" }, { "value": "recycle", "label": "Recycle" }, { "value": "sun", "label": "Sun" } ] },
+      { "type": "text", "id": "title", "label": "Title", "default": "Ayurvedic" },
+      { "type": "text", "id": "text", "label": "Sub-label", "default": "Time-honoured herbs" }
+    ] },
+    { "type": "why", "name": "Why you'll love it — item", "limit": 4, "settings": [
+      { "type": "select", "id": "icon", "label": "Icon", "default": "sparkle",
+        "options": [ { "value": "sparkle", "label": "Sparkle" }, { "value": "shield", "label": "Shield" }, { "value": "leaf-line", "label": "Leaf" }, { "value": "meditate", "label": "Meditate" }, { "value": "lotus", "label": "Lotus" }, { "value": "drop", "label": "Drop" }, { "value": "sun", "label": "Sun" }, { "value": "heart-check", "label": "Heart with check" }, { "value": "hands-heart", "label": "Hands & heart" }, { "value": "face-sparkle", "label": "Glowing skin" }, { "value": "bubbles", "label": "Lather" }, { "value": "plant", "label": "Plant" } ] },
+      { "type": "text", "id": "title", "label": "Title", "default": "Purifies Energy" },
+      { "type": "textarea", "id": "text", "label": "Text", "info": "Two short lines read best." }
+    ] },
+    { "type": "avatar", "name": "Customer avatar", "limit": 5, "settings": [
+      { "type": "image_picker", "id": "image", "label": "Photo", "info": "Square, at least 96×96. Without a photo a neutral circle with the initial is shown." },
+      { "type": "text", "id": "name", "label": "Name (for the initial)", "info": "Optional. Only the first letter is shown." }
+    ] }
   ]
 }
 {% endschema %}

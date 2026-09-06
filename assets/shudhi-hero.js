@@ -646,6 +646,22 @@
       var WAKE = ['scroll', 'wheel', 'touchstart', 'touchmove', 'pointerdown', 'keydown'];
       for (var i = 0; i < WAKE.length; i++) bind(window, WAKE[i], wake, { passive: true });
 
+      // Play button = skip to the sequence's final frame: an instant jump to
+      // the p=1 scroll position, so the scroll<->frame binding stays intact.
+      // stopPropagation keeps shudhi-home.js's delegated anchor handler from
+      // smooth-scrolling to the href fallback (#our-story).
+      var skip = root.querySelector('.sh-discover');
+      if (skip) {
+        bind(skip, 'click', function (e) {
+          e.preventDefault();
+          e.stopPropagation();
+          measure();             // geometry can be stale (font swap moves sectionTop)
+          snapNext = true;       // paint the final frame next tick — no easing glide
+          window.scrollTo(0, sectionTop - stickyTop + scrollSpan);
+          wake();
+        });
+      }
+
       bind(document, 'visibilitychange', function () {
         visible = !document.hidden;
         // Snap rather than glide: after a hidden tab the stored position can be

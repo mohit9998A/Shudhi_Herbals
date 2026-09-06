@@ -10,7 +10,8 @@
      button and drives data-state="loading|success" itself.
    - Initial render. Every price, badge, caption and the checked radio are
      server-rendered. Losing this file costs pack SWITCHING, the countdown,
-     the qty stepper, thumbnail swaps and the mobile sticky bar — the page
+     the qty stepper, the gallery (thumbs, arrows, swipe, zoom viewer) and the
+     mobile sticky bar — the page
      still sells the default pack.
 
    This file's one real job is the state transition: checked radio ->
@@ -81,6 +82,11 @@
     var priceEl = root.querySelector('[data-sh-price]');
     var savingEl = root.querySelector('[data-sh-saving]');
     var savingAmountEl = root.querySelector('[data-sh-saving-amount]');
+    var leadWasEl = root.querySelector('[data-sh-lead-was]');
+    var leadWasAmountEl = root.querySelector('[data-sh-lead-was-amount]');
+    var leadOffEl = root.querySelector('[data-sh-lead-off]');
+    var couponEl = root.querySelector('[data-sh-coupon]');
+    var couponAmountEl = root.querySelector('[data-sh-coupon-amount]');
     var dotEl = root.querySelector('[data-sh-dot]');
     var availSrEl = root.querySelector('[data-sh-avail-sr]');
     var atcBtn = root.querySelector('[data-sh-atc]');
@@ -119,44 +125,321 @@
       }
     }
 
-    /* ------------------------------------------------ gallery */
+    /* ------------------------------------------------ gallery
+       Index-based. Slides are the product's media followed by any
+       theme-editor gallery_image blocks (data-media-id="b-<block id>");
+       the thumbs mirror that order. activateMedia(id) stays the entry point
+       for variant switching (setVariant below) and maps the id to an index. */
 
-    function activateMedia(mediaId) {
-      if (!mediaId) return;
-      var slide = root.querySelector('.sh-pdp__slide[data-media-id="' + mediaId + '"]');
-      if (!slide) return;
-      var slides = root.querySelectorAll('.sh-pdp__slide');
-      for (var i = 0; i < slides.length; i++) slides[i].classList.remove('is-active');
-      slide.classList.add('is-active');
-      var thumbs = root.querySelectorAll('.sh-pdp__thumb');
-      for (var j = 0; j < thumbs.length; j++) {
-        if (thumbs[j].getAttribute('data-media-id') === String(mediaId)) {
-          thumbs[j].setAttribute('aria-current', 'true');
-        } else {
-          thumbs[j].removeAttribute('aria-current');
-        }
+    var stage = root.querySelector('[data-sh-stage]');
+    var rail = root.querySelector('[data-sh-thumbs]');
+    var gallerySr = root.querySelector('[data-sh-gallery-sr]');
+    var zoomBtn = root.querySelector('[data-sh-zoom]');
+    var current = 0;
+
+    function slides() {
+      return stage ? stage.querySelectorAll('.sh-pdp__slide') : [];
+    }
+
+    function thumbs() {
+      return root.querySelectorAll('.sh-pdp__thumb');
+    }
+
+    function indexOfMedia(mediaId) {
+      var list = slides();
+      for (var i = 0; i < list.length; i++) {
+        if (list[i].getAttribute('data-media-id') === String(mediaId)) return i;
+      }
+      return -1;
+    }
+
+    /* Centre the active thumb inside the rail WITHOUT scrollIntoView, which
+       would scroll the window too (a pack change must never jump the page). */
+    function revealThumb(i) {
+      var t = thumbs()[i];
+      if (!t || !rail) return;
+      var left = t.offsetLeft - (rail.clientWidth - t.offsetWidth) / 2;
+      var top = t.offsetTop - (rail.clientHeight - t.offsetHeight) / 2;
+      try {
+        rail.scrollTo({ left: left, top: top, behavior: REDUCED.matches ? 'auto' : 'smooth' });
+      } catch (e) {
+        rail.scrollLeft = left;
+        rail.scrollTop = top;
       }
     }
 
+    function showIndex(i, userInitiated) {
+      var list = slides();
+      if (!list.length || i < 0 || i >= list.length) return;
+      for (var s = 0; s < list.length; s++) list[s].classList.toggle('is-active', s === i);
+      var ts = thumbs();
+      for (var t = 0; t < ts.length; t++) {
+        if (t === i) ts[t].setAttribute('aria-current', 'true');
+        else ts[t].removeAttribute('aria-current');
+      }
+      current = i;
+      if (gallerySr) gallerySr.textContent = 'Image ' + (i + 1) + ' of ' + list.length;
+      /* the crossfade is armed by a user action only, never on first paint */
+      if (userInitiated && stage) stage.classList.add('is-live');
+      revealThumb(i);
+      if (lightboxOpen()) lbShow(i);
+    }
+
+    function activateMedia(mediaId) {
+      if (!mediaId) return;
+      var i = indexOfMedia(mediaId);
+      if (i > -1) showIndex(i, false);
+    }
+
+    function stepMedia(dir) {
+      var n = slides().length;
+      if (n < 2) return;
+      showIndex((current + dir + n) % n, true);
+    }
+
+    /* Touch swipe. Mouse pointers are ignored (they have the arrows, and a
+       mouse drag on an <img> starts a native image drag). The `swiped` flag
+       lets the click handler tell a tap from the end of a swipe. */
+    function attachSwipe(el, onSwipe) {
+      var state = { id: null, x: 0, y: 0, swiped: false };
+      if (!el || !window.PointerEvent) return state;
+      el.addEventListener('pointerdown', function (e) {
+        if (e.pointerType === 'mouse') return;
+        state.id = e.pointerId;
+        state.x = e.clientX;
+        state.y = e.clientY;
+        state.swiped = false;
+      });
+      el.addEventListener('pointerup', function (e) {
+        if (e.pointerId !== state.id) return;
+        state.id = null;
+        var dx = e.clientX - state.x;
+        var dy = e.clientY - state.y;
+        if (Math.abs(dx) >= 40 && Math.abs(dx) > Math.abs(dy)) {
+          state.swiped = true;
+          onSwipe(dx < 0 ? 1 : -1);
+        }
+      });
+      el.addEventListener('pointercancel', function () { state.id = null; });
+      return state;
+    }
+
+    var stageSwipe = attachSwipe(stage, stepMedia);
+
+    if (stage) {
+      stage.addEventListener('keydown', function (evt) {
+        if (evt.key === 'ArrowLeft' || evt.keyCode === 37) { evt.preventDefault(); stepMedia(-1); }
+        if (evt.key === 'ArrowRight' || evt.keyCode === 39) { evt.preventDefault(); stepMedia(1); }
+      });
+      stage.addEventListener('dragstart', function (evt) { evt.preventDefault(); });
+      /* a tap or click on the picture opens the viewer; the end of a swipe does not */
+      stage.addEventListener('click', function (evt) {
+        if (!evt.target.closest || evt.target.closest('button')) return;
+        if (stageSwipe.swiped) { stageSwipe.swiped = false; return; }
+        if (evt.target.closest('.sh-pdp__slide img')) openLightbox(current);
+      });
+    }
+
     root.addEventListener('click', function (evt) {
-      var thumb = evt.target.closest ? evt.target.closest('.sh-pdp__thumb') : null;
-      if (!thumb || !root.contains(thumb)) return;
-      activateMedia(thumb.getAttribute('data-media-id'));
+      var t = evt.target;
+      if (!t.closest) return;
+      var thumb = t.closest('.sh-pdp__thumb');
+      if (thumb && root.contains(thumb)) {
+        showIndex(indexOfMedia(thumb.getAttribute('data-media-id')), true);
+        return;
+      }
+      var nav = t.closest('[data-sh-nav]');
+      if (nav && root.contains(nav)) {
+        stepMedia(parseInt(nav.getAttribute('data-sh-nav'), 10) || 1);
+        return;
+      }
+      var zoom = t.closest('[data-sh-zoom]');
+      if (zoom && root.contains(zoom)) openLightbox(current);
     });
+
+    /* initial index: whichever slide Liquid marked active */
+    (function () {
+      var list = slides();
+      for (var i = 0; i < list.length; i++) {
+        if (list[i].classList.contains('is-active')) { current = i; break; }
+      }
+    })();
+    /* ------------------------------------------------ lightbox
+       Native <dialog>: showModal() gives the top layer, focus containment and
+       Escape for free. Every close path ends in dialog.close(), and the one
+       'close' listener does all the teardown. No document-level listeners. */
+
+    var dialog = root.querySelector('[data-sh-lightbox]');
+    var lbImg = dialog && dialog.querySelector('[data-sh-lb-img]');
+    var lbStage = dialog && dialog.querySelector('[data-sh-lb-stage]');
+    var lbCount = dialog && dialog.querySelector('[data-sh-lb-count]');
+    var lbZoom = dialog && dialog.querySelector('[data-sh-lb-zoom]');
+    var lbIndex = 0;
+    var opener = null;
+
+    function lightboxOpen() {
+      return !!(dialog && dialog.open);
+    }
+
+    function slideLarge(i) {
+      var list = slides();
+      var img = list[i] ? list[i].querySelector('img') : null;
+      if (!img) return null;
+      return { src: img.getAttribute('data-large') || img.currentSrc || img.src, alt: img.alt || '' };
+    }
+
+    function lbLoaded() {
+      if (dialog) dialog.classList.remove('is-loading');
+    }
+
+    function unmagnify() {
+      if (!dialog) return;
+      dialog.classList.remove('is-zoomed');
+      if (lbZoom) lbZoom.setAttribute('aria-pressed', 'false');
+    }
+
+    function magnifyAt(fx, fy) {
+      if (!dialog || !lbImg) return;
+      lbImg.style.setProperty('--sh-lb-ox', (fx * 100).toFixed(1) + '%');
+      lbImg.style.setProperty('--sh-lb-oy', (fy * 100).toFixed(1) + '%');
+      dialog.classList.add('is-zoomed');
+      if (lbZoom) lbZoom.setAttribute('aria-pressed', 'true');
+    }
+
+    function toggleMagnify(evt) {
+      if (!dialog) return;
+      if (dialog.classList.contains('is-zoomed')) { unmagnify(); return; }
+      var fx = 0.5, fy = 0.5;
+      if (evt && lbImg && evt.clientX) {
+        var r = lbImg.getBoundingClientRect();
+        if (r.width && r.height) {
+          fx = Math.min(1, Math.max(0, (evt.clientX - r.left) / r.width));
+          fy = Math.min(1, Math.max(0, (evt.clientY - r.top) / r.height));
+        }
+      }
+      magnifyAt(fx, fy);
+    }
+
+    function lbShow(i) {
+      var d = slideLarge(i);
+      if (!d || !lbImg) return;
+      lbIndex = i;
+      unmagnify();
+      dialog.classList.add('is-loading');
+      lbImg.alt = d.alt;
+      lbImg.src = d.src;
+      if (lbImg.complete && lbImg.naturalWidth) lbLoaded();
+      var n = slides().length;
+      if (lbCount) lbCount.textContent = (i + 1) + ' / ' + n;
+      if (n > 1) {
+        var next = slideLarge((i + 1) % n);
+        var prev = slideLarge((i - 1 + n) % n);
+        if (next) new Image().src = next.src;
+        if (prev) new Image().src = prev.src;
+      }
+    }
+
+    function lbStep(dir) {
+      var n = slides().length;
+      if (n < 2) return;
+      lbShow((lbIndex + dir + n) % n);
+    }
+
+    function openLightbox(i) {
+      var d = slideLarge(i);
+      if (!d) return;
+      if (!dialog || typeof dialog.showModal !== 'function') {
+        window.open(d.src, '_blank', 'noopener');
+        return;
+      }
+      if (dialog.open) return;
+      opener = document.activeElement;
+      lbShow(i);
+      document.documentElement.classList.add('sh-pdp-lightbox-open');
+      dialog.showModal();
+    }
+
+    if (dialog && lbImg) {
+      var lbSwipe = attachSwipe(lbStage, function (dir) {
+        if (!dialog.classList.contains('is-zoomed')) lbStep(dir);
+      });
+
+      lbImg.addEventListener('load', lbLoaded);
+      lbImg.addEventListener('error', lbLoaded);
+
+      dialog.addEventListener('click', function (evt) {
+        var t = evt.target;
+        if (!t.closest) return;
+        if (t.closest('[data-sh-lb-close]')) { dialog.close(); return; }
+        var nav = t.closest('[data-sh-lb-nav]');
+        if (nav) { lbStep(parseInt(nav.getAttribute('data-sh-lb-nav'), 10) || 1); return; }
+        if (t.closest('[data-sh-lb-zoom]')) { toggleMagnify(null); return; }
+        if (t === lbImg) {
+          if (!lbSwipe.swiped) toggleMagnify(evt);
+          lbSwipe.swiped = false;
+          return;
+        }
+        if (t === dialog || t === lbStage) dialog.close();
+      });
+
+      dialog.addEventListener('keydown', function (evt) {
+        if (evt.key === 'ArrowLeft' || evt.keyCode === 37) { evt.preventDefault(); lbStep(-1); }
+        if (evt.key === 'ArrowRight' || evt.keyCode === 39) { evt.preventDefault(); lbStep(1); }
+      });
+
+      dialog.addEventListener('close', function () {
+        document.documentElement.classList.remove('sh-pdp-lightbox-open');
+        unmagnify();
+        /* the stage follows the last-viewed image */
+        if (lbIndex !== current) showIndex(lbIndex, true);
+        var target = (opener && root.contains(opener) && opener !== document.body) ? opener : zoomBtn;
+        opener = null;
+        if (target && target.focus) { try { target.focus(); } catch (e) { /* detached */ } }
+      });
+
+      cleanups.push(function () {
+        if (dialog.open) dialog.close();
+        document.documentElement.classList.remove('sh-pdp-lightbox-open');
+      });
+    }
 
     /* ------------------------------------------------ variant switching */
 
-    function setVariant(id, mediaId) {
-      var v = variants[String(id)];
+    /* Takes the checked radio, not a bare id: Liquid already resolved this pack's
+       M.R.P. (a real compare-at price, else the pack block's number), its rounded
+       discount and its after-coupon price onto the input as data attributes. Reading
+       them back beats recomputing here — one copy of the arithmetic, and the JSON
+       island's compare_at_price (often null in admin) cannot disagree with the card
+       the shopper is looking at. */
+    function setVariant(input) {
+      var v = variants[String(input.getAttribute('data-variant-id'))];
       if (!v) return;
 
       if (idInput) idInput.value = v.id;
 
       if (priceEl) priceEl.textContent = formatMoney(v.price, moneyCurrencyFormat);
 
-      var saving = (v.compare_at_price && v.compare_at_price > v.price)
-        ? v.compare_at_price - v.price
-        : 0;
+      var mrp = parseInt(input.getAttribute('data-mrp'), 10) || 0;
+      var off = parseInt(input.getAttribute('data-off'), 10) || 0;
+      var finalPrice = parseInt(input.getAttribute('data-final'), 10) || 0;
+
+      if (leadWasEl) {
+        leadWasEl.classList.toggle('is-hidden', mrp <= 0);
+        /* the inner span only — the <s> also holds a visually-hidden "M.R.P." */
+        if (mrp > 0 && leadWasAmountEl) leadWasAmountEl.textContent = formatMoney(mrp, moneyFormat);
+      }
+      if (leadOffEl) {
+        leadOffEl.classList.toggle('is-hidden', off <= 0);
+        if (off > 0) leadOffEl.textContent = off + '% OFF';
+      }
+      if (couponEl) {
+        couponEl.classList.toggle('is-hidden', finalPrice <= 0);
+        if (finalPrice > 0 && couponAmountEl) {
+          couponAmountEl.textContent = formatMoney(finalPrice, moneyFormat);
+        }
+      }
+
+      var saving = mrp > v.price ? mrp - v.price : 0;
       if (savingEl) {
         savingEl.classList.toggle('is-hidden', saving === 0);
         if (saving > 0 && savingAmountEl) {
@@ -178,7 +461,7 @@
       if (stickyTitle) stickyTitle.textContent = v.title;
       if (stickyAmt) stickyAmt.textContent = formatMoney(v.price, moneyFormat);
 
-      activateMedia(mediaId);
+      activateMedia(input.getAttribute('data-media-id'));
 
       /* shareable URLs; guarded — the theme editor sandbox can refuse this */
       try {
@@ -192,10 +475,7 @@
       var input = evt.target;
       if (!input.classList || !input.classList.contains('sh-pdp__pack-input')) return;
       if (!input.checked) return;
-      setVariant(
-        input.getAttribute('data-variant-id'),
-        input.getAttribute('data-media-id')
-      );
+      setVariant(input);
     });
 
     /* ------------------------------------------------ quantity stepper */
@@ -219,20 +499,53 @@
 
     if (qtyInput) qtyInput.addEventListener('change', clampQty);
 
-    /* ------------------------------------------------ countdown */
+    /* ------------------------------------------------ countdown
+       Two shapes, one ticker, and note 5's fail-closed rule holds for both: an
+       invalid or spent deadline leaves the card [hidden] rather than frozen.
+
+       'date'    — one absolute moment from section settings, the same for every
+                   shopper, surviving refreshes and never re-seeding.
+       'minutes' — a short window per browsing session, rendered MM:SS. The
+                   deadline is stamped into sessionStorage on first sight, so
+                   navigating away and back does NOT hand out a fresh clock, and
+                   a window that has run out stays run out for the session. */
 
     var timer = root.querySelector('[data-sh-timer]');
     if (timer) {
       var digitsEl = timer.querySelector('[data-sh-timer-digits]');
       var srEl = timer.querySelector('[data-sh-timer-sr]');
-      /* 'YYYY-MM-DDTHH:MM' with no zone parses as the shopper's local time —
-         that locality is the documented behaviour, not an accident */
-      var parts = /^(d{4})-(d{2})-(d{2})T(d{1,2}):(d{2})/.exec(timer.getAttribute('data-sh-deadline') || '');
-      /* built from parts, not Date.parse(): older WebKit reads an offset-less
-         ISO string as UTC, and "shopper-local" is the documented contract */
-      var deadlineMs = parts
-        ? new Date(+parts[1], +parts[2] - 1, +parts[3], +parts[4], +parts[5], 0).getTime()
-        : NaN;
+      var mode = timer.getAttribute('data-sh-timer-mode') === 'minutes' ? 'minutes' : 'date';
+      var deadlineMs = NaN;
+
+      if (mode === 'minutes') {
+        var windowMin = parseInt(timer.getAttribute('data-sh-timer-minutes'), 10);
+        if (!(windowMin > 0)) windowMin = 10;
+        var windowMs = windowMin * 60000;
+        var storeKey = timer.getAttribute('data-sh-timer-key') || 'sh-pdp-offer';
+        var stored = NaN;
+        /* sessionStorage THROWS outright under some privacy settings, so both
+           halves are guarded: a blocked store costs the timer its persistence
+           and nothing else — it simply runs fresh on this pageview. */
+        try { stored = parseInt(window.sessionStorage.getItem(storeKey), 10); } catch (e) { stored = NaN; }
+        var nowMs = Date.now();
+        if (stored > 0 && stored <= nowMs + windowMs) {
+          /* a window already opened this session — honour it, spent or not */
+          deadlineMs = stored;
+        } else {
+          /* nothing stored, or a stale stamp from a longer setting */
+          deadlineMs = nowMs + windowMs;
+          try { window.sessionStorage.setItem(storeKey, String(deadlineMs)); } catch (e) { /* this pageview only */ }
+        }
+      } else {
+        /* 'YYYY-MM-DDTHH:MM' with no zone parses as the shopper's local time —
+           that locality is the documented behaviour, not an accident */
+        var parts = /^(\d{4})-(\d{2})-(\d{2})T(\d{1,2}):(\d{2})/.exec(timer.getAttribute('data-sh-deadline') || '');
+        /* built from parts, not Date.parse(): older WebKit reads an offset-less
+           ISO string as UTC, and "shopper-local" is the documented contract */
+        deadlineMs = parts
+          ? new Date(+parts[1], +parts[2] - 1, +parts[3], +parts[4], +parts[5], 0).getTime()
+          : NaN;
+      }
 
       if (!isNaN(deadlineMs) && deadlineMs > Date.now()) {
         var pad = function (n) { return n < 10 ? '0' + n : String(n); };
@@ -284,20 +597,31 @@
           var mins = Math.floor((totalSec % 3600) / 60);
           var secs = totalSec % 60;
 
-          var nextShape = days > 0 ? 'd' : 's';
+          var nextShape, values;
+          if (mode === 'minutes') {
+            /* MM:SS — total minutes, so a window over an hour still reads right */
+            nextShape = 'ms';
+            values = [pad(Math.floor(totalSec / 60)), pad(secs)];
+          } else if (days > 0) {
+            nextShape = 'd';
+            values = [days + 'd', pad(hours), pad(mins)];
+          } else {
+            nextShape = 'hms';
+            values = [pad(hours), pad(mins), pad(secs)];
+          }
           if (nextShape !== shape) {
             shape = nextShape;
-            build(3);
+            build(values.length);
           }
-          write(days > 0
-            ? [days + 'd', pad(hours), pad(mins)]
-            : [pad(hours), pad(mins), pad(secs)]);
+          write(values);
           /* once a minute is plenty for the live region */
           if (srEl && Date.now() - lastSr > 60000) {
             lastSr = Date.now();
-            srEl.textContent = 'Offer ends in '
-              + (days > 0 ? days + ' days, ' : '')
-              + hours + ' hours and ' + mins + ' minutes';
+            srEl.textContent = mode === 'minutes'
+              ? 'Offer ends in about ' + Math.ceil(totalSec / 60) + ' minutes'
+              : 'Offer ends in '
+                + (days > 0 ? days + ' days, ' : '')
+                + hours + ' hours and ' + mins + ' minutes';
           }
         };
 
@@ -391,6 +715,18 @@
       }
     }
 
+    /* ------------------------------------------------ theme editor only
+       Selecting a FAQ block in the editor sidebar opens it; selecting a
+       gallery_image block shows that slide. The listener lives on the root,
+       which is discarded on section unload, so there is nothing to clean up. */
+    root.addEventListener('shopify:block:select', function (evt) {
+      var t = evt.target;
+      if (!t || !t.closest) return;
+      var item = t.closest('details.sh-pdp__faq-item');
+      if (item) item.open = true;
+      var slide = t.closest('.sh-pdp__slide');
+      if (slide) activateMedia(slide.getAttribute('data-media-id'));
+    });
     /* ------------------------------------------------ registry */
 
     instances.push({

@@ -6,110 +6,8 @@
         "eyebrow": "The Ritual",
         "title": "More than a soap. It's a Ritual.",
         "body": "Every Shudhi bar is made to be used slowly — four mindful steps that turn a daily wash into a moment of reset.",
-        "bg": "#1b2411"
-      }
-    },
-    "ritual_stages": {
-      "type": "sh-ritual-stages",
-      "blocks": {
-        "st1": {
-          "type": "stage",
-          "settings": {
-            "icon": "sun",
-            "title": "Solar Vitalization"
-          }
-        },
-        "st2": {
-          "type": "stage",
-          "settings": {
-            "icon": "moon",
-            "title": "Lunar Conditioning"
-          }
-        },
-        "st3": {
-          "type": "stage",
-          "settings": {
-            "icon": "crystal",
-            "title": "Mineral Resonance Infusion"
-          }
-        },
-        "st4": {
-          "type": "stage",
-          "settings": {
-            "icon": "geometry",
-            "title": "Geometric Crystal Conditioning"
-          }
-        },
-        "st5": {
-          "type": "stage",
-          "settings": {
-            "icon": "waves",
-            "title": "Harmonic Resonance Activation"
-          }
-        }
-      },
-      "block_order": [
-        "st1",
-        "st2",
-        "st3",
-        "st4",
-        "st5"
-      ],
-      "settings": {
-        "heading": "The Five Ritual Stages",
-        "anchor_id": "ritual-stages",
-        "bg": "#f4f2eb",
-        "animate": true
-      }
-    },
-    "mindful_ritual": {
-      "type": "sh-mindful-ritual",
-      "blocks": {
-        "s1": {
-          "type": "step",
-          "settings": {
-            "icon": "drop",
-            "title": "Wet",
-            "text": "Begin with mindful presence"
-          }
-        },
-        "s2": {
-          "type": "step",
-          "settings": {
-            "icon": "lotus",
-            "title": "Lather",
-            "text": "Let the herbs cleanse & purify"
-          }
-        },
-        "s3": {
-          "type": "step",
-          "settings": {
-            "icon": "wind",
-            "title": "Breathe",
-            "text": "Release negativity, embrace calm"
-          }
-        },
-        "s4": {
-          "type": "step",
-          "settings": {
-            "icon": "leaf",
-            "title": "Refresh",
-            "text": "Step out renewed, refreshed & grounded"
-          }
-        }
-      },
-      "block_order": [
-        "s1",
-        "s2",
-        "s3",
-        "s4"
-      ],
-      "settings": {
-        "title": "Transform Your Daily Bath into a Mindful Ritual",
-        "body": "Breathe. Pause. Purify. Let every shower be a moment to reset, release and reconnect with yourself.",
-        "cta_label": "Shop the ritual",
-        "cta_link": "/products/negativity-removal-cleansing-bar",
-        "animate": true
+        "bg": "#f2ece0",
+        "show_soap": true
       }
     },
     "ritual_energize": {
@@ -177,8 +75,6 @@
   },
   "order": [
     "page_header",
-    "ritual_stages",
-    "mindful_ritual",
     "ritual_energize"
   ]
 }

@@ -1,0 +1,582 @@
+{%- comment -%}
+  SHUDHI — Customer Reviews
+
+  The band between the product page's proof bar and the footer: a rating summary
+  (average, five-star row, 5→1 distribution bars, "write a review" CTA) over a
+  grid of merchant-curated review cards, with the submission form in a modal
+  dialog. Styled in assets/shudhi-reviews.css.
+
+  There is no reviews app on this store. sections/sh-product.liquid:852-862
+  carries a dormant Judge.me embed gated on `rating_real or
+  product.metafields.judgeme.widget`, and neither is ever true today — so this
+  section owns reviews on the PDP, and the reviews themselves are schema blocks.
+
+  ---------------------------------------------------------------------------
+  NINE THINGS HERE ARE LOAD-BEARING
+  ---------------------------------------------------------------------------
+
+  1. THE ROOT CARRIES `sh`. assets/shudhi-home.js:300 selects `.sh [data-reveal]`
+     and :331 selects `.sh [data-count-to]`. Without the bare class the CSS
+     pre-state (shudhi-home.css:234) leaves every revealed element at opacity 0
+     for the life of the page. Same rule as sh-faq.liquid note 2.
+
+  2. [data-count-to] IS parseInt-ONLY. shudhi-home.js:356 reads the attribute
+     with parseInt, so it animates the integer review COUNT and nothing else.
+     The average is printed as static text — handing it "4.9" would count up to
+     4 and land there. Both numbers ship as their real value in the markup, so
+     they are correct with JS absent, blocked or still deferred.
+
+  3. THE STAR IDS ARE SUFFIXED -{{ section.id }}. sh-product.liquid:184-185
+     already defines `sh-star-…__main` and `sh-star-gold-…__main` on this same
+     page. Two <defs> claiming one id is a silent collision — the second one
+     loses and the gold gradient paints from the wrong stop set. The suffix is
+     what keeps the two sections independent.
+
+  4. THE AVERAGE AND THE BARS ARE COUNTED, NOT TYPED. One pass below tallies the
+     live blocks, sums the ratings and buckets the distribution. A merchant
+     cannot enter a headline number that disagrees with the reviews underneath
+     it. (The star row inside sh-product.liquid is a separate, hand-typed
+     setting — see the schema note on `count_note`.)
+
+  5. {% form 'contact' %} TAKES NO CUSTOM id:. Shopify sets id="contact_form"
+     itself; passing one breaks the anchor it redirects to. And form.* is only
+     readable INSIDE the form block — computing it outside evaluates against nil,
+     the exact bug sh-contact.liquid:141-165 documents having already fixed once.
+
+  6. OVERFLOW CARDS ARE HIDDEN BY JS, NOT BY LIQUID. Every review renders
+     visible; assets/sh-reviews.js adds [hidden] past `initial_count` on boot.
+     Reversing that would hide reviews from crawlers and from anyone whose JS
+     never arrives — the list must fail open, the same way the reveal does.
+
+  7. THE JSON-LD SELF-SUPPRESSES. layout/theme.liquid:28-73 owns the Product
+     node and deliberately emits aggregateRating ONLY from the reviews.*
+     metafields. This block is off by default and additionally refuses to render
+     whenever that metafield exists, so the page can never carry two conflicting
+     aggregate ratings.
+
+  8. THE HEADLINE AND THE LIST SHARE ONE SOURCE. Judge.me writes Shopify's
+     standard reviews.rating / reviews.rating_count metafields, but those are
+     read ONLY in shell mode — where the app also renders the list underneath.
+     Reading them in manual mode produced exactly the contradiction you would
+     expect: a "Based on 1 review" headline from the app sitting above two
+     hand-entered cards. Whoever supplies the number supplies the reviews.
+
+  9. AN @app BLOCK SWITCHES THIS INTO A SHELL. Drop the Judge.me Review Widget
+     block inside this section and it takes over the list, the histogram and the
+     write-a-review flow — so the band's own bars, CTA, cards, load-more, dialog
+     and JSON-LD all stand down rather than compete with it. What is left is the
+     part worth keeping: the cream band, the serif heading and the headline
+     rating. `{% render block %}` is the supported way to host an app block; it
+     is what keeps this working when Judge.me changes their markup.
+
+  The review body is a textarea rendered through `newline_to_br` + `escape`, not
+  richtext: a review is someone else's words and should not carry markup a
+  merchant can style into a marketing claim.
+{%- endcomment -%}
+
+{{ 'shudhi-reviews.css' | asset_url | stylesheet_tag }}
+
+{%- assign s = section.settings -%}
+{%- assign uid = section.id | default: 'rev' -%}
+
+{%- comment -%} See (4). One pass: count, sum, bucket. Also counts app blocks,
+    because their presence is what switches this section into "shell" mode. {%- endcomment -%}
+{%- assign app_blocks = 0 -%}
+{%- for block in section.blocks -%}
+  {%- if block.type == '@app' -%}{%- assign app_blocks = app_blocks | plus: 1 -%}{%- endif -%}
+{%- endfor -%}
+
+{%- comment -%} Shell mode: an app block owns the list and the submit flow, so
+    this section contributes the band, the heading and the headline number only. {%- endcomment -%}
+{%- assign shell = false -%}
+{%- if app_blocks > 0 -%}{%- assign shell = true -%}{%- endif -%}
+
+{%- assign live = 0 -%}
+{%- assign total = 0 -%}
+{%- assign c5 = 0 -%}
+{%- assign c4 = 0 -%}
+{%- assign c3 = 0 -%}
+{%- assign c2 = 0 -%}
+{%- assign c1 = 0 -%}
+{%- for block in section.blocks -%}
+  {%- if block.settings.author == blank or block.settings.body == blank -%}{%- continue -%}{%- endif -%}
+  {%- assign live = live | plus: 1 -%}
+  {%- assign r = block.settings.rating | plus: 0 -%}
+  {%- assign total = total | plus: r -%}
+  {%- case r -%}
+    {%- when 5 -%}{%- assign c5 = c5 | plus: 1 -%}
+    {%- when 4 -%}{%- assign c4 = c4 | plus: 1 -%}
+    {%- when 3 -%}{%- assign c3 = c3 | plus: 1 -%}
+    {%- when 2 -%}{%- assign c2 = c2 | plus: 1 -%}
+    {%- else -%}{%- assign c1 = c1 | plus: 1 -%}
+  {%- endcase -%}
+{%- endfor -%}
+
+{%- if live > 0 -%}
+  {%- assign avg = total | times: 1.0 | divided_by: live -%}
+  {%- assign avg_txt = avg | round: 1 -%}
+  {%- assign avg_pct = avg | divided_by: 5.0 | times: 100 | round: 2 -%}
+{%- endif -%}
+
+{%- comment -%} See (8). Judge.me writes Shopify's standard reviews.* metafields,
+    so when the app is live the headline number comes from real, moderated data
+    and the manual blocks stop being the source. Identical resolution order to
+    sections/sh-product.liquid:105-118, so the two can never disagree. {%- endcomment -%}
+{%- assign rv = product.metafields.reviews.rating.value -%}
+{%- assign rc = product.metafields.reviews.rating_count.value | plus: 0 -%}
+{%- assign rating_real = false -%}
+{%- if shell and rv.rating != blank and rc > 0 -%}
+  {%- assign rating_real = true -%}
+  {%- assign rmax = rv.scale_max | default: 5 | times: 1.0 -%}
+  {%- assign avg = rv.rating | times: 1.0 -%}
+  {%- assign avg_txt = avg | round: 1 -%}
+  {%- assign avg_pct = avg | divided_by: rmax | times: 100 | round: 2 -%}
+  {%- assign live = rc -%}
+{%- endif -%}
+
+{%- assign has_content = false -%}
+{%- if live > 0 or shell -%}{%- assign has_content = true -%}{%- endif -%}
+
+{%- if has_content -%}
+<section class="sh sh-rev{% if shell %} sh-rev--shell{% endif %}"
+         id="sh-reviews"
+         style="--sh-rev-bg:{{ s.bg }};--sh-rev-pad-top:{{ s.pad_top }}px;--sh-rev-pad-bottom:{{ s.pad_bottom }}px;"
+         data-sh-rev
+         data-rev-initial="{{ s.initial_count }}"
+         aria-labelledby="sh-rev-title-{{ uid }}">
+  <div class="sh-wrap">
+
+    {%- comment -%} See (3). A zero-size svg, so where it sits in the flow is free. {%- endcomment -%}
+    {%- capture star_row -%}
+      <use href="#sh-rev-star-{{ uid }}" x="0" width="20" height="20"/><use href="#sh-rev-star-{{ uid }}" x="24" width="20" height="20"/><use href="#sh-rev-star-{{ uid }}" x="48" width="20" height="20"/><use href="#sh-rev-star-{{ uid }}" x="72" width="20" height="20"/><use href="#sh-rev-star-{{ uid }}" x="96" width="20" height="20"/>
+    {%- endcapture -%}
+    <svg class="sh-rev__defs" width="0" height="0" aria-hidden="true" focusable="false">
+      <defs>
+        <symbol id="sh-rev-star-{{ uid }}" viewBox="0 0 22 20" overflow="visible"><path d="M10.525.464a.5.5 0 0 1 .95 0l2.107 6.482a.5.5 0 0 0 .475.346h6.817a.5.5 0 0 1 .294.904l-5.515 4.007a.5.5 0 0 0-.181.559l2.106 6.483a.5.5 0 0 1-.77.559l-5.514-4.007a.5.5 0 0 0-.588 0l-5.514 4.007a.5.5 0 0 1-.77-.56l2.106-6.482a.5.5 0 0 0-.181-.56L.832 8.197a.5.5 0 0 1 .294-.904h6.817a.5.5 0 0 0 .475-.346z"/></symbol>
+        <linearGradient id="sh-rev-gold-{{ uid }}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ac8940"/><stop offset="1" stop-color="#7a5d2e"/></linearGradient>
+      </defs>
+    </svg>
+
+    <header class="sh-rev__head"{% if s.animate %} data-reveal{% endif %}>
+      {%- if s.eyebrow != blank -%}
+        <div class="sh-rev__eyebrow sh-eyebrow">
+          {{ s.eyebrow }}{% render 'sh-icon', name: 'leaf' %}
+        </div>
+      {%- endif -%}
+      <h2 class="sh-rev__title sh-serif" id="sh-rev-title-{{ uid }}">
+        {{- s.title | default: 'Customer Reviews' -}}
+      </h2>
+      {%- if s.body != blank -%}
+        <p class="sh-rev__lede">{{ s.body }}</p>
+      {%- endif -%}
+    </header>
+
+    {%- if s.show_summary -%}
+      <div class="sh-rev__summary"{% if s.animate %} data-reveal{% endif %}>
+
+        <div class="sh-rev__score">
+          {%- comment -%} See (2): the average is text, only the count animates. {%- endcomment -%}
+          <p class="sh-rev__avg sh-serif" aria-hidden="true">{{ avg_txt }}</p>
+          <span class="sh-rev__stars" role="img" aria-label="Rated {{ avg_txt }} out of 5 from {{ live }} {% if live == 1 %}review{% else %}reviews{% endif %}" style="--sh-rating:{{ avg_pct }}%">
+            <span class="sh-rev__stars-base" aria-hidden="true">
+              <svg class="sh-rev__stars-svg" viewBox="0 0 116 20" fill="none" stroke="currentColor" stroke-width="1.1" aria-hidden="true" focusable="false">{{ star_row }}</svg>
+            </span>
+            <span class="sh-rev__stars-fill" aria-hidden="true">
+              <svg class="sh-rev__stars-svg" viewBox="0 0 116 20" fill="url(#sh-rev-gold-{{ uid }})" aria-hidden="true" focusable="false">{{ star_row }}</svg>
+            </span>
+          </span>
+          <p class="sh-rev__based" aria-hidden="true">
+            Based on <span data-count-to="{{ live }}">{{ live }}</span> {% if live == 1 %}review{% else %}reviews{% endif %}
+          </p>
+        </div>
+
+        {%- if s.show_bars and shell == false -%}
+          {%- comment -%} A table would claim tabular semantics for what is a
+              summary; a plain list with a visually-hidden sentence per row keeps
+              it readable to a screen reader without the grid overhead. {%- endcomment -%}
+          <ul class="sh-rev__bars" aria-label="Rating breakdown">
+            {%- for tier in (1..5) -%}
+              {%- assign star = 6 | minus: tier -%}
+              {%- case star -%}
+                {%- when 5 -%}{%- assign n = c5 -%}
+                {%- when 4 -%}{%- assign n = c4 -%}
+                {%- when 3 -%}{%- assign n = c3 -%}
+                {%- when 2 -%}{%- assign n = c2 -%}
+                {%- else -%}{%- assign n = c1 -%}
+              {%- endcase -%}
+              {%- assign pct = n | times: 100.0 | divided_by: live | round: 2 -%}
+              <li class="sh-rev__bar-row">
+                <span class="sh-rev__bar-label" aria-hidden="true">
+                  <span class="sh-rev__bar-n">{{ star }}</span>
+                  <svg class="sh-rev__bar-star" viewBox="0 0 22 20" fill="url(#sh-rev-gold-{{ uid }})" aria-hidden="true" focusable="false"><use href="#sh-rev-star-{{ uid }}" width="22" height="20"/></svg>
+                </span>
+                <span class="sh-rev__bar-track" aria-hidden="true">
+                  <span class="sh-rev__bar-fill" style="--w:{{ pct }}%"></span>
+                </span>
+                <span class="sh-rev__bar-count" aria-hidden="true">{{ n }}</span>
+                <span class="sh-visually-hidden">{{ star }} stars: {{ n }} of {{ live }}</span>
+              </li>
+            {%- endfor -%}
+          </ul>
+        {%- endif -%}
+
+        {%- if s.enable_form and shell == false -%}
+          <div class="sh-rev__cta">
+            {%- if s.cta_note != blank -%}<p class="sh-rev__cta-note">{{ s.cta_note }}</p>{%- endif -%}
+            <button type="button" class="sh-rev__open" data-rev-open aria-haspopup="dialog">
+              {{ s.cta_label | default: 'Write a review' }}
+            </button>
+          </div>
+        {%- endif -%}
+
+      </div>
+    {%- endif -%}
+
+    {%- comment -%} See (9). The app owns the list in shell mode; the hand-entered
+        cards below are the fallback for a store with no reviews app. {%- endcomment -%}
+    {%- if shell -%}
+      <div class="sh-rev__app">
+        {%- for block in section.blocks -%}
+          {%- if block.type == '@app' -%}
+            <div class="sh-rev__app-block" {{ block.shopify_attributes }}>{% render block %}</div>
+          {%- endif -%}
+        {%- endfor -%}
+      </div>
+    {%- else -%}
+
+    {%- comment -%} See (6). Every card renders visible; the JS hides the tail. {%- endcomment -%}
+    <ul class="sh-rev__list" data-rev-list>
+      {%- for block in section.blocks -%}
+        {%- if block.settings.author == blank or block.settings.body == blank -%}{%- continue -%}{%- endif -%}
+        {%- assign r = block.settings.rating | plus: 0 -%}
+        {%- assign r_pct = r | times: 20 -%}
+        {%- assign initial = block.settings.author | strip | slice: 0 | upcase -%}
+        <li class="sh-rev__card" data-rev-card{% if s.animate %} data-reveal{% endif %} {{ block.shopify_attributes }}>
+
+          <div class="sh-rev__card-top">
+            <span class="sh-rev__avatar" aria-hidden="true">
+              {%- if block.settings.avatar != blank -%}
+                <img src="{{ block.settings.avatar | image_url: width: 96 }}" width="40" height="40" alt="" loading="lazy" decoding="async">
+              {%- else -%}
+                <span class="sh-rev__initial">{{ initial }}</span>
+              {%- endif -%}
+            </span>
+
+            <div class="sh-rev__who">
+              <p class="sh-rev__name">
+                {{ block.settings.author }}
+                {%- if block.settings.verified -%}
+                  <span class="sh-rev__verified">
+                    {% render 'sh-icon', name: 'badge', sw: 1.6 %}
+                    <span>Verified</span>
+                  </span>
+                {%- endif -%}
+              </p>
+              <span class="sh-rev__stars sh-rev__stars--sm" role="img" aria-label="Rated {{ r }} out of 5" style="--sh-rating:{{ r_pct }}%">
+                <span class="sh-rev__stars-base" aria-hidden="true">
+                  <svg class="sh-rev__stars-svg" viewBox="0 0 116 20" fill="none" stroke="currentColor" stroke-width="1.1" aria-hidden="true" focusable="false">{{ star_row }}</svg>
+                </span>
+                <span class="sh-rev__stars-fill" aria-hidden="true">
+                  <svg class="sh-rev__stars-svg" viewBox="0 0 116 20" fill="url(#sh-rev-gold-{{ uid }})" aria-hidden="true" focusable="false">{{ star_row }}</svg>
+                </span>
+              </span>
+            </div>
+
+            {%- if block.settings.date != blank -%}
+              <span class="sh-rev__date">{{ block.settings.date }}</span>
+            {%- endif -%}
+          </div>
+
+          {%- if block.settings.title != blank -%}
+            <h3 class="sh-rev__card-title">{{ block.settings.title }}</h3>
+          {%- endif -%}
+
+          <p class="sh-rev__body">{{ block.settings.body | escape | newline_to_br }}</p>
+
+          {%- assign block_photo = block.settings.photo -%}
+          {%- if block_photo != blank -%}
+            {%- comment -%} A customer's own photo of the product. Fixed intrinsic
+                dimensions and lazy/async because it sits below the fold on every
+                breakpoint — it must never become the LCP candidate. {%- endcomment -%}
+            <a class="sh-rev__photo" href="{{ block_photo | image_url: width: 1400 }}" target="_blank" rel="noopener">
+              <img src="{{ block_photo | image_url: width: 320 }}"
+                   srcset="{{ block_photo | image_url: width: 320 }} 320w,
+                           {{ block_photo | image_url: width: 640 }} 640w"
+                   sizes="120px"
+                   width="120" height="120"
+                   alt="Photo from {{ block.settings.author | escape }}'s review"
+                   loading="lazy" decoding="async">
+            </a>
+          {%- endif -%}
+        </li>
+      {%- endfor -%}
+    </ul>
+
+    {%- comment -%} Rendered hidden and revealed by the JS only when there is
+        actually a tail to reveal, so it never sits there doing nothing. {%- endcomment -%}
+    <div class="sh-rev__more-wrap">
+      <button type="button" class="sh-rev__more" data-rev-more hidden>
+        {{ s.more_label | default: 'Load more reviews' }}
+      </button>
+    </div>
+
+    {%- endif -%}{%- comment -%} end manual-mode list {%- endcomment -%}
+
+    {%- if s.enable_form and shell == false -%}
+      {%- comment -%} See (5). Shopify redirects back here with
+          ?contact_posted=true, so the dialog has to be able to reopen itself on
+          that load to show the confirmation — hence data-rev-open-on-load. {%- endcomment -%}
+      <dialog class="sh-rev__dialog" data-rev-dialog aria-labelledby="sh-rev-form-title-{{ uid }}">
+        <div class="sh-rev__dialog-in">
+
+          <button type="button" class="sh-rev__close" data-rev-close aria-label="Close">
+            {% render 'sh-icon', name: 'close', sw: 1.6 %}
+          </button>
+
+          {%- form 'contact', class: 'sh-form sh-rev__form' -%}
+            {%- assign posted = false -%}
+            {%- if form.posted_successfully? -%}{%- assign posted = true -%}{%- endif -%}
+
+            {%- if posted or form.errors -%}
+              <span data-rev-open-on-load hidden></span>
+            {%- endif -%}
+
+            <div class="sh-form__inner">
+              {%- if posted -%}
+                <h2 class="sh-rev__form-title sh-serif" id="sh-rev-form-title-{{ uid }}" tabindex="-1" autofocus>
+                  {{ s.success_title | default: 'Thank you' }}
+                </h2>
+                <p class="sh-form__ok">
+                  {% render 'sh-icon', name: 'leaf' %}
+                  <span>{{ s.success_text }}</span>
+                </p>
+              {%- else -%}
+                <h2 class="sh-rev__form-title sh-serif" id="sh-rev-form-title-{{ uid }}">
+                  {{ s.form_title | default: 'Write a review' }}
+                </h2>
+
+                {%- if form.errors -%}
+                  <div class="sh-form__err" tabindex="-1" autofocus>
+                    {% render 'sh-icon', name: 'alert' %}
+                    <div>
+                      <p class="sh-form__err-title">Please check the highlighted fields.</p>
+                      {{ form.errors | default_errors }}
+                    </div>
+                  </div>
+                {%- elsif s.form_lede != blank -%}
+                  <p class="sh-form__lede">{{ s.form_lede }}</p>
+                {%- endif -%}
+
+                <div class="sh-form__body">
+
+                  {%- comment -%} Reversed on purpose: the radios run 5→1 in the
+                      DOM and the row is row-reverse in CSS, so `:checked ~ label`
+                      paints the star itself plus every LOWER one with no JS. {%- endcomment -%}
+                  <fieldset class="sh-rev__rate">
+                    <legend class="sh-field__label">
+                      Your rating<span class="sh-field__req" aria-hidden="true">*</span>
+                    </legend>
+                    <div class="sh-rev__rate-row">
+                      {%- for i in (1..5) -%}
+                        {%- assign v = 6 | minus: i -%}
+                        <input class="sh-rev__rate-in" type="radio" id="sh-rev-r{{ v }}-{{ uid }}"
+                               name="contact[rating]" value="{{ v }} out of 5"
+                               required aria-required="true">
+                        <label class="sh-rev__rate-label" for="sh-rev-r{{ v }}-{{ uid }}">
+                          <svg viewBox="0 0 22 20" aria-hidden="true" focusable="false"><use href="#sh-rev-star-{{ uid }}" width="22" height="20"/></svg>
+                          <span class="sh-visually-hidden">{{ v }} {% if v == 1 %}star{% else %}stars{% endif %}</span>
+                        </label>
+                      {%- endfor -%}
+                    </div>
+                  </fieldset>
+
+                  <div class="sh-form__row">
+                    <div class="sh-field">
+                      <label class="sh-field__label" for="sh-rev-name-{{ uid }}">
+                        Your name<span class="sh-field__req" aria-hidden="true">*</span>
+                      </label>
+                      <input type="text" id="sh-rev-name-{{ uid }}" name="contact[name]"
+                             required aria-required="true" autocomplete="name"
+                             value="{{ form.name | default: customer.name }}">
+                    </div>
+                    <div class="sh-field">
+                      <label class="sh-field__label" for="sh-rev-email-{{ uid }}">
+                        Email<span class="sh-field__req" aria-hidden="true">*</span>
+                      </label>
+                      <input type="email" id="sh-rev-email-{{ uid }}" name="contact[email]"
+                             required aria-required="true" autocomplete="email"
+                             aria-describedby="sh-rev-email-hint-{{ uid }}"
+                             value="{{ form.email | default: customer.email }}">
+                      <p class="sh-field__hint" id="sh-rev-email-hint-{{ uid }}">Not published — we only use it to verify your order.</p>
+                    </div>
+                  </div>
+
+                  <div class="sh-field">
+                    <label class="sh-field__label" for="sh-rev-title-in-{{ uid }}">Review title</label>
+                    <input type="text" id="sh-rev-title-in-{{ uid }}" name="contact[review_title]" maxlength="80">
+                  </div>
+
+                  <div class="sh-field">
+                    <label class="sh-field__label" for="sh-rev-body-{{ uid }}">
+                      Your review<span class="sh-field__req" aria-hidden="true">*</span>
+                    </label>
+                    <textarea id="sh-rev-body-{{ uid }}" name="contact[body]" rows="5"
+                              required aria-required="true">{{ form.body }}</textarea>
+                  </div>
+
+                  {%- if product != blank -%}
+                    <input type="hidden" name="contact[product]" value="{{ product.title | escape }}">
+                    <input type="hidden" name="contact[product_url]" value="{{ shop.url }}{{ product.url }}">
+                  {%- endif -%}
+
+                  <div class="sh-form__actions">
+                    <button type="submit" class="sh-rev__submit">
+                      {{ s.submit_label | default: 'Submit review' }}
+                    </button>
+                  </div>
+
+                  {%- if s.form_note != blank -%}
+                    <p class="sh-form__privacy">{{ s.form_note }}</p>
+                  {%- endif -%}
+
+                </div>
+              {%- endif -%}
+            </div>
+          {%- endform -%}
+
+        </div>
+      </dialog>
+    {%- endif -%}
+
+  </div>
+</section>
+
+{%- comment -%} See (7). Off by default, and refused outright whenever the real
+    metafield exists so layout/theme.liquid stays the single source of the
+    aggregate rating. {%- endcomment -%}
+{%- if s.enable_jsonld and shell == false and product != blank and product.metafields.reviews.rating.value.rating == blank -%}
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org/",
+    "@type": "Product",
+    "@id": {{ canonical_url | append: '#product' | json }},
+    "name": {{ product.title | json }},
+    "url": {{ canonical_url | json }},
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": {{ avg_txt | json }},
+      "bestRating": "5",
+      "worstRating": "1",
+      "reviewCount": {{ live | json }}
+    },
+    "review": [
+      {%- assign j = 0 -%}
+      {%- for block in section.blocks -%}
+        {%- if block.settings.author == blank or block.settings.body == blank -%}{%- continue -%}{%- endif -%}
+        {%- assign j = j | plus: 1 -%}
+        {%- if j > 1 %},{% endif %}
+        {
+          "@type": "Review",
+          "reviewRating": {
+            "@type": "Rating",
+            "ratingValue": {{ block.settings.rating | plus: 0 | json }},
+            "bestRating": "5",
+            "worstRating": "1"
+          },
+          "author": { "@type": "Person", "name": {{ block.settings.author | json }} },
+          {%- if block.settings.title != blank %}
+          "name": {{ block.settings.title | json }},
+          {%- endif %}
+          "reviewBody": {{ block.settings.body | json }}
+        }
+      {%- endfor -%}
+    ]
+  }
+  </script>
+{%- endif -%}
+
+{%- comment -%} Liquid has no and/or precedence — it folds right to left — so this
+    stays a single condition. Both jobs the script does (load-more, dialog) exist
+    only in manual mode, which makes `shell == false` the whole test. {%- endcomment -%}
+{%- if shell == false -%}
+  <script src="{{ 'sh-reviews.js' | asset_url }}" defer></script>
+{%- endif -%}
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "SH · Customer Reviews",
+  "class": "index-section",
+  "settings": [
+    { "type": "paragraph", "content": "Reviews are entered here as blocks. The average, the star row and the breakdown bars are all calculated from them — there is no number to keep in sync." },
+    { "type": "paragraph", "content": "The reviews this section ships with are SAMPLES. Replace every one with a genuine customer review before you publish." },
+
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "In their words" },
+    { "type": "text", "id": "title", "label": "Heading", "default": "Customer Reviews" },
+    { "type": "textarea", "id": "body", "label": "Supporting line", "default": "Read what the Shudhi Ritual™ has meant for people who use it every day." },
+
+    { "type": "header", "content": "Summary" },
+    { "type": "checkbox", "id": "show_summary", "label": "Show the rating summary", "default": true },
+    { "type": "checkbox", "id": "show_bars", "label": "Show the 5→1 breakdown bars", "default": true },
+
+    { "type": "header", "content": "List" },
+    { "type": "range", "id": "initial_count", "label": "Reviews shown before “Load more”", "min": 2, "max": 24, "step": 1, "default": 6,
+      "info": "The rest stay in the page and are revealed by the button. If a visitor has JavaScript turned off they simply see all of them at once." },
+    { "type": "text", "id": "more_label", "label": "Load-more button text", "default": "Load more reviews" },
+
+    { "type": "header", "content": "Write a review" },
+    { "type": "checkbox", "id": "enable_form", "label": "Let customers submit a review", "default": true,
+      "info": "Submissions are emailed to the store contact address — they do NOT publish themselves. Add the ones you want to show as blocks below." },
+    { "type": "text", "id": "cta_note", "label": "Small label above the button", "default": "Used the bar?" },
+    { "type": "text", "id": "cta_label", "label": "Button text", "default": "Write a review" },
+    { "type": "text", "id": "form_title", "label": "Form heading", "default": "Write a review" },
+    { "type": "textarea", "id": "form_lede", "label": "Form intro", "default": "Tell us how the ritual has been for you. We read every note that comes in." },
+    { "type": "text", "id": "submit_label", "label": "Submit button text", "default": "Submit review" },
+    { "type": "textarea", "id": "form_note", "label": "Small print under the form", "default": "Your email is never published. Reviews are checked before they appear here." },
+    { "type": "text", "id": "success_title", "label": "Confirmation heading", "default": "Thank you" },
+    { "type": "textarea", "id": "success_text", "label": "Confirmation message", "default": "Your review is with us. We read every one, and yours may appear on this page shortly." },
+
+    { "type": "header", "content": "Search results" },
+    { "type": "checkbox", "id": "enable_jsonld", "label": "Publish these reviews as search-results markup", "default": false,
+      "info": "Leave OFF until every review here is a genuine customer submission. Publishing invented reviews as structured data breaks Google's review policy and risks a manual penalty on the whole domain. It also switches itself off automatically if a reviews app is ever installed." },
+
+    { "type": "header", "content": "Appearance" },
+    { "type": "checkbox", "id": "animate", "label": "Animate on scroll", "default": true },
+    { "type": "color", "id": "bg", "label": "Background", "default": "#e9e0cf",
+      "info": "A half-step deeper than the product page above it, so the band reads as its own beat before the green footer. Keep it light — the text colours are tuned for a light surface." },
+    { "type": "range", "id": "pad_top", "label": "Top padding", "min": 0, "max": 140, "step": 4, "default": 72, "unit": "px" },
+    { "type": "range", "id": "pad_bottom", "label": "Bottom padding", "min": 0, "max": 140, "step": 4, "default": 88, "unit": "px" }
+  ],
+  "blocks": [
+    { "type": "@app" },
+    { "type": "review", "name": "Review", "settings": [
+      { "type": "select", "id": "rating", "label": "Rating", "default": "5",
+        "options": [
+          { "value": "5", "label": "5 stars" },
+          { "value": "4", "label": "4 stars" },
+          { "value": "3", "label": "3 stars" },
+          { "value": "2", "label": "2 stars" },
+          { "value": "1", "label": "1 star" }
+        ] },
+      { "type": "text", "id": "author", "label": "Name", "default": "Customer name",
+        "info": "Required — a review with no name or no text is skipped entirely." },
+      { "type": "text", "id": "date", "label": "Date", "default": "—",
+        "info": "Free text, shown exactly as you type it. Clear it to hide the date entirely." },
+      { "type": "text", "id": "title", "label": "Review title" },
+      { "type": "textarea", "id": "body", "label": "Review", "default": "Replace this with a genuine customer review." },
+      { "type": "checkbox", "id": "verified", "label": "Show the “Verified” badge", "default": true,
+        "info": "Only tick this where you can actually match the review to an order." },
+      { "type": "image_picker", "id": "avatar", "label": "Reviewer’s photo",
+        "info": "Optional — the small round portrait next to the name. Falls back to the first letter of the name." },
+      { "type": "image_picker", "id": "photo", "label": "Photo with the review",
+        "info": "Optional — a customer’s own photo of the product, shown as a thumbnail under the review text. Click opens it full size." }
+    ] }
+  ],
+  "max_blocks": 50,
+  "presets": [ { "name": "SH · Customer Reviews", "blocks": [
+    { "type": "review", "settings": { "rating": "5", "author": "Customer name", "title": "Sample review — replace me", "body": "Replace this with a genuine customer review before publishing. The average, the star row and the breakdown bars are all calculated from these blocks.", "verified": false } },
+    { "type": "review", "settings": { "rating": "5", "author": "Customer name", "title": "Sample review — replace me", "body": "Replace this with a genuine customer review before publishing.", "verified": false } },
+    { "type": "review", "settings": { "rating": "4", "author": "Customer name", "title": "Sample review — replace me", "body": "Replace this with a genuine customer review before publishing.", "verified": false } }
+  ] } ]
+}
+{% endschema %}

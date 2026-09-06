@@ -133,8 +133,8 @@
               </a>
             {%- endif -%}
             {%- if s.cta2_label != blank -%}
-              <a href="{{ s.cta2_link | default: '#our-story' }}" class="sh-discover">
-                <span class="sh-play">{% render 'sh-icon', name: 'play' %}</span>{{ s.cta2_label }}
+              <a href="{{ s.cta2_link | default: '#our-story' }}" class="sh-discover" aria-label="{{ s.cta2_label }}">
+                <span class="sh-play">{% render 'sh-icon', name: 'play' %}</span>
               </a>
             {%- endif -%}
           </div>

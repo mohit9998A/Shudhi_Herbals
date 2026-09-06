@@ -1,0 +1,161 @@
+{%- comment -%}
+  SHUDHI — FAQ
+
+  The homepage band between the Mindful Ritual split and the footer: a two-column
+  editorial layout — sticky intro (eyebrow, title, supporting line, "still have
+  questions?" CTA) on the left, the questions as collapsible rows on the right.
+  Stacks to one column at 989px. Styled in shudhi-home.css §28.
+
+  ---------------------------------------------------------------------------
+  FOUR THINGS HERE ARE LOAD-BEARING
+  ---------------------------------------------------------------------------
+
+  1. NATIVE <details>/<summary>, NO JS. Same mechanism as the product page FAQ
+     (sections/sh-product.liquid:416-446): the `name` attribute makes the rows
+     one-open-at-a-time in the browser, ::details-content in §28 animates open
+     AND close, and Enter/Space/Tab plus the expanded/collapsed announcement all
+     come from the browser. Engines without ::details-content snap — every
+     answer is still reachable. The ARIA button+region pattern would only add
+     arrow-key roving between headers, which WAI-ARIA lists as optional; not
+     worth a script on a section that must work with JS off.
+
+  2. THE ROOT CARRIES `sh`. assets/shudhi-home.js:300 selects `.sh [data-reveal]`;
+     without the class the rows never receive .is-in and stay at opacity 0.
+
+  3. THE ROW COUNTER IS COUNTED, NOT forloop.index. Rows with a blank question
+     or answer are skipped, so forloop.index would leave holes in the numbering.
+
+  4. <h2> title, <h3> questions. The homepage h1 belongs to
+     sections/sh-hero-scroll.liquid; the outline stays h1 -> h2 -> h3.
+
+  The richtext answers are output unescaped on purpose — that is the setting's
+  contract (Shopify sanitises it to p/br/strong/em/u/span/a/ul) and it is how a
+  merchant links the refund policy from Q12.
+{%- endcomment -%}
+
+{%- assign s = section.settings -%}
+{%- assign uid = section.id | default: 'faq' -%}
+{%- assign cta_href = s.cta_link | default: '/pages/contact' -%}
+
+{%- comment -%} See (3). {%- endcomment -%}
+{%- assign live = 0 -%}
+{%- for block in section.blocks -%}
+  {%- if block.settings.question != blank and block.settings.answer != blank -%}
+    {%- assign live = live | plus: 1 -%}
+  {%- endif -%}
+{%- endfor -%}
+
+{%- if live > 0 -%}
+<section class="sh sh-faq{% if s.show_numbers %} sh-faq--numbered{% endif %}"
+         id="faq"
+         style="--sh-faq-bg:{{ s.bg }};"
+         aria-labelledby="sh-faq-title-{{ uid }}">
+  <div class="sh-wrap">
+    <div class="sh-faq__grid">
+
+      <div class="sh-faq__intro">
+        <div class="sh-faq__head"{% if s.animate %} data-reveal{% endif %}>
+          {%- if s.eyebrow != blank -%}
+            <div class="sh-faq__eyebrow sh-eyebrow">
+              {{ s.eyebrow }}{% render 'sh-icon', name: 'leaf' %}
+            </div>
+          {%- endif -%}
+          <h2 class="sh-faq__title sh-serif" id="sh-faq-title-{{ uid }}">
+            {{- s.title | default: 'Frequently asked questions' -}}
+          </h2>
+          {%- if s.body != blank -%}
+            <p class="sh-faq__body">{{ s.body }}</p>
+          {%- endif -%}
+          {%- if s.cta_label != blank -%}
+            <div class="sh-faq__cta">
+              {%- if s.cta_note != blank -%}<p class="sh-faq__note">{{ s.cta_note }}</p>{%- endif -%}
+              <a href="{{ cta_href }}" class="sh-btn sh-btn--solid">
+                {{ s.cta_label }} {% render 'sh-icon', name: 'arrow-right' %}
+              </a>
+            </div>
+          {%- endif -%}
+        </div>
+      </div>
+
+      <div class="sh-faq__list">
+        {%- assign n = 0 -%}
+        {%- for block in section.blocks -%}
+          {%- if block.settings.question == blank or block.settings.answer == blank -%}
+            {%- continue -%}
+          {%- endif -%}
+          {%- assign n = n | plus: 1 -%}
+          <details class="sh-faq__item"
+                   name="sh-faq-{{ uid }}"
+                   {% if s.open_first and n == 1 %}open{% endif %}
+                   {% if s.animate %}data-reveal{% endif %}
+                   {{ block.shopify_attributes }}>
+            <summary class="sh-faq__q">
+              {%- if s.show_numbers -%}
+                <span class="sh-faq__n" aria-hidden="true">{{ n | prepend: '0' | slice: -2, 2 }}</span>
+              {%- endif -%}
+              <h3 class="sh-faq__q-text">{{ block.settings.question }}</h3>
+              {% render 'sh-icon', name: 'plus', sw: 1.6, class: 'sh-faq__icon' %}
+            </summary>
+            <div class="sh-faq__a">
+              <div class="sh-faq__a-in">{{ block.settings.answer }}</div>
+            </div>
+          </details>
+        {%- endfor -%}
+      </div>
+
+    </div>
+  </div>
+</section>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "SH · FAQ",
+  "class": "index-section",
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Good to know" },
+    { "type": "text", "id": "title", "label": "Heading", "default": "Frequently Asked Questions" },
+    { "type": "textarea", "id": "body", "label": "Supporting line", "default": "Everything about the Negativity Removal Cleansing Bar, the Shudhi Ritual™ and your order — answered simply." },
+
+    { "type": "header", "content": "Still have questions?" },
+    { "type": "text", "id": "cta_note", "label": "Small label above the button", "default": "Still have questions?" },
+    { "type": "text", "id": "cta_label", "label": "Button text", "default": "Contact us",
+      "info": "Leave empty to hide the button." },
+    { "type": "url", "id": "cta_link", "label": "Button link", "info": "Defaults to /pages/contact." },
+
+    { "type": "header", "content": "Rows" },
+    { "type": "checkbox", "id": "show_numbers", "label": "Number the questions", "default": true },
+    { "type": "checkbox", "id": "open_first", "label": "Open the first question by default", "default": true },
+
+    { "type": "header", "content": "Appearance" },
+    { "type": "checkbox", "id": "animate", "label": "Animate on scroll", "default": true },
+    { "type": "color", "id": "bg", "label": "Background", "default": "#e9e0cf",
+      "info": "A half-step deeper than the cream band above, so the FAQ reads as its own beat before the footer. Keep it light — the text colours are tuned for a light surface." }
+  ],
+  "blocks": [
+    { "type": "faq", "name": "Question", "settings": [
+      { "type": "text", "id": "question", "label": "Question", "default": "How do I use the bar?" },
+      { "type": "richtext", "id": "answer", "label": "Answer",
+        "default": "<p>Wet your skin and the bar, create a rich lather, gently massage over the body, and rinse thoroughly.</p>" }
+    ] }
+  ],
+  "max_blocks": 30,
+  "presets": [ { "name": "SH · FAQ", "blocks": [
+      { "type": "faq", "settings": { "question": "What is the Negativity Removal Cleansing Bar?", "answer": "<p>The Negativity Removal Cleansing Bar is our hero handcrafted herbal cleansing bar, inspired by four generations of traditional herbal wisdom. It combines carefully selected herbs and essential oils with a mindful cleansing ritual.</p>" } },
+      { "type": "faq", "settings": { "question": "Is it just a regular soap?", "answer": "<p>Not quite. It is designed as more than a cleansing bar — it is a daily ritual that brings together cleansing, intention, and traditional herbal wisdom.</p>" } },
+      { "type": "faq", "settings": { "question": "What makes Shudhi Herbals different?", "answer": "<p>Our approach combines handcrafted herbal formulations, traditional family wisdom, carefully selected ingredients, and our proprietary preparation ritual to create a distinctive wellness experience.</p>" } },
+      { "type": "faq", "settings": { "question": "What is the Shudhi Ritual™?", "answer": "<p>The Shudhi Ritual™ is our proprietary preparation philosophy, inspired by generations of family herbal wisdom. Selected ingredients undergo a unique multi-stage preparation process before becoming part of the final product.</p>" } },
+      { "type": "faq", "settings": { "question": "Why don’t you reveal the complete Shudhi Ritual™?", "answer": "<p>The ritual is part of our family’s proprietary tradition, refined and preserved across generations. We share the philosophy behind it while keeping the detailed methodology private.</p>" } },
+      { "type": "faq", "settings": { "question": "Does the cleansing bar remove negative energy?", "answer": "<p>The concept of energetic cleansing is part of the traditional and wellness philosophy behind the product. It is intended to create a mindful cleansing experience and is not represented as a medical treatment or scientifically proven method of treating any medical or psychological condition.</p>" } },
+      { "type": "faq", "settings": { "question": "How do I use the Negativity Removal Cleansing Bar?", "answer": "<p>Wet your skin and the bar, create a rich lather, gently massage over the body, and rinse thoroughly. You may also pair your bath with a moment of mindful breathing or positive intention.</p>" } },
+      { "type": "faq", "settings": { "question": "Can I use it on my face?", "answer": "<p>The Negativity Removal Cleansing Bar is intended primarily as a body cleansing bar. Unless specifically labelled for facial use, we recommend avoiding use on the face.</p>" } },
+      { "type": "faq", "settings": { "question": "Is the soap suitable for daily use?", "answer": "<p>It is designed for regular cleansing, subject to your individual skin tolerance. If irritation or discomfort occurs, discontinue use.</p>" } },
+      { "type": "faq", "settings": { "question": "Why may my bar look slightly different from another bar?", "answer": "<p>Our products are handcrafted in small batches using natural/herbal ingredients, so slight variations in colour, texture, fragrance, and botanical appearance are natural and do not necessarily indicate a defect.</p>" } },
+      { "type": "faq", "settings": { "question": "How should I store the cleansing bar?", "answer": "<p>Keep it in a cool, dry place and allow it to drain and dry between uses. A well-draining soap dish can help extend the life of the bar.</p>" } },
+      { "type": "faq", "settings": { "question": "What if my product arrives damaged or incorrect?", "answer": "<p>Please contact us within 48 hours of delivery with your order number and clear photographs/videos of the package and product. For damage or missing/incorrect items, an unboxing video is strongly recommended and may be required for verification. Please refer to our <a href=\"/policies/refund-policy\">Refund, Return &amp; Cancellation Policy</a> for complete details.</p>" } },
+      { "type": "faq", "settings": { "question": "How long does delivery take?", "answer": "<p>We offer free shipping across India. Orders are generally delivered within 2–5 business days in metro cities and 4–7 business days in other locations, subject to the destination and courier service.</p>" } },
+      { "type": "faq", "settings": { "question": "Do you offer Cash on Delivery?", "answer": "<p>Yes. COD is available for eligible orders and locations across India. COD orders may be subject to verification before dispatch.</p>" } },
+      { "type": "faq", "settings": { "question": "Are Shudhi Herbals products handmade?", "answer": "<p>Yes. Our products are handcrafted and prepared in small batches in India, with care given to every stage of the process.</p>" } }
+  ] } ]
+}
+{% endschema %}

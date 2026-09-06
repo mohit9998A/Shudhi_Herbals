@@ -11,6 +11,194 @@
   "sections": {
     "main": {
       "type": "sh-product",
+      "blocks": {
+        "pack_1": {
+          "type": "pack",
+          "settings": {
+            "title": "Buy 1 — Standard Pack",
+            "note": "Perfect to experience the ritual",
+            "flag": "",
+            "mrp": 419
+          }
+        },
+        "pack_3": {
+          "type": "pack",
+          "settings": {
+            "title": "Buy 3 — Ritual Pack",
+            "note": "More bars. More savings.",
+            "flag": "⭐ Most Popular",
+            "mrp": 1257
+          }
+        },
+        "pack_5": {
+          "type": "pack",
+          "settings": {
+            "title": "Buy 5 — Best Value Pack",
+            "note": "🔥 Maximum savings — stock up & save",
+            "flag": "",
+            "mrp": 2095
+          }
+        },
+        "faq_use": {
+          "type": "faq",
+          "settings": {
+            "question": "How do I use the bar?",
+            "answer": "<p>Work the bar into a light lather with water, massage gently over damp skin, then rinse. Use it morning or evening as part of your daily cleansing ritual, and let the bar dry between uses so it lasts longer.</p>",
+            "icon": "bubbles"
+          }
+        },
+        "faq_inside": {
+          "type": "faq",
+          "settings": {
+            "question": "What is it made with?",
+            "answer": "<p>Each bar is handmade in small batches from herbs and pure essential oils, with no harsh chemicals: SLS and SLES free, paraben free, toxin free and cruelty free, and every batch is lab tested. If you have known allergies, please check the full ingredient list on the pack before use.</p>",
+            "icon": "leaf"
+          }
+        },
+        "faq_skin": {
+          "type": "faq",
+          "settings": {
+            "question": "Is it suitable for sensitive skin?",
+            "answer": "<p>It is made without harsh surfactants or synthetic preservatives, which makes it a gentler choice for everyday cleansing. As with any new skincare product, try a small patch test first and stop using it if irritation occurs.</p>",
+            "icon": "face-sparkle"
+          }
+        },
+        "faq_last": {
+          "type": "faq",
+          "settings": {
+            "question": "How long does one bar last, and how should I store it?",
+            "answer": "<p>That depends on how often you use it. Keep the bar on a well-drained soap dish, away from standing water, and let it dry fully between uses; a dry bar lasts noticeably longer. The Pack of 3 and Pack of 5 are the easy way to keep a spare in every bathroom.</p>",
+            "icon": "clock"
+          }
+        },
+        "faq_ship": {
+          "type": "faq",
+          "settings": {
+            "question": "Shipping, tracking and returns",
+            "answer": "<p>Delivery charges, if any, are shown at checkout before you pay — see our <a href=\"/policies/shipping-policy\">shipping policy</a>. You will get a confirmation email when you order and again when it is dispatched, with a tracking link. If anything is not right with your order, write to <a href=\"mailto:help@shudhiherbals.com\">help@shudhiherbals.com</a> and we will help.</p>",
+            "icon": "truck"
+          }
+        },
+        "details": {
+          "type": "details",
+          "settings": {
+            "title": "Product details",
+            "show_description": false,
+            "icon": "file"
+          }
+        },
+        "perk_1": {
+          "type": "perk",
+          "settings": {
+            "icon": "lotus",
+            "title": "Ayurvedic",
+            "text": "Time-honoured herbs"
+          }
+        },
+        "perk_2": {
+          "type": "perk",
+          "settings": {
+            "icon": "hand-line",
+            "title": "Handcrafted",
+            "text": "In small batches"
+          }
+        },
+        "perk_3": {
+          "type": "perk",
+          "settings": {
+            "icon": "rabbit-line",
+            "title": "Cruelty free",
+            "text": "Ethical & kind"
+          }
+        },
+        "perk_4": {
+          "type": "perk",
+          "settings": {
+            "icon": "flask-line",
+            "title": "Lab tested",
+            "text": "Safe & gentle"
+          }
+        },
+        "why_1": {
+          "type": "why",
+          "settings": {
+            "icon": "sparkle",
+            "title": "Purifies Energy",
+            "text": "Helps clear negativity and heaviness"
+          }
+        },
+        "why_2": {
+          "type": "why",
+          "settings": {
+            "icon": "shield",
+            "title": "Natural Protection",
+            "text": "Herbs & oils that shield and strengthen"
+          }
+        },
+        "why_3": {
+          "type": "why",
+          "settings": {
+            "icon": "hands-heart",
+            "title": "Gentle & Nourishing",
+            "text": "Cleanses without stripping skin"
+          }
+        },
+        "why_4": {
+          "type": "why",
+          "settings": {
+            "icon": "meditate",
+            "title": "Mindful Ritual",
+            "text": "Transform your shower into self-care"
+          }
+        },
+        "avatar_1": {
+          "type": "avatar",
+          "settings": {
+            "name": "Ananya"
+          }
+        },
+        "avatar_2": {
+          "type": "avatar",
+          "settings": {
+            "name": "Riya"
+          }
+        },
+        "avatar_3": {
+          "type": "avatar",
+          "settings": {
+            "name": "Sneha"
+          }
+        },
+        "avatar_4": {
+          "type": "avatar",
+          "settings": {
+            "name": "Meera"
+          }
+        }
+      },
+      "block_order": [
+        "pack_1",
+        "pack_3",
+        "pack_5",
+        "faq_use",
+        "faq_inside",
+        "faq_skin",
+        "faq_last",
+        "faq_ship",
+        "details",
+        "perk_1",
+        "perk_2",
+        "perk_3",
+        "perk_4",
+        "why_1",
+        "why_2",
+        "why_3",
+        "why_4",
+        "avatar_1",
+        "avatar_2",
+        "avatar_3",
+        "avatar_4"
+      ],
       "settings": {
         "show_breadcrumb": true,
         "show_wishlist": true,
@@ -27,14 +215,105 @@
         "trust_secure": "100% Secure Checkout",
         "tax_note": "(Inc of all taxes.)",
         "sticky_bar": true,
-        "show_categories": true,
-        "show_details": true,
-        "show_reviews": true
+        "show_categories": false,
+        "show_reviews": false,
+        "rating_value": 4.9,
+        "rating_count": 52,
+        "short_description": "A <b>handmade Ayurvedic cleansing bar</b>, crafted in small batches with <b>herbs and pure essential oils</b>. Free from SLS, SLES, parabens and harsh chemicals, it turns an everyday wash into a calm, grounding ritual to <b>purify, protect and renew</b>. Cruelty free, lab tested, 100 g.",
+        "dispatch_note": "",
+        "faq_open_first": false,
+        "show_zoom": true,
+        "show_perks": true,
+        "show_why": true,
+        "why_heading": "Why You’ll Love It",
+        "why_heading_em": "",
+        "why_bg_strength": 18,
+        "show_proof": true,
+        "proof_heading": "Loved by 10,000+ customers",
+        "proof_more": "+10K",
+        "proof_stars": 5,
+        "proof_quote": "",
+        "proof_author": "",
+        "tile_1_icon": "truck",
+        "tile_1_title": "Free shipping",
+        "tile_1_text": "",
+        "tile_2_icon": "badge",
+        "tile_2_title": "Safe delivery",
+        "tile_2_text": "Damaged or wrong item? We replace it",
+        "countdown_mode": "minutes",
+        "countdown_minutes": 10,
+        "coupon_enable": true,
+        "coupon_code": "SHUDHI50",
+        "coupon_value": 50
       }
     },
     "1669027567072551a2": {
       "type": "apps",
       "settings": {}
+    },
+    "reviews": {
+      "type": "sh-reviews",
+      "settings": {
+        "eyebrow": "In their words",
+        "title": "Customer Reviews",
+        "body": "Read what the Shudhi Ritual™ has meant for people who use it every day.",
+        "show_summary": true,
+        "show_bars": true,
+        "initial_count": 6,
+        "more_label": "Load more reviews",
+        "enable_form": true,
+        "cta_note": "Used the bar?",
+        "cta_label": "Write a review",
+        "form_title": "Write a review",
+        "form_lede": "Tell us how the ritual has been for you. We read every note that comes in.",
+        "submit_label": "Submit review",
+        "form_note": "Your email is never published. Reviews are checked before they appear here.",
+        "success_title": "Thank you",
+        "success_text": "Your review is with us. We read every one, and yours may appear on this page shortly.",
+        "enable_jsonld": false,
+        "animate": true,
+        "bg": "#e9e0cf",
+        "pad_top": 72,
+        "pad_bottom": 84
+      },
+      "blocks": {
+        "review_1": {
+          "type": "review",
+          "settings": {
+            "rating": "5",
+            "author": "Ananya Sharma",
+            "date": "12/08/2026",
+            "title": "Part of my evening routine now",
+            "body": "The lather is soft and the scent is calming without being overpowering. My skin does not feel tight afterwards the way it did with my old soap. I look forward to this wash at the end of the day.",
+            "verified": true
+          }
+        },
+        "review_2": {
+          "type": "review",
+          "settings": {
+            "rating": "4",
+            "author": "Rohan Mehta",
+            "date": "28/07/2026",
+            "title": "Lovely bar, wish it lasted longer",
+            "body": "Genuinely handmade — you can tell from the texture and the way each bar looks slightly different. Keeping it on a draining dish helps it last. Ordering the pack of three next time.",
+            "verified": true
+          }
+        },
+        "judgeme_widget": {
+          "type": "shopify://apps/judge-me-reviews/blocks/review_widget/61ccd3b1-a9f2-4160-9fe9-4fec8413e5d8",
+          "settings": {
+            "review_data": "real_data",
+            "max_width": 1200,
+            "show_shop_reviews": false,
+            "empty_state": "empty_widget"
+          }
+        }
+      },
+      "block_order": [
+        "review_1",
+        "review_2",
+        "judgeme_widget"
+      ]
     },
     "fa52d8cf-c268-4167-b94f-15f3b93f04f7": {
       "type": "section-blog-v1",
@@ -90,6 +369,7 @@
     "main",
     "1669027567072551a2",
     "fa52d8cf-c268-4167-b94f-15f3b93f04f7",
-    "a7704a12-42cd-413d-b6c2-349d4d3b65bb"
+    "a7704a12-42cd-413d-b6c2-349d4d3b65bb",
+    "reviews"
   ]
 }
