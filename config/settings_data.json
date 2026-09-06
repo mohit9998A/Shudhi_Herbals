@@ -29,6 +29,10 @@
     "url_btn_promo": "shopify://collections/all",
     "cta_text": "SHOP NOW",
     "cta_link": "shopify://collections/all",
+    "promo_discount_value": "",
+    "promo_subtext_1": "",
+    "promo_subtext_2": "",
+    "promo_typewriter_phrases": "",
     "ena_popup_news": false,
     "select_newletter": "newsletter_v1",
     "name_popup": "Welcome to Shudhi Herbals",
@@ -633,6 +637,15 @@
     "gmap_latitude": "30.881637195332758",
     "gmap_longitude": "75.95152724790202",
     "show_menu_toolbar": true,
+    "free_shipping_threshold": 999,
+    "promo_strip_text": "Get 10% OFF — use code SHUDHI10",
+    "promo_strip_code": "SHUDHI10",
+    "coupon_code": "SHUDHI10",
+    "coupon_percent": 10,
+    "coupon_min_order": 999,
+    "trust_1_label": "100% Secure Payments",
+    "trust_2_label": "Easy Returns & Refunds",
+    "trust_3_label": "Authentic Handmade Soap",
     "enable_related_product": true,
     "related_product_title": "Related Products",
     "related_product_limit": 4,
@@ -6226,13 +6239,12 @@
       "sh-header": {
         "type": "sh-header",
         "settings": {
-          "logo": "",
+          "use_asset_logo": true,
           "brand_name": "SHUDHI",
           "brand_sub": "HERBALS",
           "menu": "",
           "overlay": true,
-          "solid_after": 90,
-          "use_asset_logo": true
+          "solid_after": 90
         }
       },
       "sh-footer": {
@@ -6263,6 +6275,7 @@
           "news_title": "Join our wellness circle",
           "news_body": "Be the first to know about new rituals, offers & herbal wisdom.",
           "news_placeholder": "Your email address",
+          "news_success": "Thanks for subscribing.",
           "instagram": "https://www.instagram.com/shudhiherbals",
           "facebook": "https://www.facebook.com/shudhiherbals",
           "pinterest": "",
@@ -6289,19 +6302,13 @@
       "16173320280a632935",
       "162373083198e445e0"
     ],
-    "coupon_code": "SHUDHI10",
-    "promo_strip_code": "SHUDHI10",
-    "promo_strip_text": "Get 10% OFF — use code SHUDHI10",
-    "coupon_percent": 10,
-    "coupon_min_order": 999,
-    "free_shipping_threshold": 999,
-    "promo_discount_value": "",
-    "promo_subtext_1": "",
-    "promo_subtext_2": "",
-    "promo_typewriter_phrases": "",
-    "trust_1_label": "100% Secure Payments",
-    "trust_2_label": "Easy Returns & Refunds",
-    "trust_3_label": "Authentic Handmade Soap"
+    "blocks": {
+      "14060646107696862457": {
+        "type": "shopify://apps/judge-me-reviews/blocks/judgeme_core/61ccd3b1-a9f2-4160-9fe9-4fec8413e5d8",
+        "disabled": false,
+        "settings": {}
+      }
+    }
   },
   "presets": {
     "Home 1": {
