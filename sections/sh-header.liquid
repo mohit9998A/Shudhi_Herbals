@@ -102,7 +102,20 @@
         {% render 'sh-icon', name: 'search', sw: 1.1 %}
       </a>
 
-      <a href="{{ routes.account_url }}" aria-label="Account">
+      {%- comment -%}
+        data-login-trigger is hov-auth.js's hook: it opens #hov-login-modal
+        (layout/theme.liquid) in place. Without it this anchor just navigated to
+        /account, which under the store's new customer accounts 302s straight off
+        to Shopify's hosted page — the popup never got a chance to show.
+
+        Gated on `unless customer`, the same way snippets/hov-sidebar.liquid does
+        it: the modal is a sign-in popup, so a signed-in customer must go to the
+        account page instead of being shown a login box. The href is the no-JS
+        fallback for both states.
+      {%- endcomment -%}
+      <a href="{% if customer %}{{ routes.account_url }}{% else %}{{ routes.account_login_url }}{% endif %}"
+         {%- unless customer %} data-login-trigger aria-haspopup="dialog"{% endunless %}
+         aria-label="Account">
         {% render 'sh-icon', name: 'user', sw: 1.1 %}
       </a>
 

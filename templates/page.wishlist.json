@@ -9,55 +9,34 @@
  */
 {
   "sections": {
-    "page_wishlist": {
-      "type": "page-wishlist",
+    "page_header": {
+      "type": "sh-page-header",
       "settings": {
-        "bg_breadcrumb": "shopify://shop_images/inner-banner_1_e10bbb84-2e97-4692-9634-dab8a243053b.png"
+        "eyebrow": "Saved",
+        "title": "Wishlist",
+        "body": "",
+        "bg": "#f2ece0",
+        "show_soap": false
       }
     },
-    "464e425a-bb3f-4e5d-a8ba-2975bd62f617": {
-      "type": "section-product-v2",
-      "blocks": {
-        "template--19964053913912__464e425a-bb3f-4e5d-a8ba-2975bd62f617-tab-1": {
-          "type": "tab",
-          "settings": {
-            "tab_title": "Teas & Infusions",
-            "tab_collection": "teas",
-            "tab_limit": 8
-          }
-        },
-        "template--19964053913912__464e425a-bb3f-4e5d-a8ba-2975bd62f617-tab-2": {
-          "type": "tab",
-          "settings": {
-            "tab_title": "Organic Cooking Oils",
-            "tab_collection": "organic-cooking-oils",
-            "tab_limit": 8
-          }
-        },
-        "template--19964053913912__464e425a-bb3f-4e5d-a8ba-2975bd62f617-tab-3": {
-          "type": "tab",
-          "settings": {
-            "tab_title": "Organic Pulses & Beans",
-            "tab_collection": "organic-pulses-and-beans",
-            "tab_limit": 8
-          }
-        }
-      },
-      "block_order": [
-        "template--19964053913912__464e425a-bb3f-4e5d-a8ba-2975bd62f617-tab-1",
-        "template--19964053913912__464e425a-bb3f-4e5d-a8ba-2975bd62f617-tab-2",
-        "template--19964053913912__464e425a-bb3f-4e5d-a8ba-2975bd62f617-tab-3"
-      ],
+    "wishlist": {
+      "type": "sh-wishlist",
       "settings": {
-        "margin_top": "",
-        "margin_bottom": "",
-        "title_heading": "You would like to add some",
-        "color_title": "#222"
+        "atc_label": "Add to cart",
+        "soldout_label": "Sold out",
+        "empty_title": "Your wishlist is empty",
+        "empty_text": "Save items you love and find them here.",
+        "empty_cta_label": "Explore products",
+        "guest_title": "Sign in to see your saved items",
+        "guest_text": "Your wishlist travels with your account, so your saved rituals are waiting whenever you return.",
+        "guest_cta_label": "Sign in",
+        "guest_register_label": "Create an account",
+        "animate": true,
+        "bg": "#f6ede1",
+        "pad_top": 72,
+        "pad_bottom": 96
       }
     }
   },
-  "order": [
-    "page_wishlist",
-    "464e425a-bb3f-4e5d-a8ba-2975bd62f617"
-  ]
+  "order": ["page_header", "wishlist"]
 }

@@ -270,16 +270,11 @@
   window.hovOpenRegisterModal = () => openModal('register');
 
   // ── SOCIAL LOGIN ───────────────────────
-  document.querySelectorAll('[data-social-login]').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      e.preventDefault();
-      const provider = btn.dataset.socialLogin; // 'google' or 'apple'
-      
-      // Google is a plain link to Shopify's login, where real social sign-in is
-        // configured (Admin -> Settings -> Customer accounts). Apple was removed:
-        // it only ever fired an alert saying it wasn't connected.
-        return;
-    });
-  });
+  // Intentionally no JS here. The Google button is a plain <a> pointing at
+  // routes.account_login_url, which is where Shopify actually serves social
+  // sign-in (Admin -> Settings -> Customer accounts). The handler that used to
+  // live here called e.preventDefault() and then returned without doing
+  // anything, which is exactly why the button did nothing when clicked.
+  // Do not re-add a handler: it can only break the link.
 
 })();
