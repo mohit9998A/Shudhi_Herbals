@@ -205,6 +205,9 @@
         "bg": "#fdfbf7",
         "pad_top": 24,
         "pad_bottom": 48,
+        "rating_value": 4.9,
+        "rating_count": 52,
+        "short_description": "A <b>handmade Ayurvedic cleansing bar</b>, crafted in small batches with <b>herbs and pure essential oils</b>. Free from SLS, SLES, parabens and harsh chemicals, it turns an everyday wash into a calm, grounding ritual to <b>purify, protect and renew</b>. Cruelty free, lab tested, 100 g.",
         "most_popular_position": 2,
         "countdown_enable": true,
         "countdown_text": "Hurry! Offer expires in",
@@ -217,9 +220,6 @@
         "sticky_bar": true,
         "show_categories": false,
         "show_reviews": false,
-        "rating_value": 4.9,
-        "rating_count": 52,
-        "short_description": "A <b>handmade Ayurvedic cleansing bar</b>, crafted in small batches with <b>herbs and pure essential oils</b>. Free from SLS, SLES, parabens and harsh chemicals, it turns an everyday wash into a calm, grounding ritual to <b>purify, protect and renew</b>. Cruelty free, lab tested, 100 g.",
         "dispatch_note": "",
         "faq_open_first": false,
         "show_zoom": true,
@@ -363,6 +363,25 @@
         "color_btn_hover": "#000000",
         "bg_btn_hover": "#ffffff"
       }
+    },
+    "1788687485f5bca02d": {
+      "type": "apps",
+      "disabled": true,
+      "blocks": {
+        "judge_me_reviews_review_widget_P8XPKV": {
+          "type": "shopify://apps/judge-me-reviews/blocks/review_widget/61ccd3b1-a9f2-4160-9fe9-4fec8413e5d8",
+          "settings": {
+            "review_data": "real_data",
+            "max_width": 1200,
+            "show_shop_reviews": true,
+            "empty_state": "empty_widget"
+          }
+        }
+      },
+      "block_order": [
+        "judge_me_reviews_review_widget_P8XPKV"
+      ],
+      "settings": {}
     }
   },
   "order": [
@@ -370,6 +389,7 @@
     "1669027567072551a2",
     "fa52d8cf-c268-4167-b94f-15f3b93f04f7",
     "a7704a12-42cd-413d-b6c2-349d4d3b65bb",
-    "reviews"
+    "reviews",
+    "1788687485f5bca02d"
   ]
 }

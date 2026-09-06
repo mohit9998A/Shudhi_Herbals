@@ -165,7 +165,16 @@
         "c7": { "type": "claim", "settings": { "enabled": true, "icon": "cruelty", "title": "Cruelty Free",              "text": "Never tested on animals" } },
         "c8": { "type": "claim", "settings": { "enabled": true, "icon": "natural", "title": "Natural Ingredients",       "text": "Rooted in Ayurveda" } }
       },
-      "block_order": ["c1", "c2", "c3", "c4", "c5", "c6", "c7", "c8"],
+      "block_order": [
+        "c1",
+        "c2",
+        "c3",
+        "c4",
+        "c5",
+        "c6",
+        "c7",
+        "c8"
+      ],
       "settings": {
         "eyebrow": "Pure by principle",
         "title": "The Shudhi Standard",
@@ -196,9 +205,9 @@
         "play_label": "Play the Shudhi Herbals story",
         "seal_number": "4",
         "seal_text": "Generations",
+        "seal_text_bottom": "of herbal wisdom",
         "animate": true,
-        "bg": "#f6ede1",
-        "seal_text_bottom": "of herbal wisdom"
+        "bg": "#f6ede1"
       }
     },
     "ritual_benefits": {
@@ -209,7 +218,6 @@
           "settings": {
             "column": "left",
             "icon": "sparkle",
-            "state": "aura",
             "title": "Aura Cleansing",
             "text": "Helps remove negative energy and uplift your aura."
           }
@@ -219,7 +227,6 @@
           "settings": {
             "column": "left",
             "icon": "mortar",
-            "state": "ayurveda",
             "title": "Sacred Ayurveda",
             "text": "Crafted with powerful herbs known for their purifying properties."
           }
@@ -229,7 +236,6 @@
           "settings": {
             "column": "left",
             "icon": "shield",
-            "state": "none",
             "title": "Negativity Buster",
             "text": "Helps in removing negativity and clears heavy energy."
           }
@@ -239,7 +245,6 @@
           "settings": {
             "column": "right",
             "icon": "drop",
-            "state": "cleanse",
             "title": "Deep & Gentle Cleanse",
             "text": "Cleanses deeply while nourishing your skin naturally."
           }
@@ -249,7 +254,6 @@
           "settings": {
             "column": "right",
             "icon": "heart",
-            "state": "intention",
             "title": "Made with Intention",
             "text": "Handmade in small batches with love, care & mindfulness."
           }
@@ -259,7 +263,6 @@
           "settings": {
             "column": "right",
             "icon": "meditate",
-            "state": "none",
             "title": "Stress Buster",
             "text": "Helps you relax, unwind and bust the stress off the day."
           }
@@ -279,12 +282,7 @@
         "side_label": "Ritual Benefits",
         "ornament": true,
         "height": 60,
-        "animate": true,
-        "scene": true,
-        "scene_cursor": true,
-        "splash": true,
-        "states": true,
-        "motes": 16
+        "animate": true
       }
     },
     "mindful_ritual": {
