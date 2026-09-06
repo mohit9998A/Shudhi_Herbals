@@ -257,7 +257,7 @@
         "eyebrow": "In their words",
         "title": "Customer Reviews",
         "body": "Read what the Shudhi Ritual™ has meant for people who use it every day.",
-        "show_summary": true,
+        "show_summary": false,
         "show_bars": true,
         "initial_count": 6,
         "more_label": "Load more reviews",
@@ -277,28 +277,6 @@
         "pad_bottom": 84
       },
       "blocks": {
-        "review_1": {
-          "type": "review",
-          "settings": {
-            "rating": "5",
-            "author": "Ananya Sharma",
-            "date": "12/08/2026",
-            "title": "Part of my evening routine now",
-            "body": "The lather is soft and the scent is calming without being overpowering. My skin does not feel tight afterwards the way it did with my old soap. I look forward to this wash at the end of the day.",
-            "verified": true
-          }
-        },
-        "review_2": {
-          "type": "review",
-          "settings": {
-            "rating": "4",
-            "author": "Rohan Mehta",
-            "date": "28/07/2026",
-            "title": "Lovely bar, wish it lasted longer",
-            "body": "Genuinely handmade — you can tell from the texture and the way each bar looks slightly different. Keeping it on a draining dish helps it last. Ordering the pack of three next time.",
-            "verified": true
-          }
-        },
         "judgeme_widget": {
           "type": "shopify://apps/judge-me-reviews/blocks/review_widget/61ccd3b1-a9f2-4160-9fe9-4fec8413e5d8",
           "settings": {
@@ -310,8 +288,6 @@
         }
       },
       "block_order": [
-        "review_1",
-        "review_2",
         "judgeme_widget"
       ]
     },
