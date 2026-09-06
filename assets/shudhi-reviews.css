@@ -984,3 +984,80 @@
 .sh-rev .jm-review-widget-minimal-header__filters {
   justify-content: center !important;
 }
+
+/* ------------------------------------ 8. action row + customer-photo strip */
+
+/* Judge.me's minimal header is a `space-between` cluster of exactly two
+   children: a title/average stack, and the button+filters stack. §5 hides the
+   title and the average because the band's own header already carries both —
+   but the emptied wrapper KEEPS its flex slot and the cluster's gap, which
+   pushed the whole action row ~40px right of the card's centre. Collapse the
+   wrapper itself, not just its contents. */
+.sh-rev .jm-stack:has(> .jm-review-widget-minimal-header__title) {
+  display: none !important;
+}
+
+/* With the row finally full-width, §6's `justify-content: center` still
+   centred THE BUTTON AND THE FILTERS AS ONE PAIR — so the button itself sat
+   half the filter group (~81px) left of centre, which is the off-centre look.
+   Taking the filters out of flow leaves the button as the only in-flow child,
+   so it centres on the card for real, and the filters stay pinned right where
+   a sort/filter control is expected. */
+@media (min-width: 700px) {
+  .sh-rev .jm-review-widget-minimal-header__button-and-filters {
+    position: relative;
+  }
+  .sh-rev .jm-review-widget-minimal-header__button-and-filters > :has(.jm-filters) {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    margin: 0;
+  }
+}
+
+/* narrow: back in flow, wrapping under the button rather than overlapping it */
+@media (max-width: 699px) {
+  .sh-rev .jm-review-widget-minimal-header__button-and-filters {
+    flex-wrap: wrap;
+    row-gap: 12px;
+  }
+}
+
+/* Last 37px of the offset: `.jm-action-buttons` is a 248px flex slot, but the
+   block-level stack inside it left-aligns the 173px button. §6 makes that
+   button `inline-flex`, so one inherited `text-align` centres it in the slot —
+   no width guessing, and it still holds if Judge.me ever puts a second control
+   in there. Measured: button centre and row centre both land on 712. */
+.sh-rev .jm-action-buttons {
+  text-align: center;
+}
+
+/* The photo strip is a row of 100px thumbnails left-aligned in a ~1070px box,
+   so one customer photo read as a stray thumbnail against a wall of nothing.
+   Stack it under a label and centre it: the same single photo now reads as a
+   deliberate, captioned strip. Both rules no-op when Judge.me has no photos —
+   it does not render `.jm-media-preview` at all in that case. */
+.sh-rev .jm-media-preview {
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(8px, 1.2vw, 12px);
+}
+
+.sh-rev .jm-media-grid {
+  justify-content: center !important;
+  flex-wrap: wrap;
+  row-gap: 10px;
+}
+
+/* Copy comes from the section's `media_label` setting as a custom property, so
+   the merchant owns the wording; the class is only present when it is set. */
+.sh-rev--medialabel .jm-media-preview::before {
+  content: var(--sh-rev-media-label);
+  font-family: var(--sh-sans), sans-serif;
+  font-size: .7rem;
+  font-weight: 600;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--sh-story-gold-ink);
+}
