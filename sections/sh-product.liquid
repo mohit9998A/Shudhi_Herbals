@@ -156,6 +156,15 @@
     endcase
   endfor
   assign gallery_count = product.media.size | plus: gallery_extra
+
+  # Checkout coupon, in cents, resolved once and read by the pack cards and the
+  # strip under them. This is a REAL Shopify discount code the merchant creates
+  # in admin — the theme only advertises it, it can never apply it. A blank code
+  # or a zero amount switches every coupon line off in one place.
+  assign coupon_cents = 0
+  if s.coupon_enable and s.coupon_code != blank and s.coupon_value > 0
+    assign coupon_cents = s.coupon_value | times: 100
+  endif
 -%}
 
 <section class="sh sh-product sh-pdp"
@@ -320,17 +329,77 @@
           <div class="sh-pdp__blurb"><p>{{ s.short_description }}</p></div>
         {%- endif -%}
 
+        {%- liquid
+          # MRP for the pre-selected pack, resolved exactly the way each pack card
+          # below resolves its own: a real compare-at price in admin wins, else the
+          # matching "Pack option" block's MRP. Server-rendered so the offer is
+          # visible with JS off; sh-product.js then mirrors the checked radio,
+          # which carries the same two numbers as data attributes.
+          assign lead_mrp = 0
+          if initial.compare_at_price > initial.price
+            assign lead_mrp = initial.compare_at_price
+          endif
+          assign lead_pos = 0
+          for v in product.variants
+            if v.id == initial.id
+              assign lead_pos = forloop.index
+            endif
+          endfor
+          assign lead_seen = 0
+          for b in section.blocks
+            if b.type == 'pack'
+              assign lead_seen = lead_seen | plus: 1
+              if lead_seen == lead_pos and lead_mrp == 0
+                assign lead_mrp = b.settings.mrp | times: 100
+              endif
+            endif
+          endfor
+          # An "MRP" at or below the selling price is not an offer — drop it.
+          if lead_mrp <= initial.price
+            assign lead_mrp = 0
+          endif
+          assign lead_off = 0
+          if lead_mrp > 0
+            assign lead_off = lead_mrp | minus: initial.price | times: 100.0 | divided_by: lead_mrp | round
+          endif
+        -%}
         <p class="sh-pdp__cost">
           <span class="sh-pdp__price" data-sh-price>{{ initial.price | money_with_currency }}</span>
+          {%- comment -%} .sh-pdp__was / .sh-pdp__off carry no "price" substring, so
+              hov-wishlist.js's '[class*="price"]:not([class*="compare"])' scrape
+              still lands on .sh-pdp__price above — header note 4. {%- endcomment -%}
+          <s class="sh-pdp__was sh-pdp__was--lead{% if lead_mrp == 0 %} is-hidden{% endif %}" data-sh-lead-was>
+            <span class="sh-visually-hidden">M.R.P.</span>
+            <span data-sh-lead-was-amount>{{ lead_mrp | money }}</span>
+          </s>
+          <span class="sh-pdp__off{% if lead_off == 0 %} is-hidden{% endif %}" data-sh-lead-off>{{ lead_off }}% OFF</span>
           {%- if s.tax_note != blank -%}
             <span class="sh-pdp__tax">{{ s.tax_note }}</span>
           {%- endif -%}
         </p>
 
-        {%- if s.countdown_enable and s.countdown_end_date != blank -%}
+        {%- liquid
+          # "minutes" needs no date to be valid; "date" is dead without one.
+          assign cd_on = false
+          if s.countdown_enable
+            if s.countdown_mode == 'minutes'
+              assign cd_on = true
+            elsif s.countdown_end_date != blank
+              assign cd_on = true
+            endif
+          endif
+        -%}
+        {%- if cd_on -%}
           {%- assign cd_time = s.countdown_end_time | default: '23:59' -%}
           <div class="sh-pdp__timer"
                data-sh-timer
+               data-sh-timer-mode="{{ s.countdown_mode }}"
+               data-sh-timer-minutes="{{ s.countdown_minutes }}"
+               {% comment %} Keyed per product, so two PDPs open in one session do
+                   not share a window. sh-product.js stamps the deadline against it.
+                   Whitespace-trimming this comment would weld the two attributes
+                   together. {% endcomment %}
+               data-sh-timer-key="sh-pdp-offer-{{ product.id }}"
                data-sh-deadline="{{ s.countdown_end_date }}T{{ cd_time }}"
                hidden>
             <span class="sh-pdp__timer-label">{{ s.countdown_text }}</span>
@@ -362,46 +431,101 @@
 
               {%- for variant in product.variants -%}
                 {%- liquid
+                  # "Pack option" blocks pair with variants top to bottom: the 1st
+                  # pack block re-titles the 1st variant and so on. A variant with
+                  # no block keeps its admin title and the auto captions below, so
+                  # adding a variant in admin can never blank a card. forloop is
+                  # captured first — the block loop shadows it.
+                  assign vidx = forloop.index
+                  assign pk_title = ''
+                  assign pk_note = ''
+                  assign pk_flag = ''
+                  assign pk_mrp = 0
+                  assign pk_attrs = ''
+                  assign pk_seen = 0
+                  for b in section.blocks
+                    if b.type == 'pack'
+                      assign pk_seen = pk_seen | plus: 1
+                      if pk_seen == vidx
+                        assign pk_title = b.settings.title
+                        assign pk_note = b.settings.note
+                        assign pk_flag = b.settings.flag
+                        assign pk_mrp = b.settings.mrp | times: 100
+                        assign pk_attrs = b.shopify_attributes
+                      endif
+                    endif
+                  endfor
+
+                  # MRP. A real compare-at price in admin always wins: it is what
+                  # Shopify itself reports and what every other surface (search,
+                  # cards, Shop app) already shows. The block's number is the
+                  # stand-in until admin carries one, and is ignored unless it is
+                  # genuinely above the selling price.
+                  assign mrp = 0
+                  if variant.compare_at_price > variant.price
+                    assign mrp = variant.compare_at_price
+                  elsif pk_mrp > variant.price
+                    assign mrp = pk_mrp
+                  endif
+
                   assign saving = 0
                   assign pct = 0
-                  if variant.compare_at_price > variant.price
-                    assign saving = variant.compare_at_price | minus: variant.price
-                    assign pct = saving | times: 100.0 | divided_by: variant.compare_at_price | round
+                  if mrp > 0
+                    assign saving = mrp | minus: variant.price
+                    assign pct = saving | times: 100.0 | divided_by: mrp | round
                   elsif variant.metafields.custom.discount_percent != blank
-                    # No compare-at price in admin: fall back to the badge the legacy
-                    # swatch read (snippets/swatch.liquid:143). Badge only — there is no
-                    # struck price or saving to show without a real compare-at.
+                    # No MRP from either source: fall back to the badge the legacy
+                    # swatch read (snippets/swatch.liquid:143). Badge only — there is
+                    # no struck price or saving to show without a real MRP.
                     assign pct = variant.metafields.custom.discount_percent | plus: 0
                   endif
+
+                  # Price after the checkout coupon. Never rendered below zero, and
+                  # never rendered at all when the coupon is switched off.
+                  assign final_price = 0
+                  if coupon_cents > 0 and variant.price > coupon_cents
+                    assign final_price = variant.price | minus: coupon_cents
+                  endif
+
                   assign is_popular = false
                   if forloop.index == s.most_popular_position and variant.available
                     assign is_popular = true
                   endif
                 -%}
-                <label class="sh-pdp__pack{% if variant.available == false %} is-soldout{% endif %}">
+                <label class="sh-pdp__pack{% if variant.available == false %} is-soldout{% endif %}" {{ pk_attrs }}>
+                  {%- comment -%} data-mrp / data-off / data-final hand sh-product.js
+                      the numbers Liquid already resolved, so switching packs needs no
+                      second copy of this arithmetic in JS. {%- endcomment -%}
                   <input type="radio"
                          class="sh-pdp__pack-input sh-visually-hidden"
                          name="sh-pack-{{ section.id }}"
                          value="{{ variant.id }}"
                          data-variant-id="{{ variant.id }}"
+                         data-mrp="{{ mrp }}"
+                         data-off="{{ pct }}"
+                         data-final="{{ final_price }}"
                          {% if variant.featured_media %}data-media-id="{{ variant.featured_media.id }}"{% endif %}
                          {% if variant.id == initial.id %}checked{% endif %}
                          {% unless variant.available %}disabled{% endunless %}>
                   <span class="sh-pdp__pack-card">
-                    {%- if is_popular -%}
+                    {%- if pk_flag != blank -%}
+                      <span class="sh-pdp__pack-flag">{{ pk_flag | escape }}</span>
+                    {%- elsif is_popular -%}
                       <span class="sh-pdp__pack-flag">Most popular</span>
                     {%- endif -%}
                     <span class="sh-pdp__pack-radio" aria-hidden="true"></span>
                     <span class="sh-pdp__pack-main">
                       <span class="sh-pdp__pack-name">
-                        {{ variant.title }}
+                        {{ pk_title | default: variant.title | escape }}
                         {%- if pct > 0 %}
-                          <span class="sh-pdp__pack-off">{{ pct }}% off</span>
+                          <span class="sh-pdp__pack-off">{{ pct }}% OFF</span>
                         {%- endif -%}
                       </span>
                       <span class="sh-pdp__pack-note">
                         {%- if variant.available == false -%}
                           Sold out
+                        {%- elsif pk_note != blank -%}
+                          {{ pk_note | escape }}
                         {%- elsif saving == 0 -%}
                           Standard price
                         {%- elsif saving == max_saving -%}
@@ -411,13 +535,30 @@
                         {%- endif -%}
                       </span>
                     </span>
+                    {%- comment -%} A top-down ladder, each rung struck by the one
+                        under it: M.R.P. -> pack price -> price with the code. The
+                        live number is last and is the only one not struck, so the
+                        cut always reads as "down to this". The struck rungs carry
+                        a visually-hidden label each — five bare numbers in a row
+                        are meaningless read aloud. {%- endcomment -%}
                     <span class="sh-pdp__pack-money">
-                      <span class="sh-pdp__pack-amount">{{ variant.price | money }}</span>
-                      {%- if saving > 0 -%}
+                      {%- if mrp > 0 -%}
                         <s class="sh-pdp__was">
-                          <span class="sh-visually-hidden">Regular price</span>
-                          {{ variant.compare_at_price | money }}
+                          <span class="sh-visually-hidden">M.R.P.</span>
+                          {{ mrp | money }}
                         </s>
+                      {%- endif -%}
+                      {%- if final_price > 0 and variant.available -%}
+                        <s class="sh-pdp__cut">
+                          <span class="sh-visually-hidden">Price before the code</span>
+                          {{ variant.price | money }}
+                        </s>
+                        <span class="sh-pdp__pack-amount sh-pdp__pack-amount--final">{{ final_price | money }}</span>
+                        <span class="sh-pdp__pack-with">
+                          {% render 'sh-icon', name: 'tag', sw: 1.6 %}with code
+                        </span>
+                      {%- else -%}
+                        <span class="sh-pdp__pack-amount">{{ variant.price | money }}</span>
                       {%- endif -%}
                     </span>
                   </span>
@@ -429,9 +570,12 @@
             </noscript>
           {%- endunless -%}
 
+          {%- comment -%} Both rows follow lead_mrp (resolved above the price row),
+              not initial.compare_at_price, so a pack whose MRP comes from its block
+              still gets a saving line. {%- endcomment -%}
           {%- assign initial_saving = 0 -%}
-          {%- if initial.compare_at_price > initial.price -%}
-            {%- assign initial_saving = initial.compare_at_price | minus: initial.price -%}
+          {%- if lead_mrp > initial.price -%}
+            {%- assign initial_saving = lead_mrp | minus: initial.price -%}
           {%- endif -%}
           <p class="sh-pdp__saving{% if initial_saving == 0 %} is-hidden{% endif %}"
              data-sh-saving aria-live="polite">
@@ -440,6 +584,20 @@
               <strong data-sh-saving-amount>{{ initial_saving | money }}</strong>
               on this order</span>
           </p>
+
+          {%- if coupon_cents > 0 -%}
+            {%- assign initial_final = 0 -%}
+            {%- if initial.price > coupon_cents -%}
+              {%- assign initial_final = initial.price | minus: coupon_cents -%}
+            {%- endif -%}
+            <p class="sh-pdp__coupon{% if initial_final == 0 %} is-hidden{% endif %}"
+               data-sh-coupon aria-live="polite">
+              {% render 'sh-icon', name: 'tag', sw: 1.6 %}
+              <span>Extra {{ coupon_cents | money }} off with code
+                <b class="sh-pdp__coupon-code">{{ s.coupon_code | escape }}</b>
+                — you pay <strong data-sh-coupon-amount>{{ initial_final | money }}</strong> at checkout</span>
+            </p>
+          {%- endif -%}
 
           <div class="sh-pdp__trust">
             <div class="sh-pdp__trust-item">
@@ -783,10 +941,26 @@
     { "type": "header", "content": "Offer countdown" },
     { "type": "checkbox", "id": "countdown_enable", "label": "Enable countdown", "default": false },
     { "type": "text", "id": "countdown_text", "label": "Countdown text", "default": "Hurry! Offer expires in" },
+    { "type": "select", "id": "countdown_mode", "label": "Countdown type", "default": "minutes",
+      "options": [
+        { "value": "minutes", "label": "Limited period — minutes from arrival" },
+        { "value": "date", "label": "Fixed end date" }
+      ],
+      "info": "\"Minutes\" runs a short window per shopper, shown as MM:SS. \"Fixed end date\" counts to one moment for everybody and uses the two date fields below." },
+    { "type": "range", "id": "countdown_minutes", "label": "Minutes on the clock", "min": 5, "max": 60, "step": 5, "unit": "min", "default": 10,
+      "info": "\"Minutes\" type only. The window is stamped once per browsing session, so moving between pages does not hand the shopper a fresh clock, and it does not restart after it runs out." },
     { "type": "text", "id": "countdown_end_date", "label": "Offer end date",
-      "info": "YYYY-MM-DD, e.g. 2026-09-15. Leave empty to hide the countdown." },
+      "info": "\"Fixed end date\" type only. YYYY-MM-DD, e.g. 2026-09-15. Leave empty to hide the countdown." },
     { "type": "text", "id": "countdown_end_time", "label": "Offer end time", "default": "23:59",
       "info": "24-hour HH:MM, in each shopper's local time. The countdown hides itself once this moment passes — it never restarts per visit." },
+
+    { "type": "header", "content": "Checkout coupon" },
+    { "type": "checkbox", "id": "coupon_enable", "label": "Show the coupon line", "default": true,
+      "info": "Advertises a discount code on each pack and under the pack list. The theme cannot apply it — create the code in Shopify admin > Discounts first, or shoppers will hit a dead code at checkout." },
+    { "type": "text", "id": "coupon_code", "label": "Discount code", "default": "SHUDHI50",
+      "info": "Must match the code in admin exactly, including case." },
+    { "type": "number", "id": "coupon_value", "label": "Amount off", "default": 50,
+      "info": "In rupees, not paise. A flat amount off the pack price — set the same value on the admin discount." },
 
     { "type": "header", "content": "Trust panel" },
     { "type": "text", "id": "trust_line_1", "label": "Left title", "default": "No hidden fees" },
@@ -844,6 +1018,16 @@
   ],
     "max_blocks": 30,
   "blocks": [
+    { "type": "pack", "name": "Pack option", "limit": 6, "settings": [
+      { "type": "paragraph", "content": "Pack options pair with the product's variants top to bottom — the first of these re-dresses the first variant. A variant with no block keeps its admin title. The price charged is always the variant's own price in Shopify admin; nothing here changes it." },
+      { "type": "text", "id": "title", "label": "Name", "default": "Buy 1 — Standard Pack",
+        "info": "Replaces the variant title on the card, e.g. \"Buy 3 — Ritual Pack\". Leave empty to keep the admin title." },
+      { "type": "text", "id": "note", "label": "Sub-line", "default": "Perfect to experience the ritual" },
+      { "type": "text", "id": "flag", "label": "Badge",
+        "info": "The pill above the card, e.g. \"⭐ Most Popular\". Leave empty and the card falls back to the \"Most popular\" position set above." },
+      { "type": "number", "id": "mrp", "label": "M.R.P.",
+        "info": "In rupees, not paise — the struck-through price the discount is calculated from. IGNORED once this variant has a real compare-at price in Shopify admin, which is the better place for it, and ignored if it is not above the selling price." }
+    ] },
     { "type": "faq", "name": "FAQ", "settings": [
       { "type": "select", "id": "icon", "label": "Icon before the question", "default": "leaf",
         "options": [ { "value": "none", "label": "None" }, { "value": "bubbles", "label": "Lather" }, { "value": "leaf", "label": "Leaf" }, { "value": "face-sparkle", "label": "Glowing skin" }, { "value": "clock", "label": "Clock" }, { "value": "truck", "label": "Truck" }, { "value": "file", "label": "Document" }, { "value": "drop", "label": "Drop" }, { "value": "sparkle", "label": "Sparkle" }, { "value": "shield", "label": "Shield" }, { "value": "mail", "label": "Mail" }, { "value": "badge", "label": "Badge" } ] },

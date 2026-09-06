@@ -12,52 +12,79 @@
     "main": {
       "type": "sh-product",
       "blocks": {
+        "pack_1": {
+          "type": "pack",
+          "settings": {
+            "title": "Buy 1 — Standard Pack",
+            "note": "Perfect to experience the ritual",
+            "flag": "",
+            "mrp": 419
+          }
+        },
+        "pack_3": {
+          "type": "pack",
+          "settings": {
+            "title": "Buy 3 — Ritual Pack",
+            "note": "More bars. More savings.",
+            "flag": "⭐ Most Popular",
+            "mrp": 1257
+          }
+        },
+        "pack_5": {
+          "type": "pack",
+          "settings": {
+            "title": "Buy 5 — Best Value Pack",
+            "note": "🔥 Maximum savings — stock up & save",
+            "flag": "",
+            "mrp": 2095
+          }
+        },
         "faq_use": {
           "type": "faq",
           "settings": {
-            "icon": "bubbles",
             "question": "How do I use the bar?",
-            "answer": "<p>Work the bar into a light lather with water, massage gently over damp skin, then rinse. Use it morning or evening as part of your daily cleansing ritual, and let the bar dry between uses so it lasts longer.</p>"
+            "answer": "<p>Work the bar into a light lather with water, massage gently over damp skin, then rinse. Use it morning or evening as part of your daily cleansing ritual, and let the bar dry between uses so it lasts longer.</p>",
+            "icon": "bubbles"
           }
         },
         "faq_inside": {
           "type": "faq",
           "settings": {
-            "icon": "leaf",
             "question": "What is it made with?",
-            "answer": "<p>Each bar is handmade in small batches from herbs and pure essential oils, with no harsh chemicals: SLS and SLES free, paraben free, toxin free and cruelty free, and every batch is lab tested. If you have known allergies, please check the full ingredient list on the pack before use.</p>"
+            "answer": "<p>Each bar is handmade in small batches from herbs and pure essential oils, with no harsh chemicals: SLS and SLES free, paraben free, toxin free and cruelty free, and every batch is lab tested. If you have known allergies, please check the full ingredient list on the pack before use.</p>",
+            "icon": "leaf"
           }
         },
         "faq_skin": {
           "type": "faq",
           "settings": {
-            "icon": "face-sparkle",
             "question": "Is it suitable for sensitive skin?",
-            "answer": "<p>It is made without harsh surfactants or synthetic preservatives, which makes it a gentler choice for everyday cleansing. As with any new skincare product, try a small patch test first and stop using it if irritation occurs.</p>"
+            "answer": "<p>It is made without harsh surfactants or synthetic preservatives, which makes it a gentler choice for everyday cleansing. As with any new skincare product, try a small patch test first and stop using it if irritation occurs.</p>",
+            "icon": "face-sparkle"
           }
         },
         "faq_last": {
           "type": "faq",
           "settings": {
-            "icon": "clock",
             "question": "How long does one bar last, and how should I store it?",
-            "answer": "<p>That depends on how often you use it. Keep the bar on a well-drained soap dish, away from standing water, and let it dry fully between uses; a dry bar lasts noticeably longer. The Pack of 3 and Pack of 5 are the easy way to keep a spare in every bathroom.</p>"
+            "answer": "<p>That depends on how often you use it. Keep the bar on a well-drained soap dish, away from standing water, and let it dry fully between uses; a dry bar lasts noticeably longer. The Pack of 3 and Pack of 5 are the easy way to keep a spare in every bathroom.</p>",
+            "icon": "clock"
           }
         },
         "faq_ship": {
           "type": "faq",
           "settings": {
-            "icon": "truck",
             "question": "Shipping, tracking and returns",
-            "answer": "<p>Delivery charges, if any, are shown at checkout before you pay — see our <a href=\"/policies/shipping-policy\">shipping policy</a>. You will get a confirmation email when you order and again when it is dispatched, with a tracking link. If anything is not right with your order, write to <a href=\"mailto:help@shudhiherbals.com\">help@shudhiherbals.com</a> and we will help.</p>"
+            "answer": "<p>Delivery charges, if any, are shown at checkout before you pay — see our <a href=\"/policies/shipping-policy\">shipping policy</a>. You will get a confirmation email when you order and again when it is dispatched, with a tracking link. If anything is not right with your order, write to <a href=\"mailto:help@shudhiherbals.com\">help@shudhiherbals.com</a> and we will help.</p>",
+            "icon": "truck"
           }
         },
         "details": {
           "type": "details",
           "settings": {
-            "icon": "file",
             "title": "Product details",
-            "show_description": false
+            "show_description": false,
+            "icon": "file"
           }
         },
         "perk_1": {
@@ -150,6 +177,9 @@
         }
       },
       "block_order": [
+        "pack_1",
+        "pack_3",
+        "pack_5",
         "faq_use",
         "faq_inside",
         "faq_skin",
@@ -188,6 +218,10 @@
         "trust_secure": "100% Secure Checkout",
         "tax_note": "(Inc of all taxes.)",
         "sticky_bar": true,
+        "show_categories": false,
+        "show_reviews": false,
+        "dispatch_note": "",
+        "faq_open_first": false,
         "show_zoom": true,
         "show_perks": true,
         "show_why": true,
@@ -206,15 +240,56 @@
         "tile_2_icon": "badge",
         "tile_2_title": "Safe delivery",
         "tile_2_text": "Damaged or wrong item? We replace it",
-        "dispatch_note": "",
-        "faq_open_first": false,
-        "show_categories": true,
-        "show_reviews": true
+        "countdown_mode": "minutes",
+        "countdown_minutes": 10,
+        "coupon_enable": true,
+        "coupon_code": "SHUDHI50",
+        "coupon_value": 50
       }
     },
     "1669027567072551a2": {
       "type": "apps",
       "settings": {}
+    },
+    "reviews": {
+      "type": "sh-reviews",
+      "settings": {
+        "eyebrow": "In their words",
+        "title": "Customer Reviews",
+        "body": "Read what the Shudhi Ritual™ has meant for people who use it every day.",
+        "show_summary": false,
+        "show_bars": true,
+        "initial_count": 6,
+        "more_label": "Load more reviews",
+        "enable_form": true,
+        "cta_note": "Used the bar?",
+        "cta_label": "Write a review",
+        "form_title": "Write a review",
+        "form_lede": "Tell us how the ritual has been for you. We read every note that comes in.",
+        "submit_label": "Submit review",
+        "form_note": "Your email is never published. Reviews are checked before they appear here.",
+        "success_title": "Thank you",
+        "success_text": "Your review is with us. We read every one, and yours may appear on this page shortly.",
+        "enable_jsonld": false,
+        "animate": true,
+        "bg": "#e9e0cf",
+        "pad_top": 72,
+        "pad_bottom": 84
+      },
+      "blocks": {
+        "judgeme_widget": {
+          "type": "shopify://apps/judge-me-reviews/blocks/review_widget/61ccd3b1-a9f2-4160-9fe9-4fec8413e5d8",
+          "settings": {
+            "review_data": "real_data",
+            "max_width": 1200,
+            "show_shop_reviews": false,
+            "empty_state": "empty_widget"
+          }
+        }
+      },
+      "block_order": [
+        "judgeme_widget"
+      ]
     },
     "fa52d8cf-c268-4167-b94f-15f3b93f04f7": {
       "type": "section-blog-v1",
@@ -267,6 +342,7 @@
     },
     "1788687485f5bca02d": {
       "type": "apps",
+      "disabled": true,
       "blocks": {
         "judge_me_reviews_review_widget_P8XPKV": {
           "type": "shopify://apps/judge-me-reviews/blocks/review_widget/61ccd3b1-a9f2-4160-9fe9-4fec8413e5d8",
@@ -289,6 +365,7 @@
     "1669027567072551a2",
     "fa52d8cf-c268-4167-b94f-15f3b93f04f7",
     "a7704a12-42cd-413d-b6c2-349d4d3b65bb",
+    "reviews",
     "1788687485f5bca02d"
   ]
 }
