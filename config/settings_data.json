@@ -6255,21 +6255,30 @@
             "settings": {
               "heading": "Quick Links",
               "menu": "",
-              "links": "Shop | /products/negativity-removal-cleansing-bar\nOur Story | /pages/our-story\nThe Ritual | /#rituals\nJournal | /blogs/news"
+              "links": "Home | /\nShop | /products/negativity-removal-cleansing-bar\nOur Story | /pages/our-story\nThe Ritual | /pages/the-ritual\nJournal | /blogs/news"
             }
           },
           "q2": {
             "type": "column",
             "settings": {
-              "heading": "Customer Care",
+              "heading": "Service & Support",
               "menu": "",
-              "links": "Contact Us | /pages/contact\nFAQs | /pages/faqs\nShipping & Delivery | /policies/shipping-policy\nReturns & Refunds | /policies/refund-policy\nPrivacy Policy | /policies/privacy-policy\nhelp@shudhiherbals.com | mailto:help@shudhiherbals.com"
+              "links": "Shipping Policy | /policies/shipping-policy\nRefund Policy | /policies/refund-policy\nPrivacy Policy | /policies/privacy-policy\nTerms of Service | /policies/terms-of-service\nContact Information | /policies/contact-information"
+            }
+          },
+          "q3": {
+            "type": "column",
+            "settings": {
+              "heading": "Contact Us",
+              "menu": "",
+              "links": "Contact Us | /pages/contact\nFAQs | /#faq\nhelp@shudhiherbals.com | mailto:help@shudhiherbals.com"
             }
           }
         },
         "block_order": [
           "q1",
-          "q2"
+          "q2",
+          "q3"
         ],
         "settings": {
           "news_title": "Join our wellness circle",

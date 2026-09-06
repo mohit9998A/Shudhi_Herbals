@@ -530,6 +530,7 @@
         "cta_label": "Contact us",
         "show_numbers": true,
         "open_first": true,
+        "anchor_id": "faq",
         "animate": true,
         "bg": "#e9e0cf"
       }

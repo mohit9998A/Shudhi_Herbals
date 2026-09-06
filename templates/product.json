@@ -151,6 +151,80 @@
             "text": "Transform your shower into self-care"
           }
         },
+        "ing_1": {
+          "type": "ingredient",
+          "settings": {
+            "asset": "Sage.png",
+            "title": "Sage",
+            "text": "A time-honoured purifier, valued in ritual for clearing heaviness and leaving skin calm and clear."
+          }
+        },
+        "ing_2": {
+          "type": "ingredient",
+          "settings": {
+            "asset": "Lavender.png",
+            "title": "Lavender",
+            "text": "Softly aromatic and soothing, easing visible redness while quietening the senses."
+          }
+        },
+        "ing_3": {
+          "type": "ingredient",
+          "settings": {
+            "asset": "Mint Leaves.png",
+            "title": "Mint Leaves",
+            "text": "Naturally cooling, it awakens tired skin and leaves a clean, lasting freshness."
+          }
+        },
+        "ing_4": {
+          "type": "ingredient",
+          "settings": {
+            "asset": "Himalyan_pink_Salt.png",
+            "title": "Himalayan Pink Salt",
+            "text": "Mineral-rich crystals that gently draw out impurities and restore the skin's natural balance."
+          }
+        },
+        "ben_1": {
+          "type": "benefit",
+          "settings": {
+            "icon": "aura",
+            "title": "Aura Cleansing"
+          }
+        },
+        "ben_2": {
+          "type": "benefit",
+          "settings": {
+            "icon": "no-negativity",
+            "title": "Negativity Buster"
+          }
+        },
+        "ben_3": {
+          "type": "benefit",
+          "settings": {
+            "icon": "calm-mind",
+            "title": "Stress Buster"
+          }
+        },
+        "ben_4": {
+          "type": "benefit",
+          "settings": {
+            "icon": "hand",
+            "title": "Handmade"
+          }
+        },
+        "ben_5": {
+          "type": "benefit",
+          "settings": {
+            "icon": "mortar",
+            "title": "Ayurveda Based"
+          }
+        },
+        "ben_6": {
+          "type": "benefit",
+          "settings": {
+            "icon": "oil-drop",
+            "title": "Natural Oils"
+          }
+        },
         "avatar_1": {
           "type": "avatar",
           "settings": {
@@ -194,6 +268,16 @@
         "why_2",
         "why_3",
         "why_4",
+        "ing_1",
+        "ing_2",
+        "ing_3",
+        "ing_4",
+        "ben_1",
+        "ben_2",
+        "ben_3",
+        "ben_4",
+        "ben_5",
+        "ben_6",
         "avatar_1",
         "avatar_2",
         "avatar_3",
@@ -228,7 +312,9 @@
         "why_heading": "Why You’ll Love It",
         "why_heading_em": "",
         "why_bg_strength": 18,
-        "show_proof": true,
+        "show_ingredients": true,
+        "ingredients_heading": "Key Ingredients",
+        "show_proof": false,
         "proof_heading": "Loved by 10,000+ customers",
         "proof_more": "+10K",
         "proof_stars": 5,
@@ -247,9 +333,147 @@
         "coupon_value": 50
       }
     },
+    "mindful_ritual": {
+      "type": "sh-mindful-ritual",
+      "blocks": {
+        "s1": {
+          "type": "step",
+          "settings": {
+            "icon": "drop",
+            "title": "Wet",
+            "text": "Begin with mindful presence"
+          }
+        },
+        "s2": {
+          "type": "step",
+          "settings": {
+            "icon": "lotus",
+            "title": "Lather",
+            "text": "Let the herbs cleanse & purify"
+          }
+        },
+        "s3": {
+          "type": "step",
+          "settings": {
+            "icon": "wind",
+            "title": "Breathe",
+            "text": "Release negativity, embrace calm"
+          }
+        },
+        "s4": {
+          "type": "step",
+          "settings": {
+            "icon": "leaf",
+            "title": "Refresh",
+            "text": "Step out renewed, refreshed & grounded"
+          }
+        }
+      },
+      "block_order": [
+        "s1",
+        "s2",
+        "s3",
+        "s4"
+      ],
+      "settings": {
+        "title": "Transform Your Daily Bath into a Mindful Ritual",
+        "body": "Breathe. Pause. Purify. Let every shower be a moment to reset, release and reconnect with yourself.",
+        "cta_label": "Explore rituals",
+        "cta_link": "/pages/the-ritual",
+        "animate": true
+      }
+    },
     "1669027567072551a2": {
       "type": "apps",
       "settings": {}
+    },
+    "faq": {
+      "type": "sh-faq",
+      "blocks": {
+        "q1": {
+          "type": "faq",
+          "settings": {
+            "question": "What is the Negativity Removal Cleansing Bar?",
+            "answer": "<p>The Negativity Removal Cleansing Bar is our hero handcrafted herbal cleansing bar, inspired by four generations of traditional herbal wisdom. It combines carefully selected herbs and essential oils with a mindful cleansing ritual.</p>"
+          }
+        },
+        "q2": {
+          "type": "faq",
+          "settings": {
+            "question": "Is it just a regular soap?",
+            "answer": "<p>Not quite. It is designed as more than a cleansing bar — it is a daily ritual that brings together cleansing, intention, and traditional herbal wisdom.</p>"
+          }
+        },
+        "q3": {
+          "type": "faq",
+          "settings": {
+            "question": "What makes Shudhi Herbals different?",
+            "answer": "<p>Our approach combines handcrafted herbal formulations, traditional family wisdom, carefully selected ingredients, and our proprietary preparation ritual to create a distinctive wellness experience.</p>"
+          }
+        },
+        "q4": {
+          "type": "faq",
+          "settings": {
+            "question": "What is the Shudhi Ritual™?",
+            "answer": "<p>The Shudhi Ritual™ is our proprietary preparation philosophy, inspired by generations of family herbal wisdom. Selected ingredients undergo a unique multi-stage preparation process before becoming part of the final product.</p>"
+          }
+        },
+        "q5": {
+          "type": "faq",
+          "settings": {
+            "question": "Why don’t you reveal the complete Shudhi Ritual™?",
+            "answer": "<p>The ritual is part of our family’s proprietary tradition, refined and preserved across generations. We share the philosophy behind it while keeping the detailed methodology private.</p>"
+          }
+        },
+        "q6": {
+          "type": "faq",
+          "settings": {
+            "question": "Does the cleansing bar remove negative energy?",
+            "answer": "<p>The concept of energetic cleansing is part of the traditional and wellness philosophy behind the product. It is intended to create a mindful cleansing experience and is not represented as a medical treatment or scientifically proven method of treating any medical or psychological condition.</p>"
+          }
+        }
+      },
+      "block_order": [
+        "q1",
+        "q2",
+        "q3",
+        "q4",
+        "q5",
+        "q6"
+      ],
+      "settings": {
+        "eyebrow": "Good to know",
+        "title": "Frequently Asked Questions",
+        "body": "Everything about the Negativity Removal Cleansing Bar, the Shudhi Ritual™ and your order — answered simply.",
+        "cta_note": "Still have questions?",
+        "cta_label": "Contact us",
+        "standalone": false,
+        "show_numbers": true,
+        "open_first": false,
+        "animate": true,
+        "anchor_id": "product-faq",
+        "bg": "#f6ede1"
+      }
+    },
+    "journal": {
+      "type": "sh-journal",
+      "settings": {
+        "eyebrow": "From the journal",
+        "title": "Recent from the Journal",
+        "lede": "Notes on herbs, ritual and everyday care — written the way we make the bar: slowly, and by hand.",
+        "blog": "news",
+        "count": 3,
+        "show_date": true,
+        "show_tag": true,
+        "show_readtime": true,
+        "show_excerpt": true,
+        "more_label": "Read the journal",
+        "cta_label": "All journal entries",
+        "animate": true,
+        "bg": "#f2ece0",
+        "pad_top": 84,
+        "pad_bottom": 92
+      }
     },
     "reviews": {
       "type": "sh-reviews",
@@ -259,6 +483,7 @@
         "body": "Read what the Shudhi Ritual™ has meant for people who use it every day.",
         "show_summary": false,
         "show_bars": true,
+        "media_label": "Photos from our customers",
         "initial_count": 6,
         "more_label": "Load more reviews",
         "enable_form": true,
@@ -362,9 +587,12 @@
   },
   "order": [
     "main",
+    "mindful_ritual",
     "1669027567072551a2",
     "fa52d8cf-c268-4167-b94f-15f3b93f04f7",
     "a7704a12-42cd-413d-b6c2-349d4d3b65bb",
+    "faq",
+    "journal",
     "reviews",
     "1788687485f5bca02d"
   ]

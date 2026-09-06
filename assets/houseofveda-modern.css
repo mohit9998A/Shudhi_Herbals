@@ -818,9 +818,24 @@ select:focus {
 }
 
 /* ---- Page Content ---- */
+/* The shell for every LEGACY template — blog, article, cart, search, 404, the
+   seven templates/customers/*.liquid, About Us and the collection page. It
+   beats Bootstrap's .container ladder (max 1140) purely on source order: both
+   selectors are (0,1,0) and bootstrap.min.css loads at theme.liquid:132, this
+   at :147. That minified 6-line file is never edited.
+   The width is now a var, not a literal, so it lives in ONE place beside
+   --sh-max in shudhi-home.css. That sheet loads LATER (theme.liquid:183) and
+   that is fine — custom properties resolve at computed-value time, not parse
+   time, so a var() here still picks up a declaration made after it. The
+   1240px fallback is exactly what this rule shipped with, so if that sheet
+   ever 404s the layout degrades to today rather than to Bootstrap's 1140.
+   --sh-max-legacy is deliberately a LOWER cap than --sh-max: these are 12-col
+   Bootstrap grids with no ch measure anywhere, so the sh-* tier's 1600 would
+   set ~110ch article lines. No sh-* section emits class="container", so the
+   two systems still never meet. */
 .page-width,
 .container {
-  max-width: 1240px;
+  max-width: var(--sh-max-legacy, 1240px);
   margin: 0 auto;
   padding-left: 20px;
   padding-right: 20px;

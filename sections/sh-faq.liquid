@@ -62,7 +62,7 @@
 
 {%- if live > 0 -%}
 <section class="sh sh-faq{% if s.show_numbers %} sh-faq--numbered{% endif %}{% if s.standalone %} sh-faq--page{% endif %}"
-         id="faq"
+         {%- if s.anchor_id != blank %} id="{{ s.anchor_id | handle }}"{% endif %}
          style="--sh-faq-bg:{{ s.bg }};"
          aria-labelledby="sh-faq-title-{{ uid }}">
   <div class="sh-wrap">
@@ -176,6 +176,8 @@
     { "type": "checkbox", "id": "open_first", "label": "Open the first question by default", "default": true },
 
     { "type": "header", "content": "Appearance" },
+    { "type": "text", "id": "anchor_id", "label": "Anchor id", "default": "faq",
+      "info": "Lets another section link straight to this band with #your-id. Unique on the page — and for the value 'faq', unique across the SITE: the footer's FAQs link is /#faq, and shudhi-home.js scroll-jumps to a local #faq instead of navigating home whenever one exists on the current page. Any instance that is not the homepage band — the product page's short set, for one — must use a different id. Blank emits no id at all." },
     { "type": "checkbox", "id": "animate", "label": "Animate on scroll", "default": true },
     { "type": "color", "id": "bg", "label": "Background", "default": "#e9e0cf",
       "info": "A half-step deeper than the cream band above, so the FAQ reads as its own beat before the footer. Keep it light — the text colours are tuned for a light surface." }

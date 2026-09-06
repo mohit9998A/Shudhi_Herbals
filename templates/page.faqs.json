@@ -144,6 +144,7 @@
         "standalone": true,
         "show_numbers": true,
         "open_first": false,
+        "anchor_id": "faq",
         "animate": true,
         "bg": "#e9e0cf"
       }

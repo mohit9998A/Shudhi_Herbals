@@ -60,8 +60,35 @@
   --sh-sans:  var(--hov-font-primary, 'Jost', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif);
 
   /* Metrics */
-  --sh-max: 1280px;
+  /* Fluid, not fixed: at 1280 flat, a 1920 screen showed 1152px of content
+     between 384px margins — 60% of the glass. This is the SECOND pass: the
+     first went 88vw/1600 and still read too narrow on a 1920 desktop.
+     The clamp BINDS from 1280/.91 = 1407px and caps at 1760/.91 = 1934px. A
+     1440 laptop therefore moves only 1280 -> 1310 (+30px of content, below
+     the perceptual threshold) while a 1920 desktop goes 1472 -> 1619px of
+     content. Past 1934 it holds at 1760 instead of tracking the viewport,
+     because beyond that the grids go sparse before the prose goes long.
+     91vw, never 100vw: vw includes the scrollbar (see the note at :1895). The
+     9% band means overflow would need a viewport under 167px.
+     Consumers: .sh-wrap :154, .sh-header__inner :330, and the four derived
+     copy-column caps at :735 :1112 :1175 :1923. Raising this raises all of
+     them together — that is the point. TWO GATES DOWNSTREAM ARE TUNED TO THIS
+     NUMBER and must be re-solved with it, or they stop being continuous: the
+     PDP buy-column pin (shudhi-product.css) and the reviews 3-up
+     (shudhi-reviews.css), both at min-width 1700. */
+  --sh-max: clamp(1280px, 91vw, 1760px);
+  /* Deliberately NOT re-declared at any breakpoint — this clamp is the whole
+     responsive story for the gutter. It is also doing double duty as a
+     viewport-edge inset for the hero furniture (:560 scroll rail, :574/:608
+     badge), so raising it moves more than the gutter. */
   --sh-pad: clamp(20px, 5vw, 64px);
+  /* The Bootstrap/legacy tier (.container, .page-width in
+     houseofveda-modern.css:821). A LOWER cap than --sh-max on purpose: those
+     are 12-col templates carrying blog prose, cart tables and search results
+     with no ch measure anywhere, so a 1600 shell would set ~110ch article
+     lines. 86vw (not 88) is what makes a 1440 laptop land on exactly 1240 and
+     stay identical to today. */
+  --sh-max-legacy: clamp(1240px, 86vw, 1440px);
   --sh-radius: 12px;
 
   /* --sh-logo-h is the ONE knob; --sh-header-h is DERIVED from it.
@@ -651,7 +678,14 @@ body.template-index .sh-header-sticky { margin-bottom: calc(-1 * var(--sh-header
 .sh-hero__trust {
   position: absolute; left: 50%; bottom: 26px; z-index: 6;
   transform: translateX(-50%);
-  width: min(1180px, calc(100% - 2 * var(--sh-pad)));
+  /* Wrap-relative, not a magic 1180. This strip is centred in a FULL-BLEED
+     hero, so the only edge worth aligning to is .sh-wrap's content box — and
+     1180 was a hand-fit approximation of 1280 - 2*64 = 1152 that sat 14px
+     proud per side. Deriving it lands on the hero copy's gutter exactly, at
+     every width, and follows --sh-max instead of freezing at the old cap.
+     min() INSIDE the calc so viewports narrower than --sh-max fall back to
+     100% and keep the padding subtraction. */
+  width: calc(min(var(--sh-max), 100%) - 2 * var(--sh-pad));
 }
 
 /* While the hero is actively scrubbing, drop the blur and compensate with
@@ -1268,7 +1302,12 @@ a.sh-story__play:hover {
    ============================================================ */
 .sh-footer { background: var(--sh-green-900); color: var(--sh-light); padding-block: clamp(56px, 6vw, 82px) 0; }
 .sh-footer__grid {
-  display: grid; grid-template-columns: 1.3fr 1.05fr .8fr .8fr;
+  /* Five tracks: newsletter, brand, then one per link column. The count is
+     FIXED, so it must be re-counted whenever a column is added or removed —
+     a third column against the old four-track rule silently orphans onto a
+     second row. The max-content floor is load-bearing: plain fr tracks squeeze
+     to ~122px near 1025px and wrap help@shudhiherbals.com (~143px). */
+  display: grid; grid-template-columns: 1.15fr 1fr repeat(3, minmax(max-content, .7fr));
   gap: clamp(30px, 4vw, 56px); align-items: start;
 }
 .sh-footer__title {
@@ -1597,7 +1636,8 @@ a.sh-story__play:hover {
 .sh-story-hero__trust {
   position: absolute; left: 50%; bottom: 26px; z-index: 6;
   transform: translateX(-50%);
-  width: min(1180px, calc(100% - 2 * var(--sh-pad)));
+  /* Same derivation as .sh-hero__trust (:651) — kept in step with it. */
+  width: calc(min(var(--sh-max), 100%) - 2 * var(--sh-pad));
 }
 
 /* ============================================================
@@ -4862,7 +4902,16 @@ a.sh-story__play:hover {
   --sh-tm-dur:   var(--sh-tm-speed);
   --sh-tm-rule: rgba(27, 42, 18, .14);
   --sh-tm-ring: rgba(184, 154, 98, .42);
-  --sh-tm-fade: clamp(28px, 7%, 120px);
+  /* Was clamp(28px, 7%, 120px), which masked 120px per side at 1920 — the
+     ribbon IS full-bleed, but a quarter-metre of dissolve at each end made it
+     read as inset. 2.5%/48px keeps a real ramp (~20% of one item) while
+     letting the band visibly reach the screen edges.
+     THE PERCENTAGE RESOLVES AGAINST THE MASK BOX, NOT THE VIEWPORT. This value
+     assumes the full-bleed homepage instance. The PDP renders
+     .sh-tmarquee--icons INSIDE .sh-wrap, where 2.5% is a third of this and
+     there is no screen edge to cut against — so that instance restates the
+     wide fade in shudhi-product.css. Change one, check the other. */
+  --sh-tm-fade: clamp(20px, 2.5%, 48px);
   --sh-tm-gap:  clamp(10px, 1.2vw, 16px);
 
   position: relative;

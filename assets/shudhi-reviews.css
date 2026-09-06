@@ -265,6 +265,20 @@
   margin-top: clamp(24px, 3.5vw, 40px);
 }
 
+/* --sh-max is fluid above 1407 (shudhi-home.css:63), and at the 1606px wrap a
+   1920 screen now gets, two tracks make each card ~793px — roughly 120
+   characters at this card's .82rem body, well past the comfortable measure. A
+   third column brings it back to ~522px, close to where the 2-up sat before
+   the widening. Gated at 1700 to match the PDP buy-column pin, so a wide
+   screen has one reflow point rather than two a hair apart.
+   min-width, so it can never collide with the <=699 one-up rule at :553.
+   NOT applied to the Judge.me list: that grid is auto-fit (:839) and already
+   adds columns on its own, and pinning it to a fixed count would resurrect the
+   empty-track-beside-a-single-review bug the comment there exists to prevent. */
+@media (min-width: 1700px) {
+  .sh-rev__list { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
 .sh-rev__card {
   display: flex;
   flex-direction: column;
@@ -1060,4 +1074,56 @@
   letter-spacing: .14em;
   text-transform: uppercase;
   color: var(--sh-story-gold-ink);
+}
+
+
+/* ------------------------------------------------- 9. the Verified badge */
+
+/* A gold "Verified" pill sitting immediately right of every reviewer's name,
+   matched to .sh-rev__verified so the app's cards and this theme's own cards
+   wear the same badge.
+
+   FOUR THINGS HERE ARE LOAD-BEARING
+
+   1. IT IS A PSEUDO-ELEMENT, NOT INJECTED MARKUP. The widget is Vue and
+      re-renders the whole list on sort, filter and paginate, so a badge
+      appended by JS is wiped on the first interaction and a MutationObserver
+      that puts it back races their render. CSS survives all of that for free.
+
+   2. THE NAME ITSELF CANNOT CARRY IT. `.jm-reviewer-info__name` is
+      `overflow:hidden; white-space:nowrap; text-overflow:ellipsis`, so an
+      ::after on that span is clipped along with the name. This hangs off the
+      flex cluster that WRAPS the name instead, which makes the pill a sibling
+      flex item: a long name ellipsises and the badge still lands beside it.
+
+   3. `:only-child` IS THE OFF SWITCH. Judge.me reserves this exact slot for its
+      own verified-buyer tag and leaves a Vue placeholder comment there while it
+      has nothing to render — comments are not element children, so the name is
+      an only child today. Switch their badge on in admin and the name stops
+      being one, this rule stops matching, and theirs shows alone rather than
+      two pills side by side.
+
+   4. THE ICON'S GOLD IS BAKED IN. A data: URI is its own document, so
+      `currentColor` there resolves to black, not to the pill's colour — #7a5d2e
+      is --sh-story-gold-ink written out. If that token is ever retuned, this
+      hex has to move with it. Glyph is the `badge` case from snippets/sh-icon.liquid. */
+.sh-rev .jm-reviewer-info__details .jm-cluster:has(> .jm-reviewer-info__name:only-child)::after {
+  content: "Verified";
+  display: inline-flex;
+  align-items: center;
+  margin-inline-start: 3px;   /* + the cluster's own 4px gap = the 7px of .sh-rev__name */
+  padding: 2px 8px 2px 21px;
+  border-radius: 999px;
+  background-color: rgba(122, 93, 46, .10);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%237a5d2e' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='10' r='6'/%3E%3Cpath d='m8.5 15-1 6 4.5-2.5L16.5 21l-1-6'/%3E%3Cpath d='m10 10 1.5 1.5L14.5 8.5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: 6px 50%;
+  background-size: 11px 11px;
+  color: var(--sh-story-gold-ink);
+  font-size: .63rem;
+  font-weight: 600;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  line-height: 1.7;
+  white-space: nowrap;
 }

@@ -109,21 +109,38 @@
         <div class="sh-footer__col">
           <div class="sh-footer__title">Quick Links</div>
           <div class="sh-footer__links">
-            <a href="{{ routes.all_products_collection_url }}">Shop</a>
+            <a href="{{ routes.root_url }}">Home</a>
+            <a href="/products/negativity-removal-cleansing-bar">Shop</a>
             <a href="/pages/our-story">Our Story</a>
-            <a href="{{ routes.root_url }}#ritual-benefits">Ingredients</a>
-            <a href="{{ routes.root_url }}#rituals">The Ritual</a>
+            <a href="/pages/the-ritual">The Ritual</a>
             <a href="{{ blog.url | default: '/blogs/news' }}">Journal</a>
           </div>
         </div>
+
+        {%- comment -%} All five written policies, in the order Shopify admin
+            lists them. shop.policies would self-maintain, but the seeded
+            blocks in settings_data.json are plain link lists, so this mirrors
+            them literally — the two must read the same. {%- endcomment -%}
         <div class="sh-footer__col">
-          <div class="sh-footer__title">Customer Care</div>
+          <div class="sh-footer__title">Service &amp; Support</div>
+          <div class="sh-footer__links">
+            <a href="/policies/shipping-policy">Shipping Policy</a>
+            <a href="/policies/refund-policy">Refund Policy</a>
+            <a href="/policies/privacy-policy">Privacy Policy</a>
+            <a href="/policies/terms-of-service">Terms of Service</a>
+            <a href="/policies/contact-information">Contact Information</a>
+          </div>
+        </div>
+
+        {%- comment -%} FAQs points at the homepage band (#faq), the only FAQ
+            content that resolves today: /pages/faqs is a 404 until the Page
+            resource is created in admin, even though page.faqs.json exists.
+        {%- endcomment -%}
+        <div class="sh-footer__col">
+          <div class="sh-footer__title">Contact Us</div>
           <div class="sh-footer__links">
             <a href="/pages/contact">Contact Us</a>
-            <a href="/pages/faqs">FAQs</a>
-            <a href="/policies/shipping-policy">Shipping &amp; Delivery</a>
-            <a href="/policies/refund-policy">Returns &amp; Refunds</a>
-            <a href="/policies/privacy-policy">Privacy Policy</a>
+            <a href="{{ routes.root_url }}#faq">FAQs</a>
             <a href="mailto:help@shudhiherbals.com">help@shudhiherbals.com</a>
           </div>
         </div>
@@ -190,8 +207,9 @@
   ],
   "max_blocks": 3,
   "presets": [ { "name": "SH · Footer", "blocks": [
-    { "type": "column", "settings": { "heading": "Quick Links",   "links": "Shop | /collections/all\nOur Story | /pages/our-story\nIngredients | #ritual-benefits\nThe Ritual | #rituals\nJournal | /blogs/news" } },
-    { "type": "column", "settings": { "heading": "Customer Care", "links": "Contact Us | /pages/contactus\nFAQs | /pages/faqs\nShipping & Delivery | /policies/shipping-policy\nReturns & Refunds | /policies/refund-policy\nPrivacy Policy | /policies/privacy-policy\nhelp@shudhiherbals.com | mailto:help@shudhiherbals.com" } }
+    { "type": "column", "settings": { "heading": "Quick Links",        "links": "Home | /\nShop | /products/negativity-removal-cleansing-bar\nOur Story | /pages/our-story\nThe Ritual | /pages/the-ritual\nJournal | /blogs/news" } },
+    { "type": "column", "settings": { "heading": "Service & Support",  "links": "Shipping Policy | /policies/shipping-policy\nRefund Policy | /policies/refund-policy\nPrivacy Policy | /policies/privacy-policy\nTerms of Service | /policies/terms-of-service\nContact Information | /policies/contact-information" } },
+    { "type": "column", "settings": { "heading": "Contact Us",         "links": "Contact Us | /pages/contact\nFAQs | /#faq\nhelp@shudhiherbals.com | mailto:help@shudhiherbals.com" } }
   ] } ]
 }
 {% endschema %}

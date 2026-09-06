@@ -208,7 +208,17 @@
                            {{ media.preview_image | image_url: width: 740 }} 740w,
                            {{ media.preview_image | image_url: width: 1100 }} 1100w,
                            {{ media.preview_image | image_url: width: 1600 }} 1600w"
-                   sizes="(max-width: 989px) 100vw, 50vw"
+                   {%- comment -%}
+                     The stage is the 11fr track minus the 90px thumb rail, so
+                     the old flat 50vw over-declared it by ~90% at 1920. Now
+                     that --sh-max is fluid the real stage is ~44% of the
+                     viewport, and above 1900 the buy column is pinned at 600px
+                     (shudhi-product.css) so the stage stops tracking vw and
+                     settles at ~844px — hence the absolute. sizes is
+                     first-match-wins, so the min-width clause MUST precede the
+                     vw fallback or it can never be reached.
+                   {%- endcomment -%}
+                   sizes="(max-width: 989px) 100vw, (min-width: 1900px) 860px, 44vw"
                    width="{{ media.preview_image.width }}"
                    height="{{ media.preview_image.height }}"
                    alt="{{ media.alt | default: product.title | escape }}"
@@ -226,7 +236,8 @@
                              {{ block.settings.image | image_url: width: 740 }} 740w,
                              {{ block.settings.image | image_url: width: 1100 }} 1100w,
                              {{ block.settings.image | image_url: width: 1600 }} 1600w"
-                     sizes="(max-width: 989px) 100vw, 50vw"
+                     {%- comment -%} Same stage geometry as the media loop above. {%- endcomment -%}
+                     sizes="(max-width: 989px) 100vw, (min-width: 1900px) 860px, 44vw"
                      width="{{ block.settings.image.width }}"
                      height="{{ block.settings.image.height }}"
                      alt="{{ block.settings.alt | default: block.settings.image.alt | default: product.title | escape }}"
@@ -480,8 +491,10 @@
                     assign pct = variant.metafields.custom.discount_percent | plus: 0
                   endif
 
-                  # Price after the checkout coupon. Never rendered below zero, and
-                  # never rendered at all when the coupon is switched off.
+                  # Price after the checkout coupon. Never shown on the card itself —
+                  # it rides along on data-final purely so switching packs can retarget
+                  # the coupon strip below. Zero when the coupon is off or would not
+                  # leave a positive amount, which is what hides that strip.
                   assign final_price = 0
                   if coupon_cents > 0 and variant.price > coupon_cents
                     assign final_price = variant.price | minus: coupon_cents
@@ -535,12 +548,12 @@
                         {%- endif -%}
                       </span>
                     </span>
-                    {%- comment -%} A top-down ladder, each rung struck by the one
-                        under it: M.R.P. -> pack price -> price with the code. The
-                        live number is last and is the only one not struck, so the
-                        cut always reads as "down to this". The struck rungs carry
-                        a visually-hidden label each — five bare numbers in a row
-                        are meaningless read aloud. {%- endcomment -%}
+                    {%- comment -%} Two rungs only — M.R.P. struck by the price
+                        actually charged — so a card never quotes a number the
+                        shopper has to enter a code to reach. The coupon is
+                        advertised once, in the strip under the packs. The struck
+                        rung carries a visually-hidden label: two bare numbers in a
+                        column are meaningless read aloud. {%- endcomment -%}
                     <span class="sh-pdp__pack-money">
                       {%- if mrp > 0 -%}
                         <s class="sh-pdp__was">
@@ -548,18 +561,7 @@
                           {{ mrp | money }}
                         </s>
                       {%- endif -%}
-                      {%- if final_price > 0 and variant.available -%}
-                        <s class="sh-pdp__cut">
-                          <span class="sh-visually-hidden">Price before the code</span>
-                          {{ variant.price | money }}
-                        </s>
-                        <span class="sh-pdp__pack-amount sh-pdp__pack-amount--final">{{ final_price | money }}</span>
-                        <span class="sh-pdp__pack-with">
-                          {% render 'sh-icon', name: 'tag', sw: 1.6 %}with code
-                        </span>
-                      {%- else -%}
-                        <span class="sh-pdp__pack-amount">{{ variant.price | money }}</span>
-                      {%- endif -%}
+                      <span class="sh-pdp__pack-amount">{{ variant.price | money }}</span>
                     </span>
                   </span>
                 </label>
@@ -892,12 +894,13 @@
 
     {%- comment -%}
       Trust ribbon — the homepage marquee (sections/sh-trust-marquee.liquid),
-      icons only, sitting under the buy column's FAQ and above the proof band.
-      It reuses .sh-tmarquee wholesale — same medallions, same glyphs, same
-      loop — and shudhi-product.css only undoes the band background and the
-      section-sized padding a full-width section needs and a strip does not.
+      sitting under the buy column's FAQ and above the proof band. It reuses
+      .sh-tmarquee wholesale — same loop, same glyph geometry, same defs
+      contract — and shudhi-product.css §trust ribbon restyles it to the flat
+      ink treatment this page asked for: no glass medallion, black line art,
+      the claim's heading stacked underneath.
 
-      Three things carry over from that section verbatim:
+      Four things carry over from that section verbatim:
 
       a. THE DEFS ARE RENDERED ONCE, ABOVE BOTH PASSES. The track duplicates
          every item so translateX(-50%) can loop seamlessly, so each glyph
@@ -905,30 +908,50 @@
          sixteen copies of the same ids — duplicate DEFINITIONS, which are
          invalid and silently collapse to the first. The full reasoning is in
          snippets/sh-trust-icon.liquid:20-31.
-      b. THE SECOND PASS CARRIES aria-hidden. shudhi-home.css:5116 hides
-         `.sh-tmarquee__group[aria-hidden="true"]` under reduced motion, so the
-         wrapped static layout shows the set once rather than twice.
-      c. THE STRIP IS DECORATIVE, and that is why aria-hidden sits on the root
-         too. It carries no labels by design, so there is no claim here for a
-         screen reader to read; announcing eight certifications that no sighted
-         visitor can read on this page would be worse than saying nothing.
 
-      The icon list mirrors the homepage block order in templates/index.json.
+         They are still emitted even though --ink repaints every stroke black:
+         the gradients are referenced by PRESENTATION ATTRIBUTES inside the
+         snippet, and dropping the defs would leave sixteen dangling url(#…)
+         references that paint nothing if that stylesheet ever fails to load.
+      b. THE SECOND PASS CARRIES aria-hidden. shudhi-home.css:5185 hides
+         `.sh-tmarquee__group[aria-hidden="true"]` under reduced motion, so the
+         wrapped static layout shows the set once rather than twice — and it is
+         also what stops a screen reader reading all eight claims twice.
+      c. THE ROOT IS NO LONGER aria-hidden. It was, while the strip ran icons
+         only and there was genuinely nothing to announce. It now carries the
+         same eight headings the homepage band does, so the first pass is
+         labelled and exposed and only the duplicate is hidden.
+      d. THE MEDALLION ELEMENT STAYS even with the glass gone. It is the icon's
+         sizing box (--sh-tm-icon) and the element §26's reduced-motion block
+         reaches for by name; --ink only strips its surface.
+
+      The icon list and its headings mirror the homepage block order and
+      wording in templates/index.json — one claim set, two placements.
     {%- endcomment -%}
     {%- assign rib_gid = 'sh-pdp-tm-' | append: section.id -%}
-    {%- assign rib_icons = 'lab,iso,batch,sls,paraben,toxin,cruelty,natural' | split: ',' -%}
-    <div class="sh-tmarquee sh-tmarquee--icons sh-tmarquee--ruled sh-tmarquee--hoverpause"
-         style="--sh-tm-icon:68px;--sh-tm-speed:31s;" aria-hidden="true">
+    {%- assign rib_items = 'lab~Lab Tested,iso~ISO Certified,batch~Handmade in Small Batches,sls~SLS & SLES Free,paraben~Paraben Free,toxin~Toxin Free,cruelty~Cruelty Free,natural~Natural Ingredients' | split: ',' -%}
+    {%- comment -%} 36s, not the 31s this strip ran labelless: velocity is
+        groupWidth/duration, and a heading roughly doubles the width of an
+        item, so the same 31s would read as a sprint. Measured at 1440: one
+        group is 1297px, which puts this at 36px/s — the homepage band's
+        1870/52. The two ribbons move at the same speed on purpose. {%- endcomment -%}
+    <div class="sh-tmarquee sh-tmarquee--icons sh-tmarquee--ink sh-tmarquee--ruled sh-tmarquee--hoverpause"
+         style="--sh-tm-icon:58px;--sh-tm-speed:36s;">
       {%- comment -%} See (a). Must precede any icon that references it. {%- endcomment -%}
       {% render 'sh-trust-icon', mode: 'defs', gid: rib_gid %}
       <div class="sh-tmarquee__viewport">
         <div class="sh-tmarquee__track">
           {%- for pass in (1..2) -%}
-            <ul class="sh-tmarquee__group"{% if forloop.index == 2 %} aria-hidden="true"{% endif %}>
-              {%- for ic in rib_icons -%}
+            {%- comment -%} See (b) and (c). {%- endcomment -%}
+            <ul class="sh-tmarquee__group"{% if forloop.index == 2 %} aria-hidden="true"{% else %} aria-label="Our quality standards"{% endif %}>
+              {%- for ic in rib_items -%}
+                {%- assign rib = ic | split: '~' -%}
                 <li class="sh-tmarquee__item">
                   <span class="sh-tmarquee__medallion">
-                    {% render 'sh-trust-icon', mode: 'icon', name: ic, gid: rib_gid %}
+                    {% render 'sh-trust-icon', mode: 'icon', name: rib[0], gid: rib_gid %}
+                  </span>
+                  <span class="sh-tmarquee__text">
+                    <b class="sh-tmarquee__label">{{ rib[1] }}</b>
                   </span>
                 </li>
               {%- endfor -%}

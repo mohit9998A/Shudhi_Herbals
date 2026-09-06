@@ -139,6 +139,23 @@
   .sh-pdp__info    { grid-column: 2; grid-row: 1 / span 3; }
 }
 
+/* --sh-max went fluid (shudhi-home.css:63), so above ~1650 the 9fr buy column
+   passes 560px and keeps growing. .sh-pdp__atc is flex:1 inside .sh-pdp__buy
+   (:937), so every pixel past that stretches the gold Add to Cart into a bar
+   with letterspaced text floating in the middle of it — the one place the
+   widening reads as cheap rather than generous. Pin the buy column and give
+   the surplus to the photograph, which is what a premium PDP wants anyway.
+   NEITHER NUMBER IS ARBITRARY AND THEY MOVE TOGETHER. 1700 is where 9fr
+   naturally reaches 600 under --sh-max: clamp(1280px, 91vw, 1760px), so the
+   column width is continuous across the boundary and nothing jumps. Re-solve
+   9/20 * (wrapContent - 72) = cap whenever that token changes — the previous
+   pass was 560 at 1650, against the old 88vw/1600.
+   Must come after :122's unconditional grid-template-columns; :134's block
+   only sets rows, so there is no conflict with it. */
+@media (min-width: 1700px) {
+  .sh-pdp__grid { grid-template-columns: minmax(0, 1fr) minmax(0, 600px); }
+}
+
 /* ---------------------------------------------------------- gallery */
 
 .sh-pdp__gallery { min-width: 0; }
@@ -662,9 +679,8 @@
   color: var(--sh-story-body);
 }
 
-/* The money column is a top-down ladder — M.R.P., then the pack price, then the
-   price with the code — each rung struck by the one below it and each a little
-   larger, so the eye falls to the live number at the bottom. */
+/* The money column is a two-rung ladder — M.R.P. struck by the pack price under
+   it, the lower rung larger, so the eye falls to the live number at the bottom. */
 .sh-pdp__pack-money {
   text-align: right;
   white-space: nowrap;
@@ -678,49 +694,12 @@
   font-variant-numeric: tabular-nums;
 }
 
-.sh-pdp__was,
-.sh-pdp__cut {
+/* Top rung: smaller and fainter than the live price under it. */
+.sh-pdp__was {
   display: block;
+  font-size: 0.8rem;
   color: rgba(71, 74, 61, 0.6);
   font-variant-numeric: tabular-nums;
-}
-
-/* Top rung: the smallest and faintest of the three. */
-.sh-pdp__was { font-size: 0.8rem; }
-
-/* Middle rung — the price actually charged without the code, so it stays darker
-   and heavier than the M.R.P. above it even while struck. */
-.sh-pdp__cut {
-  margin-top: 1px;
-  font-size: 0.88rem;
-  font-weight: 500;
-  color: rgba(71, 74, 61, 0.75);
-}
-
-/* Bottom rung. Gold, not ink: it is the only number on the card that depends on
-   the shopper entering a code, and the caption under it says so. */
-.sh-pdp__pack-amount--final {
-  margin-top: 1px;
-  color: var(--sh-story-gold-ink);
-}
-
-.sh-pdp__pack-with {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 4px;
-  margin-top: 1px;
-  font-size: 0.66rem;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--sh-story-gold-ink);
-}
-
-.sh-pdp__pack-with .sh-icon {
-  width: 11px;
-  height: 11px;
-  flex: none;
 }
 
 .sh-pdp__pack-flag {
@@ -1413,8 +1392,18 @@
 
 .sh-pdp__ing-media {
   display: block;
-  width: 110px;
-  height: 110px;
+  /* Was a flat 110px. The four cards widen from 273 to ~386px as --sh-max
+     opens up between 1407 and 1934 (shudhi-home.css:63), and a frozen
+     medallion turns that new width into dead air — the card doesn't stretch,
+     it goes EMPTY, which is the failure mode this brand actually cares about.
+     8.2vw holds the circle at ~40% of the card's inner box at every width,
+     which is the ratio the shipped 110-on-273 already had. The floor keeps
+     small screens on that original 110px; the ceiling stays inside what the
+     480w src (sh-product.liquid:830) can serve at 2x (168 * 2 = 336 <= 480).
+     Height tracks width — border-radius:50% needs them equal or the medallion
+     goes oval. The <=599 override at :1433 still wins on source order. */
+  width:  clamp(110px, 8.2vw, 168px);
+  height: clamp(110px, 8.2vw, 168px);
   overflow: hidden;
   border: 1px solid rgba(184, 150, 92, 0.38);
   border-radius: 50%;
@@ -1571,17 +1560,174 @@
    ribbon quietly slows down. */
 .sh-pdp .sh-tmarquee--icons {
   --sh-tm-bg: transparent;
+  /* The homepage ribbon dropped to clamp(20px, 2.5%, 48px) so that a FULL-BLEED
+     band actually reaches the screen edge. This instance is the opposite case
+     and must not inherit that: it sits INSIDE .sh-wrap, so the mask percentage
+     resolves against ~1472px rather than the viewport (2.5% = ~37px, not the
+     ~103px it used to get), and it ends on transparent ground mid-page with no
+     screen edge to cut against. An inset ribbon has to dissolve or the track
+     visibly begins and ends. Restated, deliberately, not inherited. */
+  --sh-tm-fade: clamp(28px, 7%, 120px);
   margin-top: clamp(28px, 3.6vw, 44px);
   padding-block: 0;
 }
 
-/* gap is the medallion-to-label gutter, and there is no label here. Left at
-   14px it would show up as asymmetric padding on every item. */
+/* Stacked, not the homepage's icon-beside-label row: the glyph reads as the
+   subject and the heading as its caption, which is the layout this strip was
+   asked for. gap is a real vertical gutter now, so it comes back from the 0
+   this instance used while it was labelless. */
 .sh-pdp .sh-tmarquee--icons .sh-tmarquee__item {
-  gap: 0;
-  padding-inline: clamp(14px, 2vw, 26px);
-  padding-block: clamp(14px, 1.6vw, 20px);
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(10px, 1.1vw, 14px);
+  text-align: center;
+  padding-inline: clamp(16px, 2.2vw, 30px);
+  padding-block: clamp(16px, 1.8vw, 22px);
 }
+
+/* --- Flat ink variant -------------------------------------------------- */
+
+/* --ink is the whole of the difference from the homepage band: the medallion
+   loses its glass and the glyph goes black. It is a MODIFIER ON THIS INSTANCE,
+   never an edit to §26 — sections/sh-trust-marquee.liquid renders the same
+   markup on the homepage and must keep the engraved-glass treatment.
+
+   ONE INK VALUE, DECLARED ONCE. §26 hands this component --sh-story-ink
+   #1b2a12, the warm near-black the rest of the page sets headings in, which is
+   still visibly green next to a black line drawing. This strip was asked for
+   in black, so the heading and the strokes both take --sh-tm-ink and there is
+   no second place for the two to drift apart. */
+.sh-pdp .sh-tmarquee--ink { --sh-tm-ink: #161616; }
+
+/* The glass, undone. All of it goes at once — background, ring, the two depth
+   insets, the clip — because any one left behind still reads as a chip behind
+   the glyph, which is exactly what this variant removes. overflow is the
+   non-obvious one: §26 clips the medallion so the sweep cannot escape it, and
+   a clipped box would shear the jelly's overshoot below. */
+.sh-pdp .sh-tmarquee--ink .sh-tmarquee__medallion {
+  overflow: visible;
+  border: 0;
+  background: none;
+  box-shadow: none;
+}
+
+/* The specular cap and the travelling sweep ARE the glass. content:none, not
+   opacity or display: it takes both pseudo-elements out of the box tree, so
+   the sweep's 7.5s infinite animation — and the eight nth-child delays driving
+   it — stop being generated at all rather than animating invisibly. */
+.sh-pdp .sh-tmarquee--ink .sh-tmarquee__medallion::before,
+.sh-pdp .sh-tmarquee--ink .sh-tmarquee__medallion::after { content: none; }
+
+/* The glyph fills its box now that there is no ring to sit inside; 58% was the
+   inset the medallion needed. The 0 0 32 32 grid holds every path to
+   y ∈ [5, 27] (snippets/sh-trust-icon.liquid:61), so 58px of box paints ~40px
+   of drawing. stroke-width drops 1.3 -> 1.2 for the same reason: the attribute
+   is in USER UNITS, so growing the box grows the line with it, and 1.3 at 58px
+   lands at 2.4px — heavy for line art. */
+.sh-pdp .sh-tmarquee--ink .sh-tmarquee__glyph {
+  width: 100%;
+  height: 100%;
+  opacity: 1;
+  stroke-width: 1.2;
+}
+
+/* Black strokes, and the descendant half of the selector is load-bearing. The
+   snippet paints with PRESENTATION ATTRIBUTES — stroke="url(#gid-gold)" on the
+   <svg>, stroke="url(#gid-sage)" on individual paths — and an inherited value
+   loses to a presentation attribute set on the element itself. Repainting the
+   root alone would leave every sage path sage. Any CSS declaration beats a
+   presentation attribute, hence the second selector.
+
+   Why not drop the gradients from the snippet instead: it is shared with the
+   homepage band, where they are the whole look. See (a) in the section. */
+.sh-pdp .sh-tmarquee--ink .sh-tmarquee__glyph,
+.sh-pdp .sh-tmarquee--ink .sh-tmarquee__glyph :is(path, circle) {
+  stroke: var(--sh-tm-ink);
+}
+
+/* Some glyphs FILL rather than stroke — `cruelty`'s eye dot, today the only
+   one — and carry stroke="none" so the fill is not ringed. The rule above
+   would hand that dot a 1.2-unit stroke and swell it into a blob at this size.
+   (0,3,0) against that rule's (0,2,1); the attribute selector is what wins it,
+   and what keeps this right if another glyph adopts the pattern. */
+.sh-pdp .sh-tmarquee--ink .sh-tmarquee__glyph [fill^="url"] { fill: var(--sh-tm-ink); }
+.sh-pdp .sh-tmarquee--ink .sh-tmarquee__glyph [stroke="none"] { stroke: none; }
+
+/* The specular highlight strokes — one per glyph, all named -glass — are the
+   reflection ON the glass. Repainted black they become a second, meaningless
+   arc floating inside the drawing. Removed, not dimmed. */
+.sh-pdp .sh-tmarquee--ink .sh-tmarquee__glyph [stroke*="-glass"] { display: none; }
+
+/* The heading. Size and tracking come from .sh-tmarquee__label untouched, so
+   the two placements keep one voice; only the wrap rules are new here. §26
+   sets white-space:nowrap on the item for a single-line row, and a
+   25-character claim would make one 210px item and a visibly faster ribbon —
+   so it wraps instead, and 15ch is what holds the longest of the eight to two
+   lines. min-height reserves that second line on every item, so the icons of
+   the one-line claims do not sit lower than their neighbours. */
+.sh-pdp .sh-tmarquee--ink .sh-tmarquee__text {
+  max-width: 15ch;
+  white-space: normal;
+}
+.sh-pdp .sh-tmarquee--ink .sh-tmarquee__label {
+  min-height: 2.5em;
+  color: var(--sh-tm-ink);
+}
+
+/* No vertical rule between items. §26 draws one because its items are a wide
+   icon-and-label ROW that needs separating; these are narrow stacked columns,
+   where a 34px hairline cuts between an icon and the heading beside it rather
+   than between two claims. The horizontal --ruled frame stays — it is what
+   holds the strip apart from the benefits panel above it. */
+.sh-pdp .sh-tmarquee--ink .sh-tmarquee__item + .sh-tmarquee__item::before,
+.sh-pdp .sh-tmarquee--ink .sh-tmarquee__group + .sh-tmarquee__group > .sh-tmarquee__item:first-child::before {
+  content: none;
+}
+
+/* --- Hover: one jelly -------------------------------------------------- */
+
+/* Non-uniform scale, so it squashes and stretches rather than pulsing. Five
+   crossings, each roughly 40% of the last, is what makes it read as a settling
+   wobble; an even ease would read as a bounce. Ends on the identity transform,
+   so dropping the animation on mouse-out cannot snap. */
+@keyframes sh-pdp-jelly {
+  0%   { transform: scale(1, 1); }
+  22%  { transform: scale(1.14, 0.86); }
+  40%  { transform: scale(0.90, 1.10); }
+  56%  { transform: scale(1.06, 0.94); }
+  72%  { transform: scale(0.97, 1.03); }
+  86%  { transform: scale(1.01, 0.99); }
+  100% { transform: scale(1, 1); }
+}
+
+/* Gated exactly like §26's hover block — desktop, real pointer — and for the
+   same reason: on touch there is no mouse-out to end the state. It sits INSIDE
+   that same query rather than carrying one of its own so the track pause and
+   the wobble can never disagree about what counts as a hover.
+
+   ONE SHOT, and the shorthand is what makes it so: no iteration count means 1.
+   It replays on the next mouse-out/mouse-in because the declaration is removed
+   and re-applied with the hover — a shake per hover, not a loop. */
+@media (min-width: 1025px) and (hover: hover) and (pointer: fine) {
+  .sh-pdp .sh-tmarquee--ink .sh-tmarquee__item:hover .sh-tmarquee__medallion {
+    /* §26 lifts the medallion to scale(1.045) over a .42s transition on hover.
+       Both have to go, or the jelly ends by snapping to 1.045 and holding
+       there, and the transition fights the keyframes on the way in. */
+    transform: none;
+    transition: none;
+    /* The house ease-out, the same curve §26 transitions this element on, and
+       NOT a springy bezier: animation-timing-function applies BETWEEN EVERY
+       PAIR of keyframes, so an overshooting curve would add a bounce to each
+       of the six crossings on top of the amplitude they already carry. The
+       wobble is in the keyframes; the curve only has to land it. */
+    animation: sh-pdp-jelly .62s cubic-bezier(.22, .61, .36, 1) both;
+  }
+}
+
+/* No reduced-motion block of its own. shudhi-home.css:5194 already forces
+   animation/transform/transition to none !important on .sh-tmarquee__medallion
+   under that query — this element — and !important beats the rule above. A
+   second copy here could only drift out of step with it. */
 
 /* ---------------------------------------------------------- social proof */
 
@@ -1946,10 +2092,9 @@ html.sh-pdp-sticky-up #hov-chat-widget {
 
   .sh-pdp__pack-note { font-size: 0.78rem; }
 
-  /* The ladder is four lines tall on the widest card, so the rungs tighten too. */
+  /* Both rungs tighten with the card. */
   .sh-pdp__pack-amount { font-size: 1rem; }
   .sh-pdp__was { font-size: 0.75rem; }
-  .sh-pdp__cut { font-size: 0.82rem; }
 
   .sh-pdp .sh-pdp__coupon {
     align-items: flex-start;

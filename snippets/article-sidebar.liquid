@@ -28,40 +28,36 @@
   {% endif %}
 
   {% if section.settings.enable_widget_related %}
+  {%- assign posts_limit = section.settings.blogs_limit | default: 5 -%}
+  {%- assign recent_blog = blogs[section.settings.select_blog] -%}
+  {%- assign recent_count = recent_blog.articles_count | default: 0 -%}
+  {%- if recent_count == 0 -%}
+    {%- assign recent_blog = blog -%}
+    {%- assign recent_count = blog.articles_count | default: 0 -%}
+  {%- endif -%}
+  {% if recent_count > 0 %}
   <div class="blog_sidebar_recent">
-    {%- assign posts_limit = section.settings.blogs_limit -%}
-    {%- assign blog_selected = section.settings.select_blog -%}
     <h2 class="widget-title ">{{section.settings.widget_related_title}}</h2>
     <div class="list-posts">
-      {% for article in blogs[blog_selected].articles limit: posts_limit %}
+      {% for article in recent_blog.articles limit: posts_limit %}
       <div class="item-post">
-        <div class="post-thumb "><a href="{{ article.url }}" class=""><img src="{{ article.image.src | img_url: 'original' }}" alt="{{ article.title }}" /></a></div>
+        <div class="post-thumb "><a href="{{ article.url }}" class="">
+          {%- if article.image -%}
+          <img src="{{ article.image | img_url: '160x160', crop: 'center' }}" alt="{{ article.title | escape }}" loading="lazy" />
+          {%- else -%}
+          {{ 'image' | placeholder_svg_tag: 'placeholder-svg' }}
+          {%- endif -%}
+        </a></div>
         <div class="post-info">
           <span class="date-post">{{ article.published_at | date: "%d.%B.%Y" }}</span>
           <h3 class="post-title mb-0 "><a href="{{ article.url }}" class="dark">{{ article.title }}</a></h3>
           <span class="comment-count silver">{{article.comments_count}} Comments</span>
         </div>
       </div>
-
-      {% else %}
-      {% for i in (1..5) %}
-      <div class="item-post">
-        <div class="post-thumb ">
-          <a href="/admin/articles" class="adv-thumb-link">
-            {{ 'image' | placeholder_svg_tag: 'placeholder-svg' }}
-          </a>
-        </div>
-        <div class="post-info">
-          <span>30.DEC.2018</span>
-          <h3 class="post-title title14 text-uppercase dosis-font"><a href="/admin/articles" class="dark">Example Blog Post</a></h3>
-          <span class="comment-count silver"><i class="fa fa-comment gray"></i>5 Comments</span>
-        </div>
-      </div>
-      {% endfor %}
-
       {% endfor %}
     </div>
   </div>
+  {% endif %}
   {% endif %}
 
   {% if section.settings.enable_widget_tag %}
