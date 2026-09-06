@@ -12,7 +12,7 @@
   Our Story set: wheat, sprout, flower, sun, hands-heart, heart-check
   Bath-ritual set: meditate, body, face-sparkle, shower, bubbles
   Contact set: pin, phone, mail, clock, alert
-  Product-page set: plus, minus, lock, truck, file
+  Product-page set: plus, minus, lock, truck, file, tag
 {%- endcomment -%}
 {%- assign n = name | default: 'leaf' -%}
 {%- comment -%} Optional `sw` overrides stroke weight, for the finer line art
@@ -127,6 +127,8 @@
     proof tiles. Same grid, same inherited stroke, trailing-space tags. {%- endcomment -%}
 {%- when 'truck' -%}<path d="M3.6 7.4a1 1 0 0 1 1-1h9.6v9.6H3.6V7.4Z"/><path d="M14.2 9.8h3.1l3.1 3.4v2.8h-6.2"/><circle cx="7.6" cy="17.6" r="1.9"/><circle cx="16.6" cy="17.6" r="1.9"/>
 {%- when 'file' -%}<path d="M7.2 3.6h6.6l4 4v12.8H7.2V3.6Z"/><path d="M13.8 3.6v4h4"/><path d="M9.8 12.2h4.8M9.8 15.4h4.8"/>
+{%- comment -%} Marks a discount code / price-after-coupon line on the PDP. {%- endcomment -%}
+{%- when 'tag' -%}<path d="M20.5 12.7 12.7 20.5a1.4 1.4 0 0 1-2 0l-7.2-7.2a1.4 1.4 0 0 1-.4-1V4.3a1.3 1.3 0 0 1 1.3-1.3h8a1.4 1.4 0 0 1 1 .4l7.1 7.1a1.4 1.4 0 0 1 0 2Z"/><circle cx="7.6" cy="7.6" r="1.4"/>
 {%- when 'instagram' -%}<rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1"/>
 {%- when 'facebook' -%}<path d="M14 9h3V5h-3c-2 0-3 1.5-3 3.5V11H8v4h3v6h4v-6h3l1-4h-4V9c0-.6.4-1 1-1Z"/>
 {%- when 'pinterest' -%}<path d="M12 3a9 9 0 0 0-3 17.5c-.1-1 0-2.3.2-3.3l1.2-5s-.3-.6-.3-1.5c0-1.4.8-2.4 1.8-2.4.9 0 1.3.6 1.3 1.4 0 .9-.6 2.2-.9 3.4-.2 1 .5 1.8 1.5 1.8 1.8 0 3-2.3 3-5 0-2-1.4-3.6-4-3.6a4.5 4.5 0 0 0-4.7 4.5c0 .9.3 1.5.7 2 .2.2.2.3.1.5l-.2.9c0 .3-.2.4-.5.2-1.3-.5-1.9-2-1.9-3.6C6 7.7 8.3 5 12.3 5c3.2 0 5.7 2.3 5.7 5.4 0 3.2-2 5.8-4.9 5.8-1 0-1.9-.5-2.2-1.1l-.6 2.3c-.2.8-.7 1.8-1.1 2.5A9 9 0 1 0 12 3Z"/>

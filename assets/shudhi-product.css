@@ -476,6 +476,31 @@
   color: var(--sh-story-body);
 }
 
+/* The lead row's M.R.P. and discount pill. .sh-pdp__was is block-level for the
+   pack cards' stacked money column, so the lead copy resets that to inline. The
+   pill is blush rather than ink on purpose: it reads as the limited-period offer
+   and ties to the countdown above it, leaving the dark pill on the cards below to
+   mean one thing only — this pack's own discount. */
+.sh-pdp__was--lead {
+  display: inline;
+  margin-top: 0;
+  font-size: 0.95rem;
+}
+
+.sh-pdp__off {
+  padding: 3px 9px;
+  background: var(--sh-pdp-blush);
+  color: var(--sh-pdp-blush-ink);
+  border-radius: 999px;
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  white-space: nowrap;
+}
+
+.sh-pdp__was--lead.is-hidden,
+.sh-pdp__off.is-hidden { display: none; }
+
 /* ---------------------------------------------------------- countdown */
 
 .sh-pdp__timer {
@@ -637,6 +662,9 @@
   color: var(--sh-story-body);
 }
 
+/* The money column is a top-down ladder — M.R.P., then the pack price, then the
+   price with the code — each rung struck by the one below it and each a little
+   larger, so the eye falls to the live number at the bottom. */
 .sh-pdp__pack-money {
   text-align: right;
   white-space: nowrap;
@@ -650,12 +678,49 @@
   font-variant-numeric: tabular-nums;
 }
 
-.sh-pdp__was {
+.sh-pdp__was,
+.sh-pdp__cut {
   display: block;
-  margin-top: 2px;
-  font-size: 0.85rem;
   color: rgba(71, 74, 61, 0.6);
   font-variant-numeric: tabular-nums;
+}
+
+/* Top rung: the smallest and faintest of the three. */
+.sh-pdp__was { font-size: 0.8rem; }
+
+/* Middle rung — the price actually charged without the code, so it stays darker
+   and heavier than the M.R.P. above it even while struck. */
+.sh-pdp__cut {
+  margin-top: 1px;
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: rgba(71, 74, 61, 0.75);
+}
+
+/* Bottom rung. Gold, not ink: it is the only number on the card that depends on
+   the shopper entering a code, and the caption under it says so. */
+.sh-pdp__pack-amount--final {
+  margin-top: 1px;
+  color: var(--sh-story-gold-ink);
+}
+
+.sh-pdp__pack-with {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+  margin-top: 1px;
+  font-size: 0.66rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--sh-story-gold-ink);
+}
+
+.sh-pdp__pack-with .sh-icon {
+  width: 11px;
+  height: 11px;
+  flex: none;
 }
 
 .sh-pdp__pack-flag {
@@ -705,6 +770,57 @@
 .sh-pdp__saving strong {
   color: var(--sh-story-ink);
   font-weight: 600;
+}
+
+/* (0,2,0): the margin declared above is a bare (0,1,0) <p> rule, which never beat
+   `.sh p { margin: 0 }` (0,1,1). It went unnoticed while this row was hidden on a
+   product with no compare-at prices; with an M.R.P. it renders, and it needs the
+   gap. Same reason the coupon row below is written at (0,2,0). */
+.sh-pdp .sh-pdp__saving { margin-top: 14px; }
+
+/* ---------------------------------------------------------- checkout coupon */
+
+/* The dashed edge is the one bit of costume in the buy box — it says "coupon" at
+   a glance and costs nothing. Otherwise it mirrors .sh-pdp__saving's box so the
+   two rows read as one pair under the pack list. */
+.sh-pdp .sh-pdp__coupon {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 8px 0 0;
+  padding: 12px 16px;
+  background: var(--sh-pdp-card);
+  border: 1px dashed rgba(122, 93, 46, 0.45);
+  border-radius: 8px;
+  font-size: 0.88rem;
+  line-height: 1.5;
+  color: var(--sh-story-body);
+}
+
+.sh-pdp__coupon.is-hidden { display: none; }
+
+.sh-pdp__coupon .sh-icon {
+  width: 16px;
+  height: 16px;
+  flex: none;
+  color: var(--sh-story-gold-ink);
+}
+
+.sh-pdp__coupon strong {
+  color: var(--sh-story-ink);
+  font-weight: 600;
+}
+
+.sh-pdp__coupon-code {
+  display: inline-block;
+  padding: 1px 7px;
+  background: var(--sh-pdp-tint);
+  border: 1px solid rgba(122, 93, 46, 0.3);
+  border-radius: 5px;
+  color: var(--sh-story-gold-ink);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
 }
 
 /* ---------------------------------------------------------- trust */
@@ -1596,6 +1712,30 @@ html.sh-pdp-sticky-up #hov-chat-widget {
     gap: 11px;
     padding: 13px 14px;
   }
+
+  /* A pack block's name is far longer than the variant title it replaces
+     ("Buy 3 — Ritual Pack" against "Pack of 3"), and the card still owes the
+     money column a full price. Buy the width back from the type, not the
+     padding, so the three columns stay on one line each. */
+  .sh-pdp__pack-name {
+    gap: 6px;
+    font-size: 0.92rem;
+  }
+
+  .sh-pdp__pack-note { font-size: 0.78rem; }
+
+  /* The ladder is four lines tall on the widest card, so the rungs tighten too. */
+  .sh-pdp__pack-amount { font-size: 1rem; }
+  .sh-pdp__was { font-size: 0.75rem; }
+  .sh-pdp__cut { font-size: 0.82rem; }
+
+  .sh-pdp .sh-pdp__coupon {
+    align-items: flex-start;
+    padding: 11px 13px;
+    font-size: 0.82rem;
+  }
+
+  .sh-pdp__coupon .sh-icon { margin-top: 2px; }
 
   .sh-pdp__buy { gap: 10px; }
 

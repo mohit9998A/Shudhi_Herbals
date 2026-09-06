@@ -82,6 +82,11 @@
     var priceEl = root.querySelector('[data-sh-price]');
     var savingEl = root.querySelector('[data-sh-saving]');
     var savingAmountEl = root.querySelector('[data-sh-saving-amount]');
+    var leadWasEl = root.querySelector('[data-sh-lead-was]');
+    var leadWasAmountEl = root.querySelector('[data-sh-lead-was-amount]');
+    var leadOffEl = root.querySelector('[data-sh-lead-off]');
+    var couponEl = root.querySelector('[data-sh-coupon]');
+    var couponAmountEl = root.querySelector('[data-sh-coupon-amount]');
     var dotEl = root.querySelector('[data-sh-dot]');
     var availSrEl = root.querySelector('[data-sh-avail-sr]');
     var atcBtn = root.querySelector('[data-sh-atc]');
@@ -400,17 +405,41 @@
 
     /* ------------------------------------------------ variant switching */
 
-    function setVariant(id, mediaId) {
-      var v = variants[String(id)];
+    /* Takes the checked radio, not a bare id: Liquid already resolved this pack's
+       M.R.P. (a real compare-at price, else the pack block's number), its rounded
+       discount and its after-coupon price onto the input as data attributes. Reading
+       them back beats recomputing here — one copy of the arithmetic, and the JSON
+       island's compare_at_price (often null in admin) cannot disagree with the card
+       the shopper is looking at. */
+    function setVariant(input) {
+      var v = variants[String(input.getAttribute('data-variant-id'))];
       if (!v) return;
 
       if (idInput) idInput.value = v.id;
 
       if (priceEl) priceEl.textContent = formatMoney(v.price, moneyCurrencyFormat);
 
-      var saving = (v.compare_at_price && v.compare_at_price > v.price)
-        ? v.compare_at_price - v.price
-        : 0;
+      var mrp = parseInt(input.getAttribute('data-mrp'), 10) || 0;
+      var off = parseInt(input.getAttribute('data-off'), 10) || 0;
+      var finalPrice = parseInt(input.getAttribute('data-final'), 10) || 0;
+
+      if (leadWasEl) {
+        leadWasEl.classList.toggle('is-hidden', mrp <= 0);
+        /* the inner span only — the <s> also holds a visually-hidden "M.R.P." */
+        if (mrp > 0 && leadWasAmountEl) leadWasAmountEl.textContent = formatMoney(mrp, moneyFormat);
+      }
+      if (leadOffEl) {
+        leadOffEl.classList.toggle('is-hidden', off <= 0);
+        if (off > 0) leadOffEl.textContent = off + '% OFF';
+      }
+      if (couponEl) {
+        couponEl.classList.toggle('is-hidden', finalPrice <= 0);
+        if (finalPrice > 0 && couponAmountEl) {
+          couponAmountEl.textContent = formatMoney(finalPrice, moneyFormat);
+        }
+      }
+
+      var saving = mrp > v.price ? mrp - v.price : 0;
       if (savingEl) {
         savingEl.classList.toggle('is-hidden', saving === 0);
         if (saving > 0 && savingAmountEl) {
@@ -432,7 +461,7 @@
       if (stickyTitle) stickyTitle.textContent = v.title;
       if (stickyAmt) stickyAmt.textContent = formatMoney(v.price, moneyFormat);
 
-      activateMedia(mediaId);
+      activateMedia(input.getAttribute('data-media-id'));
 
       /* shareable URLs; guarded — the theme editor sandbox can refuse this */
       try {
@@ -446,10 +475,7 @@
       var input = evt.target;
       if (!input.classList || !input.classList.contains('sh-pdp__pack-input')) return;
       if (!input.checked) return;
-      setVariant(
-        input.getAttribute('data-variant-id'),
-        input.getAttribute('data-media-id')
-      );
+      setVariant(input);
     });
 
     /* ------------------------------------------------ quantity stepper */
@@ -473,20 +499,53 @@
 
     if (qtyInput) qtyInput.addEventListener('change', clampQty);
 
-    /* ------------------------------------------------ countdown */
+    /* ------------------------------------------------ countdown
+       Two shapes, one ticker, and note 5's fail-closed rule holds for both: an
+       invalid or spent deadline leaves the card [hidden] rather than frozen.
+
+       'date'    — one absolute moment from section settings, the same for every
+                   shopper, surviving refreshes and never re-seeding.
+       'minutes' — a short window per browsing session, rendered MM:SS. The
+                   deadline is stamped into sessionStorage on first sight, so
+                   navigating away and back does NOT hand out a fresh clock, and
+                   a window that has run out stays run out for the session. */
 
     var timer = root.querySelector('[data-sh-timer]');
     if (timer) {
       var digitsEl = timer.querySelector('[data-sh-timer-digits]');
       var srEl = timer.querySelector('[data-sh-timer-sr]');
-      /* 'YYYY-MM-DDTHH:MM' with no zone parses as the shopper's local time —
-         that locality is the documented behaviour, not an accident */
-      var parts = /^(d{4})-(d{2})-(d{2})T(d{1,2}):(d{2})/.exec(timer.getAttribute('data-sh-deadline') || '');
-      /* built from parts, not Date.parse(): older WebKit reads an offset-less
-         ISO string as UTC, and "shopper-local" is the documented contract */
-      var deadlineMs = parts
-        ? new Date(+parts[1], +parts[2] - 1, +parts[3], +parts[4], +parts[5], 0).getTime()
-        : NaN;
+      var mode = timer.getAttribute('data-sh-timer-mode') === 'minutes' ? 'minutes' : 'date';
+      var deadlineMs = NaN;
+
+      if (mode === 'minutes') {
+        var windowMin = parseInt(timer.getAttribute('data-sh-timer-minutes'), 10);
+        if (!(windowMin > 0)) windowMin = 10;
+        var windowMs = windowMin * 60000;
+        var storeKey = timer.getAttribute('data-sh-timer-key') || 'sh-pdp-offer';
+        var stored = NaN;
+        /* sessionStorage THROWS outright under some privacy settings, so both
+           halves are guarded: a blocked store costs the timer its persistence
+           and nothing else — it simply runs fresh on this pageview. */
+        try { stored = parseInt(window.sessionStorage.getItem(storeKey), 10); } catch (e) { stored = NaN; }
+        var nowMs = Date.now();
+        if (stored > 0 && stored <= nowMs + windowMs) {
+          /* a window already opened this session — honour it, spent or not */
+          deadlineMs = stored;
+        } else {
+          /* nothing stored, or a stale stamp from a longer setting */
+          deadlineMs = nowMs + windowMs;
+          try { window.sessionStorage.setItem(storeKey, String(deadlineMs)); } catch (e) { /* this pageview only */ }
+        }
+      } else {
+        /* 'YYYY-MM-DDTHH:MM' with no zone parses as the shopper's local time —
+           that locality is the documented behaviour, not an accident */
+        var parts = /^(\d{4})-(\d{2})-(\d{2})T(\d{1,2}):(\d{2})/.exec(timer.getAttribute('data-sh-deadline') || '');
+        /* built from parts, not Date.parse(): older WebKit reads an offset-less
+           ISO string as UTC, and "shopper-local" is the documented contract */
+        deadlineMs = parts
+          ? new Date(+parts[1], +parts[2] - 1, +parts[3], +parts[4], +parts[5], 0).getTime()
+          : NaN;
+      }
 
       if (!isNaN(deadlineMs) && deadlineMs > Date.now()) {
         var pad = function (n) { return n < 10 ? '0' + n : String(n); };
@@ -538,20 +597,31 @@
           var mins = Math.floor((totalSec % 3600) / 60);
           var secs = totalSec % 60;
 
-          var nextShape = days > 0 ? 'd' : 's';
+          var nextShape, values;
+          if (mode === 'minutes') {
+            /* MM:SS — total minutes, so a window over an hour still reads right */
+            nextShape = 'ms';
+            values = [pad(Math.floor(totalSec / 60)), pad(secs)];
+          } else if (days > 0) {
+            nextShape = 'd';
+            values = [days + 'd', pad(hours), pad(mins)];
+          } else {
+            nextShape = 'hms';
+            values = [pad(hours), pad(mins), pad(secs)];
+          }
           if (nextShape !== shape) {
             shape = nextShape;
-            build(3);
+            build(values.length);
           }
-          write(days > 0
-            ? [days + 'd', pad(hours), pad(mins)]
-            : [pad(hours), pad(mins), pad(secs)]);
+          write(values);
           /* once a minute is plenty for the live region */
           if (srEl && Date.now() - lastSr > 60000) {
             lastSr = Date.now();
-            srEl.textContent = 'Offer ends in '
-              + (days > 0 ? days + ' days, ' : '')
-              + hours + ' hours and ' + mins + ' minutes';
+            srEl.textContent = mode === 'minutes'
+              ? 'Offer ends in about ' + Math.ceil(totalSec / 60) + ' minutes'
+              : 'Offer ends in '
+                + (days > 0 ? days + ' days, ' : '')
+                + hours + ' hours and ' + mins + ' minutes';
           }
         };
 
