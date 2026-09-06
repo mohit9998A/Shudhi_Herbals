@@ -263,7 +263,6 @@
     },
     "d788ce09-e4e2-419b-af59-bc1e3f91a39e": {
       "type": "about-template",
-      "disabled": true,
       "blocks": {
         "d87ce435-3697-4bce-bad0-7b5124bd9adb": {
           "type": "introduce",
@@ -286,6 +285,7 @@
         "d87ce435-3697-4bce-bad0-7b5124bd9adb",
         "9ca6474e-b416-449c-a718-6595762e68cf"
       ],
+      "disabled": true,
       "settings": {
         "enable_intro": false,
         "enable_s_servicebox": true,
@@ -302,65 +302,22 @@
     },
     "072a2851-fd4f-4b3f-b6fe-0ca9823ff0cd": {
       "type": "section-slideshow-v1",
-      "disabled": true,
       "blocks": {
         "template--16748800868664__072a2851-fd4f-4b3f-b6fe-0ca9823ff0cd-1667380355d3d6c778-0": {
           "type": "slideshow",
-          "settings": {
-            "select_position_content": "left",
-            "select_textalign_content": "left",
-            "block_title_top1": "Style Destination",
-            "color_block_title_top1": "#e5e5e5",
-            "effect_title1": "bounce",
-            "block_title_top": "Basic Collection",
-            "color_block_title_top": "#010101",
-            "effect_title": "bounce",
-            "block_title_top2": "Style Destination",
-            "color_block_title_top2": "#e5e5e5",
-            "effect_title2": "bounce",
-            "block_buton": "SHOP NOW",
-            "color_block_button": "#ffffff",
-            "color_hover_button": "#ffffff",
-            "color_hover_text": "#000000",
-            "block_url": "shopify://collections/all",
-            "effect_title3": "bounce",
-            "ena_slide_video": false,
-            "url_ytb_video": ""
-          }
+          "settings": {}
         },
         "template--16748800868664__072a2851-fd4f-4b3f-b6fe-0ca9823ff0cd-1667380355d3d6c778-1": {
           "type": "slideshow",
-          "settings": {
-            "select_position_content": "left",
-            "select_textalign_content": "left",
-            "block_title_top1": "Style Destination",
-            "color_block_title_top1": "#e5e5e5",
-            "effect_title1": "bounce",
-            "block_title_top": "Spring Collection",
-            "color_block_title_top": "#010101",
-            "effect_title": "bounce",
-            "block_title_top2": "Hanpicked By Moocha",
-            "color_block_title_top2": "#e5e5e5",
-            "effect_title2": "bounce",
-            "block_buton": "SHOP NOW",
-            "color_block_button": "#ffffff",
-            "color_hover_button": "#ffffff",
-            "color_hover_text": "#000000",
-            "block_url": "shopify://collections/all",
-            "effect_title3": "bounce",
-            "ena_slide_video": false,
-            "url_ytb_video": ""
-          }
+          "settings": {}
         }
       },
       "block_order": [
         "template--16748800868664__072a2851-fd4f-4b3f-b6fe-0ca9823ff0cd-1667380355d3d6c778-0",
         "template--16748800868664__072a2851-fd4f-4b3f-b6fe-0ca9823ff0cd-1667380355d3d6c778-1"
       ],
-      "settings": {
-        "margin_top": "",
-        "margin_bottom": ""
-      }
+      "disabled": true,
+      "settings": {}
     },
     "b08b2b31-8080-4fbc-a2a7-2d270c5e3af7": {
       "type": "rich-text",
@@ -480,7 +437,6 @@
     },
     "about_servicebox": {
       "type": "about-servicebox",
-      "disabled": true,
       "blocks": {
         "15e208a6-b518-4d9e-8f27-0bd7642f7b52": {
           "type": "service",
@@ -514,6 +470,7 @@
         "ed9fe945-4590-42b3-8201-465e38b85fb7",
         "acff72af-e41c-4ec2-ae49-3ebd88912f96"
       ],
+      "disabled": true,
       "settings": {
         "enable_s_servicebox": true,
         "bg_image": "shopify://shop_images/about-Mission.jpg"
@@ -521,7 +478,6 @@
     },
     "our_teams": {
       "type": "our-teams",
-      "disabled": true,
       "blocks": {
         "7240b5e3-fef0-4464-8dc5-15860f825a7c": {
           "type": "teams",
@@ -574,6 +530,7 @@
         "b74f707a-a910-4efb-bb5a-c7f8481275d5",
         "539e7d51-149b-44ec-bdf6-212979ba43c6"
       ],
+      "disabled": true,
       "settings": {
         "enable_teams": true,
         "title_teams": "Behind The Brands",

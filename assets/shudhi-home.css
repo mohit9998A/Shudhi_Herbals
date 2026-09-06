@@ -934,6 +934,31 @@ a.sh-story__play:hover {
 .sh-ritual .sh-ritual__bg {
   position: absolute; inset: 0; width: 100%; height: 100%;
   object-fit: cover; object-position: 50% 50%; z-index: 0;
+
+  /* The photograph is ATMOSPHERE, not subject — but it is still a photograph.
+     A soft focus at ~70% over the section's var(--sh-green-900): the scene
+     stays readable, the green still tints it, and the cards keep the contrast
+     the ::after ramp below was tuned for. Both numbers are merchant settings
+     (--sh-ritual-photo, --sh-ritual-blur); the fallbacks match the schema
+     defaults so the band is right even if the style attribute is ever dropped.
+
+     scale() IS NOT DECORATION AND MUST NOT BE REMOVED. A CSS blur samples
+     beyond the element's own box and finds nothing there, so an un-scaled
+     image feathers to transparent at all four edges and the band renders with
+     a pale halo frame around a soft-edged photo. The overscale pushes those
+     feathered edges outside the section's overflow:hidden clip. It is sized
+     against the SHORT axis and against the setting's CEILING, not its default:
+     at the 60svh floor (~500px) each 10% edge is ~50px, which still covers the
+     ~3σ reach of a 20px blur. So it stays at 1.2 even though the 4px default
+     would be safe at 1.05 — the merchant can take the slider to 20 without
+     the halo coming back, and the extra crop costs nothing on a backdrop.
+
+     No transform lands on this element from §27's entrance — the armed rules
+     there address __stage / __layer / __rise / __soap, never __bg — so this
+     is not competing with an animation for the transform property. */
+  filter: blur(var(--sh-ritual-blur, 4px)) saturate(.9);
+  opacity: var(--sh-ritual-photo, .7);
+  transform: scale(1.2);
 }
 /* FIVE STOPS, AND THE MIDDLE ONE IS WHERE THE SOAP IS.
 
@@ -5168,8 +5193,20 @@ a.sh-story__play:hover {
       (:113) are (0,1,1); a bare class loses to them.
    ============================================================ */
 
-/* Legacy heading rules uppercase h2/h3 site-wide; every sh-* section opts out. */
-.sh-faq h2, .sh-faq h3 { color: inherit; text-transform: none; margin: 0; }
+/* Legacy heading rules uppercase h2/h3 site-wide; every sh-* section opts out.
+   h1 is in the list because sh-faq.liquid's `standalone` mode promotes the
+   title — the same opt-out .sh-pagehead h1 (:1375) already makes. */
+.sh-faq h1, .sh-faq h2, .sh-faq h3 { color: inherit; text-transform: none; margin: 0; }
+
+/* Standalone /pages/faqs: the band is the first thing under the solid header.
+   timber's .main-content { margin-top: 30px } (timber.scss.liquid:743) is
+   zeroed for template-index alone, and a page template's body class is only
+   `template-page`, so without this the white body bg shows as a 30px stripe
+   between the header and the cream. Keyed on the MODIFIER, not the base class,
+   so the homepage — where .sh-faq sits mid-page and the 30px is correct —
+   never matches. Same :has() trade as :1364 and shudhi-story.css:738: an
+   engine without :has() keeps today's stripe, degraded but never broken. */
+.main-content:has(.sh-faq--page) { margin-top: 0; }
 
 .sh-faq {
   /* Light-surface trio re-declared, not referenced — same trade as §27:4813. */

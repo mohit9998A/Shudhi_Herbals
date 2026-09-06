@@ -1361,6 +1361,228 @@
   .sh-pdp__why-item:nth-child(2n)::after { display: none; }
 }
 
+/* ------------------------------------------------------- key ingredients */
+
+/* Four photo cards under the split grid. Unlike .sh-pdp__why-grid — which is
+   trapped in the ~470px buy column and so drops to 2-up as early as 990px —
+   this band spans the full .sh-wrap, so it holds four across down to 900px.
+
+   The circle is the load-bearing part. The shipped ingredient photographs are
+   landscape 3:2 with dark vignetted backgrounds, not cut-outs, so they are
+   masked into a round well and cover-cropped rather than dropped flat onto the
+   card. object-fit does the crop; asset_img_url cannot (it has no crop param).
+   Keep overflow: hidden on the well — without it the photo escapes the mask. */
+
+.sh-pdp__ing {
+  margin-top: clamp(28px, 4vw, 52px);
+}
+
+.sh-pdp .sh-pdp__ing-title {
+  margin: 0 0 clamp(16px, 2vw, 24px);
+  font-size: clamp(1.35rem, 1.8vw, 1.7rem);
+  color: var(--sh-story-ink);
+}
+
+.sh-pdp__ing-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(14px, 1.6vw, 20px);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sh-pdp__ing-card {
+  display: grid;
+  justify-items: center;
+  align-content: start;
+  gap: 12px;
+  padding: clamp(20px, 2.2vw, 28px) clamp(14px, 1.6vw, 20px);
+  text-align: center;
+  background: var(--sh-pdp-card);
+  border: 1px solid var(--sh-pdp-line);
+  border-radius: var(--sh-pdp-radius);
+  transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
+}
+
+.sh-pdp__ing-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--sh-pdp-line-strong);
+  box-shadow: 0 10px 24px rgba(27, 42, 18, 0.08);
+}
+
+.sh-pdp__ing-media {
+  display: block;
+  width: 110px;
+  height: 110px;
+  overflow: hidden;
+  border: 1px solid rgba(184, 150, 92, 0.38);
+  border-radius: 50%;
+  transition: transform 0.3s ease;
+}
+
+.sh-pdp .sh-pdp__ing-media img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+.sh-pdp__ing-card:hover .sh-pdp__ing-media { transform: scale(1.05); }
+
+.sh-pdp .sh-pdp__ing-name {
+  font-family: var(--sh-sans);
+  font-size: 0.78rem;
+  font-weight: 500;
+  line-height: 1.3;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--sh-story-ink);
+}
+
+.sh-pdp .sh-pdp__ing-text {
+  margin: 0;
+  max-width: 26ch;
+  font-size: 0.76rem;
+  line-height: 1.55;
+  color: var(--sh-story-body);
+}
+
+@media (max-width: 899px) {
+  .sh-pdp__ing-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 599px) {
+  .sh-pdp__ing-media { width: 84px; height: 84px; }
+}
+
+/* --------------------------------------------------------- benefits band */
+
+/* Six label tiles on a blush card, under the ingredient band. Deliberately
+   the quietest thing on the page: one glyph and one word per tile, no
+   photography and no sub-copy, so it reads as a spec strip rather than a
+   second pitch after "Why you'll love it".
+
+   Two decisions worth keeping:
+
+   - THE TILE BORDER IS TRANSPARENT AT REST, not absent. The card is white on
+     blush, so it needs no resting outline, but the 1px has to exist or the
+     hover border would grow the tile by 2px and nudge its five neighbours.
+   - SIX FIXED COLUMNS, not auto-fit — see (b) in the section comment. It
+     steps to 3-up at 899 and 2-up at 599, which keeps every tile above the
+     ~110px at which "AURA CLEANSING" starts breaking mid-word. */
+
+.sh-pdp__ben {
+  margin-top: clamp(28px, 4vw, 52px);
+  padding: clamp(22px, 3vw, 36px) clamp(16px, 2.4vw, 34px);
+  background: var(--sh-pdp-blush);
+  border-radius: var(--sh-pdp-radius);
+}
+
+.sh-pdp .sh-pdp__ben-title {
+  margin: 0 0 clamp(16px, 2vw, 24px);
+  font-size: clamp(1.35rem, 1.8vw, 1.7rem);
+  color: var(--sh-story-ink);
+}
+
+.sh-pdp__ben-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: clamp(10px, 1.3vw, 18px);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sh-pdp__ben-card {
+  display: grid;
+  justify-items: center;
+  align-content: start;
+  gap: 14px;
+  padding: clamp(18px, 2vw, 26px) 10px;
+  text-align: center;
+  background: var(--sh-pdp-card);
+  border: 1px solid transparent;
+  border-radius: var(--sh-pdp-radius);
+  transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
+}
+
+.sh-pdp__ben-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--sh-pdp-line);
+  box-shadow: 0 10px 24px rgba(27, 42, 18, 0.08);
+}
+
+.sh-pdp__ben-icon {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--sh-pdp-tint);
+  color: var(--sh-story-ink);
+  transition: transform 0.25s ease;
+}
+
+.sh-pdp__ben-icon .sh-icon { width: 24px; height: 24px; }
+.sh-pdp__ben-card:hover .sh-pdp__ben-icon { transform: scale(1.08); }
+
+.sh-pdp .sh-pdp__ben-label {
+  font-family: var(--sh-sans);
+  font-size: 0.72rem;
+  font-weight: 500;
+  line-height: 1.35;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--sh-story-body);
+}
+
+@media (max-width: 899px) {
+  .sh-pdp__ben-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+@media (max-width: 599px) {
+  .sh-pdp__ben-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .sh-pdp__ben-icon { width: 46px; height: 46px; }
+}
+
+/* ---------------------------------------------------------- trust ribbon */
+
+/* The homepage trust marquee, icons only, under the split grid. Everything
+   that makes it work — the medallion glass, the glyph gradients, the looping
+   track, the edge mask, the hover pause, the three responsive bands and the
+   reduced-motion wrap — is shudhi-home.css §26 and is reused untouched. This
+   block only undoes the two things a full-width SECTION does that a strip
+   inside a page must not: paint its own band background, and carry
+   section-sized vertical padding.
+
+   Deliberately NOT a copy of §26 under a .sh-pdp__ prefix. One ribbon that
+   renders identically in two places is worth more than two that drift, and
+   this file already loads after shudhi-home.css, so a two-class override is
+   all the extra specificity the variant needs.
+
+   --sh-tm-icon and --sh-tm-speed arrive inline from the section and must stay
+   there: an inline custom property beats any rule here, media query included.
+   The 31s is not the homepage's 52s because velocity is groupWidth/duration,
+   and a labelless item is roughly half as wide — the same 52s would read as
+   half the speed. The two move together: enlarging the icon widens every item,
+   so a bigger --sh-tm-icon needs a proportionally longer --sh-tm-speed or the
+   ribbon quietly slows down. */
+.sh-pdp .sh-tmarquee--icons {
+  --sh-tm-bg: transparent;
+  margin-top: clamp(28px, 3.6vw, 44px);
+  padding-block: 0;
+}
+
+/* gap is the medallion-to-label gutter, and there is no label here. Left at
+   14px it would show up as asymmetric padding on every item. */
+.sh-pdp .sh-tmarquee--icons .sh-tmarquee__item {
+  gap: 0;
+  padding-inline: clamp(14px, 2vw, 26px);
+  padding-block: clamp(14px, 1.6vw, 20px);
+}
+
 /* ---------------------------------------------------------- social proof */
 
 .sh-pdp__proof {
@@ -1811,7 +2033,11 @@ html.sh-pdp-sticky-up #hov-chat-widget {
   .sh-pdp__why-icon,
   .sh-pdp .sh-pdp__lightbox img,
   .sh-pdp .sh-pdp__lightbox .sh-pdp__lb-btn { transition: none !important; }
+  .sh-pdp__ben-card,
+  .sh-pdp__ben-icon { transition: none !important; }
   .sh-pdp .sh-pdp__stage .sh-pdp__nav:hover,
+  .sh-pdp__ben-card:hover,
+  .sh-pdp__ben-card:hover .sh-pdp__ben-icon,
   .sh-pdp__why-item:hover .sh-pdp__why-icon { transform: none !important; }
   .sh-pdp__lightbox.is-loading .sh-pdp__lb-stage::after { animation: none !important; }
 }

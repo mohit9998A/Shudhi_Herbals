@@ -137,10 +137,17 @@
 {%- assign has_content = false -%}
 {%- if live > 0 or shell -%}{%- assign has_content = true -%}{%- endif -%}
 
+{%- comment -%} The photo-strip label is delivered as a custom property so the
+    ::before that carries it stays merchant-editable. CSS strings here MUST be
+    single-quoted — this whole declaration lives inside a double-quoted style
+    attribute — so any apostrophe in the copy is dropped before `escape` can
+    turn it into &#39; and close the string early. {%- endcomment -%}
+{%- assign media_label = s.media_label | strip | replace: "'", "" -%}
+
 {%- if has_content -%}
-<section class="sh sh-rev{% if shell %} sh-rev--shell{% endif %}"
+<section class="sh sh-rev{% if shell %} sh-rev--shell{% endif %}{% if media_label != blank %} sh-rev--medialabel{% endif %}"
          id="sh-reviews"
-         style="--sh-rev-bg:{{ s.bg }};--sh-rev-pad-top:{{ s.pad_top }}px;--sh-rev-pad-bottom:{{ s.pad_bottom }}px;"
+         style="--sh-rev-bg:{{ s.bg }};--sh-rev-pad-top:{{ s.pad_top }}px;--sh-rev-pad-bottom:{{ s.pad_bottom }}px;{% if media_label != blank %}--sh-rev-media-label:'{{ media_label | escape }}';{% endif %}"
          data-sh-rev
          data-rev-initial="{{ s.initial_count }}"
          aria-labelledby="sh-rev-title-{{ uid }}">
@@ -518,6 +525,10 @@
     { "type": "header", "content": "Summary" },
     { "type": "checkbox", "id": "show_summary", "label": "Show the rating summary", "default": true },
     { "type": "checkbox", "id": "show_bars", "label": "Show the 5→1 breakdown bars", "default": true },
+
+    { "type": "header", "content": "Customer photos" },
+    { "type": "text", "id": "media_label", "label": "Label above the photo strip", "default": "Photos from our customers",
+      "info": "Shell mode only. Judge.me renders the strip of customer photos; this is the line that sits above it, so a single photo does not read as a stray thumbnail. Leave empty to hide the line." },
 
     { "type": "header", "content": "List" },
     { "type": "range", "id": "initial_count", "label": "Reviews shown before “Load more”", "min": 2, "max": 24, "step": 1, "default": 6,

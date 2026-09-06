@@ -25,8 +25,19 @@
   3. THE ROW COUNTER IS COUNTED, NOT forloop.index. Rows with a blank question
      or answer are skipped, so forloop.index would leave holes in the numbering.
 
-  4. <h2> title, <h3> questions. The homepage h1 belongs to
-     sections/sh-hero-scroll.liquid; the outline stays h1 -> h2 -> h3.
+  4. <h3> QUESTIONS, AND THE TITLE FOLLOWS THE PAGE. On the homepage the h1
+     belongs to sections/sh-hero-scroll.liquid, so the title is an <h2> and the
+     outline stays h1 -> h2 -> h3. On /pages/faqs there is no other heading to
+     defer to, so `standalone` promotes it — see (5).
+
+  5. `standalone` IS THE PAGE-vs-BAND SWITCH. templates/page.faqs.json turns it
+     on; the homepage leaves it off. On it does three things at once, because
+     they are the same fact stated three ways — this instance is the canonical
+     FAQ document, not a teaser: the title becomes the page's <h1> (nothing else
+     on that template supplies one), .sh-faq--page zeroes timber's
+     .main-content margin so the cream band sits flush under the solid header
+     (shudhi-home.css:5172 — same :has() trade as .sh-pagehead), and the rows
+     are emitted as FAQPage JSON-LD. Never turn it on twice in one page.
 
   The richtext answers are output unescaped on purpose — that is the setting's
   contract (Shopify sanitises it to p/br/strong/em/u/span/a/ul) and it is how a
@@ -37,6 +48,10 @@
 {%- assign uid = section.id | default: 'faq' -%}
 {%- assign cta_href = s.cta_link | default: '/pages/contact' -%}
 
+{%- comment -%} See (5). {%- endcomment -%}
+{%- assign ht = 'h2' -%}
+{%- if s.standalone -%}{%- assign ht = 'h1' -%}{%- endif -%}
+
 {%- comment -%} See (3). {%- endcomment -%}
 {%- assign live = 0 -%}
 {%- for block in section.blocks -%}
@@ -46,7 +61,7 @@
 {%- endfor -%}
 
 {%- if live > 0 -%}
-<section class="sh sh-faq{% if s.show_numbers %} sh-faq--numbered{% endif %}"
+<section class="sh sh-faq{% if s.show_numbers %} sh-faq--numbered{% endif %}{% if s.standalone %} sh-faq--page{% endif %}"
          id="faq"
          style="--sh-faq-bg:{{ s.bg }};"
          aria-labelledby="sh-faq-title-{{ uid }}">
@@ -60,9 +75,9 @@
               {{ s.eyebrow }}{% render 'sh-icon', name: 'leaf' %}
             </div>
           {%- endif -%}
-          <h2 class="sh-faq__title sh-serif" id="sh-faq-title-{{ uid }}">
+          <{{ ht }} class="sh-faq__title sh-serif" id="sh-faq-title-{{ uid }}">
             {{- s.title | default: 'Frequently asked questions' -}}
-          </h2>
+          </{{ ht }}>
           {%- if s.body != blank -%}
             <p class="sh-faq__body">{{ s.body }}</p>
           {%- endif -%}
@@ -106,6 +121,35 @@
     </div>
   </div>
 </section>
+
+{%- comment -%} See (5). Same shape as sh-reviews.liquid:465 — commas counted,
+    every value through `json`. Questions are plain text; the richtext answers
+    keep their markup, which Google's FAQPage spec allows. {%- endcomment -%}
+{%- if s.standalone -%}
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org/",
+    "@type": "FAQPage",
+    "@id": {{ canonical_url | append: '#faq' | json }},
+    "mainEntity": [
+      {%- assign j = 0 -%}
+      {%- for block in section.blocks -%}
+        {%- if block.settings.question == blank or block.settings.answer == blank -%}{%- continue -%}{%- endif -%}
+        {%- assign j = j | plus: 1 -%}
+        {%- if j > 1 %},{% endif %}
+        {
+          "@type": "Question",
+          "name": {{ block.settings.question | strip_html | json }},
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": {{ block.settings.answer | json }}
+          }
+        }
+      {%- endfor -%}
+    ]
+  }
+  </script>
+{%- endif -%}
 {%- endif -%}
 
 {% schema %}
@@ -122,6 +166,10 @@
     { "type": "text", "id": "cta_label", "label": "Button text", "default": "Contact us",
       "info": "Leave empty to hide the button." },
     { "type": "url", "id": "cta_link", "label": "Button link", "info": "Defaults to /pages/contact." },
+
+    { "type": "header", "content": "Standalone FAQ page" },
+    { "type": "checkbox", "id": "standalone", "label": "This section is the whole page", "default": false,
+      "info": "On for /pages/faqs only. Promotes the heading to the page's h1, pulls the band flush under the site header, and emits FAQPage structured data. Leave it off on the homepage — there the h1 belongs to the hero and the band is a teaser, not the canonical answer set." },
 
     { "type": "header", "content": "Rows" },
     { "type": "checkbox", "id": "show_numbers", "label": "Number the questions", "default": true },

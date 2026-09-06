@@ -790,6 +790,154 @@
       {%- endif -%}
     </div>
 
+    {%- comment -%}
+      Key ingredients — a full-grid-width band between the two-column grid and
+      the trust ribbon. Three things are worth knowing here:
+
+      a. THE COUNT RUNS FIRST. Same rule as the FAQ above: an all-blank block
+         list must leave no heading and no empty bordered row behind, so the
+         band is gated on a counted total rather than on section.blocks.size.
+      b. THE PHOTO IS CENTRE-CROPPED TO A CIRCLE BY CSS, not by a Liquid crop
+         param. asset_img_url has no crop argument, so '480x' only constrains
+         width; .sh-pdp__ing-media does the round mask and object-fit: cover.
+         That is why the img carries no square dimensions of its own.
+      c. THE ASSET BRANCH IS THE ONE IN USE. The ingredient photographs ship in
+         the theme's Assets folder, so blocks name a filename rather than a
+         merchant upload. The image_picker still wins when one is chosen, which
+         keeps the band editable without re-uploading anything to Files.
+    {%- endcomment -%}
+    {%- liquid
+      assign ing_count = 0
+      for block in section.blocks
+        if block.type == 'ingredient' and block.settings.title != blank
+          assign ing_count = ing_count | plus: 1
+        endif
+      endfor
+    -%}
+    {%- if s.show_ingredients and ing_count > 0 -%}
+      <div class="sh-pdp__ing">
+        {%- if s.ingredients_heading != blank -%}
+          <h2 class="sh-pdp__ing-title sh-serif">{{ s.ingredients_heading }}</h2>
+        {%- endif -%}
+        <ul class="sh-pdp__ing-grid" role="list">
+          {%- for block in section.blocks -%}
+            {%- if block.type == 'ingredient' and block.settings.title != blank -%}
+              {%- assign b = block.settings -%}
+              <li class="sh-pdp__ing-card" {{ block.shopify_attributes }}>
+                {%- if b.image != blank or b.asset != blank -%}
+                  <span class="sh-pdp__ing-media">
+                    {%- if b.image != blank -%}
+                      <img src="{{ b.image | image_url: width: 480 }}"
+                           alt="{{ b.image.alt | default: b.title | escape }}"
+                           width="480" height="{{ 480 | divided_by: b.image.aspect_ratio | round }}"
+                           loading="lazy" decoding="async">
+                    {%- else -%}
+                      <img src="{{ b.asset | asset_img_url: '480x' }}"
+                           alt="{{ b.title | escape }}"
+                           width="480" height="320" loading="lazy" decoding="async">
+                    {%- endif -%}
+                  </span>
+                {%- endif -%}
+                <h3 class="sh-pdp__ing-name">{{ b.title }}</h3>
+                {%- if b.text != blank -%}<p class="sh-pdp__ing-text">{{ b.text | escape }}</p>{%- endif -%}
+              </li>
+            {%- endif -%}
+          {%- endfor -%}
+        </ul>
+      </div>
+    {%- endif -%}
+
+    {%- comment -%}
+      Benefits — a blush card of icon tiles, between the ingredient band and
+      the trust ribbon. Three things worth knowing:
+
+      a. THE COUNT RUNS FIRST. Same rule as the FAQ and the ingredient band
+         above: an all-blank block list must leave no heading and no empty
+         blush card behind, so the band is gated on a counted total rather
+         than on section.blocks.size.
+      b. THE COLUMN COUNT IS FIXED AT SIX, not auto-fit, and the block limit
+         is 6 to match. Six is the designed row; auto-fit would quietly
+         reflow a seventh tile into a ragged second row instead of making the
+         over-count visible in the editor.
+      c. THE GLYPHS ARE DECORATIVE. Every tile's meaning is carried by its
+         visible label, and sh-icon already emits aria-hidden, so there is no
+         second accessible name to write here. That is also why the tile has
+         no sub-copy: this band is a spec strip, not a second pitch.
+    {%- endcomment -%}
+    {%- liquid
+      assign ben_count = 0
+      for block in section.blocks
+        if block.type == 'benefit' and block.settings.title != blank
+          assign ben_count = ben_count | plus: 1
+        endif
+      endfor
+    -%}
+    {%- if s.show_benefits and ben_count > 0 -%}
+      <div class="sh-pdp__ben">
+        {%- if s.benefits_heading != blank -%}
+          <h2 class="sh-pdp__ben-title sh-serif">{{ s.benefits_heading }}</h2>
+        {%- endif -%}
+        <ul class="sh-pdp__ben-grid" role="list">
+          {%- for block in section.blocks -%}
+            {%- if block.type == 'benefit' and block.settings.title != blank -%}
+              <li class="sh-pdp__ben-card" {{ block.shopify_attributes }}>
+                <span class="sh-pdp__ben-icon">{% render 'sh-icon', name: block.settings.icon, sw: 1.3 %}</span>
+                <h3 class="sh-pdp__ben-label">{{ block.settings.title }}</h3>
+              </li>
+            {%- endif -%}
+          {%- endfor -%}
+        </ul>
+      </div>
+    {%- endif -%}
+
+    {%- comment -%}
+      Trust ribbon — the homepage marquee (sections/sh-trust-marquee.liquid),
+      icons only, sitting under the buy column's FAQ and above the proof band.
+      It reuses .sh-tmarquee wholesale — same medallions, same glyphs, same
+      loop — and shudhi-product.css only undoes the band background and the
+      section-sized padding a full-width section needs and a strip does not.
+
+      Three things carry over from that section verbatim:
+
+      a. THE DEFS ARE RENDERED ONCE, ABOVE BOTH PASSES. The track duplicates
+         every item so translateX(-50%) can loop seamlessly, so each glyph
+         exists twice. Rendering the gradients inside the icon would emit
+         sixteen copies of the same ids — duplicate DEFINITIONS, which are
+         invalid and silently collapse to the first. The full reasoning is in
+         snippets/sh-trust-icon.liquid:20-31.
+      b. THE SECOND PASS CARRIES aria-hidden. shudhi-home.css:5116 hides
+         `.sh-tmarquee__group[aria-hidden="true"]` under reduced motion, so the
+         wrapped static layout shows the set once rather than twice.
+      c. THE STRIP IS DECORATIVE, and that is why aria-hidden sits on the root
+         too. It carries no labels by design, so there is no claim here for a
+         screen reader to read; announcing eight certifications that no sighted
+         visitor can read on this page would be worse than saying nothing.
+
+      The icon list mirrors the homepage block order in templates/index.json.
+    {%- endcomment -%}
+    {%- assign rib_gid = 'sh-pdp-tm-' | append: section.id -%}
+    {%- assign rib_icons = 'lab,iso,batch,sls,paraben,toxin,cruelty,natural' | split: ',' -%}
+    <div class="sh-tmarquee sh-tmarquee--icons sh-tmarquee--ruled sh-tmarquee--hoverpause"
+         style="--sh-tm-icon:68px;--sh-tm-speed:31s;" aria-hidden="true">
+      {%- comment -%} See (a). Must precede any icon that references it. {%- endcomment -%}
+      {% render 'sh-trust-icon', mode: 'defs', gid: rib_gid %}
+      <div class="sh-tmarquee__viewport">
+        <div class="sh-tmarquee__track">
+          {%- for pass in (1..2) -%}
+            <ul class="sh-tmarquee__group"{% if forloop.index == 2 %} aria-hidden="true"{% endif %}>
+              {%- for ic in rib_icons -%}
+                <li class="sh-tmarquee__item">
+                  <span class="sh-tmarquee__medallion">
+                    {% render 'sh-trust-icon', mode: 'icon', name: ic, gid: rib_gid %}
+                  </span>
+                </li>
+              {%- endfor -%}
+            </ul>
+          {%- endfor -%}
+        </div>
+      </div>
+    </div>
+
     {%- if s.show_proof -%}
       {%- comment -%} The shipping line follows Theme settings > Cart Drawer, so it
           can never disagree with the drawer's own free-shipping bar. {%- endcomment -%}
@@ -912,6 +1060,11 @@
 </section>
 
 <script src="{{ 'sh-product.js' | asset_url }}" defer></script>
+{%- comment -%} Stops the trust ribbon compositing while it is off screen, and
+    does nothing else. It can only ever ADD .is-paused, so a 404 or an exception
+    leaves the ribbon running rather than parked — the polarity that file's
+    header argues for at length. {%- endcomment -%}
+<script src="{{ 'sh-trust-marquee.js' | asset_url }}" defer></script>
 
 {% schema %}
 {
@@ -989,6 +1142,16 @@
       "info": "Faint, behind the text. Without one the theme's forest photo is used." },
     { "type": "range", "id": "why_bg_strength", "label": "Photo strength", "min": 0, "max": 60, "step": 2, "unit": "%", "default": 18 },
 
+    { "type": "header", "content": "Key ingredients" },
+    { "type": "checkbox", "id": "show_ingredients", "label": "Show the band", "default": true,
+      "info": "Built from the \"Key ingredient\" blocks. Hidden when there are none." },
+    { "type": "text", "id": "ingredients_heading", "label": "Heading", "default": "Key Ingredients" },
+
+    { "type": "header", "content": "Benefits band" },
+    { "type": "checkbox", "id": "show_benefits", "label": "Show the band", "default": true,
+      "info": "Built from the \"Benefits tile\" blocks. Hidden when there are none." },
+    { "type": "text", "id": "benefits_heading", "label": "Heading", "default": "Benefits" },
+
     { "type": "header", "content": "Social proof bar" },
     { "type": "checkbox", "id": "show_proof", "label": "Show the bar", "default": true },
     { "type": "text", "id": "proof_heading", "label": "Headline", "default": "Loved by 10,000+ customers",
@@ -1016,7 +1179,7 @@
     { "type": "checkbox", "id": "show_reviews", "label": "Show reviews", "default": true,
       "info": "Renders only once a reviews app has written data for this product." }
   ],
-    "max_blocks": 30,
+    "max_blocks": 40,
   "blocks": [
     { "type": "pack", "name": "Pack option", "limit": 6, "settings": [
       { "type": "paragraph", "content": "Pack options pair with the product's variants top to bottom — the first of these re-dresses the first variant. A variant with no block keeps its admin title. The price charged is always the variant's own price in Shopify admin; nothing here changes it." },
@@ -1058,6 +1221,21 @@
         "options": [ { "value": "sparkle", "label": "Sparkle" }, { "value": "shield", "label": "Shield" }, { "value": "leaf-line", "label": "Leaf" }, { "value": "meditate", "label": "Meditate" }, { "value": "lotus", "label": "Lotus" }, { "value": "drop", "label": "Drop" }, { "value": "sun", "label": "Sun" }, { "value": "heart-check", "label": "Heart with check" }, { "value": "hands-heart", "label": "Hands & heart" }, { "value": "face-sparkle", "label": "Glowing skin" }, { "value": "bubbles", "label": "Lather" }, { "value": "plant", "label": "Plant" } ] },
       { "type": "text", "id": "title", "label": "Title", "default": "Purifies Energy" },
       { "type": "textarea", "id": "text", "label": "Text", "info": "Two short lines read best." }
+    ] },
+    { "type": "ingredient", "name": "Key ingredient", "limit": 4, "settings": [
+      { "type": "image_picker", "id": "image", "label": "Photo",
+        "info": "Shown in a circle. Anything not square is centre-cropped, so keep the subject central." },
+      { "type": "text", "id": "asset", "label": "Fallback image file (in Assets)",
+        "info": "Filename of an image already in the theme's Assets folder — the ingredient photographs ship there. Used only when no photo is picked above." },
+      { "type": "text", "id": "title", "label": "Name", "default": "Sage" },
+      { "type": "textarea", "id": "text", "label": "Description", "info": "Two short lines read best." }
+    ] },
+    { "type": "benefit", "name": "Benefits tile", "limit": 6, "settings": [
+      { "type": "paragraph", "content": "The six-tile blush band under Key ingredients. Distinct from \"Benefit\", which is the icon strip under the gallery." },
+      { "type": "select", "id": "icon", "label": "Icon", "default": "aura",
+        "options": [ { "value": "aura", "label": "Aura" }, { "value": "no-negativity", "label": "No negativity" }, { "value": "calm-mind", "label": "Calm mind" }, { "value": "hand", "label": "Hand" }, { "value": "mortar", "label": "Mortar & pestle" }, { "value": "oil-drop", "label": "Oil drop" }, { "value": "lotus", "label": "Lotus" }, { "value": "leaf-line", "label": "Leaf" }, { "value": "hand-line", "label": "Hands" }, { "value": "heart-line", "label": "Heart" }, { "value": "sparkle", "label": "Sparkle" }, { "value": "shield", "label": "Shield" }, { "value": "flask-line", "label": "Flask" }, { "value": "drop", "label": "Drop" } ] },
+      { "type": "text", "id": "title", "label": "Label", "default": "Aura Cleansing",
+        "info": "One or two words. Shown in small caps — anything longer wraps to a second line." }
     ] },
     { "type": "avatar", "name": "Customer avatar", "limit": 5, "settings": [
       { "type": "image_picker", "id": "image", "label": "Photo", "info": "Square, at least 96×96. Without a photo a neutral circle with the initial is shown." },

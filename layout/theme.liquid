@@ -182,6 +182,14 @@
        template has a scroll-scrub canvas for it to drive. {%- endcomment -%}
    {{ 'shudhi-home.css' | asset_url | stylesheet_tag }}
 
+   {%- comment -%} Shopify has no `policy` template type, so /policies/* is rendered by
+       Shopify straight into content_for_layout and there is no section or template file
+       to hang this off — the layout is the only hook the five policy pages have. Gated
+       so the other 30-odd templates never fetch it. {%- endcomment -%}
+   {%- if request.page_type == 'policy' -%}
+     {{ 'shudhi-policy.css' | asset_url | stylesheet_tag }}
+   {%- endif -%}
+
    {%- comment -%} Body font — Shopify font library, self-hosted on Shopify's CDN and
        chosen in Theme settings > Typography. Replaces the Jost entry that used to ride
        along on the external Google Fonts <link> in snippets/engo-header-fonts.liquid;
@@ -396,8 +404,12 @@ sits in normal flow, so that padding would now double-offset every inner page.
         drawer covers mobile. It used to render unconditionally, so it was
         double-stacking a second nav under 1200px even on the homepage.
       {%- endcomment -%}
-      <main id="MainContent" class="main-content" role="main">
+      {%- comment -%} `sh sh-policy` on /policies/* is what assets/shudhi-policy.css
+          scopes to — Shopify owns the markup inside those pages, so this class and the
+          snippet below are the only two hooks the theme gets. {%- endcomment -%}
+      <main id="MainContent" class="main-content{% if request.page_type == 'policy' %} sh sh-policy{% endif %}" role="main">
         {{ content_for_layout }}
+        {%- if request.page_type == 'policy' -%}{% render 'sh-policy-links' %}{%- endif -%}
       </main>
 
       {%- comment -%} One Shudhi footer everywhere. Non-index templates

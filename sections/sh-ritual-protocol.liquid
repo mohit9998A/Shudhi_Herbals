@@ -1,0 +1,227 @@
+{%- comment -%}
+  SHUDHI — Why We Keep Our Process Private / The Shudhi Protocol™
+
+  The closing band of The Ritual page, directly under sh-ritual-energize. That
+  band names the five stages; this one answers the question it provokes — why
+  the method itself stays private — and then re-states the four standing trust
+  claims so the page lands on proof rather than on mystique.
+
+  Two cream panels in one row (stacked below 900px), then a centred closing
+  line. Nothing rotates, nothing autoplays: the band above already owns the
+  page's motion budget, and the brand rule is restraint on this template.
+
+  FAILS OPEN. Liquid stamps the complete resting state. No script, no
+  stylesheet, no observer — the band still reads as designed. The entrance is
+  the house data-sh-reveal system (shudhi-story.css + sh-story-motion.js),
+  exactly as sections/sh-ritual-stages.liquid and sh-ritual-energize.liquid.
+
+  THE FOUR CASCADE TRAPS THIS MARKUP IS SHAPED AROUND (all in shudhi-home.css):
+    :112  `.sh h1..h6, .sh p { margin: 0 }` is (0,1,1) — every margin in the
+          stylesheet is written at (0,2,0) or it silently does nothing.
+    :113  `.sh ul, .sh ol { list-style: none }` strips the bullets, which also
+          strips the list SEMANTICS in Safari/VoiceOver — hence role="list".
+    :114  `.sh svg { max-width: 100% }` is (0,1,1) and would SHRINK the
+          oversized branch to its panel instead of letting the panel crop it.
+    :145  `.sh h1..h6 { font-family: var(--sh-serif) !important }` — the panel
+          titles are serif letterspaced caps in the reference, so they simply
+          inherit. The closer is a <p> and needs .sh-serif to opt IN.
+
+  PORTABLE: this file + assets/shudhi-ritual-protocol.css. No shared file is
+  touched. Every glyph comes from the existing snippets/sh-icon.liquid registry;
+  only the two decorative pieces with no registry equivalent — the leaf sprig
+  divider and the botanical branch — are inlined here, the same call
+  sh-ritual-stages.liquid and sh-ritual-energize.liquid made.
+{%- endcomment -%}
+
+{{ 'shudhi-story.css' | asset_url | stylesheet_tag }}
+{{ 'shudhi-ritual-protocol.css' | asset_url | stylesheet_tag }}
+
+{%- assign s = section.settings -%}
+
+{%- comment -%} The leaf sprig, lifted verbatim from sections/sh-ritual-stages.liquid:48
+    so the two bands on this page share one ornament vocabulary. {%- endcomment -%}
+{%- capture sprig -%}
+<svg class="sh-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 17c0-4.2 2.6-6.8 6.4-6.8 0 4.2-2.6 6.8-6.4 6.8Z"/><path d="M12 17c0-4.2-2.6-6.8-6.4-6.8 0 4.2 2.6 6.8 6.4 6.8Z"/><path d="M12 17v-5.2"/><path d="M12 8.6V6"/></svg>
+{%- endcapture -%}
+
+{%- comment -%} Written once, emitted twice; the right panel mirrors it in CSS
+    with scaleX(-1) so one path serves both edges. {%- endcomment -%}
+{%- capture branch -%}
+<svg class="sh-protocol__branch" viewBox="0 0 120 260" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+  <path d="M104 2C88 40 74 82 64 122C54 162 46 202 38 252"/>
+  <path d="M92 30Q110.6 23.1 116 4Q97.4 10.9 92 30Z"/>
+  <path d="M80 62Q70.9 45.4 52 44Q61.1 60.6 80 62Z"/>
+  <path d="M72 92Q92.4 90.8 104 74Q83.6 75.2 72 92Z"/>
+  <path d="M62 126Q50.8 110.8 32 112Q43.2 127.2 62 126Z"/>
+  <path d="M54 160Q73.6 161.3 86 146Q66.4 144.7 54 160Z"/>
+  <path d="M46 194Q35.1 180.7 18 182Q28.9 195.3 46 194Z"/>
+  <path d="M40 224Q56.7 226.5 68 214Q51.3 211.5 40 224Z"/>
+</svg>
+{%- endcapture -%}
+
+<section class="sh sh-protocol"
+         {%- if s.anchor_id != blank %} id="{{ s.anchor_id | handle }}"{% endif %}
+         {%- if s.animate %} data-sh-reveal{% endif %}
+         style="--sh-protocol-bg:{{ s.bg }};">
+
+  <div class="sh-wrap">
+
+    <svg class="sh-protocol__arc" viewBox="0 0 120 20" fill="currentColor" stroke="none" aria-hidden="true" focusable="false" data-sh-fade style="--i:0">
+      <circle cx="6" cy="15" r="1.9"/>
+      <circle cx="33" cy="8.5" r="1.9"/>
+      <circle cx="60" cy="5.5" r="1.9"/>
+      <circle cx="87" cy="8.5" r="1.9"/>
+      <circle cx="114" cy="15" r="1.9"/>
+    </svg>
+
+    <div class="sh-protocol__grid">
+
+      {%- comment -%} ---- Panel 1 — why the method stays private ------------- {%- endcomment -%}
+      <article class="sh-protocol__panel" data-sh-fade="soft" style="--i:1">
+        {%- comment -%} First child on purpose: absolutely positioned siblings
+            paint in DOM order, so this is what keeps the branch behind the copy. {%- endcomment -%}
+        {{ branch }}
+
+        {%- if s.reasons_title != blank -%}
+          <h3 class="sh-protocol__ptitle">{{ s.reasons_title }}</h3>
+        {%- endif -%}
+
+        <div class="sh-protocol__orn" aria-hidden="true"><i></i>{{ sprig }}<i></i></div>
+
+        <ul class="sh-protocol__reasons" role="list">
+          {%- for block in section.blocks -%}
+            {%- if block.type == 'reason' -%}
+              <li class="sh-protocol__reason" {{ block.shopify_attributes }}>
+                <span class="sh-protocol__ring">
+                  {% render 'sh-icon', name: block.settings.icon, sw: 1.2 %}
+                </span>
+                <p>{{ block.settings.text }}</p>
+              </li>
+            {%- endif -%}
+          {%- endfor -%}
+        </ul>
+      </article>
+
+      {%- comment -%} ---- Panel 2 — the protocol itself ---------------------- {%- endcomment -%}
+      <article class="sh-protocol__panel sh-protocol__panel--protocol" data-sh-fade="soft" style="--i:2">
+        {{ branch }}
+
+        {%- if s.protocol_title != blank -%}
+          <h3 class="sh-protocol__ptitle">{{ s.protocol_title }}</h3>
+        {%- endif -%}
+
+        <div class="sh-protocol__orn" aria-hidden="true"><i></i>{{ sprig }}<i></i></div>
+
+        <div class="sh-protocol__lead">
+          <span class="sh-protocol__seal" aria-hidden="true">
+            {% render 'sh-icon', name: s.seal_icon, sw: 1.2 %}
+          </span>
+          {%- if s.protocol_lead != blank -%}
+            <p>{{ s.protocol_lead }}</p>
+          {%- endif -%}
+        </div>
+
+        <ul class="sh-protocol__badges" role="list">
+          {%- for block in section.blocks -%}
+            {%- if block.type == 'badge' -%}
+              <li class="sh-protocol__badge" {{ block.shopify_attributes }}>
+                <span class="sh-protocol__bicon">
+                  {% render 'sh-icon', name: block.settings.icon, sw: 1.1 %}
+                </span>
+                <span class="sh-protocol__blabel">{{ block.settings.title }}</span>
+              </li>
+            {%- endif -%}
+          {%- endfor -%}
+        </ul>
+      </article>
+
+    </div>
+
+    {%- if s.closer != blank or s.closer_em != blank -%}
+      <p class="sh-protocol__closer sh-serif" data-sh-fade style="--i:3">
+        <span class="sh-protocol__cmark" aria-hidden="true">{{ sprig }}</span>
+        {{- s.closer -}}
+        {%- if s.closer_em != blank %} <em>{{ s.closer_em }}</em>{% endif -%}
+        <span class="sh-protocol__cmark" aria-hidden="true">{{ sprig }}</span>
+      </p>
+    {%- endif -%}
+
+  </div>
+</section>
+
+{%- if s.animate -%}
+  <script src="{{ 'sh-story-motion.js' | asset_url }}" defer></script>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "SH · Ritual Protocol",
+  "class": "index-section",
+  "settings": [
+    { "type": "text", "id": "reasons_title", "label": "Left panel — title", "default": "Why We Keep Our Process Private" },
+    { "type": "text", "id": "protocol_title", "label": "Right panel — title", "default": "The Shudhi Protocol™" },
+    { "type": "textarea", "id": "protocol_lead", "label": "Right panel — opening paragraph", "default": "Our proprietary five-stage ritual protocol consists of multiple energetic conditioning stages that remain confidential and known only to those involved in our production process." },
+    { "type": "select", "id": "seal_icon", "label": "Right panel — seal glyph", "default": "shudhi-mark", "options": [
+      { "value": "lotus", "label": "Lotus" },
+      { "value": "shudhi-mark", "label": "Shudhi mark" },
+      { "value": "sparkle", "label": "Sparkle" },
+      { "value": "leaf", "label": "Leaf" },
+      { "value": "plant", "label": "Plant" },
+      { "value": "lock", "label": "Padlock" },
+      { "value": "shield", "label": "Shield" } ] },
+
+    { "type": "header", "content": "Closing line" },
+    { "type": "text", "id": "closer", "label": "Closing line", "default": "Some traditions are preserved. Some are practiced.",
+      "info": "Set in uppercase by the stylesheet — type it in sentence case." },
+    { "type": "text", "id": "closer_em", "label": "Closing line — gold words", "default": "Only a few are experienced." },
+
+    { "type": "header", "content": "Motion" },
+    { "type": "checkbox", "id": "animate", "label": "Animate on scroll", "default": true,
+      "info": "Turns off the entrance only. The band still renders in full." },
+
+    { "type": "header", "content": "Appearance" },
+    { "type": "text", "id": "anchor_id", "label": "Anchor id",
+      "info": "Optional. Lets a button link straight to this band with #your-id. Must be unique on the page." },
+    { "type": "color", "id": "bg", "label": "Background", "default": "#f2ece0" }
+  ],
+  "blocks": [
+    { "type": "reason", "name": "Reason (left panel)", "settings": [
+      { "type": "textarea", "id": "text", "label": "Text", "default": "Many products can copy ingredients." },
+      { "type": "select", "id": "icon", "label": "Icon", "default": "shield", "options": [
+        { "value": "shield", "label": "Shield" },
+        { "value": "mortar", "label": "Mortar & pestle" },
+        { "value": "lock", "label": "Padlock" },
+        { "value": "leaf", "label": "Leaf" },
+        { "value": "plant", "label": "Plant" },
+        { "value": "badge", "label": "Badge" },
+        { "value": "eye", "label": "Eye" },
+        { "value": "sparkle", "label": "Sparkle" } ] }
+    ] },
+    { "type": "badge", "name": "Trust badge (right panel)", "settings": [
+      { "type": "text", "id": "title", "label": "Claim", "default": "Handmade in Small Batches",
+        "info": "Set in uppercase by the stylesheet — type it in title case." },
+      { "type": "select", "id": "icon", "label": "Icon", "default": "hands-heart", "options": [
+        { "value": "hands-heart", "label": "Hands & heart" },
+        { "value": "flask-line", "label": "Flask — lab tested" },
+        { "value": "leaf-line", "label": "Leaf — fine line" },
+        { "value": "heart-line", "label": "Heart — fine line" },
+        { "value": "plant", "label": "Plant" },
+        { "value": "lotus", "label": "Lotus" },
+        { "value": "rabbit-line", "label": "Rabbit — cruelty free" },
+        { "value": "badge", "label": "Badge" } ] }
+    ] }
+  ],
+  "max_blocks": 10,
+  "presets": [
+    { "name": "SH · Ritual Protocol", "blocks": [
+      { "type": "reason", "settings": { "icon": "shield", "text": "Many products can copy ingredients." } },
+      { "type": "reason", "settings": { "icon": "mortar", "text": "Very few can replicate generations of knowledge, disciplined craftsmanship, and intentional preparation." } },
+      { "type": "reason", "settings": { "icon": "lock",   "text": "Our complete methodology remains confidential to preserve the authenticity of the Shudhi Ritual™." } },
+      { "type": "badge",  "settings": { "icon": "hands-heart", "title": "Handmade in Small Batches" } },
+      { "type": "badge",  "settings": { "icon": "flask-line",  "title": "Lab Tested" } },
+      { "type": "badge",  "settings": { "icon": "leaf-line",   "title": "Ayurvedic Herbal Ingredients" } },
+      { "type": "badge",  "settings": { "icon": "heart-line",  "title": "Made with Intention" } }
+    ] }
+  ]
+}
+{% endschema %}

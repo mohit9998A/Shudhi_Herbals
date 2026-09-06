@@ -1,0 +1,1063 @@
+/* ============================================================
+   SHUDHI — Customer Reviews (sections/sh-reviews.liquid)
+
+   Emitted by the section itself, so it lands in <body> and therefore AFTER
+   every <head> link. That is the point: equal-specificity ties against
+   houseofveda-modern.css and engo-customizes.css are then decided by source
+   order in this file's favour. Same trade shudhi-product.css:4-7 makes.
+
+   Specificity notes, all of them earned in shudhi-product.css:
+   - `.sh p { margin: 0 }` is (0,1,1) — paragraph margins here need (0,2,x).
+   - `.sh button:not(.sh-btn)` is (0,2,1) — styled buttons need (0,3,0), which
+     is why the three button rules below carry a redundant leading `.sh`.
+   - `.sh img, .sh svg { display:block; max-width:100% }` is (0,1,1) and would
+     SHRINK the clipped gold star copy to its narrower wrapper instead of
+     letting the wrapper crop it — hence the explicit widths at (0,3,0).
+   - style-main.scss.css carries a universal `outline: 0 !important`, so every
+     focus ring in this file is !important or it does not exist.
+   ============================================================ */
+
+.sh-rev {
+  /* Light-surface token set, re-declared rather than referenced — their only
+     declaration lives on `.sh-pdp` / `.sh-story`, section-scoped and
+     deliberately not on :root, so var(--sh-story-ink) resolves to nothing
+     here. Same names, identical values: if they are ever promoted to :root
+     this collapses into a no-op instead of a competing vocabulary. */
+  --sh-story-ink:      #1b2a12;   /* headings — 13.1:1 on cream */
+  --sh-story-body:     #474a3d;   /* body, dates, hints — 7.8:1 */
+  --sh-story-gold-ink: #7a5d2e;   /* the gold dark enough to be READ — 5.3:1 */
+
+  /* The shared .sh-form__* rules in shudhi-home.css §23 read these four by
+     name off `.sh-contact`. Restating them is what makes the form inside the
+     dialog inherit the contact form's controls, errors and hints for free. */
+  --sh-contact-line:   rgba(27, 42, 18, .55);   /* control borders — 3.4:1 */
+  --sh-contact-rule:   rgba(27, 42, 18, .14);   /* decorative rules ONLY */
+  --sh-contact-field:  rgba(255, 255, 255, .62);
+  --sh-contact-err:    #8f2f1e;                 /* 6.7:1 on cream */
+
+  --sh-rev-card:   #fffdfa;
+  --sh-rev-line:   rgba(27, 42, 18, .14);
+  --sh-rev-track:  rgba(27, 42, 18, .10);
+  --sh-rev-radius: 10px;
+  --sh-rev-ease:   cubic-bezier(.22, .61, .36, 1);   /* the house arrival curve */
+
+  --sh-rev-bg: #e9e0cf;   /* fallback; the section's inline prop wins */
+
+  position: relative;
+  background: var(--sh-rev-bg);
+  color: var(--sh-story-ink);
+  padding-block: var(--sh-rev-pad-top, 72px) var(--sh-rev-pad-bottom, 88px);
+  /* the sticky header is position:sticky;top:0 on every template, so an
+     in-page jump to #sh-reviews would otherwise land under the bar */
+  scroll-margin-top: calc(var(--sh-header-h, 86px) + 16px);
+}
+
+.sh-rev__defs { position: absolute; width: 0; height: 0; }
+
+/* Legacy leak neutralisers — houseofveda-modern.css paints h1-h6 in --hov-dark
+   and timber.scss capitalises them, which turned every review title into a
+   gold "Sample Review — Replace Before Publishing". Every heading this section
+   renders opts back out, the way every sh-* section does. */
+.sh-rev h2,
+.sh-rev h3 {
+  color: inherit;
+  text-transform: none;
+  margin: 0;
+}
+
+/* style-main carries a universal `outline: 0 !important`, so the ring loses
+   without the !important — same note as shudhi-product.css:71. */
+.sh-rev a:focus-visible,
+.sh-rev button:focus-visible,
+.sh-rev summary:focus-visible {
+  outline: 2px solid var(--sh-story-ink) !important;
+  outline-offset: 3px;
+}
+
+/* ---------------------------------------------------------------- header */
+
+.sh-rev__head { text-align: center; max-width: 60ch; margin-inline: auto; }
+
+/* .sh-eyebrow paints --sh-gold, which is 1.95:1 on this cream and fails as
+   text. (0,2,0) beats it without touching the shared class. */
+.sh-rev .sh-rev__eyebrow {
+  display: inline-flex; align-items: center; gap: .55em;
+  color: var(--sh-story-gold-ink);
+  margin-bottom: 12px;
+}
+.sh-rev .sh-rev__eyebrow .sh-icon { width: 14px; height: 14px; }
+
+.sh-rev__title { font-size: clamp(1.7rem, 3vw, 2.5rem); font-weight: 500; }
+
+.sh-rev .sh-rev__lede {
+  margin: 14px auto 0;
+  max-width: 54ch;
+  font-size: .95rem;
+  line-height: 1.7;
+  color: var(--sh-story-body);
+}
+
+/* ---------------------------------------------------------------- summary */
+
+.sh-rev__summary {
+  display: grid;
+  grid-template-columns: minmax(190px, .8fr) minmax(240px, 1.2fr) minmax(200px, .8fr);
+  align-items: center;
+  gap: clamp(20px, 3vw, 44px);
+  margin-top: clamp(30px, 4vw, 48px);
+  padding: clamp(22px, 3vw, 34px) clamp(20px, 3vw, 38px);
+  background: var(--sh-rev-card);
+  border: 1px solid var(--sh-rev-line);
+  border-radius: var(--sh-rev-radius);
+}
+
+.sh-rev__score { text-align: center; display: grid; justify-items: center; gap: 9px; }
+
+.sh-rev .sh-rev__avg {
+  font-size: clamp(2.6rem, 5vw, 3.6rem);
+  line-height: .9;
+  font-weight: 500;
+  color: var(--sh-story-ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.sh-rev .sh-rev__based { font-size: .82rem; color: var(--sh-story-body); }
+
+/* reserve the digits so the site-wide count-up (0 -> N) never reflows the line */
+.sh-rev__based [data-count-to] {
+  display: inline-block; min-width: 2ch; text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ------------------------------------------------------------------ stars */
+
+/* Two stacked copies of the same five stars: the outline base underneath, the
+   gold copy on top clipped to --sh-rating, so a 4.6 paints six tenths of the
+   fifth star. The keyframe supplies only a `from` — the resting declared width
+   IS the finished state, so the row is complete with animation unsupported,
+   disabled, or never started. */
+.sh-rev__stars {
+  position: relative;
+  display: inline-block;
+  width: var(--star-w, 116px);
+  height: var(--star-h, 20px);
+  flex: none;
+  color: var(--sh-story-gold-ink);
+}
+
+.sh-rev__stars--sm { --star-w: 92px; --star-h: 16px; }
+
+.sh-rev__stars-base,
+.sh-rev__stars-fill { position: absolute; inset: 0 auto 0 0; height: 100%; overflow: hidden; }
+
+.sh-rev__stars-base { width: 100%; opacity: .8; }   /* ~3.8:1 on the cream ground */
+
+.sh-rev__stars-fill {
+  width: var(--sh-rating, 0%);
+  animation: sh-rev-fill .9s var(--sh-rev-ease) .15s backwards;
+}
+
+/* (0,3,0) — see the header note about `.sh svg { max-width: 100% }`. */
+.sh-rev .sh-rev__stars .sh-rev__stars-svg {
+  display: block;
+  width: var(--star-w, 116px);
+  max-width: none;
+  height: var(--star-h, 20px);
+}
+
+@keyframes sh-rev-fill { from { width: 0; } }
+
+/* ------------------------------------------------------------------- bars */
+
+.sh-rev__bars {
+  display: grid;
+  gap: 7px;
+  border-inline: 1px solid var(--sh-rev-line);
+  padding-inline: clamp(16px, 3vw, 36px);
+}
+
+.sh-rev__bar-row {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 12px;
+}
+
+.sh-rev__bar-label { display: inline-flex; align-items: center; gap: 4px; }
+
+.sh-rev__bar-n {
+  font-size: .8rem; color: var(--sh-story-body);
+  font-variant-numeric: tabular-nums; min-width: 1ch;
+}
+
+.sh-rev .sh-rev__bar-star { width: 12px; height: 11px; max-width: none; }
+
+.sh-rev__bar-track {
+  position: relative;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--sh-rev-track);
+  overflow: hidden;
+}
+
+.sh-rev__bar-fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: var(--w, 0%);
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--sh-accent-soft, #dcc084), var(--sh-accent-deep, #ac8940));
+  animation: sh-rev-bar .95s var(--sh-rev-ease) .2s backwards;
+}
+
+@keyframes sh-rev-bar { from { width: 0; } }
+
+.sh-rev__bar-count {
+  font-size: .78rem; color: var(--sh-story-body);
+  font-variant-numeric: tabular-nums; min-width: 3ch; text-align: right;
+}
+
+/* -------------------------------------------------------------------- CTA */
+
+.sh-rev__cta { display: grid; justify-items: center; gap: 10px; }
+
+.sh-rev .sh-rev__cta-note {
+  font-size: .75rem; letter-spacing: .12em; text-transform: uppercase;
+  color: var(--sh-story-body);
+}
+
+/* (0,3,0) to clear `.sh button:not(.sh-btn)`. The gold gradient, the rim and
+   the hover cross-fade are lifted from the ATC button (shudhi-product.css:934)
+   so the two golds on this page are the same gold. The inset rim is not
+   decoration: a gold fill alone has no 3:1 boundary against a light page,
+   which is WCAG 1.4.11. */
+.sh.sh-rev .sh-rev__open,
+.sh.sh-rev .sh-rev__submit {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-height: 48px;
+  padding: 0 26px;
+  border: 0;
+  border-radius: 8px;
+  background-color: var(--sh-accent, #c4a35d);
+  background-image: linear-gradient(100deg, var(--sh-accent-soft, #dcc084) 0%, var(--sh-accent, #c4a35d) 46%, var(--sh-accent-deep, #ac8940) 100%);
+  color: var(--sh-accent-fg, #1e1810);
+  font-size: .74rem;
+  font-weight: 600;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: inset 0 0 0 1px var(--sh-accent-edge, #8a6a2c);
+  transition: background-color .3s ease, transform .2s ease, box-shadow .2s ease;
+}
+
+.sh.sh-rev .sh-rev__open:hover,
+.sh.sh-rev .sh-rev__submit:hover {
+  background-image: linear-gradient(100deg, var(--sh-accent, #c4a35d) 0%, var(--sh-accent-deep, #ac8940) 100%);
+  transform: translateY(-1px);
+  box-shadow: inset 0 0 0 1px var(--sh-accent-edge, #8a6a2c), 0 6px 18px rgba(138, 106, 44, .28);
+}
+
+/* --------------------------------------------------------------- the list */
+
+.sh-rev__list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(14px, 2vw, 20px);
+  margin-top: clamp(24px, 3.5vw, 40px);
+}
+
+.sh-rev__card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: clamp(18px, 2.2vw, 24px);
+  background: var(--sh-rev-card);
+  border: 1px solid var(--sh-rev-line);
+  border-radius: var(--sh-rev-radius);
+  transition: border-color .25s ease, box-shadow .25s ease, transform .25s ease;
+}
+
+.sh-rev__card:hover {
+  border-color: rgba(27, 42, 18, .26);
+  box-shadow: 0 6px 20px rgba(27, 42, 18, .07);
+  transform: translateY(-2px);
+}
+
+/* The UA rule for [hidden] is `display: none` at zero specificity, so the
+   `display: flex` above beats it and the "hidden" cards would stay on screen.
+   Every element this file gives a display value to therefore needs its own
+   [hidden] rule — this one and .sh-rev__more below are the two that get one. */
+.sh-rev .sh-rev__card[hidden] { display: none; }
+
+.sh-rev__card-top {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 11px;
+}
+
+.sh-rev__avatar {
+  width: 40px; height: 40px; flex: none;
+  display: grid; place-items: center;
+  border-radius: 50%;
+  overflow: hidden;
+  background: var(--sh-rev-bg);
+  border: 1px solid var(--sh-rev-line);
+  color: var(--sh-story-gold-ink);
+}
+
+.sh-rev .sh-rev__avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+.sh-rev__initial {
+  font-size: .95rem; font-weight: 600; line-height: 1;
+  font-family: var(--sh-serif) !important;   /* beats §3's sans !important */
+}
+
+.sh-rev__who { min-width: 0; display: grid; gap: 5px; }
+
+.sh-rev .sh-rev__name {
+  display: flex; align-items: center; gap: 7px; flex-wrap: wrap;
+  font-size: .92rem; font-weight: 500; line-height: 1.2;
+  color: var(--sh-story-ink);
+}
+
+.sh-rev__verified {
+  display: inline-flex; align-items: center; gap: 3px;
+  padding: 2px 8px 2px 6px;
+  border-radius: 999px;
+  background: rgba(122, 93, 46, .10);
+  color: var(--sh-story-gold-ink);
+  font-size: .63rem; font-weight: 600;
+  letter-spacing: .08em; text-transform: uppercase;
+}
+
+.sh-rev .sh-rev__verified .sh-icon { width: 11px; height: 11px; }
+
+.sh-rev__date {
+  align-self: start;
+  font-size: .72rem;
+  color: var(--sh-story-body);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.sh-rev__card-title {
+  font-size: 1.02rem; font-weight: 500; line-height: 1.3;
+  color: var(--sh-story-ink);
+  font-family: var(--sh-serif) !important;
+}
+
+.sh-rev .sh-rev__body {
+  font-size: .88rem;
+  line-height: 1.7;
+  color: var(--sh-story-body);
+}
+
+/* A customer's own photo of the product. margin-top:auto pins it to the bottom
+   of the flex card so a row of cards keeps its thumbnails on one line even when
+   the review texts differ in length. */
+/* The rounding is done HERE, by radius + overflow on the link, not on the <img>:
+   a legacy rule elsewhere wins border-radius on bare images, so the img's own
+   radius computes to 0. No padding on this box — the clip must sit exactly on
+   the image edge, or the top two corners stay square. */
+.sh-rev__photo {
+  display: block;
+  width: 120px;
+  margin-top: auto;
+  border-radius: 8px;
+  overflow: hidden;
+  line-height: 0;
+}
+
+.sh-rev .sh-rev__photo img {
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid var(--sh-rev-line);
+  transition: transform .3s var(--sh-rev-ease);
+}
+
+.sh-rev .sh-rev__photo:hover img { transform: scale(1.04); }
+
+/* --------------------------------------------------------------- load more */
+
+.sh-rev__more-wrap { display: flex; justify-content: center; margin-top: clamp(22px, 3vw, 34px); }
+
+/* Ghost twin of the gold CTA: a second solid gold button one screen down would
+   compete with Add to cart. (0,3,0) for the same reason as above. */
+.sh.sh-rev .sh-rev__more {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-height: 46px;
+  padding: 0 30px;
+  border: 1px solid var(--sh-story-ink);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--sh-story-ink);
+  font-size: .72rem; font-weight: 600;
+  letter-spacing: .14em; text-transform: uppercase;
+  cursor: pointer;
+  transition: background-color .25s ease, color .25s ease;
+}
+
+.sh.sh-rev .sh-rev__more:hover { background: var(--sh-story-ink); color: #f4efe6; }
+
+/* see the [hidden] note on .sh-rev__card — same trap, (0,3,1) to clear the
+   inline-flex above. The button ships hidden and the JS reveals it only when
+   there is actually a tail to load. */
+.sh.sh-rev .sh-rev__more[hidden] { display: none; }
+
+/* ------------------------------------------------------------------ dialog */
+
+.sh-rev__dialog {
+  width: min(620px, calc(100vw - 32px));
+  max-height: min(88vh, 780px);
+  padding: 0;
+  border: 1px solid var(--sh-rev-line);
+  border-radius: var(--sh-rev-radius);
+  background: var(--sh-rev-bg);
+  color: var(--sh-story-ink);
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+
+.sh-rev__dialog::backdrop { background: rgba(27, 36, 17, .58); }
+
+.sh-rev__dialog-in { position: relative; padding: clamp(24px, 4vw, 38px); }
+
+.sh.sh-rev .sh-rev__close {
+  position: absolute; top: 12px; right: 12px;
+  width: 34px; height: 34px;
+  display: grid; place-items: center;
+  border: 1px solid var(--sh-rev-line);
+  border-radius: 50%;
+  background: var(--sh-rev-card);
+  color: var(--sh-story-ink);
+  cursor: pointer;
+  transition: background-color .25s ease;
+}
+
+.sh.sh-rev .sh-rev__close:hover { background: var(--sh-rev-bg); }
+.sh-rev .sh-rev__close .sh-icon { width: 15px; height: 15px; }
+
+.sh-rev__form-title {
+  font-size: clamp(1.4rem, 2.4vw, 1.85rem);
+  font-weight: 500;
+  padding-right: 40px;
+}
+
+.sh-rev .sh-form__lede {
+  margin: 10px 0 20px;
+  font-size: .9rem; line-height: 1.65;
+  color: var(--sh-story-body);
+}
+
+/* Bootstrap Reboot and the legacy Herbyo form CSS both style bare controls;
+   (0,1,1) here out-specifies them without !important, exactly as .sh-contact
+   does. These are NOT inherited from .sh-contact — that skin is scoped to its
+   own section root. */
+.sh-rev input,
+.sh-rev textarea {
+  width: 100%; padding: 12px 14px; border-radius: 4px;
+  border: 1px solid var(--sh-contact-line);
+  background: var(--sh-contact-field);
+  color: var(--sh-story-ink);
+  font-size: .9rem; line-height: 1.4;
+  transition: border-color .2s ease, background-color .2s ease;
+}
+
+.sh-rev textarea { resize: vertical; min-height: 120px; }
+
+/* .sh-form__row is a 1fr 1fr grid, so both .sh-field cells stretch to the
+   tallest — and .sh-field is itself a grid, which stretched the lone Name
+   input to match the height of Email PLUS its hint. Pack the rows to the top
+   and each control keeps its own height. */
+.sh-rev .sh-field { align-content: start; }
+
+.sh-rev input:focus,
+.sh-rev textarea:focus { border-color: var(--sh-story-ink); background-color: #fff; }
+
+/* style-main.scss.css sets `outline: 0 !important` on everything. */
+.sh-rev input:focus-visible,
+.sh-rev textarea:focus-visible,
+.sh-rev button:focus-visible,
+.sh-rev [type="radio"]:focus-visible + .sh-rev__rate-label {
+  outline: 2px solid var(--sh-story-ink) !important;
+  outline-offset: 2px !important;
+}
+
+/* --------------------------------------------------------- the star picker */
+
+.sh-rev__rate { border: 0; padding: 0; margin: 0 0 18px; min-width: 0; }
+
+/* row-reverse plus a 5→1 DOM order is what lets `:checked ~ label` paint the
+   chosen star AND every lower one with no JS: the later siblings in the DOM
+   are the ones rendered to its left. */
+.sh-rev__rate-row {
+  display: flex;
+  flex-direction: row-reverse;
+  justify-content: flex-end;
+  gap: 4px;
+  margin-top: 8px;
+}
+
+.sh-rev .sh-rev__rate-in {
+  position: absolute; width: 1px; height: 1px;
+  padding: 0; margin: -1px; overflow: hidden;
+  clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap;
+}
+
+.sh-rev__rate-label {
+  cursor: pointer;
+  color: var(--sh-story-gold-ink);
+  line-height: 0;
+  border-radius: 3px;
+}
+
+.sh-rev .sh-rev__rate-label svg {
+  width: 27px; height: 25px; max-width: none;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.1;
+  transition: fill .18s ease, transform .18s var(--sh-rev-ease);
+}
+
+.sh-rev .sh-rev__rate-in:checked ~ .sh-rev__rate-label svg,
+.sh-rev__rate-row:hover .sh-rev__rate-label:hover svg,
+.sh-rev__rate-row:hover .sh-rev__rate-label:hover ~ .sh-rev__rate-label svg {
+  fill: var(--sh-story-gold-ink);
+}
+
+/* while a pointer is over the row, the checked state defers to the hover
+   preview — otherwise both paint at once and the row reads as two ratings */
+.sh-rev__rate-row:hover .sh-rev__rate-in:checked ~ .sh-rev__rate-label svg { fill: none; }
+.sh-rev__rate-row:hover .sh-rev__rate-label:hover svg { transform: scale(1.08); }
+
+.sh-rev .sh-form__actions { margin-top: 22px; }
+.sh.sh-rev .sh-rev__submit { width: 100%; }
+
+.sh-rev .sh-form__privacy {
+  margin-top: 14px;
+  font-size: .75rem; line-height: 1.6;
+  color: var(--sh-story-body);
+}
+
+/* ------------------------------------------------------------- responsive */
+
+@media (max-width: 989px) {
+  .sh-rev__summary { grid-template-columns: 1fr 1fr; }
+  .sh-rev__bars { border-inline: 0; border-left: 1px solid var(--sh-rev-line); }
+  .sh-rev__cta { grid-column: 1 / -1; padding-top: 4px; }
+}
+
+@media (max-width: 699px) {
+  .sh-rev__list { grid-template-columns: minmax(0, 1fr); }
+}
+
+@media (max-width: 599px) {
+  .sh-rev__summary { grid-template-columns: minmax(0, 1fr); text-align: center; }
+  .sh-rev__bars {
+    border: 0;
+    padding-inline: 0;
+    padding-block: 16px;
+    border-block: 1px solid var(--sh-rev-line);
+    width: 100%;
+    max-width: 320px;
+    margin-inline: auto;
+  }
+  .sh-rev__cta { grid-column: auto; }
+  .sh.sh-rev .sh-rev__open { width: 100%; }
+  .sh-rev__card-top { grid-template-columns: auto 1fr; }
+  .sh-rev__date { grid-column: 2; justify-self: start; }
+}
+
+/* --------------------------------------------------------- reduced motion */
+
+/* Kill the transform/animation as well as the transition — a snap is louder
+   than the motion it replaces. Every resting state below is the finished
+   state, so nothing here can strand content mid-reveal. */
+@media (prefers-reduced-motion: reduce) {
+  .sh-rev__stars-fill,
+  .sh-rev__bar-fill { animation: none !important; }
+
+  .sh-rev__card,
+  .sh-rev .sh-rev__photo img,
+  .sh-rev .sh-rev__rate-label svg,
+  .sh.sh-rev .sh-rev__open,
+  .sh.sh-rev .sh-rev__submit,
+  .sh.sh-rev .sh-rev__more,
+  .sh.sh-rev .sh-rev__close { transition: none !important; }
+
+  .sh-rev__card:hover,
+  .sh-rev .sh-rev__photo:hover img,
+  .sh.sh-rev .sh-rev__open:hover,
+  .sh.sh-rev .sh-rev__submit:hover { transform: none !important; }
+
+  .sh-rev__rate-row:hover .sh-rev__rate-label:hover svg { transform: none !important; }
+}
+
+
+
+/* ============================================================
+   SHELL MODE — the Judge.me Review Widget, wearing this design
+   ------------------------------------------------------------
+   An @app block in the section makes Judge.me the source of truth for the
+   reviews, the photos and the submit flow. This band keeps the eyebrow, the
+   serif heading and the headline rating; everything below repaints Judge.me's
+   own markup so the result reads as one designed section.
+
+   FOUR THINGS HERE ARE LOAD-BEARING
+   ---------------------------------------------------------------------------
+
+   1. THIS TARGETS THE `jm-*` REVAMP WIDGET, NOT THE `jdgm-*` LEGACY ONE. Both
+      exist in the wild and they share almost no class names. The tell is
+      `.jm-review-widget` / `jdgm-widget-revamp` on the container. The legacy
+      widget still renders through sections/sh-product.liquid's dormant embed,
+      which is why that stays switched off in templates/product.json.
+
+   2. COLOUR GOES THROUGH THEIR TOKENS, NOT THEIR CLASSES. Judge.me writes its
+      palette as INLINE custom properties on the widget root — teal #108474 by
+      default. Their component CSS is Vue `[data-v-hash]` scoped, so a class
+      override of ours ties on specificity and loses on source order (their
+      sheets load from cdn.shopify.com after this file). Retinting the tokens
+      sidesteps that entirely and keeps working when they restyle internals.
+      An author `!important` is what beats an inline declaration — that is the
+      one place the cascade lets us in, so those five lines must keep it.
+
+   3. THE SAME COLOURS ARE ALSO SETTABLE IN JUDGE.ME ADMIN (Settings → Widget
+      appearance). If they are ever set there to match, these overrides become
+      a harmless no-op rather than a conflict — which is the intended failure
+      mode. Do not "simplify" them into class overrides.
+
+   4. LAYOUT AND TYPE STILL NEED CLASSES, so those rules carry !important where
+      they cross a scoped rule. They are cosmetic only: if Judge.me renames a
+      class the widget falls back to its own layout and nothing breaks.
+   ============================================================ */
+
+/* ------------------------------------------------- 1. retint their tokens */
+
+/* See (2). The selector matches the element Judge.me puts the inline palette
+   on, without depending on which class it happens to carry. */
+.sh-rev [style*="--jm-review-widget"] {
+  --jm-review-widget-star-and-histogram-color: var(--sh-story-gold-ink) !important;
+  --jm-review-widget-text-color: var(--sh-story-ink) !important;
+  --jm-review-widget-lighter-text-color: var(--sh-story-body) !important;
+  --jm-review-widget-button-color: var(--sh-accent-deep) !important;
+  --jm-review-widget-button-text-color: var(--sh-accent-fg) !important;
+}
+
+/* their radius scale, aligned to this theme's 8px/10px ladder */
+.sh-rev .jm-review-widget {
+  --jm-border-radius-200: 8px;
+  --jm-border-radius-400: 10px;
+  font-family: var(--sh-sans) !important;
+  color: var(--sh-story-body);
+  padding-block: 0 !important;
+}
+
+/* ------------------------------------------------------ 2. the duplicates */
+
+/* Judge.me repeats "Customer Reviews" and the average; both are already the
+   band's own header and summary panel above. */
+.sh-rev .jm-review-widget-minimal-header__title,
+.sh-rev .jm-average-rating-display { display: none !important; }
+
+/* ------------------------------------------------- 3. header row + button */
+
+.sh-rev .jm-review-widget__header { margin-bottom: clamp(18px, 2.5vw, 28px); }
+
+/* matched to .sh-rev__open — the same gold as Add to cart, with the rim that
+   gives a gold fill its 3:1 boundary on a light page (WCAG 1.4.11). */
+.sh-rev .jm-button--primary,
+.sh-rev .jm-action-buttons__button {
+  min-height: 48px;
+  padding: 0 26px;
+  border: 0 !important;
+  border-radius: 8px !important;
+  background-image: linear-gradient(100deg, var(--sh-accent-soft, #dcc084) 0%, var(--sh-accent, #c4a35d) 46%, var(--sh-accent-deep, #ac8940) 100%) !important;
+  box-shadow: inset 0 0 0 1px var(--sh-accent-edge, #8a6a2c);
+  font-size: .74rem !important;
+  font-weight: 600 !important;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+
+.sh-rev .jm-button--primary:hover,
+.sh-rev .jm-action-buttons__button:hover {
+  transform: translateY(-1px);
+  box-shadow: inset 0 0 0 1px var(--sh-accent-edge, #8a6a2c), 0 6px 18px rgba(138, 106, 44, .28);
+}
+
+.sh-rev .jm-button--secondary {
+  border: 1px solid var(--sh-story-ink) !important;
+  border-radius: 8px !important;
+  background: transparent !important;
+  color: var(--sh-story-ink) !important;
+  font-size: .72rem !important;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+
+/* sort + filter controls, matched to the theme's form controls */
+.sh-rev .jm-sort-filter__select,
+.sh-rev .jm-filters select {
+  border: 1px solid var(--sh-contact-line) !important;
+  background: var(--sh-contact-field) !important;
+  border-radius: 4px !important;
+  color: var(--sh-story-ink) !important;
+  font-size: .82rem !important;
+}
+
+/* ------------------------------------------------------- 4. review cards */
+
+/* matched to .sh-rev__card: two-up on desktop, one-up on phones */
+.sh-rev .jm-review-widget__body .jm-stack--space-600 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(14px, 2vw, 20px);
+}
+
+.sh-rev .jm-review-item,
+.sh-rev .jm-review-widget__body .jm-box {
+  padding: clamp(18px, 2.2vw, 24px);
+  background: var(--sh-rev-card);
+  border: 1px solid var(--sh-rev-line);
+  border-radius: var(--sh-rev-radius);
+  transition: border-color .25s ease, box-shadow .25s ease, transform .25s ease;
+}
+
+.sh-rev .jm-review-item:hover,
+.sh-rev .jm-review-widget__body .jm-box:hover {
+  border-color: rgba(27, 42, 18, .26);
+  box-shadow: 0 6px 20px rgba(27, 42, 18, .07);
+  transform: translateY(-2px);
+}
+
+/* matched to .sh-rev__avatar + .sh-rev__initial */
+.sh-rev .jm-reviewer-avatar {
+  width: 40px !important;
+  height: 40px !important;
+  border-radius: 50% !important;
+  background: var(--sh-rev-bg) !important;
+  border: 1px solid var(--sh-rev-line);
+}
+
+.sh-rev .jm-reviewer-avatar__initial {
+  font-family: var(--sh-serif) !important;
+  font-size: .95rem !important;
+  font-weight: 600 !important;
+  color: var(--sh-story-gold-ink) !important;
+}
+
+.sh-rev .jm-reviewer-info__name {
+  font-size: .92rem !important;
+  font-weight: 500 !important;
+  color: var(--sh-story-ink) !important;
+  text-transform: none !important;
+}
+
+.sh-rev .jm-reviewer-info__details {
+  font-size: .72rem !important;
+  color: var(--sh-story-body) !important;
+}
+
+.sh-rev .jm-review-content__body,
+.sh-rev .jm-review-content__body-content,
+.sh-rev .jm-review-body-wrapper {
+  font-size: .88rem !important;
+  line-height: 1.7 !important;
+  color: var(--sh-story-body) !important;
+}
+
+/* matched to .sh-rev__photo */
+.sh-rev .jm-media-grid__image,
+.sh-rev .jm-media-thumbnail-list__thumbnail {
+  border-radius: 8px !important;
+  object-fit: cover;
+}
+
+/* the verified/transparency pill, matched to .sh-rev__verified */
+.sh-rev .jm-tag,
+.sh-rev [class*="transparency-badge"] {
+  border-radius: 999px !important;
+  background: rgba(122, 93, 46, .10) !important;
+  color: var(--sh-story-gold-ink) !important;
+  font-size: .63rem !important;
+  font-weight: 600 !important;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+/* ----------------------------------------------------------- responsive */
+
+@media (max-width: 699px) {
+  .sh-rev .jm-review-widget__body .jm-stack--space-600 { grid-template-columns: minmax(0, 1fr); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sh-rev .jm-review-item,
+  .sh-rev .jm-button--primary,
+  .sh-rev .jm-action-buttons__button { transition: none !important; }
+  .sh-rev .jm-review-item:hover,
+  .sh-rev .jm-button--primary:hover,
+  .sh-rev .jm-action-buttons__button:hover { transform: none !important; }
+}
+
+/* In shell mode the summary has no bars and no CTA of its own — Judge.me owns
+   both — so the score centres instead of sitting in a three-up row with two
+   empty columns beside it. */
+.sh-rev--shell .sh-rev__summary { grid-template-columns: minmax(0, 1fr); }
+.sh-rev--shell .sh-rev__score { justify-items: center; text-align: center; }
+
+/* ---------------------------------------------- 5. corrections, verified */
+
+/* Judge.me re-declares the whole palette inline on EVERY review item as well as
+   on the widget root, and carries a second primary token the root does not.
+   Both were found by reading the live DOM: the root override alone left every
+   card teal again from the inside. */
+.sh-rev [style*="--jm-widget-primary-color"],
+.sh-rev [style*="--jm-review-widget"] {
+  --jm-widget-primary-color: var(--sh-accent-deep) !important;
+  --jm-review-widget-star-and-histogram-color: var(--sh-story-gold-ink) !important;
+  --jm-review-widget-text-color: var(--sh-story-ink) !important;
+  --jm-review-widget-lighter-text-color: var(--sh-story-body) !important;
+  --jm-review-widget-button-color: var(--sh-accent-deep) !important;
+  --jm-review-widget-button-text-color: var(--sh-accent-fg) !important;
+}
+
+/* The avatar is a .jm-box, and --jm-box-padding gives it 24px of padding that
+   border-box then adds to the 40px, landing it at ~50px. Zero the padding or
+   the circle cannot be sized at all. */
+.sh-rev .jm-reviewer-avatar {
+  padding: 0 !important;
+  flex: none;
+}
+
+/* auto-fit, not a fixed 2-up: with a single review a fixed grid leaves an empty
+   half-width column beside it. auto-fit collapses the empty track so one review
+   fills the row and two or more still sit side by side. */
+.sh-rev .jm-review-widget__body .jm-stack--space-600 {
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+}
+
+/* The header carries the write button and the filters. Laid out as a row it
+   becomes the bottom half of the summary card above it — one card, score on
+   top, actions beneath — instead of three things floating on the band. */
+.sh-rev--shell .sh-rev__summary {
+  border-radius: var(--sh-rev-radius) var(--sh-rev-radius) 0 0;
+  border-bottom: 0;
+  padding-bottom: clamp(16px, 2vw, 22px);
+}
+
+.sh-rev .jm-review-widget__header {
+  display: flex !important;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin: 0 0 clamp(24px, 3.5vw, 40px);
+  padding: clamp(16px, 2vw, 22px) clamp(20px, 3vw, 38px) clamp(22px, 3vw, 28px);
+  background: var(--sh-rev-card);
+  border: 1px solid var(--sh-rev-line);
+  border-top: 0;
+  border-radius: 0 0 var(--sh-rev-radius) var(--sh-rev-radius);
+}
+
+.sh-rev .jm-review-widget-minimal-header__filters,
+.sh-rev .jm-filters__buttons,
+.sh-rev .jm-action-buttons {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* the customer-photo strip: a real feature, but it was floating loose on the
+   band with no ground under it */
+.sh-rev .jm-media-preview {
+  margin: 0 0 clamp(20px, 3vw, 30px);
+  padding: clamp(14px, 2vw, 18px);
+  background: var(--sh-rev-card);
+  border: 1px solid var(--sh-rev-line);
+  border-radius: var(--sh-rev-radius);
+}
+
+.sh-rev .jm-media-grid__image,
+.sh-rev .jm-media-grid__item {
+  border-radius: 8px !important;
+  overflow: hidden;
+}
+
+/* --------------------------------------------- 6. header layout, verified */
+
+/* `.jm-review-widget__header` and `.jm-review-widget-minimal-header` are the
+   SAME element — reading the live DOM is the only way to know that. An earlier
+   pass set `display:contents` via one class and `display:flex` via the other,
+   which fought over one box and hoisted the photo strip into the button row.
+   One declaration, both selectors, settles it. */
+.sh-rev .jm-review-widget__header,
+.sh-rev .jm-review-widget-minimal-header {
+  display: block !important;
+  margin: 0 0 clamp(24px, 3.5vw, 40px);
+  padding: clamp(16px, 2vw, 22px) clamp(20px, 3vw, 38px) clamp(20px, 2.5vw, 26px);
+  background: var(--sh-rev-card);
+  border: 1px solid var(--sh-rev-line);
+  border-top: 0;
+  border-radius: 0 0 var(--sh-rev-radius) var(--sh-rev-radius);
+}
+
+/* their own cluster does the row; it just needs centring on our card */
+.sh-rev .jm-review-widget-minimal-header__button-and-filters,
+.sh-rev .jm-review-widget-minimal-header__filter-container {
+  justify-content: center !important;
+}
+
+/* Their scoped `.jm-button[data-v-…]` is (0,2,0) — the same weight as ours —
+   and their sheet loads later, so the sizing needs !important or the label
+   spills straight out of the gold box. */
+.sh-rev .jm-button--primary,
+.sh-rev .jm-action-buttons__button {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: auto !important;
+  min-height: 48px !important;
+  padding: 0 26px !important;
+  white-space: nowrap !important;
+  line-height: 1 !important;
+}
+
+/* the filter and sort controls are icon buttons with visually-hidden labels —
+   give them a real hit area instead of letting them collapse to ~13px */
+.sh-rev .jm-filters__buttons .jm-button,
+.sh-rev .jm-sort-filter {
+  min-height: 38px;
+  padding: 0 12px !important;
+  border: 1px solid var(--sh-rev-line) !important;
+  border-radius: 8px !important;
+  background: transparent !important;
+  color: var(--sh-story-body) !important;
+}
+
+/* the customer-photo strip lives INSIDE that header, so it gets a divider
+   rather than a card of its own */
+.sh-rev .jm-media-preview {
+  margin: clamp(14px, 2vw, 20px) 0 0;
+  padding: clamp(14px, 2vw, 18px) 0 0;
+  background: transparent;
+  border: 0;
+  border-top: 1px solid var(--sh-rev-line);
+  border-radius: 0;
+  justify-content: center;
+}
+
+/* ------------------------------------------- 7. rescue their icon fonts */
+
+/* THE STARS WERE INVISIBLE AND THIS IS WHY. Judge.me draws stars and icons as
+   glyphs from its own webfonts (JudgemeStar / JudgemeIcons). shudhi-home.css
+   §3 asserts `font-family: var(--sh-sans) !important` on `.sh span`, `.sh div`
+   and friends to defend the theme's typography against the legacy stylesheets
+   — and that !important also lands on Judge.me's glyph spans, replacing the
+   icon font with Jost. The glyph codepoints have no outline in Jost, so every
+   star rendered as blank space: present in the DOM, 76x24, correctly gold, and
+   completely invisible. document.fonts reported JudgemeStar as "unloaded"
+   because nothing was left asking for it.
+
+   Restating the icon fonts at (0,2,0) with !important is the exemption. Keep
+   it AFTER the `.jm-review-widget { font-family: … }` rule above, which is the
+   one that must not reach these spans. */
+.sh-rev .jm-star-rating__font-icon,
+.sh-rev .jm-star-rating__font-icon::before,
+.sh-rev .jm-star-rating__font-icon::after {
+  font-family: JudgemeStar, JudgemeIcons, sans-serif !important;
+}
+
+.sh-rev [class*="jm-"][class*="__icon"],
+.sh-rev [class*="jm-"][class*="__icon"]::before,
+.sh-rev .jm-with-icon i,
+.sh-rev .jm-with-icon span[class*="icon"] {
+  font-family: JudgemeIcons, JudgemeStar, sans-serif !important;
+}
+
+/* the action row centres on the card at every width */
+.sh-rev .jm-action-buttons,
+.sh-rev .jm-review-widget-minimal-header__action-buttons,
+.sh-rev .jm-review-widget-minimal-header__filters {
+  justify-content: center !important;
+}
+
+/* ------------------------------------ 8. action row + customer-photo strip */
+
+/* Judge.me's minimal header is a `space-between` cluster of exactly two
+   children: a title/average stack, and the button+filters stack. §5 hides the
+   title and the average because the band's own header already carries both —
+   but the emptied wrapper KEEPS its flex slot and the cluster's gap, which
+   pushed the whole action row ~40px right of the card's centre. Collapse the
+   wrapper itself, not just its contents. */
+.sh-rev .jm-stack:has(> .jm-review-widget-minimal-header__title) {
+  display: none !important;
+}
+
+/* With the row finally full-width, §6's `justify-content: center` still
+   centred THE BUTTON AND THE FILTERS AS ONE PAIR — so the button itself sat
+   half the filter group (~81px) left of centre, which is the off-centre look.
+   Taking the filters out of flow leaves the button as the only in-flow child,
+   so it centres on the card for real, and the filters stay pinned right where
+   a sort/filter control is expected. */
+@media (min-width: 700px) {
+  .sh-rev .jm-review-widget-minimal-header__button-and-filters {
+    position: relative;
+  }
+  .sh-rev .jm-review-widget-minimal-header__button-and-filters > :has(.jm-filters) {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    margin: 0;
+  }
+}
+
+/* narrow: back in flow, wrapping under the button rather than overlapping it */
+@media (max-width: 699px) {
+  .sh-rev .jm-review-widget-minimal-header__button-and-filters {
+    flex-wrap: wrap;
+    row-gap: 12px;
+  }
+}
+
+/* Last 37px of the offset: `.jm-action-buttons` is a 248px flex slot, but the
+   block-level stack inside it left-aligns the 173px button. §6 makes that
+   button `inline-flex`, so one inherited `text-align` centres it in the slot —
+   no width guessing, and it still holds if Judge.me ever puts a second control
+   in there. Measured: button centre and row centre both land on 712. */
+.sh-rev .jm-action-buttons {
+  text-align: center;
+}
+
+/* The photo strip is a row of 100px thumbnails left-aligned in a ~1070px box,
+   so one customer photo read as a stray thumbnail against a wall of nothing.
+   Stack it under a label and centre it: the same single photo now reads as a
+   deliberate, captioned strip. Both rules no-op when Judge.me has no photos —
+   it does not render `.jm-media-preview` at all in that case. */
+.sh-rev .jm-media-preview {
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(8px, 1.2vw, 12px);
+}
+
+.sh-rev .jm-media-grid {
+  justify-content: center !important;
+  flex-wrap: wrap;
+  row-gap: 10px;
+}
+
+/* Copy comes from the section's `media_label` setting as a custom property, so
+   the merchant owns the wording; the class is only present when it is set. */
+.sh-rev--medialabel .jm-media-preview::before {
+  content: var(--sh-rev-media-label);
+  font-family: var(--sh-sans), sans-serif;
+  font-size: .7rem;
+  font-weight: 600;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--sh-story-gold-ink);
+}
