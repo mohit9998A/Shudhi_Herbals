@@ -319,12 +319,22 @@
     top: 6px;
     right: 6px;
   }
+  /* The card is only 66.5px wide in this tier, but the pill needs ~82px
+     ("Tap to unmute" at 8px + the 12px icon + gap + padding), so it overflowed
+     and was clipped by the card edge. Icon-only here, sized to match
+     .hov-reelpop__minimize above. The text is decorative — the button already
+     carries aria-label="Toggle mute" for assistive tech. */
   .hov-reelpop__unmute {
     bottom: 6px;
     left: 6px;
-    font-size: 8px;
-    padding: 3.5px 6.5px;
+    gap: 0;
+    padding: 0;
+    width: 22px;
+    height: 22px;
+    justify-content: center;
+    border-radius: 50%;
   }
+  .hov-reelpop__unmute span { display: none; }
   .hov-reelpop__play-icon {
     width: 28px;
     height: 28px;

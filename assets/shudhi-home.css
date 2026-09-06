@@ -127,7 +127,12 @@
   .sh, :root { --sh-logo-h: 54px; --sh-header-pad-y: 11px; }   /* ~76px wide, 76px bar */
 }
 @media (max-width: 768px) {
-  .sh, :root { --sh-logo-h: 46px; --sh-header-pad-y: 11px; }   /* ~65px wide, 68px bar */
+  .sh, :root { --sh-logo-h: 46px; --sh-header-pad-y: 11px; }
+  /* .sh-announce is in normal flow ABOVE the sticky header, so it pushes the
+     hero down the page. Measured 34.9px at 390/430/768/1440 — its .68rem type
+     and .78em item padding are not breakpoint-scaled, so one constant is right.
+     Only the mobile hero reads it; see .sh-hero__pin at the responsive tier. */
+  .sh, :root { --sh-announce-h: 35px; }   /* ~65px wide, 68px bar */
 }
 
 /* ============================================================
@@ -457,6 +462,12 @@ body.template-index .sh-header-sticky { margin-bottom: calc(-1 * var(--sh-header
 }
 .sh-drawer__nav a:hover { color: var(--sh-gold); }
 .sh-drawer .sh-icon { width: 22px; height: 22px; }
+/* The drawer brand is the real logo PNG, not the sh-icon approximation, so the
+   rule above no longer sizes it. (0,2,0) to beat `.sh-logo__img { max-height:
+   var(--sh-logo-h) }` (0,1,0) at :377; 34px matches .sh-logo__mark's intent.
+   No media query needed — .sh-drawer is only reachable through .sh-burger,
+   which is display:none above 1024px. */
+.sh-drawer .sh-logo__img { max-height: 34px; width: auto; }
 
 /* ============================================================
    8. HERO — scroll-scrubbed frame sequence
@@ -1660,18 +1671,38 @@ a.sh-story__play:hover {
      keeps its own cream panel below — so there is nothing to scrim. */
   .sh-story__grid {
     --sh-story-media-h: clamp(280px, 46vw, 400px);
+    /* One knob for the seal: .sh-story__seal reads it for its width and
+       .sh-story__copy reads it for the top padding that keeps the eyebrow
+       clear of it, so the two can never drift apart. */
+    --sh-story-seal: clamp(126px, 14vw, 186px);
     grid-template-columns: 1fr; min-height: 0;
   }
   .sh-story__media { order: -1; }
-  /* Feather rotates with the stack: the seam is now horizontal. */
+  /* (0,2,0) is load-bearing: `.sh img { height: auto }` at :142 is (0,1,1) and
+     out-specifies the bare `.sh-story__photo { height: 100% }` (0,1,0) at :777.
+     For an absolutely-positioned replaced element that resolves to the intrinsic
+     ratio, so the 2000x1000 photo rendered 195px tall inside the 280px box at
+     390px wide — 85px of bare cream below it, a hard unblended edge, and the
+     feather below ramping over empty panel instead of over the photo. */
+  .sh-story .sh-story__photo { height: 100%; }
+  /* Feather rotates with the stack: the seam is now horizontal. Ramp starts at
+     55%, not 76% — over 280px that is ~126px of fade instead of ~67px, which
+     reads as a blend rather than a band on a busy photo. Interpolation to the
+     `transparent` keyword is premultiplied, so there is no grey midpoint; this
+     avoids color-mix(), whose failure mode would invalidate the whole
+     declaration and fall back to the DESKTOP `to right` gradient. */
   .sh-story__media::after {
-    background: linear-gradient(to bottom, transparent 76%, var(--sh-story-bg) 100%);
+    background: linear-gradient(to bottom, transparent 55%, var(--sh-story-bg) 100%);
   }
+  /* padding-block first, then the longhand — order matters, the shorthand
+     would otherwise reset the top back to the clamp. */
   .sh-story__copy { margin-left: 0; max-width: none; padding-block: clamp(40px, 6vw, 64px); }
-  /* Re-centred on the new seam. `top` resolves against the grid's padding box
-     and the photo is row 1 at exactly --sh-story-media-h, so this lands the
-     seal's centre on the join without measuring anything at runtime. */
-  .sh-story__seal { left: 50%; top: var(--sh-story-media-h); }
+  .sh-story__copy { padding-top: calc(var(--sh-story-seal) / 2 + 26px); }
+  /* Centred on the new seam. `top` resolves against the grid's padding box and
+     the photo is row 1 at exactly --sh-story-media-h, so this lands the seal's
+     centre on the join without measuring anything at runtime — which only became
+     true once .sh-story__photo above actually filled that box. */
+  .sh-story__seal { left: 50%; top: var(--sh-story-media-h); width: var(--sh-story-seal); }
 
   /* Single column, photo (with the steps plate) first — same stack as
      .sh-story above; the copy keeps its own cream panel below. The plate is
@@ -1697,8 +1728,18 @@ a.sh-story__play:hover {
 }
 
 @media (max-width: 768px) {
-  .sh-hero__pin { height: 46svh; }
-  .sh-hero__content { padding-top: calc(var(--sh-header-h) + 4px); padding-bottom: 82px; }
+  /* Full-bleed portrait stage. svh, not dvh/vh: shudhi-hero.js:577 copies this
+     computed height onto the section wrapper once at boot, and svh is the stable
+     small-viewport unit that does not move with the URL bar (see the comment at
+     shudhi-hero.js:139-146). No JS change is needed for the same reason. */
+  .sh-hero__pin { height: calc(100svh - var(--sh-announce-h, 0px)); }
+  /* Bottom-weighted instead of the desktop centring: over a full-height 9:16
+     video the type reads better low on the frame. padding-bottom is the knob
+     for how far down; it is raised again below 576px to clear the tab bar. */
+  .sh-hero__content {
+    align-items: flex-end;
+    padding-top: calc(var(--sh-header-h) + 4px); padding-bottom: 92px;
+  }
   .sh-hero__copy { max-width: 100%; }
   .sh-hero__title { font-size: clamp(1.5rem, 6vw, 2rem); }
   .sh-hero__rule { margin: 10px 0 8px; }
@@ -1709,6 +1750,15 @@ a.sh-story__play:hover {
      issue (the #our-story destination the discover link jumps to is still
      reachable via normal scroll and via the mobile nav drawer). */
   .sh-hero__scroll, .sh-hero__badge, .sh-hero__label, .sh-hero__text, .sh-discover { display: none; }
+  /* The base scrim at :519 is a radial anchored lower-LEFT at 6% 76%, aimed at a
+     wide landscape box. Over a full-height 9:16 video it leaves the centred
+     headline on bare footage, so rotate to a bottom-weighted linear ramp — the
+     same trade .sh-story-hero__scrim makes at this breakpoint. */
+  .sh-hero__scrim {
+    background: linear-gradient(to top,
+      rgba(20, 14, 12, .86) 0%, rgba(20, 14, 12, .70) 22%,
+      rgba(20, 14, 12, .46) 46%, rgba(20, 14, 12, .22) 70%, rgba(20, 14, 12, .06) 100%);
+  }
   /* Drop backdrop-filter entirely on phones — a full-width blur over an
      animating canvas is the single most expensive thing on mobile GPUs.
      The opaque background is visually near-identical at this size. */
@@ -1717,7 +1767,12 @@ a.sh-story__play:hover {
     -webkit-backdrop-filter: none; backdrop-filter: none;
     background: rgba(20, 18, 12, .94);
   }
-  .sh-hero__trust { bottom: 6px; }
+  /* Dropped on mobile (owner call): over a full-bleed portrait video the plate
+     crowded the CTA and fought the fixed reel/chat bubbles in the bottom-right.
+     The claims are not lost — sh-trust-marquee carries them further down the
+     page at every width. Hero-scoped, so .sh-story-hero__trust on
+     /pages/our-story and the desktop hero bar are both untouched. */
+  .sh-hero__trust { display: none; }
   /* Icon-over-label, not the desktop's icon-left/text-right — fits 4 across a
      phone width. Badge title text stays at the file's existing .68rem floor
      (accessibility review: don't shrink further, it's the only surviving text
@@ -1742,7 +1797,9 @@ a.sh-story__play:hover {
   .sh-mindful__copy { text-align: center; }
   .sh-mindful__text { margin-inline: auto; }
   .sh-story__play { width: 60px; height: 60px; }
-  .sh-story__seal { width: clamp(104px, 30vw, 132px); }
+  /* Retunes the token, not the seal directly, so .sh-story__copy's top padding
+     tracks it (see the <=1024px block). */
+  .sh-story__grid { --sh-story-seal: clamp(104px, 30vw, 132px); }
   /* 2x2 stat grid: separators only mid-row, never at a row's left edge.
      position:static is the load-bearing line: on phones the copy owns the
      band's lower half (the photo stacks on top), so the desktop overlay would
@@ -1804,6 +1861,16 @@ a.sh-story__play:hover {
   .sh-social { justify-content: center; }
   .sh-totop { right: 16px; bottom: 16px; }
   .sh-totop { right: 76px; }
+}
+
+/* Below 576px the fixed mobile furniture appears: .menu_toolbar is a 50px bar
+   (Bootstrap d-sm-none, engo-customizes.css.liquid:25203) and the chat bubble /
+   reel popup lift to 62px / 128px in this same tier (houseofveda-modern.css:1656,
+   hov-reel-popup.liquid:306). Clear the bar; the right gutter set at <=768px
+   already clears the two bubbles. Must stay AFTER the <=768px block — equal
+   specificity, so source order decides. */
+@media (max-width: 575.98px) {
+  .sh-hero__content { padding-bottom: calc(var(--hov-bottomnav-height, 50px) + 40px); }
 }
 
 /* ============================================================

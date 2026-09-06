@@ -147,7 +147,11 @@
 <aside class="sh sh-drawer" id="sh-drawer" aria-hidden="true" aria-label="Menu">
   <div class="sh-drawer__top">
     <span class="sh-logo">
-      {% render 'sh-icon', name: 'shudhi-mark', class: 'sh-logo__mark' %}
+      {%- comment -%} The real brand mark, not the sh-icon approximation. alt is empty
+          on purpose: .sh-logo__text next to it already carries the brand name, so a
+          filled alt would announce it twice. Sized by .sh-drawer .sh-logo__img. {%- endcomment -%}
+      <img class="sh-logo__img" src="{{ 'shudhi-logo-light.png' | asset_url }}"
+           alt="" width="562" height="400" loading="lazy" decoding="async">
       <span class="sh-logo__text"><b>{{ s.brand_name }}</b><small>{{ s.brand_sub }}</small></span>
     </span>
     <button type="button" data-drawer-close aria-label="Close menu">
