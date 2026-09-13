@@ -1,0 +1,350 @@
+/* ============================================================
+   SHUDHI — Recent Journal (sections/sh-journal.liquid)
+
+   The band between the product page's FAQ and Customer Reviews: an editorial
+   masthead rule over a grid of article cards. Cream, a half-step deeper than
+   the FAQ above and a half-step lighter than the reviews below, so the page
+   steps #f6ede1 -> #f2ece0 -> #e9e0cf -> forest green into the footer rather
+   than putting two identical creams against each other at a seam. Same rhythm
+   rule shudhi-home.css §28 states for the homepage FAQ band.
+
+   Emitted by the section itself, so it lands in <body> and therefore AFTER
+   every <head> link. That is the point: equal-specificity ties against
+   houseofveda-modern.css and engo-customizes.css are then decided by source
+   order in this file's favour. Same trade shudhi-reviews.css:4-7 makes.
+
+   SPECIFICITY FLOORS, all of them earned in shudhi-product.css / shudhi-reviews.css:
+   - `.sh h1..h6, .sh p { margin: 0 }` (shudhi-home.css:133) is (0,1,1). Any
+     margin here needs (0,2,0) — hence the redundant leading `.sh-journal` on
+     the excerpt and lede rules.
+   - `.sh img, .sh svg, .sh canvas { display:block; max-width:100% }` and
+     `.sh img { height:auto }` (:136-137) are (0,1,1). The cover-cropped card
+     image needs its own height, so it is written at (0,2,0).
+   - `.sh a { color: inherit }` (:138) is (0,1,1); the gold title-hover needs (0,2,0).
+   - style-main.scss.css carries a universal `outline: 0 !important`, so every
+     focus ring in this file is !important or it does not exist.
+   - The serif on the card headings is NOT declared here. shudhi-home.css:167
+     already sets `.sh h1..h6 { font-family: var(--sh-serif) !important }`.
+     Its sibling `.sh span { font-family: var(--sh-sans) !important }` lists
+     <span> but NOT <time>, which is why the meta row's date needs the
+     `font: inherit` rule further down and its <span> neighbours do not.
+
+   MOTION rides the site-wide system, not the story one: assets/shudhi-home.js:300
+   selects `.sh [data-reveal]` and adds .is-in, and its pre-state lives in
+   shudhi-home.css:234. sh-story-motion.js is NOT loaded on templates/product.json,
+   so [data-sh-reveal] here would leave every card at opacity 0 forever.
+   ============================================================ */
+
+/* Legacy heading rules uppercase and re-colour h2/h3 site-wide
+   (houseofveda-modern.css h2 colour, timber.scss capitalize); every sh-*
+   section opts out. (0,1,1) beats a bare h2/h3 (0,0,1) with no !important. */
+.sh-journal h2,
+.sh-journal h3 { color: inherit; text-transform: none; margin: 0; }
+
+.sh-journal {
+  /* Light-surface trio re-declared, not referenced — their only declaration
+     lives on `.sh-pdp` / `.sh-story`, section-scoped on purpose. Same names,
+     identical values, so promoting them to :root later collapses this into a
+     no-op instead of leaving a competing vocabulary behind. */
+  --sh-j-ink:      #1b2a12;   /* headings — 13.1:1 on cream */
+  --sh-j-body:     #474a3d;   /* excerpt, lede — 7.8:1 */
+  --sh-j-gold-ink: #7a5d2e;   /* meta, "read more", hovered title — 5.3:1 */
+
+  --sh-j-line:   rgba(27, 42, 18, .16);
+  --sh-j-card:   #fffdfa;
+  --sh-j-radius: 10px;
+  --sh-j-ease:   cubic-bezier(.22, .61, .36, 1);   /* the house arrival curve */
+
+  /* Overridden inline from the `bg` setting; this is the fallback and
+     documents what that setting expects. */
+  --sh-j-bg: #f2ece0;
+
+  position: relative;
+  background: var(--sh-j-bg);
+  color: var(--sh-j-ink);
+  padding-block: var(--sh-j-pad-top, 84px) var(--sh-j-pad-bottom, 92px);
+  /* the header is position:sticky;top:0 on every template, so an in-page jump
+     to this band would otherwise land under the bar */
+  scroll-margin-top: calc(var(--sh-header-h, 86px) + 16px);
+}
+
+/* ---------------------------------------------------------------- header */
+
+/* Deliberately NOT the FAQ's sticky left rail and NOT the reviews' centred
+   stack: this band sits between those two and has to read as its own beat.
+   A masthead rule — title left, lede + "all entries" right — is the third
+   shape, and it is the one a journal index actually uses. */
+.sh-journal__head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, .82fr);
+  gap: clamp(20px, 4vw, 64px);
+  align-items: end;
+  padding-bottom: clamp(20px, 2.4vw, 30px);
+  border-bottom: 1px solid var(--sh-j-line);
+  margin-bottom: clamp(32px, 4vw, 56px);
+}
+
+.sh-journal__eyebrow {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 14px;
+}
+/* .sh-eyebrow's own colour is --sh-gold (1.95:1 on cream) — unreadable here.
+   (0,2,0) over the utility's (0,1,0), same swap §28 makes for the FAQ. */
+.sh-journal .sh-eyebrow { color: var(--sh-j-gold-ink); }
+.sh-journal__eyebrow .sh-icon { width: 14px; height: 14px; }
+
+.sh-journal__title {
+  font-size: clamp(1.9rem, 3.1vw, 2.85rem);
+  max-width: 16ch;
+}
+
+/* (0,2,0) over `.sh p { margin: 0 }` (0,1,1). */
+.sh-journal .sh-journal__lede {
+  margin: 0 0 18px;
+  max-width: 46ch;
+  font-size: .98rem; line-height: 1.75;
+  color: var(--sh-j-body);
+}
+
+/* The "all entries" link is a ghost button on a LIGHT surface — .sh-btn--ghost
+   paints --sh-accent (3.0:1 on cream) and hovers to --sh-light (invisible).
+   Both are re-pointed at the readable gold/ink pair. (0,2,0) beats (0,1,0). */
+.sh-journal .sh-journal__all { color: var(--sh-j-gold-ink); }
+.sh-journal .sh-journal__all:hover { color: var(--sh-j-ink); }
+
+/* Head stagger — the §18/§28 shape: the container's own fade is cancelled and
+   the children ride in 90ms apart, capped at n+3. */
+.sh-journal__head[data-reveal] { opacity: 1; transform: none; transition: none; }
+.sh-journal__head[data-reveal] > * {
+  opacity: 0; transform: translateY(20px);
+  transition: opacity .7s var(--sh-j-ease), transform .7s var(--sh-j-ease);
+}
+.sh-journal__head[data-reveal].is-in > * { opacity: 1; transform: none; }
+.sh-journal__head[data-reveal] > *:nth-child(2)   { transition-delay: .09s; }
+.sh-journal__head[data-reveal] > *:nth-child(n+3) { transition-delay: .18s; }
+
+/* ------------------------------------------------------------------ grid */
+
+/* Three columns is the ceiling; the count modifier narrows it. The store has
+   TWO published articles today, so --n2 is the case that actually renders —
+   two half-width feature cards fill the band instead of leaving a third
+   column of dead cream. --n1 caps and centres rather than letting one card
+   stretch to the full 1600px. */
+.sh-journal__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(24px, 2.6vw, 40px);
+  align-items: stretch;
+}
+.sh-journal--n1 .sh-journal__grid {
+  grid-template-columns: minmax(0, 680px);
+  justify-content: center;
+}
+.sh-journal--n2 .sh-journal__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+.sh-journal__item { display: flex; }
+
+/* A shorter rise than the 26px site default (shudhi-home.css:234): three tall
+   cards arriving from 26px read as a wave, 18px reads as settling.
+   (0,2,0) ties :234's `.sh [data-reveal]` and wins on source order. */
+.sh-journal__item[data-reveal] { transform: translateY(18px); }
+.sh-journal__item[data-reveal]:nth-child(2)   { transition-delay: .08s; }
+.sh-journal__item[data-reveal]:nth-child(3)   { transition-delay: .16s; }
+.sh-journal__item[data-reveal]:nth-child(4)   { transition-delay: .24s; }
+.sh-journal__item[data-reveal]:nth-child(n+5) { transition-delay: .32s; }
+
+/* ------------------------------------------------------------------ card */
+
+.sh-journal__card {
+  position: relative;               /* the stretched link's containing block */
+  display: flex; flex-direction: column;
+  width: 100%;
+  background: var(--sh-j-card);
+  border: 1px solid var(--sh-j-line);
+  border-radius: var(--sh-j-radius);
+  overflow: hidden;
+  transition: transform .45s var(--sh-j-ease),
+              box-shadow .45s var(--sh-j-ease),
+              border-color .45s var(--sh-j-ease);
+}
+.sh-journal__card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 18px 40px -24px rgba(27, 42, 18, .48);
+  border-color: rgba(122, 93, 46, .42);
+}
+
+/* --- media --- */
+
+/* aspect-ratio on the WRAPPER, not the image: the image then fills a box whose
+   height is already resolved, so a slow-loading or missing file cannot collapse
+   the card and shift the grid. The two live articles are 1024x1024 squares —
+   3/2 crops them top-and-bottom through object-fit, which is the intended
+   editorial crop, not an accident. */
+.sh-journal__media {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  background: #ece4d6;              /* the crop's own ground while it loads */
+}
+
+/* (0,2,0) — `.sh img { height: auto }` (0,1,1) would defeat the cover fill. */
+.sh .sh-journal__img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  transition: transform .7s var(--sh-j-ease);
+}
+.sh-journal__card:hover .sh-journal__img { transform: scale(1.045); }
+
+/* Placeholder for an article with no featured image — the band must not show a
+   collapsed or broken card just because one post was published without art. */
+.sh-journal__media--empty { display: grid; place-items: center; }
+.sh-journal__media--empty .sh-icon {
+  width: 46px; height: 46px;
+  color: rgba(27, 42, 18, .26);
+}
+
+/* --- text --- */
+
+.sh-journal__text {
+  display: flex; flex-direction: column;
+  gap: 11px;
+  flex: 1 1 auto;                   /* pushes __more to the card's floor */
+  padding: clamp(18px, 1.9vw, 26px);
+}
+
+.sh-journal__meta {
+  display: flex; align-items: center; flex-wrap: wrap; gap: 9px;
+  font-size: .63rem; letter-spacing: .2em; text-transform: uppercase; font-weight: 500;
+  color: var(--sh-j-gold-ink);
+}
+.sh-journal__dot { opacity: .5; }
+/* The date is a <time>, which is NOT in shudhi-home.css:161's sans !important
+   list the way <span> is — it would otherwise inherit the serif from the card
+   and sit half a size off its own row. */
+.sh-journal__meta time { font: inherit; letter-spacing: inherit; }
+
+.sh-journal__h {
+  font-size: clamp(1.1rem, 1.32vw, 1.4rem);
+  font-weight: 500; line-height: 1.28; letter-spacing: 0;
+}
+
+/* THE HEADING IS SERIF; THE LINK INSIDE IT WAS NOT. shudhi-home.css's
+   TYPOGRAPHY DEFENCE declares BOTH `.sh h1..h6 { font-family: var(--sh-serif)
+   !important }` (:167) and `.sh a { font-family: var(--sh-sans) !important }`
+   (:162) — and both are (0,1,1). The h3 duly went Cormorant, then the <a>
+   inside it matched `.sh a` on its own element and went Jost, so every card
+   title rendered in the body face while the band heading above it did not.
+   Inheritance never enters into it: a direct match always beats an inherited
+   value. (0,2,1) + !important is the floor that wins.
+   The "all journal entries" link is deliberately NOT in this rule — that one is
+   a sans eyebrow by design. */
+.sh .sh-journal__h a { font-family: var(--sh-serif) !important; }
+
+/* text-decoration-color rather than a background-size sweep: the title wraps to
+   two and three lines at these widths, and a gradient underline paints per line
+   fragment — this one follows the text on every line for free. (0,2,0) over
+   `.sh a` (0,1,1). */
+.sh-journal .sh-journal__link {
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-decoration-thickness: 1px;
+  text-underline-offset: .18em;
+  transition: color .3s ease, text-decoration-color .3s ease;
+}
+.sh-journal__card:hover .sh-journal__link {
+  color: var(--sh-j-gold-ink);
+  text-decoration-color: currentColor;
+}
+
+/* The whole card is the click target, but only ONE link exists in the
+   accessibility tree — the heading link is what is announced, and this
+   pseudo-element is what makes the rest of the card activate it. */
+.sh-journal__link::after {
+  content: ""; position: absolute; inset: 0; z-index: 2;
+  border-radius: var(--sh-j-radius);
+}
+
+/* (0,2,0) over `.sh p { margin: 0 }` (0,1,1). */
+.sh-journal .sh-journal__excerpt {
+  margin: 0;
+  font-size: .91rem; line-height: 1.72;
+  color: var(--sh-j-body);
+}
+
+.sh-journal__more {
+  margin-top: auto; padding-top: 4px;
+  display: inline-flex; align-items: center; gap: .6em;
+  font-size: .65rem; letter-spacing: .2em; text-transform: uppercase; font-weight: 500;
+  color: var(--sh-j-gold-ink);
+}
+.sh-journal__more .sh-icon {
+  width: 14px; height: 14px; flex: none;
+  transition: transform .3s var(--sh-j-ease);
+}
+.sh-journal__card:hover .sh-journal__more .sh-icon { transform: translateX(5px); }
+
+/* --- focus --- */
+
+/* style-main carries a universal `outline: 0 !important`, so the ring loses
+   without the !important — same note as shudhi-reviews.css:71. */
+.sh-journal a:focus-visible {
+  outline: 2px solid var(--sh-j-ink) !important;
+  outline-offset: 3px;
+}
+/* The stretched link's own ring would trace the title text only, which reads as
+   a stray box floating mid-card. Where :has() is supported the ring moves to the
+   card it actually activates; where it is not, the rule above still draws one. */
+.sh-journal__card:has(.sh-journal__link:focus-visible) {
+  outline: 2px solid var(--sh-j-ink) !important;
+  outline-offset: 3px;
+}
+.sh-journal__card:has(.sh-journal__link:focus-visible) .sh-journal__link {
+  outline: none !important;
+}
+
+/* ----------------------------------------------------------- responsive */
+
+/* These come LAST on purpose. `.sh-journal--n2 .sh-journal__grid` above is
+   (0,2,0), so a bare `.sh-journal__grid` (0,1,0) here would lose and two cards
+   would stay side by side at 375px. Restating the parent class ties the
+   specificity and lets source order decide — in this block's favour. */
+@media (max-width: 1180px) {
+  .sh-journal .sh-journal__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 989px) {
+  .sh-journal__head {
+    grid-template-columns: minmax(0, 1fr);
+    align-items: start;
+    gap: 18px;
+  }
+  .sh-journal__title { max-width: 20ch; }
+  .sh-journal .sh-journal__lede { max-width: 56ch; }
+}
+
+@media (max-width: 749px) {
+  .sh-journal { padding-block: 56px 64px; }
+  .sh-journal .sh-journal__grid,
+  .sh-journal--n1 .sh-journal__grid { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* ------------------------------------------------------- reduced motion */
+
+/* shudhi-home.css §16 neutralises the [data-reveal] ELEMENT, but every moving
+   part in the head stagger is on its CHILDREN and the card's hover motion
+   carries no such attribute at all — the same documented gap §23 and §25 note.
+   Visibility is restored, never removed: nothing here can hide content. */
+@media (prefers-reduced-motion: reduce) {
+  .sh-journal__head[data-reveal] > *,
+  .sh-journal__item[data-reveal] {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+    transition-delay: 0s !important;
+  }
+  .sh-journal__card,
+  .sh .sh-journal__img,
+  .sh-journal__more .sh-icon { transition: none !important; }
+  .sh-journal__card:hover { transform: none !important; }
+  .sh-journal__card:hover .sh-journal__img { transform: none !important; }
+}

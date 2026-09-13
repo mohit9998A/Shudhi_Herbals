@@ -49,6 +49,9 @@
 
       {%- comment -%} Centre brand lockup.
 
+          Captured here and output AFTER the first link column below, so it
+          lands in the middle of the five grid tracks (shudhi-home.css §13).
+
           Renders the SAME shudhi-logo-light.png the header does, so the two can
           never drift apart — the inline `shudhi-mark` SVG that used to sit here
           is a stylised approximation of the artwork, not the artwork itself.
@@ -59,6 +62,7 @@
           the fold, and it is the same asset URL, so on the pages that render
           both it is already in cache and costs no second request.
       {%- endcomment -%}
+      {%- capture brand_html -%}
       <div class="sh-footer__brand">
         <span class="sh-logo">
           {%- if s.use_asset_logo -%}
@@ -76,6 +80,7 @@
         {%- if s.tagline != blank -%}<p class="sh-footer__tagline">{{ s.tagline }}</p>{%- endif -%}
         {%- if s.copyright != blank -%}<p class="sh-footer__copy">{{ s.copyright }}</p>{%- endif -%}
       </div>
+      {%- endcapture -%}
 
       {%- comment -%} Link columns {%- endcomment -%}
       {%- if section.blocks.size > 0 -%}
@@ -104,25 +109,45 @@
               {%- endif -%}
             </div>
           </div>
+          {%- if forloop.first -%}{{ brand_html }}{%- endif -%}
         {%- endfor -%}
       {%- else -%}
         <div class="sh-footer__col">
           <div class="sh-footer__title">Quick Links</div>
           <div class="sh-footer__links">
-            <a href="{{ routes.all_products_collection_url }}">Shop</a>
+            <a href="{{ routes.root_url }}">Home</a>
+            <a href="/products/negativity-removal-cleansing-bar">Shop</a>
             <a href="/pages/our-story">Our Story</a>
-            <a href="{{ routes.root_url }}#ritual-benefits">Ingredients</a>
-            <a href="{{ routes.root_url }}#rituals">The Ritual</a>
+            <a href="/pages/the-ritual">The Ritual</a>
             <a href="{{ blog.url | default: '/blogs/news' }}">Journal</a>
           </div>
         </div>
+        {{ brand_html }}
+
+        {%- comment -%} All five written policies, in the order Shopify admin
+            lists them. shop.policies would self-maintain, but the seeded
+            blocks in settings_data.json are plain link lists, so this mirrors
+            them literally — the two must read the same. {%- endcomment -%}
         <div class="sh-footer__col">
-          <div class="sh-footer__title">Customer Care</div>
+          <div class="sh-footer__title">Service &amp; Support</div>
+          <div class="sh-footer__links">
+            <a href="/policies/shipping-policy">Shipping Policy</a>
+            <a href="/policies/refund-policy">Refund Policy</a>
+            <a href="/policies/privacy-policy">Privacy Policy</a>
+            <a href="/policies/terms-of-service">Terms of Service</a>
+            <a href="/policies/contact-information">Contact Information</a>
+          </div>
+        </div>
+
+        {%- comment -%} FAQs points at the homepage band (#faq), the only FAQ
+            content that resolves today: /pages/faqs is a 404 until the Page
+            resource is created in admin, even though page.faqs.json exists.
+        {%- endcomment -%}
+        <div class="sh-footer__col">
+          <div class="sh-footer__title">Contact Us</div>
           <div class="sh-footer__links">
             <a href="/pages/contact">Contact Us</a>
-            <a href="/pages/faqs">FAQs</a>
-            <a href="/policies/shipping-policy">Shipping &amp; Delivery</a>
-            <a href="/policies/refund-policy">Returns &amp; Refunds</a>
+            <a href="{{ routes.root_url }}#faq">FAQs</a>
             <a href="mailto:help@shudhiherbals.com">help@shudhiherbals.com</a>
           </div>
         </div>
@@ -189,8 +214,9 @@
   ],
   "max_blocks": 3,
   "presets": [ { "name": "SH · Footer", "blocks": [
-    { "type": "column", "settings": { "heading": "Quick Links",   "links": "Shop | /collections/all\nOur Story | /pages/our-story\nIngredients | #ritual-benefits\nThe Ritual | #rituals\nJournal | /blogs/news" } },
-    { "type": "column", "settings": { "heading": "Customer Care", "links": "Contact Us | /pages/contactus\nFAQs | /pages/faqs\nShipping & Delivery | /policies/shipping-policy\nReturns & Refunds | /policies/refund-policy\nhelp@shudhiherbals.com | mailto:help@shudhiherbals.com" } }
+    { "type": "column", "settings": { "heading": "Quick Links",        "links": "Home | /\nShop | /products/negativity-removal-cleansing-bar\nOur Story | /pages/our-story\nThe Ritual | /pages/the-ritual\nJournal | /blogs/news" } },
+    { "type": "column", "settings": { "heading": "Service & Support",  "links": "Shipping Policy | /policies/shipping-policy\nRefund Policy | /policies/refund-policy\nPrivacy Policy | /policies/privacy-policy\nTerms of Service | /policies/terms-of-service\nContact Information | /policies/contact-information" } },
+    { "type": "column", "settings": { "heading": "Contact Us",         "links": "Contact Us | /pages/contact\nFAQs | /#faq\nhelp@shudhiherbals.com | mailto:help@shudhiherbals.com" } }
   ] } ]
 }
 {% endschema %}

@@ -93,11 +93,10 @@
 .hov-so__close:hover { background: #fff; transform: scale(1.05); }
 
 .hov-so__logo { flex: 1; text-align: center; text-decoration: none; }
-.hov-so__logo-img { height: 40px; width: auto; object-fit: contain; display: inline-block; }
-.hov-so__logo-text {
-  font-size: 18px; font-weight: 700;
-  color: var(--hov-so-green); letter-spacing: 2px;
-}
+/* Stacked lockup: mark over wordmark, so the "HERBALS" line is only ~7% of the
+   artwork's height. It therefore runs taller than the 18px text lockup it
+   replaced — 56px puts the topbar at 76px, matching the site header's bar. */
+.hov-so__logo-img { height: 56px; width: auto; object-fit: contain; display: inline-block; }
 
 .hov-so__topbar-icons { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
 .hov-so__icon-btn {
@@ -485,7 +484,7 @@
   .hov-so__trend-subtitle { font-size: 10px; }
   .hov-so__trend-price { font-size: 13px; }
   .hov-so__trend-compare { font-size: 10px; }
-  .hov-so__logo-img { height: 32px; }
+  .hov-so__logo-img { height: 44px; }
   .hov-so__close, .hov-so__icon-btn { width: 36px; height: 36px; }
 }
 @media (max-width: 400px) {

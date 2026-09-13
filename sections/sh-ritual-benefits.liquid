@@ -10,15 +10,22 @@
   so coordinates map proportionally to whatever the grid's real size is.
 
   ---------------------------------------------------------------------------
-  1. THE BACKGROUND PHOTOGRAPH AND ITS SCENE ARE GONE BY REQUEST. The band
+  1. THE OLD BACKGROUND PHOTOGRAPH AND ITS SCENE ARE GONE BY REQUEST. The band
      used to render "Its a ritual.webp" by default, with the photo's soap bar
      showing through the empty centre track and snippets/sh-ritual-scene.liquid
      drawing water and light in register with that exact photo. They were
      removed together — every scene coordinate was a pixel in that photo, so
-     neither survives without the other. The band now sits on the section's
-     own var(--sh-green-900); a merchant image set in the editor still
-     renders. assets/sh-ritual-scene.js stays: it is what arms the entrance,
-     and it documents an absent scene as a normal state, not a failure.
+     neither survives without the other. assets/sh-ritual-scene.js stays: it is
+     what arms the entrance, and it documents an absent scene as a normal
+     state, not a failure.
+
+     What the band carries NOW is a different thing and is not in register with
+     anything: "Transform your daily Bath.webp", soft-focused and held back in
+     opacity so the dark green still tints it. Nothing may be positioned
+     against a feature of this photo — both the blur radius and the strength
+     are merchant settings, so any landmark in it can move or vanish between
+     one save and the next. A merchant image set in the editor replaces it and
+     is treated identically.
 
   2. THIS SECTION NO LONGER USES [data-reveal], AND THAT IS A FIX.
      shudhi-home.css:234 gives [data-reveal] a base rule of opacity:0. Carrying
@@ -32,6 +39,11 @@
 {%- endcomment -%}
 
 {%- assign s = section.settings -%}
+{%- comment -%}
+  divided_by: 100.0 — the float divisor is what keeps this from integer-dividing
+  to 0. Same conversion, for the same reason, as sections/sh-product.liquid:764.
+{%- endcomment -%}
+{%- assign bg_op = s.bg_strength | default: 70 | divided_by: 100.0 -%}
 
 {%- comment -%} Count each column up front so connector geometry can be generated {%- endcomment -%}
 {%- assign lc = 0 -%}
@@ -45,12 +57,22 @@
 {%- endfor -%}
 
 <section class="sh sh-ritual" id="ritual-benefits"
-  style="--sh-ritual-h: {{ s.height | default: 92 }};"
+  style="--sh-ritual-h: {{ s.height | default: 92 }}; --sh-ritual-photo: {{ bg_op }}; --sh-ritual-blur: {{ s.bg_blur | default: 4 }}px;"
   {%- if s.animate %} data-ritual-reveal{% endif -%}>
 
+  {%- comment -%}
+    Picker first, theme asset as the fallback — the same two-branch shape
+    sections/sh-product.liquid:766 uses for the same photograph. Both branches
+    render the identical class, so the blur and strength in shudhi-home.css
+    apply either way; the merchant is choosing the photo, not the treatment.
+    alt="" and no aria: it is a backdrop, and the cards carry the content.
+  {%- endcomment -%}
   {%- if s.bg_image != blank -%}
     <img class="sh-ritual__bg" src="{{ s.bg_image | image_url: width: 2000 }}" alt=""
          width="2000" height="1200" loading="lazy" decoding="async">
+  {%- else -%}
+    <img class="sh-ritual__bg" src="{{ 'Transform your daily Bath.webp' | asset_url }}" alt=""
+         width="2000" height="1100" loading="lazy" decoding="async">
   {%- endif -%}
 
   {%- if s.side_label != blank -%}
@@ -234,7 +256,9 @@
     { "type": "range", "id": "height", "label": "Section height", "min": 60, "max": 100, "step": 4, "unit": "%", "default": 60, "info": "A floor, as a percentage of the screen. The band still grows past this for a fifth and sixth benefit, and ignores it on phones where the stacked cards are already taller." },
 
     { "type": "header", "content": "Images" },
-    { "type": "image_picker", "id": "bg_image", "label": "Background image", "info": "Optional. While empty the band sits on the theme's dark green." },
+    { "type": "image_picker", "id": "bg_image", "label": "Background image", "info": "Optional. While empty the band uses \"Transform your daily Bath.webp\" from Assets." },
+    { "type": "range", "id": "bg_strength", "label": "Background strength", "min": 0, "max": 100, "step": 5, "unit": "%", "default": 70, "info": "How much of the photo shows through the dark green. At 0 the band is flat green again." },
+    { "type": "range", "id": "bg_blur", "label": "Background blur", "min": 0, "max": 20, "step": 1, "unit": "px", "default": 4, "info": "A soft focus, not a wash: the photo should still be readable behind the cards. Past about 10px it stops looking like a photograph." },
 
     { "type": "header", "content": "Motion" },
     { "type": "checkbox", "id": "animate", "label": "Animate on scroll", "default": true, "info": "Runs the entrance — eyebrow and heading first, then the benefit cards, then the connectors. The section is complete and readable before any of it runs, so turning this off, or losing the script, costs the animation and nothing else." }

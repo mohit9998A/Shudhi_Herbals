@@ -1,0 +1,276 @@
+{%- comment -%}
+  SHUDHI — Recent Journal
+
+  The band on the product page between the FAQ and Customer Reviews: an
+  editorial masthead rule (eyebrow, title, lede, "all entries" link) over a grid
+  of recent article cards. Styled in assets/shudhi-journal.css.
+
+  ---------------------------------------------------------------------------
+  SEVEN THINGS HERE ARE LOAD-BEARING
+  ---------------------------------------------------------------------------
+
+  1. THE ROOT CARRIES `sh`. assets/shudhi-home.js:300 selects `.sh [data-reveal]`
+     and adds .is-in; the CSS pre-state (shudhi-home.css:234) starts those
+     elements at opacity 0. Without the bare class every card stays invisible for
+     the life of the page. Same rule as sh-faq.liquid note 2 and sh-reviews note 1.
+
+  2. IT IS [data-reveal], NOT [data-sh-reveal]. Two motion systems exist in this
+     theme. The story/ritual sections use [data-sh-reveal], driven by
+     assets/sh-story-motion.js — and NOTHING on templates/product.json loads that
+     file. Picking the wrong attribute here is the silent opacity-0 bug.
+
+  3. THE COUNT IS COUNTED, AND IT PICKS THE GRID. `shown` is the real number of
+     cards about to render, capped by the `count` setting, and it writes
+     --n1/--n2 onto the root. Three columns is the CSS ceiling; with the two
+     articles this store publishes today, --n2 gives two half-width feature
+     cards instead of two thirds of a row and a column of dead cream.
+
+  4. THE BAND SELF-SUPPRESSES WHEN THERE IS NOTHING TO SHOW. A blog with zero
+     articles — or a blog handle that no longer resolves — renders NOTHING, not
+     an empty band with a heading over it. Same `live > 0` guard as
+     sh-faq.liquid:63 and sh-reviews.liquid:115.
+
+  5. ONE LINK PER CARD. The heading link is the only anchor in the card; the
+     stretched ::after in the stylesheet is what makes the rest of the card
+     activate it. Wrapping the whole card in a second <a>, or making the image
+     and the "read more" their own anchors, would announce each article three
+     times to a screen reader and put three tab stops on one card. The "read
+     more" line is therefore aria-hidden — it is a visual affordance for a link
+     that is already named by the title.
+
+  6. THE IMAGE IS DECORATIVE BY DEFAULT, AND THAT TAKES A COMPARISON. Shopify
+     pre-fills an article image's alt with the article TITLE, so passing
+     article.image.alt straight through makes a screen reader announce the
+     headline twice on every card — once for the image, once for the link that
+     follows it. The alt is emitted only when a merchant actually wrote
+     something other than the title.
+
+  7. THE EXCERPT IS strip_html'd, NEVER RAW. article.excerpt is merchant richtext
+     and article.content is a whole post — either one emitted raw would drop a
+     post's <h2>s, images and scripts into the middle of the product page.
+
+  8. THE DATE IS IN THE META ROW, NOT OVER THE ARTWORK. It was a plaque in the
+     image's top-left corner first, and it has to be said plainly why that was
+     thrown away: this store's article art is POSTER art with the headline baked
+     into the pixels. The plaque landed on the "G" of "Gentle Care for Happier,
+     Healthier Skin" on the second card. No corner is safe — the next post could
+     put its type anywhere — so the overlay is gone rather than nudged, and the
+     image is left to be an image.
+
+  Read time is derived from the post, not typed by anyone: word count / 200,
+  floored at 1. It is an estimate and is labelled as one.
+
+  The 4/3 crop is chosen for the same reason as (8). These images are 1402x1122
+  and 1024x1024; a 3/2 crop sliced the top off the square one's headline. 4/3 is
+  the shallowest ratio that still gives the cards a consistent, non-square
+  editorial shape without eating a composition the merchant centred.
+{%- endcomment -%}
+
+{{ 'shudhi-journal.css' | asset_url | stylesheet_tag }}
+
+{%- assign s = section.settings -%}
+{%- assign uid = section.id | default: 'journal' -%}
+
+{%- comment -%} The blog picker hands back a HANDLE, not a blog. An unset picker,
+    or one pointing at a blog that has since been deleted, resolves to nothing —
+    fall back to the store's default blog rather than rendering an empty band. {%- endcomment -%}
+{%- assign jb = blogs[s.blog] -%}
+{%- if jb == blank or jb.articles_count == 0 -%}
+  {%- assign jb = blogs.news -%}
+{%- endif -%}
+
+{%- comment -%} See (3) and (4). {%- endcomment -%}
+{%- assign limit = s.count | default: 3 -%}
+{%- assign shown = jb.articles_count | default: 0 -%}
+{%- if shown > limit -%}{%- assign shown = limit -%}{%- endif -%}
+
+{%- comment -%} `sizes` has to agree with the grid the count modifier actually
+    selected, or the browser picks the wrong srcset candidate. With two posts the
+    cards are ~40vw, not the 31vw a three-column row would give — declaring 31vw
+    there had the browser fetch the 640w file for a 572px slot and go soft on any
+    retina screen. Slightly generous on purpose: over-declaring costs bytes,
+    under-declaring costs sharpness and cannot be corrected after layout. {%- endcomment -%}
+{%- case shown -%}
+  {%- when 1 -%}{%- assign img_sizes = '(max-width: 749px) 92vw, 680px' -%}
+  {%- when 2 -%}{%- assign img_sizes = '(max-width: 749px) 92vw, 46vw' -%}
+  {%- else -%}{%- assign img_sizes = '(max-width: 749px) 92vw, (max-width: 1180px) 46vw, 31vw' -%}
+{%- endcase -%}
+
+{%- if shown > 0 -%}
+<section class="sh sh-journal sh-journal--n{{ shown }}"
+         style="--sh-j-bg:{{ s.bg }};--sh-j-pad-top:{{ s.pad_top }}px;--sh-j-pad-bottom:{{ s.pad_bottom }}px;"
+         aria-labelledby="sh-journal-title-{{ uid }}">
+  <div class="sh-wrap">
+
+    <div class="sh-journal__head"{% if s.animate %} data-reveal{% endif %}>
+      <div class="sh-journal__head-l">
+        {%- if s.eyebrow != blank -%}
+          <div class="sh-journal__eyebrow sh-eyebrow">
+            {{ s.eyebrow }}{% render 'sh-icon', name: 'leaf' %}
+          </div>
+        {%- endif -%}
+        {%- comment -%} h2, not h1: sections/sh-product.liquid owns this page's h1,
+            and the FAQ and Reviews bands are both h2 — so the outline stays
+            h1 -> h2 -> h3 with the card titles below. {%- endcomment -%}
+        <h2 class="sh-journal__title sh-serif" id="sh-journal-title-{{ uid }}">
+          {{- s.title | default: 'From the Journal' -}}
+        </h2>
+      </div>
+
+      <div class="sh-journal__head-r">
+        {%- if s.lede != blank -%}
+          <p class="sh-journal__lede">{{ s.lede }}</p>
+        {%- endif -%}
+        {%- if s.cta_label != blank -%}
+          <a href="{{ jb.url }}" class="sh-journal__all sh-btn sh-btn--ghost">
+            {{ s.cta_label }} {% render 'sh-icon', name: 'arrow-right' %}
+          </a>
+        {%- endif -%}
+      </div>
+    </div>
+
+    <ul class="sh-journal__grid" role="list">
+      {%- for article in jb.articles limit: limit -%}
+
+        {%- comment -%} See (7). `default` covers a nil AND an empty excerpt.
+
+            The newline dance is load-bearing, not decoration. strip_html leaves
+            the post's paragraph breaks behind as bare newlines, and
+            strip_newlines DELETES them rather than collapsing them — so
+            "…unwanted energy?\nIn the Indian tradition…" truncated to
+            "…unwanted energy?In the Indian tradition…", one run-on word in the
+            middle of every excerpt. Converting the breaks to <br /> first gives
+            them something to be replaced BY. {%- endcomment -%}
+        {%- assign raw = article.excerpt | default: article.content -%}
+        {%- assign excerpt = raw | strip_html | newline_to_br
+                                 | replace: '<br />', ' ' | replace: '<br/>', ' '
+                                 | strip_newlines | truncatewords: 22 -%}
+
+        {%- comment -%} See (6). Shopify DEFAULTS an article image's alt to the
+            article title, so the honest-looking `alt="{{ article.image.alt }}"`
+            makes a screen reader read the headline twice on every card — once
+            as the image, once as the link. Only alt a merchant actually wrote
+            survives; the default is dropped back to decorative. {%- endcomment -%}
+        {%- assign img_alt = article.image.alt | default: '' -%}
+        {%- if img_alt == article.title -%}{%- assign img_alt = '' -%}{%- endif -%}
+
+        {%- comment -%} split/size rather than the number_of_words filter: it
+            behaves identically here and needs no filter-availability caveat. {%- endcomment -%}
+        {%- assign words = article.content | strip_html | split: ' ' | size -%}
+        {%- assign mins = words | divided_by: 200 -%}
+        {%- if mins < 1 -%}{%- assign mins = 1 -%}{%- endif -%}
+
+        {%- comment -%} A real tag reads better than the blog name, but every
+            article has a blog and not every article has tags. {%- endcomment -%}
+        {%- if article.tags.size > 0 -%}
+          {%- assign label = article.tags.first -%}
+        {%- else -%}
+          {%- assign label = jb.title -%}
+        {%- endif -%}
+
+        <li class="sh-journal__item"{% if s.animate %} data-reveal{% endif %}>
+          <article class="sh-journal__card">
+
+            <div class="sh-journal__media{% unless article.image %} sh-journal__media--empty{% endunless %}">
+              {%- if article.image -%}
+                {%- comment -%} See (6). {%- endcomment -%}
+                <img class="sh-journal__img"
+                     src="{{ article.image | image_url: width: 900 }}"
+                     srcset="{{ article.image | image_url: width: 420 }} 420w,
+                             {{ article.image | image_url: width: 640 }} 640w,
+                             {{ article.image | image_url: width: 900 }} 900w,
+                             {{ article.image | image_url: width: 1300 }} 1300w"
+                     sizes="{{ img_sizes }}"
+                     alt="{{ img_alt | escape }}"
+                     width="900" height="600"
+                     loading="lazy" decoding="async">
+              {%- else -%}
+                {% render 'sh-icon', name: 'shudhi-mark', sw: 1.2 %}
+              {%- endif -%}
+
+            </div>
+
+            <div class="sh-journal__text">
+
+              {%- comment -%} See (8). The date lives HERE, not over the artwork.
+                  The <time> is emitted whatever the toggles say — a post without
+                  a machine-readable date is a post search engines cannot age —
+                  and .sh-visually-hidden is position:absolute, so a hidden one
+                  adds no flex gap to the meta row. {%- endcomment -%}
+              <div class="sh-journal__meta">
+                <time class="{% unless s.show_date %}sh-visually-hidden{% endunless %}"
+                      datetime="{{ article.published_at | date: '%Y-%m-%d' }}">
+                  {{ article.published_at | date: '%d %b' }}
+                </time>
+                {%- if s.show_date and s.show_tag -%}
+                  <span class="sh-journal__dot" aria-hidden="true">&bull;</span>
+                {%- endif -%}
+                {%- if s.show_tag -%}<span>{{ label }}</span>{%- endif -%}
+                {%- if s.show_readtime -%}
+                  {%- if s.show_date or s.show_tag -%}
+                    <span class="sh-journal__dot" aria-hidden="true">&bull;</span>
+                  {%- endif -%}
+                  <span>{{ mins }} min read</span>
+                {%- endif -%}
+              </div>
+
+              {%- comment -%} See (5). {%- endcomment -%}
+              <h3 class="sh-journal__h">
+                <a class="sh-journal__link" href="{{ article.url }}">{{ article.title }}</a>
+              </h3>
+
+              {%- if s.show_excerpt and excerpt != blank -%}
+                <p class="sh-journal__excerpt">{{ excerpt }}</p>
+              {%- endif -%}
+
+              <span class="sh-journal__more" aria-hidden="true">
+                {{ s.more_label | default: 'Read the journal' }}
+                {% render 'sh-icon', name: 'arrow-right' %}
+              </span>
+
+            </div>
+          </article>
+        </li>
+      {%- endfor -%}
+    </ul>
+
+  </div>
+</section>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "SH · Recent Journal",
+  "class": "index-section",
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "From the journal" },
+    { "type": "text", "id": "title", "label": "Heading", "default": "Recent from the Journal" },
+    { "type": "textarea", "id": "lede", "label": "Supporting line",
+      "default": "Notes on herbs, ritual and everyday care — written the way we make the bar: slowly, and by hand." },
+
+    { "type": "header", "content": "Posts" },
+    { "type": "blog", "id": "blog", "label": "Blog",
+      "info": "Falls back to the store's default blog if this is empty or the blog has no posts." },
+    { "type": "range", "id": "count", "label": "Posts to show", "min": 1, "max": 6, "step": 1, "default": 3,
+      "info": "Three columns is the layout ceiling. One or two posts get their own narrower grid rather than a stretched card." },
+    { "type": "checkbox", "id": "show_date", "label": "Show the date plaque on the image", "default": true },
+    { "type": "checkbox", "id": "show_tag", "label": "Show the category label", "default": true,
+      "info": "Uses the post's first tag, or the blog name when it has no tags." },
+    { "type": "checkbox", "id": "show_readtime", "label": "Show the estimated read time", "default": true },
+    { "type": "checkbox", "id": "show_excerpt", "label": "Show the excerpt", "default": true },
+    { "type": "text", "id": "more_label", "label": "Card link text", "default": "Read the journal" },
+
+    { "type": "header", "content": "All entries link" },
+    { "type": "text", "id": "cta_label", "label": "Link text", "default": "All journal entries",
+      "info": "Leave empty to hide it. It always points at the blog chosen above." },
+
+    { "type": "header", "content": "Appearance" },
+    { "type": "checkbox", "id": "animate", "label": "Animate on scroll", "default": true },
+    { "type": "color", "id": "bg", "label": "Background", "default": "#f2ece0",
+      "info": "Keep it light — the text colours are tuned for a light surface. On the product page this sits between the FAQ (#f6ede1) and the reviews (#e9e0cf), so the default is the half-step between them and the page steps cream to deeper cream into the footer." },
+    { "type": "range", "id": "pad_top", "label": "Top padding", "min": 0, "max": 140, "step": 4, "default": 84, "unit": "px" },
+    { "type": "range", "id": "pad_bottom", "label": "Bottom padding", "min": 0, "max": 140, "step": 4, "default": 92, "unit": "px" }
+  ],
+  "presets": [ { "name": "SH · Recent Journal" } ]
+}
+{% endschema %}

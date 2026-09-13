@@ -1,0 +1,33 @@
+{%- comment -%}
+  SHUDHI — Policy cross-links
+
+  Rendered by layout/theme.liquid directly after content_for_layout, on
+  request.page_type == 'policy' only. It cannot be a section: Shopify has no
+  `policy` template type, so these five pages have no section list to add one to.
+
+  shop.policies yields only the policies that actually exist, so a store that
+  never writes a subscription policy simply gets four links instead of five —
+  no blank rows, nothing to maintain.
+
+  `contains` rather than `==` on the current path so a locale-prefixed URL
+  (/en-in/policies/refund-policy) still matches its own /policies/refund-policy
+  and drops out of the list.
+
+  Styles live in assets/shudhi-policy.css, which theme.liquid has already
+  loaded on this page.
+{%- endcomment -%}
+
+<nav class="sh sh-policy-links" aria-label="Store policies">
+  <span class="sh-policy-links__label sh-eyebrow">More policies</span>
+
+  {%- comment -%} role="list" is deliberate: the .sh reset strips list markers,
+      and Safari/VoiceOver then drop list semantics entirely. Same reason
+      sections/sh-feature-grid.liquid:72 carries it. {%- endcomment -%}
+  <ul class="sh-policy-links__list" role="list">
+    {%- for policy in shop.policies -%}
+      {%- unless policy.body == blank or request.path contains policy.url -%}
+        <li><a href="{{ policy.url }}">{{ policy.title }}</a></li>
+      {%- endunless -%}
+    {%- endfor -%}
+  </ul>
+</nav>

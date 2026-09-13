@@ -80,10 +80,85 @@
         "anchor_id": "ritual-energize",
         "bg": "#1b2411"
       }
+    },
+    "ritual_protocol": {
+      "type": "sh-ritual-protocol",
+      "blocks": {
+        "r1": {
+          "type": "reason",
+          "settings": {
+            "icon": "shield",
+            "text": "Many products can copy ingredients."
+          }
+        },
+        "r2": {
+          "type": "reason",
+          "settings": {
+            "icon": "mortar",
+            "text": "Very few can replicate generations of knowledge, disciplined craftsmanship, and intentional preparation."
+          }
+        },
+        "r3": {
+          "type": "reason",
+          "settings": {
+            "icon": "lock",
+            "text": "Our complete methodology remains confidential to preserve the authenticity of the Shudhi Ritual™."
+          }
+        },
+        "b1": {
+          "type": "badge",
+          "settings": {
+            "icon": "hands-heart",
+            "title": "Handmade in Small Batches"
+          }
+        },
+        "b2": {
+          "type": "badge",
+          "settings": {
+            "icon": "flask-line",
+            "title": "Lab Tested"
+          }
+        },
+        "b3": {
+          "type": "badge",
+          "settings": {
+            "icon": "leaf-line",
+            "title": "Ayurvedic Herbal Ingredients"
+          }
+        },
+        "b4": {
+          "type": "badge",
+          "settings": {
+            "icon": "heart-line",
+            "title": "Made with Intention"
+          }
+        }
+      },
+      "block_order": [
+        "r1",
+        "r2",
+        "r3",
+        "b1",
+        "b2",
+        "b3",
+        "b4"
+      ],
+      "settings": {
+        "reasons_title": "Why We Keep Our Process Private",
+        "protocol_title": "The Shudhi Protocol™",
+        "protocol_lead": "Our proprietary five-stage ritual protocol consists of multiple energetic conditioning stages that remain confidential and known only to those involved in our production process.",
+        "seal_icon": "shudhi-mark",
+        "closer": "Some traditions are preserved. Some are practiced.",
+        "closer_em": "Only a few are experienced.",
+        "animate": true,
+        "anchor_id": "ritual-protocol",
+        "bg": "#f2ece0"
+      }
     }
   },
   "order": [
     "page_header",
-    "ritual_energize"
+    "ritual_energize",
+    "ritual_protocol"
   ]
 }

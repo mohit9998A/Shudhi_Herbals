@@ -23,7 +23,31 @@
       "PowerShell(node \"C:\\\\Users\\\\MOHIT~1.DUT\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--Users-Mohit-Dutta-Downloads-bonn-Worker-phone-Bonn-HOV-Shudhi-Shudhi-Herbals\\\\ad55a511-1b4d-46c0-97b5-44c2b32ded85\\\\scratchpad\\\\toggle-photo.js\" on)",
       "PowerShell(cd \"c:\\\\Users\\\\Mohit.Dutta\\\\Downloads\\\\bonn_Worker_phone\\\\Bonn_HOV_Shudhi\\\\Shudhi_Herbals\"; \\(Get-Content sections\\\\sh-reviews.liquid -Raw\\) -replace 'block\\\\.settings\\\\.photo \\\\| image_url', 'block_photo | image_url' | Set-Content -Path sections\\\\sh-reviews.liquid -NoNewline -Encoding utf8; Select-String -Path sections\\\\sh-reviews.liquid -Pattern 'block_photo' | ForEach-Object { $_.LineNumber.ToString\\(\\) + ': ' + $_.Line.Trim\\(\\) })",
       "PowerShell(node \"C:\\\\Users\\\\MOHIT~1.DUT\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--Users-Mohit-Dutta-Downloads-bonn-Worker-phone-Bonn-HOV-Shudhi-Shudhi-Herbals\\\\ad55a511-1b4d-46c0-97b5-44c2b32ded85\\\\scratchpad\\\\fix-text.js\" \"c:\\\\Users\\\\Mohit.Dutta\\\\Downloads\\\\bonn_Worker_phone\\\\Bonn_HOV_Shudhi\\\\Shudhi_Herbals\\\\sections\\\\sh-reviews.liquid\")",
-      "PowerShell(node \"C:\\\\Users\\\\MOHIT~1.DUT\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--Users-Mohit-Dutta-Downloads-bonn-Worker-phone-Bonn-HOV-Shudhi-Shudhi-Herbals\\\\ad55a511-1b4d-46c0-97b5-44c2b32ded85\\\\scratchpad\\\\toggle-photo.js\" off)"
+      "PowerShell(node \"C:\\\\Users\\\\MOHIT~1.DUT\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--Users-Mohit-Dutta-Downloads-bonn-Worker-phone-Bonn-HOV-Shudhi-Shudhi-Herbals\\\\ad55a511-1b4d-46c0-97b5-44c2b32ded85\\\\scratchpad\\\\toggle-photo.js\" off)",
+      "Bash(python -c ' *)",
+      "Bash(grep -n \"^/\\\\* ------\\\\|^/\\\\* =\\\\{4,\\\\}\" assets/shudhi-product.css)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" -m 8 \"http://127.0.0.1:9292/products/negativity-removal-cleansing-bar\")",
+      "Bash(curl -s -m 25 \"http://127.0.0.1:9292/products/negativity-removal-cleansing-bar\")",
+      "Bash(git log *)",
+      "Bash(git fsck *)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code} -> %{url_effective}\\\\n\" -L --max-time 20 \"https://shudhiherbals.com/#faq\")",
+      "Bash(curl -s --max-time 20 \"https://shudhiherbals.com/\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code} %{url_effective}\\\\n\" -L --max-time 20 \"https://shudhiherbals.com/blogs/news\")",
+      "Bash(curl -s -o /dev/null -w \"dev-server: %{http_code}\\\\n\" --max-time 6 \"http://127.0.0.1:9292/\")",
+      "Bash(grep -rn \"^img,\\\\|^img {\\\\|^img{\\\\|^ *img *{\" assets/engo-customizes.css.liquid assets/bootstrap.min.css)",
+      "PowerShell(git -C \"c:\\\\Users\\\\Mohit.Dutta\\\\Downloads\\\\bonn_Worker_phone\\\\Bonn_HOV_Shudhi\\\\Shudhi_Herbals\" diff --stat -- sections/sh-product.liquid assets/shudhi-product.css assets/sh-product.js)",
+      "PowerShell($ports = 9292,9293,3000; foreach \\($p in $ports\\) { $c = Get-NetTCPConnection -LocalPort $p -State Listen -ErrorAction SilentlyContinue; if \\($c\\) { \"LISTENING: $p\" } else { \"closed: $p\" } })",
+      "Bash(grep -n \"^/\\\\* §\\\\|^/\\\\* ==\\\\|§[0-9]\" assets/shudhi-home.css)",
+      "Bash(grep -n -A2 \"^/\\\\* =\\\\{10,\\\\}\" assets/shudhi-home.css)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://127.0.0.1:9292/blogs/news)",
+      "Bash(curl -s http://127.0.0.1:9292/blogs/news)",
+      "mcp__21st__search",
+      "Bash(node -e \"JSON.parse\\(require\\('fs'\\).readFileSync\\('templates/page.wishlist.json','utf8'\\)\\); console.log\\('template JSON: OK'\\)\")",
+      "Bash(node -e ' *)",
+      "Bash(node \"C:/Users/MOHIT~1.DUT/AppData/Local/Temp/claude/c--Users-Mohit-Dutta-Downloads-bonn-Worker-phone-Bonn-HOV-Shudhi-Shudhi-Herbals/074edde4-c532-4fb5-a6f1-2e3f04ed8310/scratchpad/fix-social.js\" assets/hov-auth.js)",
+      "Bash(git --no-pager diff --stat sections/sh-header.liquid assets/hov-auth.js)",
+      "Bash(git --no-pager diff sections/sh-header.liquid assets/hov-auth.js)",
+      "Bash(node -e \"for \\(const p of ['assets/hov-auth.css','layout/theme.liquid']\\) { const s=require\\('fs'\\).readFileSync\\(p,'utf8'\\); console.log\\(p, 'CRLF:', \\(s.match\\(/\\\\r\\\\n/g\\)||[]\\).length, 'lines:', s.split\\('\\\\n'\\).length\\); }\")"
     ]
   }
 }

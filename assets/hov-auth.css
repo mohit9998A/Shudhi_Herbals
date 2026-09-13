@@ -20,9 +20,16 @@
 
 /* ── MODAL BOX ── */
 .hov-auth__modal {
+  /* Brand cream, not white. --sh-* come from shudhi-home.css :root (loaded
+     site-wide); the fallbacks keep the popup cream without it. */
+  --hov-auth-bg:    var(--sh-cream, #f2ece0);
+  --hov-auth-card:  #fffdfa;                /* fields + pills on cream, as sh-journal / sh-wishlist cards */
+  --hov-auth-line:  rgba(27, 42, 18, .14);  /* decorative hairline, as sh-contact / sh-faq */
+  --hov-auth-muted: var(--sh-muted-dark, rgba(36, 29, 21, .68));  /* 5.4:1 on cream; #888 was 3:1 */
+
   position: relative;
   z-index: 1;
-  background: #FFFFFF;
+  background: var(--hov-auth-bg);
   border-radius: 24px;
   width: 100%;
   max-width: 480px;
@@ -81,13 +88,13 @@
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  border: 1px solid #EEE;
-  background: #FAFAFA;
+  border: 1px solid var(--hov-auth-line);
+  background: var(--hov-auth-card);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #888;
+  color: var(--hov-auth-muted);
   transition: 0.2s ease;
   z-index: 10;
 }
@@ -102,7 +109,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 20px 32px 12px;
+  padding: 16px 32px 12px;
   margin-bottom: 0;
   gap: 4px;
 }
@@ -117,22 +124,33 @@
   width: auto;
   object-fit: contain;
 }
+/* Shudhilogo.jpeg is a 4500px square: mark at y 12-71%, empty canvas below.
+   A 1.54:1 cover box at 24.5% crops to the mark with ~3% air above/below.
+   The JPEG has no alpha, so multiply melts its white ground into the cream. */
+.hov-auth__logo-lockup {
+  width: 105px;
+  height: auto;
+  aspect-ratio: 1.54;
+  object-fit: cover;
+  object-position: 50% 24.5%;
+  mix-blend-mode: multiply;
+}
 .hov-auth__logo-tagline {
   font-size: 11px;
-  color: #888;
+  color: var(--hov-auth-muted);
   letter-spacing: 0.5px;
   text-align: center;
 }
 .hov-auth__divider {
   border: none;
-  border-top: 1px solid #EEE8DC;
+  border-top: 1px solid var(--hov-auth-line);
   margin: 0 32px 12px;
 }
 
 /* ── TABS ── */
 .hov-auth__tabs {
   display: flex;
-  background: #F5F2EC;
+  background: var(--sh-cream-2, #e9e0cf);
   border-radius: 999px;
   margin: 0 32px 16px;
   padding: 3px;
@@ -148,11 +166,11 @@
   font-weight: 600;
   cursor: pointer;
   background: transparent;
-  color: #888;
+  color: var(--hov-auth-muted);
   transition: 0.25s ease;
 }
 .hov-auth__tab--active {
-  background: #FFFFFF;
+  background: var(--hov-auth-card);
   color: #1A2E1A;
   box-shadow: 0 2px 8px rgba(0,0,0,0.08);
 }
@@ -177,7 +195,7 @@
 }
 .hov-auth__subtitle {
   font-size: 13px;
-  color: #888;
+  color: var(--hov-auth-muted);
   margin: 0;
 }
 
@@ -210,7 +228,7 @@
   border-radius: 12px !important;
   font-size: 13px !important;
   color: #1A2E1A !important;
-  background: #FAFAF8 !important;
+  background: var(--hov-auth-card) !important;
   outline: none !important;
   transition: 0.2s ease;
   box-sizing: border-box;
@@ -329,7 +347,7 @@
   align-items: center;
   gap: 12px;
   margin: 14px 0 10px;
-  color: #BBB;
+  color: var(--hov-auth-muted);
   font-size: 12px;
 }
 .hov-auth__social-divider::before,
@@ -337,13 +355,15 @@
   content: '';
   flex: 1;
   height: 1px;
-  background: #EEE;
+  background: var(--hov-auth-line);
 }
 
 /* ── SOCIAL BUTTONS ── */
 .hov-auth__social-btns {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  /* Single full-width strip. Was `1fr 1fr` from when an Apple button sat
+     beside Google; with only Google left that rendered it at half width. */
+  grid-template-columns: 1fr;
   gap: 12px;
   margin-bottom: 12px;
 }
@@ -353,18 +373,18 @@
   justify-content: center;
   gap: 8px;
   height: 42px;
-  border: 1.5px solid #E8E0D0;
+  border: 1.5px solid var(--hov-auth-line);
   border-radius: 12px;
   font-size: 13px;
   font-weight: 600;
   color: #333;
   text-decoration: none;
-  background: #FAFAFA;
+  background: var(--hov-auth-card);
   transition: 0.2s ease;
   cursor: pointer;
 }
 .hov-auth__social-btn:hover {
-  background: #F5F2EC;
+  background: #FFFFFF;
   border-color: #C8B89A;
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(0,0,0,0.08);
@@ -374,7 +394,7 @@
 .hov-auth__switch {
   text-align: center;
   font-size: 13px;
-  color: #888;
+  color: var(--hov-auth-muted);
   margin: 0 0 10px;
 }
 .hov-auth__switch-btn {
@@ -396,7 +416,7 @@
   justify-content: center;
   gap: 4px;
   font-size: 10px;
-  color: #AAA;
+  color: var(--hov-auth-muted);
   text-align: center;
 }
 .hov-auth__trust svg { width: 12px; height: 12px; }
@@ -411,7 +431,7 @@
 .hov-auth__pw-strength-bar {
   flex: 1;
   height: 3px;
-  background: #EEE;
+  background: var(--hov-auth-line);
   border-radius: 999px;
   overflow: hidden;
 }
@@ -437,7 +457,7 @@
 }
 .hov-auth__recover-sub {
   font-size: 13px;
-  color: #888;
+  color: var(--hov-auth-muted);
   text-align: center;
   margin: 0 0 20px;
 }
@@ -459,7 +479,8 @@
     max-height: calc(100vh - 16px);
     border-radius: 16px;
   }
-  .hov-auth__header  { padding: 16px 20px 10px; }
+  .hov-auth__header  { padding: 12px 20px 10px; }
+  .hov-auth__logo-lockup { width: 88px; }
   .hov-auth__divider { margin: 0 20px 10px; }
   .hov-auth__tabs    { margin: 0 20px 12px; }
   .hov-auth__panel   { padding: 0 20px 16px; }
@@ -475,6 +496,6 @@
 /* Very small: 360px phones */
 @media (max-width: 380px) {
   .hov-auth__title   { font-size: 18px; }
-  .hov-auth__social-btns { grid-template-columns: 1fr; }
   .hov-auth__logo-emblem { height: 32px; }
+  .hov-auth__logo-lockup { width: 76px; }
 }

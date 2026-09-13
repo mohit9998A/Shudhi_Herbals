@@ -1,0 +1,246 @@
+/* ===========================================================================
+   SHUDHI — WHY WE KEEP OUR PROCESS PRIVATE / THE SHUDHI PROTOCOL(TM)
+   sections/sh-ritual-protocol.liquid. A dedicated sheet, not a block of
+   shudhi-home.css (global, 236KB), so the band ports as two files — the same
+   contract shudhi-ritual-stages.css and shudhi-ritual-energize.css keep.
+
+   Emitted by the section, so it lands in <body> and therefore AFTER every
+   <head> link: equal-specificity ties against houseofveda-modern.css and
+   timber.scss are decided by source order in this file's favour.
+
+   Loads after shudhi-story.css from the same section, which is where every
+   motion primitive used here ([data-sh-fade], --e, --sh-e-in, --sh-dur) and
+   the reduced-motion backstop are declared. Nothing here writes a pre-state
+   outside [data-sh-reveal].is-armed — resting state is the finished state.
+
+   SPECIFICITY NOTES, every one of them earned elsewhere in this theme:
+   - `.sh h1..h6, .sh p { margin: 0 }` (shudhi-home.css:112) is (0,1,1), so
+     every margin below is written at (0,2,0). A bare block class does nothing.
+   - `.sh img, .sh svg { display:block; max-width:100% }` (:114) is (0,1,1) and
+     would SHRINK the branch to its panel instead of letting the panel crop it.
+   - `.sh h1..h6 { font-family: var(--sh-serif) !important }` (:145) is what
+     the panel titles WANT — tracked serif caps, per the reference — so they
+     inherit it. The closer is a <p>, so the markup opts in with .sh-serif.
+   - `.sh em` is in the sans !important list (:141) and timber.scss.liquid:863
+     italicises it; the closer is serif and upright, so it restates both.
+   - `.sh-icon` has no base size anywhere in the theme — every call site sizes
+     its own or the SVG renders at the UA 300x150 replaced-element default.
+   =========================================================================== */
+
+.sh-protocol {
+  /* Light-surface token trio, re-declared rather than referenced: these live
+     only on section roots, never on :root, so var(--sh-story-ink) would
+     resolve to nothing here. Same names, identical values — if they are ever
+     promoted to :root this collapses into a no-op instead of a rival set. */
+  --sh-story-ink:      #1b2a12;   /* titles, closer, badge labels — 13.1:1 */
+  --sh-story-body:     #474a3d;   /* every paragraph — 7.8:1 */
+  --sh-story-gold-ink: #7a5d2e;   /* the ONLY gold allowed to carry text — 5.3:1 */
+
+  --sh-protocol-card:  #fbfaf5;   /* panel face — one step lighter than the band */
+  --sh-protocol-edge:  rgba(201, 168, 106, .62);   /* --sh-gold at hairline strength */
+  --sh-protocol-seal:  #1b2411;   /* --sh-green-900; the one dark surface here */
+  --sh-protocol-gap:   clamp(16px, 2vw, 26px);
+
+  position: relative;
+  background: var(--sh-protocol-bg, #f2ece0);
+  color: var(--sh-story-ink);
+  padding-block: clamp(58px, 7vw, 100px);
+  /* the header is sticky on every template, so an #anchor jump would otherwise
+     land underneath it */
+  scroll-margin-top: var(--sh-header-h, 86px);
+}
+/* Four rungs; the 450ms default would pile the last two. */
+.sh-protocol[data-sh-reveal] { --sh-spread: .56s; }
+
+/* Legacy leak neutralisers — houseofveda-modern.css:55 paints every h1-h6 in
+   --hov-dark and timber.scss.liquid:814 force-capitalises them. (0,1,1) beats
+   their (0,0,1); the tracked caps are re-imposed deliberately below. */
+.sh-protocol h3 { color: inherit; text-transform: none; margin: 0; }
+
+/* ---- Dot arc ------------------------------------------------------------- */
+/* (0,2,0): `.sh svg` sets display:block at (0,1,1), and `margin: 0 auto` on a
+   bare block class would lose the same way it does on every <p> in this theme. */
+.sh-protocol .sh-protocol__arc {
+  width: min(118px, 42%); height: auto;
+  margin: 0 auto clamp(20px, 2.6vw, 32px);
+  color: var(--sh-protocol-edge);
+}
+
+/* ---- Grid ---------------------------------------------------------------- */
+/* width:min(), not max-width — the house pattern (shudhi-ritual-energize.css:90
+   and eight more), cheap insurance against a stray upstream width rule. */
+.sh-protocol__grid {
+  display: grid;
+  gap: var(--sh-protocol-gap);
+  width: min(1180px, 100%);
+  margin-inline: auto;
+}
+@media (min-width: 900px) {
+  .sh-protocol__grid { grid-template-columns: 1fr 1fr; }
+}
+
+/* ---- Panel --------------------------------------------------------------- */
+/* overflow:hidden is load-bearing: it is what crops the branch. Column flex so
+   the badge strip can be pinned to the foot with margin-top:auto, which keeps
+   the two panels' baselines aligned on the desktop row. */
+.sh-protocol__panel {
+  position: relative;
+  overflow: hidden;
+  display: flex; flex-direction: column;
+  padding: clamp(24px, 2.6vw, 36px) clamp(20px, 2.4vw, 34px) clamp(26px, 2.8vw, 38px);
+  background: var(--sh-protocol-card);
+  border: 1px solid var(--sh-protocol-edge);
+  border-radius: var(--sh-radius, 12px);
+  box-shadow: 0 18px 40px -34px rgba(27, 42, 18, .5);
+}
+
+/* ---- Panel title + ornament ---------------------------------------------- */
+/* The serif face is INHERITED from `.sh h1..h6` (:145) on purpose — the
+   reference sets these as tracked serif caps — so only case and tracking are
+   stated here. Contrast .sh-rstages__name, which wanted the sans and had to
+   fight that same !important. */
+.sh-protocol .sh-protocol__ptitle {
+  margin: 0;
+  font-size: clamp(.95rem, 1.5vw, 1.16rem);
+  letter-spacing: .17em; text-transform: uppercase;
+  font-weight: 600; line-height: 1.35; text-align: center;
+  color: var(--sh-story-ink);
+}
+.sh-protocol__orn {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  margin-top: 10px; color: var(--sh-protocol-edge);
+}
+.sh-protocol__orn i { display: block; width: 26px; height: 1px; background: currentColor; opacity: .9; }
+.sh-protocol .sh-protocol__orn .sh-icon { width: 16px; height: 16px; }
+
+/* ---- Left panel — the three reasons -------------------------------------- */
+.sh-protocol .sh-protocol__reasons {
+  display: grid; gap: clamp(16px, 1.8vw, 22px);
+  margin-top: clamp(22px, 2.6vw, 30px);
+}
+.sh-protocol__reason { display: flex; align-items: flex-start; gap: clamp(12px, 1.4vw, 18px); }
+
+/* flex:none — a width on a flex child is a starting size, not a floor, and
+   these discs would otherwise squash as the copy beside them grows. */
+.sh-protocol__ring {
+  flex: none;
+  width: 44px; height: 44px; border-radius: 50%;
+  display: grid; place-items: center;
+  border: 1px solid var(--sh-protocol-edge);
+  color: var(--sh-story-gold-ink);
+}
+.sh-protocol .sh-protocol__ring .sh-icon { width: 20px; height: 20px; }
+
+/* min-width:0 — flex items floor at min-content, which would refuse to wrap a
+   long word and push the ring out of the panel. */
+.sh-protocol .sh-protocol__reason p {
+  margin: 0; min-width: 0;
+  font-size: .92rem; line-height: 1.7;
+  color: var(--sh-story-body);
+}
+
+/* ---- Right panel — seal + opening paragraph ------------------------------ */
+.sh-protocol__lead {
+  display: flex; align-items: flex-start; gap: clamp(14px, 1.6vw, 20px);
+  margin-top: clamp(22px, 2.6vw, 30px);
+}
+.sh-protocol__seal {
+  flex: none;
+  width: 86px; height: 86px; border-radius: 50%;
+  display: grid; place-items: center;
+  background: var(--sh-protocol-seal);
+  /* On this dark disc --sh-gold is the READABLE gold. Everywhere else in this
+     band it is 1.95:1 on cream and strictly decorative. */
+  color: var(--sh-gold, #c9a86a);
+}
+.sh-protocol .sh-protocol__seal .sh-icon { width: 38px; height: 38px; }
+.sh-protocol .sh-protocol__lead p {
+  margin: 0; min-width: 0;
+  font-size: .92rem; line-height: 1.7;
+  color: var(--sh-story-body);
+}
+
+/* ---- Right panel — trust badges ------------------------------------------ */
+/* margin-top:auto pins the strip to the panel foot (the panel is column flex),
+   so the two panels finish level on the desktop row whatever the copy does. */
+.sh-protocol .sh-protocol__badges {
+  display: grid; grid-template-columns: repeat(2, 1fr);
+  gap: clamp(16px, 1.8vw, 22px) clamp(8px, 1.2vw, 14px);
+  margin-top: auto;
+  padding-top: clamp(24px, 2.8vw, 34px);
+}
+@media (min-width: 560px) {
+  .sh-protocol .sh-protocol__badges { grid-template-columns: repeat(4, 1fr); }
+}
+.sh-protocol__badge {
+  display: flex; flex-direction: column; align-items: center; gap: 9px;
+  text-align: center; min-width: 0;
+}
+.sh-protocol__bicon { color: var(--sh-story-gold-ink); }
+.sh-protocol .sh-protocol__bicon .sh-icon { width: 26px; height: 26px; }
+.sh-protocol__blabel {
+  font-size: .58rem; letter-spacing: .14em; text-transform: uppercase;
+  font-weight: 600; line-height: 1.55;
+  color: var(--sh-story-ink);
+}
+
+/* ---- Closing line -------------------------------------------------------- */
+/* Deliberately NOT display:flex — flex would promote the <em> and each text run
+   to separate flex items, so the sentence would break between them instead of
+   wrapping as prose. Normal inline flow, inline-flex ornaments. */
+.sh-protocol .sh-protocol__closer {
+  width: min(960px, 100%);
+  margin: clamp(28px, 3.4vw, 44px) auto 0;
+  font-size: clamp(.8rem, 1.35vw, .98rem);
+  letter-spacing: .11em; text-transform: uppercase;
+  font-weight: 600; line-height: 1.9; text-align: center;
+  color: var(--sh-story-ink);
+}
+/* `.sh em` sits in the sans !important list (shudhi-home.css:141) and
+   timber.scss.liquid:863 italicises it. (0,2,1) restores the serif and the
+   upright face, and swaps in the gold that is actually readable on cream. */
+.sh .sh-protocol__closer em {
+  font-family: var(--sh-serif) !important;
+  font-style: normal;
+  color: var(--sh-story-gold-ink);
+}
+.sh-protocol__cmark {
+  display: inline-flex; vertical-align: -3px;
+  margin: 0 12px; color: var(--sh-protocol-edge);
+}
+.sh-protocol .sh-protocol__cmark .sh-icon { width: 15px; height: 15px; }
+
+/* ---- Decorative branch --------------------------------------------------- */
+/* max-width:none is the load-bearing declaration: `.sh svg { max-width: 100% }`
+   (shudhi-home.css:114) is (0,1,1) and would scale the branch down to the panel
+   width, so the panel would never get to crop it. (0,2,0) beats it. */
+.sh-protocol .sh-protocol__branch {
+  position: absolute; right: -26px; bottom: -18px;
+  width: 132px; height: auto; max-width: none;
+  color: var(--sh-story-gold-ink); opacity: .15;
+  pointer-events: none;
+}
+/* The second panel hangs its branch from the top-right instead, as the
+   reference does, so the pair does not read as one image pasted twice. */
+.sh-protocol .sh-protocol__panel--protocol .sh-protocol__branch {
+  top: -30px; bottom: auto; right: -30px;
+  width: 148px;
+}
+
+/* ---- Responsive ---------------------------------------------------------- */
+@media (max-width: 599px) {
+  .sh-protocol .sh-protocol__reason p,
+  .sh-protocol .sh-protocol__lead p { font-size: .88rem; }
+  .sh-protocol__ring { width: 38px; height: 38px; }
+  .sh-protocol .sh-protocol__ring .sh-icon { width: 18px; height: 18px; }
+  .sh-protocol__seal { width: 66px; height: 66px; }
+  .sh-protocol .sh-protocol__seal .sh-icon { width: 30px; height: 30px; }
+  .sh-protocol__cmark { margin: 0 8px; }
+  /* No room for it at this width — it only crowds the copy. (0,2,0) beats
+     `.sh svg { display: block }` at (0,1,1). */
+  .sh-protocol .sh-protocol__branch { display: none; }
+}
+
+/* Reduced motion needs nothing here: this band declares no animation of its
+   own, and shudhi-story.css:268-288 already forces every entrance primitive to
+   its finished state. Left as a note so the next hand does not add one. */

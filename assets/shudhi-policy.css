@@ -1,0 +1,315 @@
+/* ============================================================
+   SHUDHI — POLICY PAGES
+   /policies/refund-policy · shipping-policy · privacy-policy
+   terms-of-service · contact-information
+
+   Shopify has NO `policy` template type — a templates/policy.liquid would be
+   ignored. All five pages are rendered by Shopify itself, straight into
+   content_for_layout, as:
+
+     <div class="shopify-policy__container">
+       <div class="shopify-policy__title"><h1>Shipping policy</h1></div>
+       <div class="shopify-policy__body">
+         <div class="rte">
+           <h2>Shipping Policy</h2>      <- the body repeats its own title
+           ...
+
+   No theme file owns that markup, so there is nothing to hand-author: this
+   sheet IS the treatment. layout/theme.liquid is the only available hook — it
+   loads this behind `request.page_type == 'policy'` and puts `sh sh-policy` on
+   <main>. Everything below is scoped to .sh-policy and never leaks.
+   ============================================================ */
+
+/* Light-surface trio, re-declared rather than referenced — the same trade
+   .sh-story makes at shudhi-home.css:709. These are NOT on :root. */
+.sh-policy {
+  --sh-story-bg:       #f6ede1;   /* cream page field */
+  --sh-story-ink:      #1b2a12;   /* headings, bold runs — 13.1:1 on cream */
+  --sh-story-body:     #474a3d;   /* paragraph copy — 7.8:1 */
+  --sh-story-gold-ink: #7a5d2e;   /* the brand gold, dark enough to be READ — 5.3:1 */
+  --sh-policy-rule:    rgba(184, 150, 92, .32);   /* hairline gold, decorative */
+  --sh-policy-measure: 792px;
+}
+
+/* timber's `.main-content { margin-top: $gutter }` (timber.scss.liquid:743) is
+   zeroed for .template-index alone, and a policy page's body class is
+   `template-` — blank — so without this the white body bg shows as a 30px
+   stripe between the solid header and the title band. Same fix
+   shudhi-home.css:1387 and shudhi-story.css:738 already make. */
+.main-content.sh-policy {
+  margin-top: 0;
+  background: var(--sh-story-bg);
+}
+
+/* Shopify auto-generates this <h1> from the policy TYPE, so it arrives
+   lowercased — "Refund policy", "Terms of service". The body's own opening
+   <h2> carries the wording that was actually written ("Refund & Return
+   Policy"), and that is what the band below renders. Hidden VISUALLY only:
+   this is the page's sole <h1>, so it has to stay in the accessibility tree
+   and in the document outline. Same technique as .sh-visually-hidden,
+   shudhi-home.css:163. */
+.sh-policy .shopify-policy__title {
+  position: absolute !important;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px; overflow: hidden;
+  clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap;
+}
+
+.sh-policy .shopify-policy__container { max-width: none; margin: 0; padding: 0; }
+
+/* ------------------------------------------------------------
+   Prose column
+   ------------------------------------------------------------ */
+/* `margin: 0 auto`, not `margin-inline: auto` — the block halves are load-bearing.
+   The theme ships a bare `.rte { margin-top: 15px }`, and with the container and
+   body above it stripped to zero padding there is no border or padding anywhere
+   in the chain to stop that margin COLLAPSING straight out through <main>. It
+   moved main itself 15px down the page, so the white body background showed as a
+   stripe between the solid header and the title band — the same symptom
+   shudhi-home.css:1387 fixes for .sh-pagehead, arriving by a different route.
+   Verified: main.top was 136 with the header bottom at 121, and is 121 now. */
+.sh-policy .shopify-policy__body > .rte {
+  max-width: var(--sh-policy-measure);
+  margin: 0 auto;
+  padding: 0 var(--sh-pad) clamp(56px, 7vw, 96px);
+  color: var(--sh-story-body);
+}
+
+/* The .sh reset zeroes `p` margins wholesale (shudhi-home.css:112) — that rule
+   is (0,1,1) and applies the moment `sh` lands on <main>, so every prose
+   default this page needs has to be re-declared here at (0,2,1). */
+.sh-policy .rte p {
+  font-size: 1rem;
+  line-height: 1.8;
+  margin: 0 0 1.15em;
+}
+.sh-policy .rte p:last-child { margin-bottom: 0; }
+
+/* Likewise shudhi-home.css:113 strips list markers and padding outright.
+
+   The zero font-size/line-height is not a typo. Every list in these policies
+   arrives from the admin editor with a stray `&nbsp;` text node BETWEEN each
+   <li> — real content, sitting directly inside the <ul>, which no selector can
+   reach. Each one lays out as its own anonymous line box and was adding ~25px
+   between every bullet (measured pitch 62px against the 37px the li box asks
+   for). Collapsing the parent's strut to zero gives those orphan runs no height;
+   the li rule below restores real type for the items themselves, in rem so it is
+   immune to the 0 it inherits. */
+.sh-policy .rte ul,
+.sh-policy .rte ol {
+  margin: 0 0 1.3em;
+  padding-left: 1.4em;
+  list-style: disc;
+  font-size: 0;
+  line-height: 0;
+}
+.sh-policy .rte ol { list-style: decimal; }
+.sh-policy .rte li {
+  font-size: 1rem;
+  line-height: 1.8;
+  margin-bottom: .5em;
+}
+.sh-policy .rte li::marker { color: var(--sh-story-gold-ink); }
+.sh-policy .rte li:last-child { margin-bottom: 0; }
+.sh-policy .rte ul ul,
+.sh-policy .rte ol ol { margin-top: .5em; margin-bottom: 0; }
+
+/* ------------------------------------------------------------
+   Headings
+   Two bare-element rules have to be neutralised on every one, the same pair
+   documented at shudhi-home.css:692 — houseofveda-modern.css:55 colours all of
+   h1-h6, timber.scss.liquid:814 force-capitalises them. Both are (0,0,1), so
+   specificity settles it and no !important is needed. The serif itself already
+   arrives from `.sh h1..h6` (shudhi-home.css:145).
+   ------------------------------------------------------------ */
+.sh-policy .rte h1,
+.sh-policy .rte h2,
+.sh-policy .rte h3,
+.sh-policy .rte h4 {
+  color: var(--sh-story-ink);
+  text-transform: none;
+  font-weight: 500;
+}
+
+/* THE TITLE BAND — the body's first heading, painted edge to edge.
+
+   `box-shadow` + `clip-path` rather than the usual `width:100vw` /
+   `margin-inline: calc(50% - 50vw)` break-out: 100vw counts the scrollbar, so
+   on every desktop that has one the usual idiom overflows sideways by ~15px
+   and the whole page gains a horizontal scroll. The shadow paints a ring in
+   the gutters instead — no layout box grows, so nothing can overflow — and
+   inset(0 ...) clips that ring top and bottom while leaving the sides. */
+.sh-policy .rte > h2:first-child,
+.sh-policy .rte > h1:first-child {
+  background: var(--sh-green-900);
+  box-shadow: 0 0 0 100vmax var(--sh-green-900);
+  clip-path: inset(0 -100vmax);
+  color: var(--sh-light);
+  /* Matches .sh-pagehead exactly (shudhi-home.css:1367) so a policy page opens
+     on the same band as Our Story, The Ritual and Contact. */
+  font-size: clamp(2rem, 4vw, 3.1rem);
+  line-height: 1.06;
+  letter-spacing: -.005em;
+  text-align: center;
+  text-wrap: balance;
+  padding-block: clamp(46px, 6vw, 76px) clamp(36px, 4.5vw, 58px);
+  margin: 0 0 clamp(38px, 5vw, 60px);
+}
+.sh-policy .rte > h2:first-child::after,
+.sh-policy .rte > h1:first-child::after {
+  content: "";
+  display: block;
+  width: 56px; height: 1px;
+  margin: 22px auto 0;
+  background: var(--sh-gold);
+}
+
+/* "Last updated" line under the title — spliced in straight after the h2 by
+   layout/theme.liquid (shipping policy only). It continues the band rather than
+   sitting on cream: the h2 hands it its bottom padding and margin, and it paints
+   the same edge-to-edge green. The h2's -1px bottom inset runs its ring a pixel
+   into this box so no hairline seam shows at a fractional boundary. The overlap
+   has to come from the h2, not from here: with padding-bottom 0 the gold rule
+   is the h2's last pixel, and a ring reaching UP from this box painted over it.
+   (0,3,0) because `.sh-policy .rte p` above (0,2,1) and hov-typography.css's
+   `.rte p` (0,1,1) both reset size, spacing and weight on every <p> in here. */
+.sh-policy .rte > h2:first-child:has(+ .sh-policy__updated) {
+  padding-bottom: 0;
+  margin-bottom: 0;
+  clip-path: inset(0 -100vmax -1px);
+}
+.sh-policy .rte > .sh-policy__updated {
+  background: var(--sh-green-900);
+  box-shadow: 0 0 0 100vmax var(--sh-green-900);
+  clip-path: inset(0 -100vmax);
+  color: var(--sh-gold);   /* 7.1:1 on --sh-green-900 */
+  font-size: .72rem;
+  font-weight: 500;
+  line-height: 1.6;
+  letter-spacing: .24em;
+  text-transform: uppercase;
+  text-align: center;
+  padding: 18px 0 clamp(36px, 4.5vw, 58px);
+  margin: 0 0 clamp(38px, 5vw, 60px);
+}
+
+/* Numbered sections ("1. Order Processing"). The hairline is what gives a long
+   legal page its rhythm — it is the only structure the admin rich text has.
+
+   These are h3, not h2: all five policy bodies carry exactly ONE h2, the title
+   the band above renders, and every numbered section below it is an h3. Styling
+   h2:not(:first-child) alone therefore dressed a heading that does not exist and
+   left the real sections at sub-heading size. Both levels get the treatment now,
+   so a policy rewritten with h2 sections in the admin still reads correctly. */
+.sh-policy .rte > h2:not(:first-child),
+.sh-policy .rte h3 {
+  font-size: clamp(1.3rem, 2.1vw, 1.7rem);
+  line-height: 1.25;
+  margin: clamp(36px, 4.5vw, 56px) 0 14px;
+  padding-top: clamp(22px, 2.6vw, 30px);
+  border-top: 1px solid var(--sh-policy-rule);
+}
+.sh-policy .rte > h2:not(:first-child) { font-size: clamp(1.45rem, 2.4vw, 1.9rem); }
+
+/* A section heading sitting immediately under the band would otherwise draw its
+   rule tight against the dark edge. contact-information opens exactly that way. */
+.sh-policy .rte > h2:first-child + h3,
+.sh-policy .rte > h1:first-child + h3 {
+  border-top: 0;
+  margin-top: 0;
+  padding-top: 0;
+}
+
+.sh-policy .rte h4 {
+  font-size: 1.02rem;
+  line-height: 1.4;
+  margin: 24px 0 8px;
+}
+
+/* ------------------------------------------------------------
+   Inline runs
+   ------------------------------------------------------------ */
+.sh-policy .rte strong,
+.sh-policy .rte b {
+  color: var(--sh-story-ink);
+  font-weight: 600;
+}
+/* `.sh em` sits in the SANS list at shudhi-home.css:141, so an italic run keeps
+   Jost — correct for body copy, and the reason this only sets style. */
+.sh-policy .rte em,
+.sh-policy .rte i { font-style: italic; }
+
+/* --sh-gold is a 1.95:1 hairline colour and must never carry text on cream —
+   the read-dark variant is what links get. */
+.sh-policy .rte a {
+  color: var(--sh-story-gold-ink);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+}
+.sh-policy .rte a:hover { color: var(--sh-story-ink); }
+
+.sh-policy .rte hr {
+  border: 0;
+  border-top: 1px solid var(--sh-policy-rule);
+  margin: clamp(32px, 4vw, 48px) 0;
+}
+.sh-policy .rte blockquote {
+  margin: 0 0 1.3em;
+  padding-left: 18px;
+  border-left: 2px solid var(--sh-policy-rule);
+  color: var(--sh-story-ink);
+}
+
+/* Wide content scrolls inside its own box rather than pushing the page. */
+.sh-policy .rte table {
+  display: block;
+  overflow-x: auto;
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0 0 1.3em;
+  font-size: .92rem;
+}
+.sh-policy .rte th,
+.sh-policy .rte td {
+  border: 1px solid var(--sh-policy-rule);
+  padding: 10px 14px;
+  text-align: left;
+}
+.sh-policy .rte th { color: var(--sh-story-ink); font-weight: 600; }
+
+/* ------------------------------------------------------------
+   Cross-links to the other policies — snippets/sh-policy-links.liquid
+   ------------------------------------------------------------ */
+.sh-policy-links {
+  border-top: 1px solid var(--sh-policy-rule);
+  padding-block: clamp(32px, 4.2vw, 48px) clamp(44px, 6vw, 72px);
+  text-align: center;
+}
+.sh-policy-links__label {
+  display: block;
+  color: var(--sh-story-gold-ink);   /* --sh-gold is too light to read on cream */
+  margin-bottom: 18px;
+}
+.sh-policy-links__list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px 30px;
+}
+.sh-policy-links__list a {
+  font-size: .78rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--sh-story-ink);
+}
+.sh-policy-links__list a:hover { color: var(--sh-story-gold-ink); }
+
+/* ------------------------------------------------------------
+   Mobile — 599px is the dominant modern breakpoint in this theme
+   ------------------------------------------------------------ */
+@media (max-width: 599px) {
+  .sh-policy { --sh-policy-measure: 100%; }
+  .sh-policy .rte > h2:not(:first-child) { margin-top: 34px; }
+  .sh-policy-links__list { gap: 10px 22px; }
+}

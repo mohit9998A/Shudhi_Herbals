@@ -30,7 +30,21 @@
         {%- if section.settings.logo != blank -%}
           {{ section.settings.logo | image_url: width: 200 | image_tag: loading: 'eager', alt: 'Shudhi Herbals', class: 'hov-so__logo-img' }}
         {%- else -%}
-          <span class="hov-so__logo-text">SHUDHI HERBALS</span>
+          {%- comment -%}
+            shudhi-logo-lockup.png is derived from Shudhilogo.jpeg in Assets: a
+            4500x4500 white-background JPEG whose art fills only the middle
+            ~79% x 59%. Used raw it would paint a white box on the translucent
+            cream panel and shrink the art to ~60% of the slot, so the derived
+            PNG is trimmed to the ink bbox and keyed to transparency, keeping
+            the original forest-green and brown ink. Unlike the header's
+            shudhi-logo-light.png this is the FULL lockup (mark + wordmark) in
+            its own colours, because it replaces a text lockup and sits on a
+            light panel. Regenerate the same way if the source artwork changes.
+            429x320 is the PNG's real intrinsic size — it must match the file,
+            since CSS caps the height and leaves width auto.
+          {%- endcomment -%}
+          <img class="hov-so__logo-img" src="{{ 'shudhi-logo-lockup.png' | asset_url }}"
+               alt="Shudhi Herbals" width="429" height="320" loading="eager">
         {%- endif -%}
       </a>
 

@@ -1,0 +1,316 @@
+/* ============================================================
+   SHUDHI — WISHLIST  (pairs with sections/sh-wishlist.liquid)
+
+   A separate file, emitted by the section itself, so it lands in <body> and
+   therefore AFTER every <head> link. That is the point: equal-specificity ties
+   against houseofveda-modern.css, engo-customizes.css and hov-wishlist.css are
+   then decided by source order in this file's favour.
+
+   ------------------------------------------------------------
+   SPECIFICITY FLOORS this sheet is written against
+   ------------------------------------------------------------
+   shudhi-home.css
+     .sh button:not(.sh-btn)          (0,2,1)  strips background/border/padding
+                                               from every bare <button>. The
+                                               remove heart is a bare <button>,
+                                               so its rules here are (0,3,0)+.
+                                               .sh-btn is excluded by the :not(),
+                                               so the CTA needs no defence.
+     .sh h1..h6, .sh p { margin: 0 }  (0,1,1)  every margin below is (0,2,0)+.
+     .sh img, .sh svg  { display:block; max-width:100% }   (0,1,1)
+     .sh a, .sh span { font-family: sans !important }
+                                               a link INSIDE a heading matches
+                                               .sh a directly and goes sans —
+                                               restored explicitly below.
+     .sh ul, .sh ol { list-style: none }       the grid carries role="list" so
+                                               VoiceOver still announces it.
+   hov-wishlist.css
+     .hov-wish__btn.is-wishlisted …   (0,2,0)  hot-pink #FF4D7A active tint,
+                                               retinted to brand gold at (0,3,0).
+                                               Its JS writes fill/stroke as SVG
+                                               PRESENTATION ATTRIBUTES, which any
+                                               CSS rule outranks.
+   style-main.scss.css
+     * { outline: 0 !important }               every focus ring here is an
+                                               !important box-shadow.
+   ============================================================ */
+
+.sh-wishlist {
+  /* Light-surface text trio. Same names and values as shudhi-journal.css:49-51
+     and shudhi-ritual-protocol.css:35-37, so promoting them to :root later
+     collapses this into a no-op. --sh-gold is 1.95:1 on cream — decorative
+     only; gold that carries TEXT is --sh-w-gold-ink at 5.3:1. */
+  --sh-w-ink:      #1b2a12;
+  --sh-w-body:     #474a3d;
+  --sh-w-gold-ink: #7a5d2e;
+
+  --sh-w-face:     #fffdfa;
+  --sh-w-hairline: rgba(27, 42, 18, .16);
+  --sh-w-radius:   10px;
+  --sh-w-shadow:   0 18px 40px -34px rgba(27, 42, 18, .5);
+
+  background: var(--sh-wish-bg, #f6ede1);
+  padding-block: var(--sh-wish-pad-top, 72px) var(--sh-wish-pad-bottom, 96px);
+  scroll-margin-top: calc(var(--sh-header-h, 86px) + 16px);
+}
+
+/* The section toggles [hidden] on the grid, the bar and both states. Author
+   `display` rules outrank the UA's [hidden], so restate it above them all. */
+.sh-wishlist [hidden] { display: none !important; }
+
+/* Legacy h2/h3 rules from the vendor theme, neutralised for this band. */
+.sh-wishlist h2,
+.sh-wishlist h3 { color: inherit; text-transform: none; margin: 0; }
+
+/* ── SAVED COUNT ─────────────────────────────────────────── */
+.sh-wishlist .sh-wish__bar {
+  display: flex; align-items: center; justify-content: flex-start;
+  margin: 0 0 clamp(18px, 2vw, 26px);
+}
+.sh-wishlist .sh-wish__count {
+  margin: 0;
+  font-size: .7rem; letter-spacing: .22em; text-transform: uppercase;
+  color: var(--sh-w-gold-ink);
+}
+
+/* ── GRID ────────────────────────────────────────────────── */
+.sh-wishlist .sh-wish__grid {
+  display: grid;
+  /* 2-up on a phone, 4-up on a wide desktop, with no breakpoint of its own. */
+  grid-template-columns: repeat(auto-fill, minmax(clamp(150px, 40vw, 250px), 1fr));
+  gap: clamp(18px, 2.2vw, 30px);
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0;
+}
+
+/* THE COUNT PICKS THE GRID — the same idea as sh-journal note 3. data-count is
+   written by the section's JS. Without this a lone saved item renders as a
+   half-width card in a two-column track, and with a one-product catalogue that
+   is the NORMAL case, not an edge case. */
+.sh-wishlist .sh-wish__grid[data-count="1"] { grid-template-columns: min(100%, 340px); }
+@media (max-width: 560px) {
+  .sh-wishlist .sh-wish__grid[data-count="1"] { grid-template-columns: 1fr; }
+}
+
+.sh-wish__item {
+  /* Note 2 in the section: these are revealed by JS long after the global
+     [data-reveal] observer has run, so they carry their own fade. --i is the
+     stagger index, written by the section's JS as each card is revealed. */
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity .5s ease, transform .5s cubic-bezier(.22, .61, .36, 1);
+  transition-delay: calc(min(var(--i, 0) * 70ms, 420ms));
+}
+.sh-wish__item.is-in { opacity: 1; transform: none; }
+
+/* ── CARD ────────────────────────────────────────────────── */
+.sh-wish__card {
+  height: 100%;
+  display: flex; flex-direction: column;
+  background: var(--sh-w-face);
+  border: 1px solid var(--sh-w-hairline);
+  border-radius: var(--sh-w-radius);
+  overflow: hidden;
+  transition: box-shadow .3s ease, transform .3s ease;
+}
+.sh-wish__card:hover {
+  box-shadow: var(--sh-w-shadow);
+  transform: translateY(-3px);
+}
+
+.sh-wish__media { position: relative; }
+.sh-wish__media-link { display: block; aspect-ratio: 1 / 1; }
+
+/* .sh img { height: auto } is (0,1,1) and beats a single class — a cover image
+   needs (0,2,0). Same bug documented on .sh-story__photo. */
+.sh .sh-wish__img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  transition: transform .5s cubic-bezier(.22, .61, .36, 1);
+}
+.sh-wish__card:hover .sh-wish__img { transform: scale(1.04); }
+
+.sh-wish__img--empty {
+  display: flex; align-items: center; justify-content: center;
+  background: #f2ece0;
+}
+.sh-wish__img--empty .sh-icon {
+  width: 42%; height: 42%;
+  color: rgba(27, 42, 18, .26);
+}
+
+/* ── REMOVE HEART ────────────────────────────────────────────
+   A bare <button>, so `.sh button:not(.sh-btn)` (0,2,1) has already stripped
+   its background and border. Everything here is (0,3,0)+ to win that back. */
+.sh .sh-wish__media .hov-wish__btn {
+  background: rgba(255, 253, 250, .94);
+  border: 1px solid var(--sh-w-hairline);
+  width: 40px; height: 40px;
+  top: 10px; right: 10px;
+}
+.sh .sh-wish__media .hov-wish__btn:hover {
+  background: #fffdfa;
+  transform: scale(1.06);
+}
+.sh .sh-wish__media .hov-wish__btn:focus-visible {
+  box-shadow: 0 0 0 2px var(--sh-wish-bg, #f6ede1),
+              0 0 0 4px var(--sh-w-gold-ink) !important;
+}
+
+/* Retint off the hot pink. On this page every heart is active by definition, so
+   a grid of #FF4D7A hearts would fight the whole palette. */
+.sh .sh-wish__media .hov-wish__btn.is-wishlisted {
+  background: rgba(255, 253, 250, .94);
+  box-shadow: none;
+}
+.sh .sh-wish__media .hov-wish__icon-path {
+  fill: var(--sh-accent-deep, #ac8940);
+  stroke: var(--sh-accent-edge, #8a6a2c);
+}
+.sh .sh-wish__media .hov-wish__btn:hover .hov-wish__icon-path {
+  fill: #a33a35;
+  stroke: #a33a35;
+}
+/* hov-wishlist.css beats the heart on every init; 20 cards beating at once on
+   load is not this brand. */
+.sh .sh-wish__media .hov-wish__btn.is-wishlisted .hov-wish__icon { animation: none; }
+
+/* ── CARD BODY ───────────────────────────────────────────── */
+.sh-wish__body {
+  display: flex; flex-direction: column;
+  gap: 8px;
+  padding: clamp(14px, 1.4vw, 18px);
+  flex: 1;
+}
+
+.sh-wishlist .sh-wish__title {
+  margin: 0;
+  font-size: clamp(1rem, 1.25vw, 1.15rem);
+  line-height: 1.25;
+  color: var(--sh-w-ink);
+}
+/* `.sh a` carries font-family: sans !important, and matches a link inside the
+   heading directly — restore the serif at equal weight but higher specificity. */
+.sh .sh-wish__title a {
+  font-family: var(--sh-serif) !important;
+  color: inherit;
+  text-decoration: none;
+}
+.sh .sh-wish__title a:hover { color: var(--sh-w-gold-ink); }
+.sh .sh-wish__title a:focus-visible {
+  box-shadow: 0 0 0 2px var(--sh-w-gold-ink) !important;
+  border-radius: 2px;
+}
+
+.sh-wishlist .sh-wish__price {
+  margin: 0;
+  display: flex; align-items: baseline; gap: 9px; flex-wrap: wrap;
+}
+.sh-wish__price-now {
+  font-size: .95rem; font-weight: 500;
+  color: var(--sh-w-ink);
+}
+.sh-wish__price-was {
+  font-size: .8rem;
+  color: var(--sh-w-body);
+  opacity: .7;
+}
+
+.sh-wish__form { margin-top: auto; padding-top: 6px; }
+
+/* .sh-btn is excluded from the button reset, so this only adds geometry. */
+.sh-wishlist .sh-wish__atc {
+  width: 100%;
+  justify-content: center;
+  padding: .95em 1.2em;
+}
+.sh-wishlist .sh-wish__atc:focus-visible {
+  box-shadow: 0 0 0 2px var(--sh-wish-bg, #f6ede1),
+              0 0 0 4px var(--sh-w-gold-ink) !important;
+}
+
+.sh-wishlist .sh-wish__soldout {
+  margin: auto 0 0;
+  padding-top: 10px;
+  font-size: .7rem; letter-spacing: .18em; text-transform: uppercase;
+  color: var(--sh-w-body);
+}
+
+/* ── EMPTY / SIGNED-OUT STATES ───────────────────────────── */
+/* Both states boot hidden, so the global [data-reveal] observer is not safe
+   here — see note 2 in the section. They fade themselves, keyed on .is-in,
+   which the section's JS adds a frame after unhiding. */
+.sh-wishlist--animate .sh-wish__state {
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity .55s ease, transform .55s cubic-bezier(.22, .61, .36, 1);
+}
+.sh-wishlist--animate .sh-wish__state.is-in { opacity: 1; transform: none; }
+
+.sh-wish__state {
+  display: flex; flex-direction: column; align-items: center;
+  text-align: center;
+  max-width: 460px;
+  margin-inline: auto;
+  padding-block: clamp(36px, 6vw, 72px);
+}
+.sh-wish__state-icon {
+  display: block;
+  margin-bottom: 22px;
+  color: rgba(27, 42, 18, .28);
+}
+/* .sh-icon has no base size anywhere in the theme — every call site sizes it. */
+.sh-wish__state-icon .sh-icon { width: 62px; height: 62px; }
+
+.sh-wishlist .sh-wish__state-title {
+  margin: 0;
+  font-size: clamp(1.5rem, 3vw, 2.1rem);
+  color: var(--sh-w-ink);
+}
+.sh-wishlist .sh-wish__state-text {
+  margin: 12px 0 0;
+  font-size: .95rem; line-height: 1.65;
+  color: var(--sh-w-body);
+}
+.sh-wish__state-cta { margin-top: 26px; }
+.sh-wishlist .sh-wish__state-cta:focus-visible {
+  box-shadow: 0 0 0 2px var(--sh-wish-bg, #f6ede1),
+              0 0 0 4px var(--sh-w-gold-ink) !important;
+}
+.sh-wishlist .sh-wish__state-note {
+  margin: 16px 0 0;
+  font-size: .8rem;
+  color: var(--sh-w-body);
+}
+.sh .sh-wish__state-note a {
+  color: var(--sh-w-gold-ink);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.sh .sh-wish__state-note a:focus-visible {
+  box-shadow: 0 0 0 2px var(--sh-w-gold-ink) !important;
+  border-radius: 2px;
+}
+
+/* ── REDUCED MOTION ──────────────────────────────────────────
+   Restores visibility; never hides. A saved card must still be readable. */
+@media (prefers-reduced-motion: reduce) {
+  .sh-wish__item {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+    transition-delay: 0ms !important;
+  }
+  .sh-wishlist--animate .sh-wish__state {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+  .sh-wish__card,
+  .sh .sh-wish__img,
+  .sh .sh-wish__media .hov-wish__btn { transition: none !important; }
+  .sh-wish__card:hover { transform: none; }
+  .sh-wish__card:hover .sh-wish__img { transform: none; }
+  .sh .sh-wish__media .hov-wish__btn:hover { transform: none; }
+}

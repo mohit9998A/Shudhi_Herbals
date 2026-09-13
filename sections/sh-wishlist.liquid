@@ -1,0 +1,352 @@
+{%- comment -%}
+  SHUDHI — Wishlist
+
+  The saved-items band on /pages/wishlist. Styled in assets/shudhi-wishlist.css.
+
+  ---------------------------------------------------------------------------
+  SEVEN THINGS HERE ARE LOAD-BEARING
+  ---------------------------------------------------------------------------
+
+  1. THE ROOT CARRIES `sh`. assets/shudhi-home.js:300 selects `.sh [data-reveal]`
+     and adds .is-in; the CSS pre-state (shudhi-home.css:234) starts those
+     elements at opacity 0. Without the bare class the furniture stays invisible
+     for the life of the page. Same rule as sh-journal.liquid note 1.
+
+  2. NOTHING HERE USES [data-reveal]. Two motion systems exist in this theme and
+     nothing on this template loads assets/sh-story-motion.js, so [data-sh-reveal]
+     was never an option — but the global [data-reveal] observer
+     (assets/shudhi-home.js:298) is wrong here too: every element it would drive
+     BOOTS HIDDEN, and its CSS pre-state is opacity 0. An element that is
+     display:none when the observer starts depends on the observer re-firing once
+     JS unhides it; if that does not happen the content is invisible for the life
+     of the page. So the cards and both states carry their own CSS fade, keyed on
+     .is-in, added by this file's JS after unhiding. --i is the card stagger.
+
+  3. EVERY PRODUCT IS RENDERED, HIDDEN; JS REVEALS THE SAVED ONES. localStorage
+     holds ONLY an array of product-id strings (assets/hov-wishlist.js:21) —
+     no title, price or image is ever persisted, and /search/suggest.json
+     returns nothing for a numeric id. Server-rendering the catalogue and
+     filtering client-side buys real `money` formatting, real variant ids, no
+     fetch, no skeleton and no empty-state flash.
+     THE CEILING: `for product in collections.all.products` returns at most 50
+     without {% paginate %}. This store publishes one product. Past ~50, either
+     paginate here or fetch /products/<handle>.js per saved id.
+     Safe to loop: the /collections/all redirect (layout/theme.liquid:98) is
+     gated on `request.page_type == 'collection'` and cannot fire on a page.
+
+  4. THE REMOVE CONTROL IS A REAL `.hov-wish__btn`. Rendering snippets/hov-wishlist
+     inside the card hands the whole toggle to assets/hov-wishlist.js — the
+     per-customer storage key, the legacy-key migration, the nav badge, the toast
+     and the cross-tab BroadcastChannel. `toggleWishlist` is module-private, so
+     re-implementing removal here would mean duplicating the storage contract.
+     We only listen and re-hide. Its hot-pink active tint (#FF4D7A) is retinted
+     to brand gold in the stylesheet — the JS writes fill/stroke as SVG
+     PRESENTATION ATTRIBUTES, which any CSS rule outranks.
+
+  5. THREE STATES, NOT TWO. assets/hov-wishlist.js:258 wraps every toggle in
+     window.hovRequireLogin, so saving is login-gated: a signed-out shopper who
+     taps a heart gets the login modal, never a save. Their list is therefore
+     ALWAYS empty, and "your wishlist is empty" would be a lie — they get the
+     sign-in state instead. Login state is read from the server-rendered
+     <html data-customer-logged-in> (layout/theme.liquid:4), which is immune to
+     JS timing and to bfcache restores.
+
+  6. IT BOOTS IN data-state="loading". Neither the grid nor either empty state is
+     painted until the JS has read localStorage, so nobody sees "your wishlist is
+     empty" flash before their saved items appear.
+
+  7. ADD TO CART IS A REAL FORM, NOT A FETCH. assets/ajax-cart.js.liquid:327
+     delegates on `form[action^="/cart/add"]` and owns the POST, the drawer, the
+     count and the cart:updated event; assets/hov-cart-checkout.js drives the
+     button's busy state from the real click. Writing our own fetch here would
+     bypass all four. Same contract as assets/sh-product.js:5-8.
+
+  PORTABLE: this file + assets/shudhi-wishlist.css + the two snippets it renders.
+{%- endcomment -%}
+
+{{ 'shudhi-wishlist.css' | asset_url | stylesheet_tag }}
+
+{%- assign s = section.settings -%}
+{%- assign uid = section.id -%}
+
+{%- comment -%}
+  The catalogue fallback for the empty-state CTA: this store's single product,
+  falling back to the all-products route if the catalogue is ever empty.
+{%- endcomment -%}
+{%- assign first_product = collections.all.products.first -%}
+{%- assign shop_url = s.empty_cta_link | default: first_product.url | default: routes.all_products_collection_url -%}
+
+<section
+  class="sh sh-wishlist{% if s.animate %} sh-wishlist--animate{% endif %}"
+  data-sh-wishlist
+  data-state="loading"
+  style="--sh-wish-bg:{{ s.bg }};--sh-wish-pad-top:{{ s.pad_top }}px;--sh-wish-pad-bottom:{{ s.pad_bottom }}px;"
+  aria-labelledby="sh-wish-count-{{ uid }}">
+  <div class="sh-wrap">
+
+    {%- comment -%} Saved count. aria-live so a removal is announced. {%- endcomment -%}
+    <div class="sh-wish__bar" data-sh-wish-bar hidden>
+      <p class="sh-wish__count" id="sh-wish-count-{{ uid }}" data-sh-wish-count aria-live="polite"></p>
+    </div>
+
+    <ul class="sh-wish__grid" role="list" data-sh-wish-grid hidden>
+      {%- for product in collections.all.products -%}
+        {%- assign variant = product.selected_or_first_available_variant -%}
+        <li class="sh-wish__item" data-sh-wish-item data-product-id="{{ product.id }}" hidden>
+          <article class="sh-wish__card">
+
+            <div class="sh-wish__media">
+              <a class="sh-wish__media-link" href="{{ product.url }}" tabindex="-1" aria-hidden="true">
+                {%- if product.featured_image -%}
+                  <img class="sh-wish__img"
+                       src="{{ product.featured_image | image_url: width: 700 }}"
+                       alt="{{ product.featured_image.alt | escape }}"
+                       width="700" height="700" loading="lazy" decoding="async">
+                {%- else -%}
+                  <span class="sh-wish__img sh-wish__img--empty">
+                    {% render 'sh-icon', name: 'shudhi-mark' %}
+                  </span>
+                {%- endif -%}
+              </a>
+
+              {%- comment -%}
+                Note 4: this is the remove control. hov-wishlist.js binds it,
+                marks it .is-wishlisted on init and owns the un-save.
+              {%- endcomment -%}
+              {% render 'hov-wishlist', product: product %}
+            </div>
+
+            <div class="sh-wish__body">
+              <h3 class="sh-wish__title">
+                <a href="{{ product.url }}">{{ product.title }}</a>
+              </h3>
+
+              <p class="sh-wish__price">
+                <span class="sh-wish__price-now">{{ product.price | money }}</span>
+                {%- if product.compare_at_price > product.price -%}
+                  <s class="sh-wish__price-was">{{ product.compare_at_price | money }}</s>
+                {%- endif -%}
+              </p>
+
+              {%- if product.available -%}
+                <form method="post" action="/cart/add" enctype="multipart/form-data" class="sh-wish__form">
+                  <input type="hidden" name="id" value="{{ variant.id }}">
+                  <input type="hidden" name="quantity" value="1">
+                  <button type="submit" name="add" class="sh-btn sh-btn--solid sh-wish__atc">
+                    {{ s.atc_label | default: 'Add to cart' }}
+                  </button>
+                </form>
+              {%- else -%}
+                <p class="sh-wish__soldout">{{ s.soldout_label | default: 'Sold out' }}</p>
+              {%- endif -%}
+            </div>
+
+          </article>
+        </li>
+      {%- endfor -%}
+    </ul>
+
+    {%- comment -%} State 2: signed in, nothing saved. {%- endcomment -%}
+    <div class="sh-wish__state" data-sh-wish-empty hidden>
+      <span class="sh-wish__state-icon" aria-hidden="true">{% render 'sh-icon', name: 'heart-line', sw: 1.1 %}</span>
+      <h2 class="sh-wish__state-title sh-serif">{{ s.empty_title | default: 'Your wishlist is empty' }}</h2>
+      {%- if s.empty_text != blank -%}
+        <p class="sh-wish__state-text">{{ s.empty_text }}</p>
+      {%- endif -%}
+      <a class="sh-btn sh-btn--solid sh-wish__state-cta" href="{{ shop_url }}">
+        {{ s.empty_cta_label | default: 'Explore products' }}{% render 'sh-icon', name: 'arrow-right' %}
+      </a>
+    </div>
+
+    {%- comment -%} State 1: signed out — note 5. {%- endcomment -%}
+    <div class="sh-wish__state" data-sh-wish-guest hidden>
+      <span class="sh-wish__state-icon" aria-hidden="true">{% render 'sh-icon', name: 'heart-line', sw: 1.1 %}</span>
+      <h2 class="sh-wish__state-title sh-serif">{{ s.guest_title | default: 'Sign in to see your saved items' }}</h2>
+      {%- if s.guest_text != blank -%}
+        <p class="sh-wish__state-text">{{ s.guest_text }}</p>
+      {%- endif -%}
+      <a class="sh-btn sh-btn--solid sh-wish__state-cta" href="{{ routes.account_login_url }}">
+        {{ s.guest_cta_label | default: 'Sign in' }}{% render 'sh-icon', name: 'arrow-right' %}
+      </a>
+      <p class="sh-wish__state-note">
+        <a href="{{ routes.account_register_url }}">{{ s.guest_register_label | default: 'Create an account' }}</a>
+      </p>
+    </div>
+
+  </div>
+</section>
+
+<script>
+/* SHUDHI — wishlist page. Reveals the server-rendered cards whose product id is
+   in localStorage, and re-renders on every signal hov-wishlist.js emits.
+   House conventions: IIFE, ES5-friendly, single-execution guard, boot on
+   readyState, re-boot on shopify:section:load, per-root data-sh-init. */
+(function () {
+  'use strict';
+
+  if (window.__shWishlist) return;
+  window.__shWishlist = true;
+
+  function loggedIn() {
+    return document.documentElement.getAttribute('data-customer-logged-in') === 'true';
+  }
+
+  /* Must match assets/hov-wishlist.js:16 exactly, or the page reads a
+     different list than the hearts write. */
+  function storageKey() {
+    var cid = document.documentElement.getAttribute('data-customer-id') || '';
+    return cid ? 'hov_wishlist_' + cid : 'hov_wishlist';
+  }
+
+  function savedIds() {
+    try {
+      var raw = JSON.parse(localStorage.getItem(storageKey()));
+      return Object.prototype.toString.call(raw) === '[object Array]' ? raw : [];
+    } catch (e) {
+      /* private mode, blocked storage, malformed JSON — an empty list is the
+         honest answer and still renders a valid page. */
+      return [];
+    }
+  }
+
+  function init(root) {
+    if (root.getAttribute('data-sh-init')) return;
+    root.setAttribute('data-sh-init', '1');
+
+    var bar   = root.querySelector('[data-sh-wish-bar]');
+    var countEl = root.querySelector('[data-sh-wish-count]');
+    var grid  = root.querySelector('[data-sh-wish-grid]');
+    var empty = root.querySelector('[data-sh-wish-empty]');
+    var guest = root.querySelector('[data-sh-wish-guest]');
+    var items = [].slice.call(root.querySelectorAll('[data-sh-wish-item]'));
+
+    /* The shared snippet's label reads "Add … to wishlist". On this page the
+       button only ever removes, so relabel it once. */
+    items.forEach(function (li) {
+      var btn = li.querySelector('.hov-wish__btn');
+      var title = li.querySelector('.sh-wish__title');
+      if (btn && title) {
+        btn.setAttribute('aria-label', 'Remove ' + title.textContent.trim() + ' from wishlist');
+      }
+    });
+
+    /* Both states boot hidden, so they cannot rely on the global [data-reveal]
+       observer — note 2. Unhide first, then add .is-in on the next frame so the
+       transition has two distinct states to run between. */
+    function showState(el) {
+      el.hidden = false;
+      if (window.requestAnimationFrame) {
+        requestAnimationFrame(function () { el.classList.add('is-in'); });
+      } else {
+        el.classList.add('is-in');
+      }
+    }
+    function hideState(el) {
+      el.hidden = true;
+      el.classList.remove('is-in');
+    }
+
+    function render() {
+      if (!loggedIn()) {
+        root.setAttribute('data-state', 'guest');
+        bar.hidden = true;
+        grid.hidden = true;
+        hideState(empty);
+        showState(guest);
+        return;
+      }
+      hideState(guest);
+
+      var list = savedIds().map(String);
+      var shown = 0;
+
+      items.forEach(function (li) {
+        var on = list.indexOf(String(li.getAttribute('data-product-id'))) !== -1;
+        li.hidden = !on;
+        if (on) {
+          /* Stagger index for the card's own fade — note 2. */
+          li.style.setProperty('--i', shown);
+          shown++;
+          li.classList.add('is-in');
+        } else {
+          li.classList.remove('is-in');
+          li.style.removeProperty('--i');
+        }
+      });
+
+      root.setAttribute('data-state', shown ? 'items' : 'empty');
+      grid.hidden = shown === 0;
+      grid.setAttribute('data-count', shown);
+      bar.hidden = shown === 0;
+      if (shown) { hideState(empty); } else { showState(empty); }
+
+      if (shown) {
+        countEl.textContent = shown === 1 ? '1 item saved' : shown + ' items saved';
+      }
+    }
+
+    render();
+
+    /* The three signals assets/hov-wishlist.js:76-97 emits, plus a bfcache
+       restore — a back-navigation must not show a stale grid. */
+    document.addEventListener('hov:wishlist:changed', render);
+    window.addEventListener('storage', function (e) {
+      if (!e.key || e.key === storageKey()) render();
+    });
+    window.addEventListener('pageshow', function (e) { if (e.persisted) render(); });
+    try {
+      var bc = new BroadcastChannel('hov_wishlist_channel');
+      bc.onmessage = render;
+    } catch (e) { /* Safari < 15.4: the storage event still covers other tabs */ }
+  }
+
+  function boot() {
+    var roots = document.querySelectorAll('[data-sh-wishlist]');
+    for (var i = 0; i < roots.length; i++) init(roots[i]);
+  }
+
+  document.readyState === 'loading'
+    ? document.addEventListener('DOMContentLoaded', boot)
+    : boot();
+
+  document.addEventListener('shopify:section:load', boot);
+})();
+</script>
+
+{% schema %}
+{
+  "name": "SH · Wishlist",
+  "class": "index-section",
+  "settings": [
+    { "type": "header", "content": "Cards" },
+    { "type": "text", "id": "atc_label", "label": "Add-to-cart button text", "default": "Add to cart",
+      "info": "Set in uppercase by the stylesheet — type it in sentence case." },
+    { "type": "text", "id": "soldout_label", "label": "Sold-out text", "default": "Sold out" },
+
+    { "type": "header", "content": "When nothing is saved" },
+    { "type": "text", "id": "empty_title", "label": "Heading", "default": "Your wishlist is empty" },
+    { "type": "textarea", "id": "empty_text", "label": "Supporting line",
+      "default": "Save items you love and find them here." },
+    { "type": "text", "id": "empty_cta_label", "label": "Button text", "default": "Explore products" },
+    { "type": "url", "id": "empty_cta_link", "label": "Button link",
+      "info": "Leave empty to point at the first product in the catalogue." },
+
+    { "type": "header", "content": "When the shopper is signed out" },
+    { "type": "paragraph", "content": "Saving requires an account, so a signed-out shopper can never have a wishlist. They see this instead of the empty state." },
+    { "type": "text", "id": "guest_title", "label": "Heading", "default": "Sign in to see your saved items" },
+    { "type": "textarea", "id": "guest_text", "label": "Supporting line",
+      "default": "Your wishlist travels with your account, so your saved rituals are waiting whenever you return." },
+    { "type": "text", "id": "guest_cta_label", "label": "Button text", "default": "Sign in" },
+    { "type": "text", "id": "guest_register_label", "label": "Secondary link text", "default": "Create an account" },
+
+    { "type": "header", "content": "Appearance" },
+    { "type": "checkbox", "id": "animate", "label": "Animate on scroll", "default": true,
+      "info": "Applies to the empty and sign-in states. Saved cards always fade in as they are revealed." },
+    { "type": "color", "id": "bg", "label": "Background", "default": "#f6ede1",
+      "info": "Keep it light — the text colours are tuned for a light surface. It sits under the cream page header, so a half-step deeper reads as a seam rather than a repeat." },
+    { "type": "range", "id": "pad_top", "label": "Top padding", "min": 0, "max": 140, "step": 4, "default": 72, "unit": "px" },
+    { "type": "range", "id": "pad_bottom", "label": "Bottom padding", "min": 0, "max": 140, "step": 4, "default": 96, "unit": "px" }
+  ],
+  "presets": [ { "name": "SH · Wishlist" } ]
+}
+{% endschema %}
