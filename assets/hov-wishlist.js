@@ -280,10 +280,20 @@
     ? document.addEventListener('DOMContentLoaded', init)
     : init();
 
-  // MutationObserver for dynamic content (infinite scroll, quick-view injection)
+  // MutationObserver for dynamic content (infinite scroll, quick-view injection).
+  // Coalesced: initButtons does a full-document querySelectorAll, and running it
+  // per mutation batch (lazysizes swaps, slick clones, hero class toggles)
+  // measured 198 calls / ~4.8s during homepage load. Only added nodes can
+  // contain new buttons, and one pass per frame covers any number of batches —
+  // initButtons is idempotent via [data-hov-init].
   if (window.MutationObserver) {
-    new MutationObserver(initButtons)
-      .observe(document.body, { childList: true, subtree: true });
+    let moQueued = false;
+    new MutationObserver((muts) => {
+      if (moQueued) return;
+      if (!muts.some((m) => m.addedNodes.length)) return;
+      moQueued = true;
+      requestAnimationFrame(() => { moQueued = false; initButtons(); });
+    }).observe(document.body, { childList: true, subtree: true });
   }
 
   // Bfcache guard: browser back/forward restores the page from cache without re-running scripts.

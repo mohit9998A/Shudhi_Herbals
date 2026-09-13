@@ -1,0 +1,190 @@
+/* ===========================================================================
+   SHUDHI — ENERGIZED THROUGH 5 STEPS
+   sections/sh-ritual-energize.liquid. Dedicated sheet so the band ports as
+   three files; loads after shudhi-story.css from the same section, which is
+   where the entrance primitives ([data-sh-fade], --e, --sh-e-in, --sh-dur)
+   and the reduced-motion backstop are declared.
+
+   Resting state is the finished state. The only pre-states here sit under
+   [data-sh-reveal].is-armed (entrance) or run as a self-completing CSS
+   keyframe on a class the server already sets (.is-active).
+
+   The slot geometry ports the Uiverse "rotating cards" pattern: [data-pos]
+   is the signed distance from the front (0), written by Liquid at rest and by
+   assets/sh-ritual-energize.js on each tick. Only transform / opacity /
+   box-shadow transition; z-index steps discretely, as in the reference.
+   =========================================================================== */
+
+.sh-energize {
+  --rz-w: 210px;                 /* card outer width */
+  --rz-h: 310px;                 /* outer height: inner well (minus 4px pad + 1px frame) is 200x300, 2:3 like the photos */
+  --rz-ease: cubic-bezier(.75, 0, 0, 1.01);   /* the reference's travel curve */
+  --rz-rim: rgba(201, 168, 106, .55);         /* --sh-gold at rim strength   */
+
+  position: relative;
+  overflow: hidden;
+  background: var(--sh-energize-bg, #1b2411);
+  color: var(--sh-light, #f4efe6);
+  padding-block: clamp(64px, 8vw, 112px);
+}
+.sh-energize[data-sh-reveal] { --sh-spread: .64s; }   /* five rungs; 450ms would pile the last two */
+
+/* ---- Head ---------------------------------------------------------------- */
+.sh-energize__head { text-align: center; margin-bottom: clamp(28px, 4vw, 44px); }
+.sh-energize__eyebrow { display: block; margin-bottom: 14px; }
+/* houseofveda-modern.css colours every h1–h6 dark; restate on the element.
+   (0,2,0): `.sh h2 { margin: 0 }` is (0,1,1) and would cancel the auto margins. */
+.sh .sh-energize__title {
+  color: var(--sh-light, #f4efe6);
+  font-size: clamp(1.7rem, 3.2vw, 2.7rem);
+  max-width: 22ch; margin: 0 auto;
+  text-align: center; text-transform: none;
+}
+/* The .sh typography defence forces <em> to the sans; the gold tail is serif. */
+.sh .sh-energize__title em {
+  font-family: var(--sh-serif) !important;
+  font-style: italic; color: var(--sh-gold, #c9a86a);
+}
+
+/* ---- Stage --------------------------------------------------------------- */
+.sh-energize__stage { position: relative; text-align: center; }
+
+/* ---- Step text (only the active one is in flow) -------------------------- */
+.sh-energize__steps {
+  min-height: 150px;             /* reserves the tallest step so the stack never jumps */
+  margin-bottom: clamp(18px, 2.4vw, 28px);
+}
+.sh-energize__step:not(.is-active) { display: none; }
+/* Arrival of a swapped-in step. Only .is-entering (written by the script, one
+   swap at a time) triggers it, so the Liquid-rendered step 1 never starts at
+   opacity 0. display:none -> block restarts the keyframe on each swap. */
+.sh-energize__step.is-entering {
+  animation: sh-rz-in .5s var(--sh-e-in, cubic-bezier(.22, .61, .36, 1)) both;
+}
+@keyframes sh-rz-in {
+  from { opacity: 0; transform: translateY(10px); filter: blur(6px); }
+  to   { opacity: 1; transform: none;             filter: none; }
+}
+.sh-energize__label {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-size: .7rem; letter-spacing: .3em; text-transform: uppercase; font-weight: 500;
+  color: var(--sh-gold, #c9a86a);
+  margin-bottom: 12px;
+}
+.sh-energize__label .sh-icon { width: 18px; height: 18px; }
+.sh-energize__name {
+  color: var(--sh-light, #f4efe6);
+  font-size: clamp(1.4rem, 2.4vw, 2rem);
+  text-transform: none;
+  margin-bottom: 10px;
+}
+.sh .sh-energize__text {                      /* (0,2,0) beats `.sh p { margin: 0 }` */
+  color: var(--sh-muted-light, rgba(244, 239, 230, .72));
+  font-size: .95rem; line-height: 1.7;
+  max-width: 46ch; margin: 0 auto; text-align: center;
+}
+
+/* ---- Card stack ---------------------------------------------------------- */
+.sh-energize__stack {
+  position: relative;
+  width: min(calc(var(--rz-w) * 3.3), 100%);   /* min(), not max-width: a global div rule was winning */
+  height: calc(var(--rz-h) + 64px);
+  margin-inline: auto;
+}
+.sh-energize__card {
+  position: absolute; top: 0;
+  left: calc(50% - var(--rz-w) / 2);   /* not margin-left: `.sh figure { margin: 0 }` (0,1,1) would cancel it */
+  width: var(--rz-w); height: var(--rz-h);
+  padding: 4px;
+  border: 1px solid var(--sh-hairline, rgba(244, 239, 230, .18));
+  border-radius: 18px;
+  background: rgba(20, 18, 12, .55);
+  will-change: transform;        /* all five move on every tick; the hint is honest */
+  transition: transform 1s var(--rz-ease), opacity .6s ease, box-shadow .6s ease;
+}
+.sh-energize__frame {
+  display: block; width: 100%; height: 100%;
+  border-radius: 14px;           /* outer radius minus the 4px inset, as in the reference */
+  overflow: hidden;
+  background: #0f150a;
+}
+.sh-energize__frame img { width: 100%; height: 100%; object-fit: cover; }
+
+.sh-energize__card[data-pos="0"] {
+  transform: translateX(0) translateY(0) rotate(0) scale(1);
+  z-index: 5; opacity: 1;
+  box-shadow: 0 0 0 1px var(--rz-rim), 0 30px 60px -30px rgba(0, 0, 0, .85);
+}
+.sh-energize__card[data-pos="1"]  { transform: translateX(62%)  translateY(24px) rotate(11deg)  scale(.9); z-index: 4; opacity: .95; }
+.sh-energize__card[data-pos="-1"] { transform: translateX(-62%) translateY(24px) rotate(-11deg) scale(.9); z-index: 4; opacity: .95; }
+.sh-energize__card[data-pos="2"]  { transform: translateX(112%)  translateY(52px) rotate(22deg)  scale(.8); z-index: 3; opacity: .85; }
+.sh-energize__card[data-pos="-2"] { transform: translateX(-112%) translateY(52px) rotate(-22deg) scale(.8); z-index: 3; opacity: .85; }
+
+/* The hairline pair under the stack: a blurred 5px glow and a crisp 1px line. */
+.sh-energize__glow {
+  position: absolute; left: 0; right: 0; bottom: 0; height: 6px;
+  pointer-events: none; z-index: 6;
+}
+.sh-energize__glow::before,
+.sh-energize__glow::after {
+  content: ""; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
+  background: linear-gradient(to right, transparent, var(--sh-gold, #c9a86a), transparent);
+}
+.sh-energize__glow::before { width: 100%; height: 5px; filter: blur(4px); opacity: .7; }
+.sh-energize__glow::after  { width: 50%;  height: 1px; }
+
+/* ---- Dots ---------------------------------------------------------------- */
+.sh-energize__dots {
+  display: flex; justify-content: center; gap: 10px;
+  margin-top: clamp(22px, 3vw, 32px);
+}
+/* (0,3,0) on purpose: `.sh button:not(.sh-btn)` in shudhi-home.css is (0,2,1)
+   and zeroes border/padding/background — a plain block class would lose. */
+.sh .sh-energize__stage .sh-energize__dot {
+  width: 34px; height: 34px; border-radius: 50%;
+  border: 1px solid var(--sh-hairline, rgba(244, 239, 230, .18));
+  background: none;
+  color: var(--sh-muted-light, rgba(244, 239, 230, .72));
+  display: inline-grid; place-items: center;
+  font-size: .66rem; letter-spacing: .06em; padding: 0 0 0 .06em;
+  cursor: pointer;
+  transition: color .3s ease, border-color .3s ease, transform .3s ease;
+}
+.sh .sh-energize__stage .sh-energize__dot:hover { color: var(--sh-light, #f4efe6); border-color: rgba(244, 239, 230, .45); }
+.sh .sh-energize__stage .sh-energize__dot.is-active { color: var(--sh-gold, #c9a86a); border-color: var(--sh-gold, #c9a86a); }
+.sh .sh-energize__stage .sh-energize__dot:focus-visible { outline: 2px solid var(--sh-gold, #c9a86a); outline-offset: 3px; }
+
+/* ---- Entrance: blur-fade like the other ritual bands (not on the stack —
+        blurring five photos for the arrival is a cost with no payoff) ------- */
+.sh-energize[data-sh-reveal].is-armed [data-sh-fade]:not(img):not(.sh-energize__stack) {
+  filter: blur(6px);
+  transition: opacity   var(--sh-dur) var(--sh-e-in) var(--e, 0s),
+              transform var(--sh-dur) var(--sh-e-in) var(--e, 0s),
+              filter    var(--sh-dur) var(--sh-e-in) var(--e, 0s);
+}
+.sh-energize[data-sh-reveal].is-armed.is-shown [data-sh-fade]:not(img):not(.sh-energize__stack) { filter: none; }
+
+/* ---- Responsive ---------------------------------------------------------- */
+@media (max-width: 1023px) {
+  .sh-energize__card[data-pos="1"]  { transform: translateX(52%)  translateY(24px) rotate(10deg)  scale(.88); }
+  .sh-energize__card[data-pos="-1"] { transform: translateX(-52%) translateY(24px) rotate(-10deg) scale(.88); }
+  .sh-energize__card[data-pos="2"]  { transform: translateX(92%)  translateY(48px) rotate(20deg)  scale(.76); }
+  .sh-energize__card[data-pos="-2"] { transform: translateX(-92%) translateY(48px) rotate(-20deg) scale(.76); }
+}
+@media (max-width: 599px) {
+  .sh-energize { --rz-w: 150px; --rz-h: 220px; }   /* inner well 140x210 */
+  .sh-energize__steps { min-height: 200px; }
+  .sh-energize__title { max-width: 16ch; }
+  .sh-energize__card[data-pos="1"]  { transform: translateX(46%)  translateY(18px) rotate(9deg)  scale(.86); }
+  .sh-energize__card[data-pos="-1"] { transform: translateX(-46%) translateY(18px) rotate(-9deg) scale(.86); }
+  .sh-energize__card[data-pos="2"]  { transform: translateX(76%)  translateY(40px) rotate(18deg)  scale(.7); }
+  .sh-energize__card[data-pos="-2"] { transform: translateX(-76%) translateY(40px) rotate(-18deg) scale(.7); }
+}
+
+/* ---- Reduced motion: arrive finished, swap instantly, never blur --------- */
+@media (prefers-reduced-motion: reduce) {
+  .sh-energize__card { transition: none; will-change: auto; }
+  .sh .sh-energize__stage .sh-energize__dot { transition: none; }
+  .sh-energize__step.is-entering { animation: none; }
+  .sh-energize[data-sh-reveal].is-armed [data-sh-fade] { filter: none !important; }
+}

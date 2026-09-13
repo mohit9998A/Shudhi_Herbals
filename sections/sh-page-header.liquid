@@ -14,7 +14,11 @@
 {%- assign s = section.settings -%}
 {%- assign heading = s.title | default: page.title -%}
 
-<section class="sh sh-pagehead"{% if s.bg != blank %} style="--sh-green-900:{{ s.bg }};"{% endif %}>
+{%- comment -%} A bright bg needs the dark-ink text set — see the CSS light variant. {%- endcomment -%}
+{%- assign bg_brightness = 0 -%}
+{%- if s.bg != blank -%}{%- assign bg_brightness = s.bg | color_brightness -%}{%- endif -%}
+
+<section class="sh sh-pagehead{% if bg_brightness > 128 %} sh-pagehead--light{% endif %}"{% if s.bg != blank %} style="--sh-green-900:{{ s.bg }};"{% endif %}>
   <div class="sh-wrap">
     {%- if s.eyebrow != blank -%}
       <div class="sh-pagehead__eyebrow sh-eyebrow">
@@ -26,6 +30,13 @@
 
     {%- if s.body != blank -%}
       <p class="sh-pagehead__text">{{ s.body }}</p>
+    {%- endif -%}
+
+    {%- if s.show_soap -%}
+      <div class="sh-pagehead__soapwrap" aria-hidden="true">
+        <img class="sh-pagehead__soap" src="{{ 'Morethanasoap.png' | asset_img_url: '760x' }}"
+             alt="" width="1374" height="1145" loading="lazy" decoding="async">
+      </div>
     {%- endif -%}
   </div>
 </section>
@@ -39,7 +50,8 @@
     { "type": "text", "id": "title", "label": "Heading", "info": "Leave empty to use the page title." },
     { "type": "textarea", "id": "body", "label": "Intro text" },
     { "type": "header", "content": "Appearance" },
-    { "type": "color", "id": "bg", "label": "Background", "default": "#1b2411" }
+    { "type": "color", "id": "bg", "label": "Background", "default": "#1b2411" },
+    { "type": "checkbox", "id": "show_soap", "label": "Show soap image", "default": false }
   ],
   "presets": [ { "name": "SH · Page Header" } ]
 }

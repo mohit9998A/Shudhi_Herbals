@@ -1,0 +1,210 @@
+{%- comment -%}
+  SHUDHI — Energized Through 5 Steps
+
+  Replaces "It's a Ritual" (sh-ritual-benefits) on The Ritual page. Centred:
+  eyebrow, heading, the ACTIVE step's text (Step 01 / title / line), a fanned
+  stack of the five stage photos that rotates one card to the front every few
+  seconds, a gold hairline under it, and five numbered step buttons.
+
+  WHAT IS PORTED from the Uiverse "rotating cards" reference (ilkhoeri): the
+  slot geometry (one upright front card, back cards rotated and pushed down and
+  outward), the long cubic-bezier(.75,0,0,1.01) travel, the 4px inset frame
+  whose inner radius is outer minus padding, and the blurred+crisp hairline
+  pair under the stack. WHAT IS CUT: the neon radial gradients, the giant
+  X/Y/Z letters, and the pure-CSS keyframe trick — three cards need three
+  variable sets, five would need twenty-five, and CSS keyframes cannot keep the
+  step text in sync. Slot assignment is one small ES5 script
+  (assets/sh-ritual-energize.js); CSS only transitions transform/opacity.
+
+  FAILS OPEN. Liquid stamps the complete resting state: card 1 is front
+  (data-pos 0), step 1 and dot 1 are .is-active. No script, no stylesheet,
+  no observer — the band still reads as designed. Entrance choreography is the
+  house data-sh-reveal system (shudhi-story.css + sh-story-motion.js), exactly
+  as sections/sh-ritual-stages.liquid two bands above.
+
+  ROTATION IS CONTINUOUS by request: every `interval` seconds while the band is
+  on screen and the tab is visible. Nothing stops it for good — a dot click
+  jumps to that step and the clock simply restarts from there; there is no
+  pause control and no hover pause. It pauses only while KEYBOARD focus
+  (:focus-visible) is inside the band, so the dots do not move under a
+  keyboard user — a mouse click does not count. Reduced motion is honoured in
+  the CSS (instant swaps, no glide/blur) rather than by withholding rotation.
+
+  ACCESSIBILITY otherwise follows the W3C APG carousel pattern: a region with
+  aria-roledescription="carousel"; slides are role="group" "n of 5"; the step
+  text is a live region kept "off" while auto-rotating so it never interrupts.
+
+  PORTABLE: this file + assets/shudhi-ritual-energize.css +
+  assets/sh-ritual-energize.js + the five stage .webp files. No shared file is
+  touched; the five glyphs are inlined rather than added to sh-icon.liquid.
+{%- endcomment -%}
+
+{{ 'shudhi-story.css' | asset_url | stylesheet_tag }}
+{{ 'shudhi-ritual-energize.css' | asset_url | stylesheet_tag }}
+
+{%- assign s = section.settings -%}
+{%- assign n = section.blocks.size -%}
+{%- assign half = n | divided_by: 2 -%}
+{%- assign interval_ms = s.interval | default: 4 | times: 1000 -%}
+{%- assign region_label = s.heading | append: ' ' | append: s.heading_em | strip_html | strip | escape -%}
+
+<section class="sh sh-energize"
+         {%- if s.anchor_id != blank %} id="{{ s.anchor_id | handle }}"{% endif %}
+         {%- if s.animate %} data-sh-reveal{% endif %}
+         data-autoplay="{{ s.autoplay }}"
+         data-interval="{{ interval_ms }}"
+         style="--sh-energize-bg:{{ s.bg }};">
+
+  <div class="sh-wrap">
+
+    <header class="sh-energize__head">
+      {%- if s.eyebrow != blank -%}
+        <div class="sh-energize__eyebrow sh-eyebrow" data-sh-fade style="--i:0">{{ s.eyebrow }}</div>
+      {%- endif -%}
+      <h2 class="sh-energize__title sh-serif" data-sh-fade style="--i:1">
+        {{- s.heading -}}
+        {%- if s.heading_em != blank %} <em>{{ s.heading_em }}</em>{% endif -%}
+      </h2>
+    </header>
+
+    {%- if n > 0 -%}
+      <div class="sh-energize__stage"
+           role="region" aria-roledescription="carousel"
+           aria-label="{{ region_label }}">
+
+        {%- comment -%} Live region: "off" while auto-rotating so a screen reader
+            is not interrupted every few seconds; the script sets "polite" only
+            when it is not rotating (autoplay off / reduced motion). {%- endcomment -%}
+        <div class="sh-energize__steps" data-sh-fade style="--i:2" aria-live="off" aria-atomic="true">
+          {%- for block in section.blocks -%}
+            {%- assign b = block.settings -%}
+            <div class="sh-energize__step{% if forloop.first %} is-active{% endif %}" data-index="{{ forloop.index0 }}">
+              <span class="sh-energize__label">
+                <svg class="sh-icon sh-icon--{{ b.icon }}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                  {%- case b.icon -%}
+                    {%- when 'moon' -%}<path d="M12.8 3.6a8.4 8.4 0 1 0 7.6 12.1A7.2 7.2 0 0 1 12.8 3.6Z"/>
+                    {%- when 'crystal' -%}<path d="M12 3.6 8.8 9.8 12 20.4l3.2-10.6L12 3.6Z"/><path d="m8.8 9.8-3.2 3.2 2.6 7.4"/><path d="m15.2 9.8 3.2 3.2-2.6 7.4"/><path d="M8.2 20.4h7.6"/>
+                    {%- when 'geometry' -%}<path d="M12 3.6 19.3 7.8v8.4L12 20.4l-7.3-4.2V7.8L12 3.6Z"/><path d="M12 3.6v16.8"/><path d="m4.7 7.8 14.6 8.4"/><path d="M19.3 7.8 4.7 16.2"/>
+                    {%- when 'waves' -%}<path d="M4 10.4v3.2"/><path d="M7.2 7.6v8.8"/><path d="M10.4 5.2v13.6"/><path d="M13.6 8.4v7.2"/><path d="M16.8 6.2v11.6"/><path d="M20 10.4v3.2"/>
+                    {%- else -%}<circle cx="12" cy="12" r="4.2"/><path d="M12 3.8v2M12 18.2v2M3.8 12h2M18.2 12h2M6.2 6.2l1.4 1.4M16.4 16.4l1.4 1.4M17.8 6.2l-1.4 1.4M7.6 16.4l-1.4 1.4"/>
+                  {%- endcase -%}
+                </svg>
+                Step {{ forloop.index | prepend: '0' }}
+              </span>
+              <h3 class="sh-energize__name sh-serif">{{ b.title }}</h3>
+              {%- if b.text != blank -%}
+                <p class="sh-energize__text">{{ b.text }}</p>
+              {%- endif -%}
+            </div>
+          {%- endfor -%}
+        </div>
+
+        <div class="sh-energize__stack" data-sh-fade="soft" style="--i:3">
+          {%- for block in section.blocks -%}
+            {%- assign b = block.settings -%}
+            {%- comment -%} Signed slot: 0 front, ±1 beside, ±2 outermost. 5 → 0,1,2,-2,-1. {%- endcomment -%}
+            {%- assign pos = forloop.index0 -%}
+            {%- if pos > half -%}{%- assign pos = pos | minus: n -%}{%- endif -%}
+            {%- comment -%} Fallback photo keyed on the icon so a reordered stage keeps its photo. {%- endcomment -%}
+            {%- case b.icon -%}
+              {%- when 'moon' -%}
+                {%- assign fb = 'Lunar Conditioning.webp' -%}{%- assign fw = 1024 -%}{%- assign fh = 1536 -%}
+              {%- when 'crystal' -%}
+                {%- assign fb = 'Minral Resoanance infusion.webp' -%}{%- assign fw = 1024 -%}{%- assign fh = 1536 -%}
+              {%- when 'geometry' -%}
+                {%- assign fb = 'Geomatric Crystal Conditioning.webp' -%}{%- assign fw = 1024 -%}{%- assign fh = 1536 -%}
+              {%- when 'waves' -%}
+                {%- assign fb = 'Harmonic Resonance activation.webp' -%}{%- assign fw = 941 -%}{%- assign fh = 1672 -%}
+              {%- else -%}
+                {%- assign fb = 'Solar Vertilization.webp' -%}{%- assign fw = 1024 -%}{%- assign fh = 1536 -%}
+            {%- endcase -%}
+
+            <figure class="sh-energize__card" data-pos="{{ pos }}"
+                    role="group" aria-roledescription="slide" aria-label="{{ forloop.index }} of {{ n }}"
+                    {{ block.shopify_attributes }}>
+              <span class="sh-energize__frame">
+                {%- if b.image != blank -%}
+                  <img src="{{ b.image | image_url: width: 640 }}"
+                       alt="{{ b.title | escape }}"
+                       width="640" height="{{ 640 | divided_by: b.image.aspect_ratio | round }}"
+                       loading="lazy" decoding="async">
+                {%- else -%}
+                  <img src="{{ fb | asset_url }}"
+                       alt="{{ b.title | escape }}"
+                       width="{{ fw }}" height="{{ fh }}"
+                       loading="lazy" decoding="async">
+                {%- endif -%}
+              </span>
+            </figure>
+          {%- endfor -%}
+          <span class="sh-energize__glow" aria-hidden="true"></span>
+        </div>
+
+        <div class="sh-energize__dots" data-sh-fade style="--i:4" role="group" aria-label="Choose step">
+          {%- for block in section.blocks -%}
+            <button type="button" class="sh-energize__dot{% if forloop.first %} is-active{% endif %}"
+                    data-index="{{ forloop.index0 }}"
+                    aria-label="Step {{ forloop.index }}: {{ block.settings.title | escape }}"
+                    {%- if forloop.first %} aria-current="true"{% endif %}>{{ forloop.index | prepend: '0' }}</button>
+          {%- endfor -%}
+        </div>
+
+      </div>
+    {%- endif -%}
+
+  </div>
+</section>
+
+{%- if s.animate -%}
+  <script src="{{ 'sh-story-motion.js' | asset_url }}" defer></script>
+{%- endif -%}
+<script src="{{ 'sh-ritual-energize.js' | asset_url }}" defer></script>
+
+{% schema %}
+{
+  "name": "SH · Ritual Energize",
+  "class": "index-section",
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Before becoming your daily cleansing ritual," },
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Every Sacred Ingredient Is Energized Through" },
+    { "type": "text", "id": "heading_em", "label": "Heading — gold words", "default": "5 Steps" },
+
+    { "type": "header", "content": "Motion" },
+    { "type": "checkbox", "id": "autoplay", "label": "Rotate steps automatically", "default": true,
+      "info": "Rotates continuously while the band is on screen; picking a step just restarts the clock from there. Visitors who asked for reduced motion get instant swaps instead of the glide." },
+    { "type": "range", "id": "interval", "label": "Seconds per step", "min": 3, "max": 8, "step": 1, "unit": "s", "default": 4 },
+    { "type": "checkbox", "id": "animate", "label": "Animate on scroll", "default": true,
+      "info": "Turns off the entrance only. The band still renders in full." },
+
+    { "type": "header", "content": "Appearance" },
+    { "type": "text", "id": "anchor_id", "label": "Anchor id",
+      "info": "Optional. Lets a button link straight to this band with #your-id. Must be unique on the page." },
+    { "type": "color", "id": "bg", "label": "Background", "default": "#1b2411" }
+  ],
+  "blocks": [
+    { "type": "step", "name": "Step", "settings": [
+      { "type": "paragraph", "content": "Steps are numbered automatically in the order they appear here." },
+      { "type": "text", "id": "title", "label": "Title", "default": "Solar Vitalization" },
+      { "type": "textarea", "id": "text", "label": "Description", "default": "The power of sunlight prepares and energizes the sacred botanicals." },
+      { "type": "select", "id": "icon", "label": "Icon", "default": "sun", "options": [
+        { "value": "sun", "label": "Sun" },
+        { "value": "moon", "label": "Crescent moon" },
+        { "value": "crystal", "label": "Crystal cluster" },
+        { "value": "geometry", "label": "Sacred geometry" },
+        { "value": "waves", "label": "Sound waves" } ] },
+      { "type": "image_picker", "id": "image", "label": "Photo",
+        "info": "Portrait, 2:3. Leave empty to use the built-in photo for the chosen icon (the five stage .webp files in Assets)." }
+    ] }
+  ],
+  "max_blocks": 5,
+  "presets": [
+    { "name": "SH · Ritual Energize", "blocks": [
+      { "type": "step", "settings": { "icon": "sun",      "title": "Solar Vitalization",         "text": "The power of sunlight prepares and energizes the sacred botanicals." } },
+      { "type": "step", "settings": { "icon": "moon",     "title": "Lunar Conditioning",         "text": "Timely lunar rhythms condition the ingredients in a phase of natural alignment." } },
+      { "type": "step", "settings": { "icon": "crystal",  "title": "Mineral Resonance Infusion", "text": "Botanicals are immersed in a proprietary mineral resonance environment." } },
+      { "type": "step", "settings": { "icon": "geometry", "title": "Crystal Conditioning",       "text": "A second crystal-based conditioning stage stabilizes and elevates the energy of the formulation." } },
+      { "type": "step", "settings": { "icon": "waves",    "title": "Harmonic Activation",        "text": "The final infusion of harmonic frequencies completes the energetic preparation." } }
+    ] }
+  ]
+}
+{% endschema %}

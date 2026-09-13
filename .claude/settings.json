@@ -1,7 +1,13 @@
 {
   "permissions": {
     "allow": [
-      "Bash(python -c \"import json,sys; d=json.load\\(open\\('templates/index.json'\\)\\); print\\(d.get\\('order'\\)\\); print\\({k:v.get\\('type'\\) for k,v in d['sections'].items\\(\\)}\\)\")"
+      "Bash(python -c \"import json,sys; d=json.load\\(open\\('templates/index.json'\\)\\); print\\(d.get\\('order'\\)\\); print\\({k:v.get\\('type'\\) for k,v in d['sections'].items\\(\\)}\\)\")",
+      "Bash(git -C \"c:/Users/Mohit.Dutta/Downloads/phoenixworks/Shudhi_herbals/Shudhi_Herbals\" diff)",
+      "Bash(git -C \"c:/Users/Mohit.Dutta/Downloads/phoenixworks/Shudhi_herbals/Shudhi_Herbals\" diff --stat)",
+      "PowerShell(cmd /c \"node `\"C:\\\\Users\\\\MOHIT~1.DUT\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--Users-Mohit-Dutta-Downloads-phoenixworks-Shudhi-herbals-Shudhi-Herbals\\\\0995f623-ca88-46b2-a644-50ff41bd87c6\\\\scratchpad\\\\trace-steady.mjs`\" 2>&1\")",
+      "Bash(curl -s -o /dev/null -w \"  final: %{url_effective}  HTTP %{http_code}  \\(redirects: %{num_redirects}\\)\\\\n\" -L \"http://127.0.0.1:9292/pages/our-story\")",
+      "Bash(curl -s -D - -o /dev/null \"http://127.0.0.1:9292/pages/our-story\")",
+      "Bash(curl -sL \"http://127.0.0.1:9292/pages/our-story\")"
     ]
   }
 }

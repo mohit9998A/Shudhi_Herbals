@@ -60,8 +60,35 @@
   --sh-sans:  var(--hov-font-primary, 'Jost', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif);
 
   /* Metrics */
-  --sh-max: 1280px;
+  /* Fluid, not fixed: at 1280 flat, a 1920 screen showed 1152px of content
+     between 384px margins — 60% of the glass. This is the SECOND pass: the
+     first went 88vw/1600 and still read too narrow on a 1920 desktop.
+     The clamp BINDS from 1280/.91 = 1407px and caps at 1760/.91 = 1934px. A
+     1440 laptop therefore moves only 1280 -> 1310 (+30px of content, below
+     the perceptual threshold) while a 1920 desktop goes 1472 -> 1619px of
+     content. Past 1934 it holds at 1760 instead of tracking the viewport,
+     because beyond that the grids go sparse before the prose goes long.
+     91vw, never 100vw: vw includes the scrollbar (see the note at :1895). The
+     9% band means overflow would need a viewport under 167px.
+     Consumers: .sh-wrap :154, .sh-header__inner :330, and the four derived
+     copy-column caps at :735 :1112 :1175 :1923. Raising this raises all of
+     them together — that is the point. TWO GATES DOWNSTREAM ARE TUNED TO THIS
+     NUMBER and must be re-solved with it, or they stop being continuous: the
+     PDP buy-column pin (shudhi-product.css) and the reviews 3-up
+     (shudhi-reviews.css), both at min-width 1700. */
+  --sh-max: clamp(1280px, 91vw, 1760px);
+  /* Deliberately NOT re-declared at any breakpoint — this clamp is the whole
+     responsive story for the gutter. It is also doing double duty as a
+     viewport-edge inset for the hero furniture (:560 scroll rail, :574/:608
+     badge), so raising it moves more than the gutter. */
   --sh-pad: clamp(20px, 5vw, 64px);
+  /* The Bootstrap/legacy tier (.container, .page-width in
+     houseofveda-modern.css:821). A LOWER cap than --sh-max on purpose: those
+     are 12-col templates carrying blog prose, cart tables and search results
+     with no ch measure anywhere, so a 1600 shell would set ~110ch article
+     lines. 86vw (not 88) is what makes a 1440 laptop land on exactly 1240 and
+     stay identical to today. */
+  --sh-max-legacy: clamp(1240px, 86vw, 1440px);
   --sh-radius: 12px;
 
   /* --sh-logo-h is the ONE knob; --sh-header-h is DERIVED from it.
@@ -100,7 +127,12 @@
   .sh, :root { --sh-logo-h: 54px; --sh-header-pad-y: 11px; }   /* ~76px wide, 76px bar */
 }
 @media (max-width: 768px) {
-  .sh, :root { --sh-logo-h: 46px; --sh-header-pad-y: 11px; }   /* ~65px wide, 68px bar */
+  .sh, :root { --sh-logo-h: 46px; --sh-header-pad-y: 11px; }
+  /* .sh-announce is in normal flow ABOVE the sticky header, so it pushes the
+     hero down the page. Measured 34.9px at 390/430/768/1440 — its .68rem type
+     and .78em item padding are not breakpoint-scaled, so one constant is right.
+     Only the mobile hero reads it; see .sh-hero__pin at the responsive tier. */
+  .sh, :root { --sh-announce-h: 35px; }   /* ~65px wide, 68px bar */
 }
 
 /* ============================================================
@@ -430,6 +462,12 @@ body.template-index .sh-header-sticky { margin-bottom: calc(-1 * var(--sh-header
 }
 .sh-drawer__nav a:hover { color: var(--sh-gold); }
 .sh-drawer .sh-icon { width: 22px; height: 22px; }
+/* The drawer brand is the real logo PNG, not the sh-icon approximation, so the
+   rule above no longer sizes it. (0,2,0) to beat `.sh-logo__img { max-height:
+   var(--sh-logo-h) }` (0,1,0) at :377; 34px matches .sh-logo__mark's intent.
+   No media query needed — .sh-drawer is only reachable through .sh-burger,
+   which is display:none above 1024px. */
+.sh-drawer .sh-logo__img { max-height: 34px; width: auto; }
 
 /* ============================================================
    8. HERO — scroll-scrubbed frame sequence
@@ -464,6 +502,20 @@ body.template-index .sh-header-sticky { margin-bottom: calc(-1 * var(--sh-header
 .sh-hero__canvas { object-fit: fill; z-index: 2; opacity: 0; transition: opacity .5s ease; }
 .sh-hero.is-ready .sh-hero__canvas { opacity: 1; }
 .sh-hero.is-ready .sh-hero__poster { opacity: 0; }
+
+/* Mobile-only real video (shudhi-hero.js: initMobileHero()). Hidden on desktop
+   by default since .is-mobile-video is never added there. aria-hidden="true" on
+   the <video> itself (see the section file) plus this: no visible pause control,
+   which is fine under WCAG 2.2.2 because playback is gated behind
+   prefers-reduced-motion in initMobileHero() — reduced-motion visitors never get
+   an autoplaying video at all, only the static poster. Ambient decorative
+   background loop, not essential content. */
+.sh-hero__mobile-video {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  object-fit: cover; z-index: 2; display: none;
+}
+.sh-hero.is-mobile-video .sh-hero__mobile-video { display: block; }
+.sh-hero.is-mobile-video .sh-hero__poster { display: none; }
 
 /* Legibility scrim — the mockup's copy sits on bright cloud, so it needs one.
    The sticky header wrapper carries margin-bottom: calc(-1 * var(--sh-header-h)),
@@ -637,7 +689,14 @@ body.template-index .sh-header-sticky { margin-bottom: calc(-1 * var(--sh-header
 .sh-hero__trust {
   position: absolute; left: 50%; bottom: 26px; z-index: 6;
   transform: translateX(-50%);
-  width: min(1180px, calc(100% - 2 * var(--sh-pad)));
+  /* Wrap-relative, not a magic 1180. This strip is centred in a FULL-BLEED
+     hero, so the only edge worth aligning to is .sh-wrap's content box — and
+     1180 was a hand-fit approximation of 1280 - 2*64 = 1152 that sat 14px
+     proud per side. Deriving it lands on the hero copy's gutter exactly, at
+     every width, and follows --sh-max instead of freezing at the old cap.
+     min() INSIDE the calc so viewports narrower than --sh-max fall back to
+     100% and keep the padding subtraction. */
+  width: calc(min(var(--sh-max), 100%) - 2 * var(--sh-pad));
 }
 
 /* While the hero is actively scrubbing, drop the blur and compensate with
@@ -830,6 +889,34 @@ a.sh-story__play:hover {
   .sh-story__seal svg { animation: none; }
 }
 
+/* ---- Stat strip -------------------------------------------------------- */
+/* OVERLAID on the band's bottom edge, per the reference — position:absolute
+   inside .sh-story (relative, overflow:hidden at :715), so it adds NO height
+   to the band. The translucent cream keeps it legible where it crosses the
+   photo bleed; colours come from the band's own tokens above. Renders only
+   where the section defines stat blocks (the homepage). */
+.sh-story__stats {
+  position: absolute; left: 0; right: 0; bottom: 0; z-index: 3;
+  padding: 14px 0 16px;
+  background: rgba(246, 237, 225, .92);      /* the default --sh-story-bg, 92% */
+  border-top: 1px solid rgba(36, 29, 21, .08);
+}
+.sh-story__stats-row { display: grid; grid-template-columns: repeat(4, 1fr); }
+.sh-story__stat {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  padding-inline: clamp(8px, 1.4vw, 20px);
+}
+.sh-story__stat + .sh-story__stat { border-left: 1px solid rgba(36, 29, 21, .14); }
+.sh-story__stat > .sh-icon { width: 22px; height: 22px; flex: none; color: var(--sh-story-gold-ink); }
+.sh-story__stat-body strong {
+  display: block; font-weight: 600; letter-spacing: .01em;
+  font-size: clamp(1rem, 1.25vw, 1.25rem); color: var(--sh-story-ink);
+}
+/* Text values (anything longer than a number) sit quiet and one-line. */
+.sh-story__stat--text .sh-story__stat-body strong { font-size: .92rem; letter-spacing: .02em; }
+.sh-story__stat-body small { font-size: .72rem; color: var(--sh-story-body); }
+.sh-story__stat-star { color: var(--sh-story-gold-ink); }
+
 /* ============================================================
    10. RITUAL BENEFITS — "It's a Ritual."
    ============================================================ */
@@ -854,51 +941,14 @@ a.sh-story__play:hover {
    Changing any of these five numbers in isolation will bury a layer. */
 .sh-ritual {
   position: relative; overflow: hidden; color: var(--sh-light);
-  /* Asymmetric, unlike every other band in this file, and for a reason the
-     others do not have: the heading has to fit in the strip of scene ABOVE the
-     soap bar, and cover puts the bar's top edge at roughly 155px once the
-     floor below is in force. Head content is about 98px (eyebrow, rule, h2,
-     ornament), so the top inset has to stay under ~50px for the heading to
-     land in that strip instead of across the bar's face. The bottom inset is
-     untouched — it is what keeps the lower cards off the pond edge. */
-  padding-block: clamp(20px, 2.2vw, 34px) clamp(78px, 10vw, 138px);
+  padding-block: clamp(20px, 2.2vw, 34px) clamp(48px, 5vw, 78px);
   background: var(--sh-green-900);
   /* A floor, not a fixed height: the band still grows for a fifth and sixth
      benefit rather than clipping them. svh, not vh, so the mobile URL bar
-     collapsing does not resize the section under a running entrance.
-
-     THE CONTENT STAYS TOP-ANCHORED, and that is the whole reason this is a
-     plain min-height rather than a centred flex column. The photograph carries
-     the soap bar in its upper middle, and object-fit:cover pushes the bar
-     DOWN the section as the section grows. Centring the copy moved the heading
-     down by the same amount, so the heading sat on the SHUDHI wordmark at
-     every height — the two tracked each other and the overlap could not be
-     tuned out. Top-anchored, the heading's bottom edge is fixed by
-     padding-block while the wordmark keeps descending, and they separate.
-
-     The second term is a floor on that separation, and it carries a vw
-     component because the requirement is not a constant: a wider section
-     crops the photograph harder, which scales the bar up and lifts its top
-     edge toward the heading. Solving "bar's top edge sits BELOW the heading"
-     against the cover geometry —
-
-         barTop = (225 - band0) * scale,  scale = W/1536,
-         band0  = (1024 - H/scale) / 2
-
-     — calc(300px + 38vw) holds barTop at a near-constant ~155px across the
-     whole desktop range (154 at 1280, 155 at 1440, 156 at 1920, 158 at 2560),
-     which clears a ~130px heading everywhere with room to spare. The earlier
-     calc(400px + 24vw) only cleared the WORDMARK; it left barTop at 104px at
-     1440 and 72px at 1920, so the heading printed across the bar's face.
-
-     The same taller box is what stops the bar dominating the composition, and
-     it widens the visible crop band at every width, so the authored art in §26
-     sits further inside the contract than before rather than closer to it.
-
-     svh, not vh, so the mobile URL bar collapsing does not resize the section
-     under a running entrance. The mobile block at :1449 drops this to 0 —
-     stacked cards are already taller than any of it. */
-  min-height: max(calc(var(--sh-ritual-h, 92) * 1svh), calc(300px + 38vw));
+     collapsing does not resize the section under a running entrance. The
+     mobile block drops this to 0 — stacked cards are already taller than
+     any of it. */
+  min-height: calc(var(--sh-ritual-h, 92) * 1svh);
 }
 /* THE COMPOUND SELECTOR IS THE WHOLE POINT OF THIS RULE.
 
@@ -929,6 +979,31 @@ a.sh-story__play:hover {
 .sh-ritual .sh-ritual__bg {
   position: absolute; inset: 0; width: 100%; height: 100%;
   object-fit: cover; object-position: 50% 50%; z-index: 0;
+
+  /* The photograph is ATMOSPHERE, not subject — but it is still a photograph.
+     A soft focus at ~70% over the section's var(--sh-green-900): the scene
+     stays readable, the green still tints it, and the cards keep the contrast
+     the ::after ramp below was tuned for. Both numbers are merchant settings
+     (--sh-ritual-photo, --sh-ritual-blur); the fallbacks match the schema
+     defaults so the band is right even if the style attribute is ever dropped.
+
+     scale() IS NOT DECORATION AND MUST NOT BE REMOVED. A CSS blur samples
+     beyond the element's own box and finds nothing there, so an un-scaled
+     image feathers to transparent at all four edges and the band renders with
+     a pale halo frame around a soft-edged photo. The overscale pushes those
+     feathered edges outside the section's overflow:hidden clip. It is sized
+     against the SHORT axis and against the setting's CEILING, not its default:
+     at the 60svh floor (~500px) each 10% edge is ~50px, which still covers the
+     ~3σ reach of a 20px blur. So it stays at 1.2 even though the 4px default
+     would be safe at 1.05 — the merchant can take the slider to 20 without
+     the halo coming back, and the extra crop costs nothing on a backdrop.
+
+     No transform lands on this element from §27's entrance — the armed rules
+     there address __stage / __layer / __rise / __soap, never __bg — so this
+     is not competing with an animation for the transform property. */
+  filter: blur(var(--sh-ritual-blur, 4px)) saturate(.9);
+  opacity: var(--sh-ritual-photo, .7);
+  transform: scale(1.2);
 }
 /* FIVE STOPS, AND THE MIDDLE ONE IS WHERE THE SOAP IS.
 
@@ -971,16 +1046,22 @@ a.sh-story__play:hover {
   pointer-events: none; z-index: 0; overflow: visible;
 }
 .sh-ritual__connectors path {
-  fill: none; stroke: rgba(201, 168, 106, .45);
-  stroke-width: 1; stroke-dasharray: 2 6; stroke-linecap: round;
+  fill: none; stroke: rgba(201, 168, 106, .5);
+  stroke-width: 1.3; stroke-dasharray: 2.5 7; stroke-linecap: round;
 }
 .sh-ritual__col { display: grid; gap: clamp(22px, 3.4vw, 44px); position: relative; z-index: 1; }
-/* Empty by design — the gap the photograph's soap bar shows through, and what
-   pushes the two columns far enough apart for the connectors to have somewhere
-   to converge. It stays in the markup because the three FLOW children are what
+/* The centre track: carries the soap cut-out the connectors converge on, and
+   what pushes the two columns far enough apart for them to have somewhere to
+   converge. It stays in the markup because the three FLOW children are what
    place the columns in grid tracks 1 and 3; the connector svg is absolutely
    positioned and out of flow, so it cannot do that job. */
 .sh-ritual__center { position: relative; z-index: 1; }
+/* (0,2,0) on purpose: §10's `.sh img` base rules are (0,1,1) and would tie a
+   bare class. Width caps at the track's own 380px maximum. */
+.sh-ritual .sh-ritual__soap {
+  display: block; width: min(100%, 380px); height: auto; margin-inline: auto;
+  filter: drop-shadow(0 30px 44px rgba(0, 0, 0, .5));
+}
 
 /* Frosted panel per benefit. The band's photo is busy behind the copy — leaves,
    water and highlights run straight under the .8rem description — so each item
@@ -994,6 +1075,7 @@ a.sh-story__play:hover {
    glass — the trust bar's own comment puts "no longer glass" at ~.72.
    `background` is a flat colour and doubles as the no-blur fallback. */
 .sh-ritual__item {
+  position: relative;
   display: flex; align-items: center; gap: 16px;
   padding: 14px clamp(14px, 1.4vw, 20px);
   background: rgba(20, 18, 12, .68);
@@ -1041,29 +1123,79 @@ a.sh-story__play:hover {
 /* ============================================================
    11. MINDFUL RITUAL — "Transform Your Daily Bath"
    ============================================================ */
+/* Same two global leaks as .sh-story (:692-699), neutralised the same way:
+   houseofveda-modern.css:55 h2 colour, timber.scss.liquid:814 capitalize.
+   (0,1,1) beats bare h2 (0,0,1), so no !important is needed. `.sh-step h3`
+   below still sets its own colour — the plate stays a dark surface. */
+.sh-mindful h2 { color: inherit; text-transform: none; }
+
 .sh-mindful {
-  position: relative; overflow: hidden; color: var(--sh-light);
-  padding-block: clamp(78px, 9vw, 130px); background: var(--sh-green-900);
+  /* Light-surface tokens re-declared at .sh-story's values (:709-713) — the
+     originals are section-scoped on purpose (see :1746-1754 for the policy).
+     --sh-mindful-bg is overridden inline from the `bg` setting; the value here
+     is the fallback and documents what that setting expects. */
+  --sh-mindful-bg:   #f6ede1;   /* cream panel, and what the photo fades into */
+  --sh-mindful-ink:  #1b2a12;   /* heading — 13.1:1 on cream */
+  --sh-mindful-body: #474a3d;   /* paragraph — 7.8:1 */
+
+  position: relative; overflow: hidden;
+  background: var(--sh-mindful-bg); color: var(--sh-mindful-ink);
 }
-.sh-mindful__bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; }
-.sh-mindful::after {
-  content: ""; position: absolute; inset: 0; z-index: 1;
-  background: linear-gradient(95deg, rgba(14, 20, 9, .84) 0%, rgba(14, 20, 9, .55) 48%, rgba(14, 20, 9, .42) 100%);
-}
-.sh-mindful > .sh-wrap { position: relative; z-index: 2; }
+
 .sh-mindful__grid {
-  display: grid; grid-template-columns: 1fr 1.45fr;
-  gap: clamp(38px, 5vw, 80px); align-items: center;
+  display: grid;
+  grid-template-columns: minmax(0, 46%) minmax(0, 54%);
+  align-items: center;
+  min-height: var(--sh-mindful-h, 560px);
 }
-/* Colour set explicitly, never left to inherit: houseofveda-modern.css gives
-   `h1..h6` an explicit `color: var(--hov-dark)`, and an explicit colour on the
-   element always beats one inherited from the section — so the heading went
-   near-black on this dark backdrop. Same reason `.sh-step h3` sets one below. */
-.sh-mindful__title { font-size: clamp(1.8rem, 3.2vw, 2.7rem); margin-bottom: 22px; color: var(--sh-light); }
+
+/* Re-creates .sh-wrap's left gutter without putting the grid inside it — same
+   derivation as .sh-story__copy (:727-737); the photo must bleed to the
+   viewport edge. No 100vw anywhere: that ignores the scrollbar. */
+.sh-mindful__copy {
+  margin-left: auto; width: 100%;
+  max-width: calc(var(--sh-max) * .46);
+  padding: clamp(48px, 6vw, 86px) var(--sh-pad);
+}
+
+/* display:grid centres the IN-FLOW plate; keeping the plate in flow (photo
+   absolute behind it) guarantees the column is always tall enough for the
+   plate at any copy length or breakpoint. The larger start padding keeps the
+   glass clear of the feather's 17% fade zone. */
+.sh-mindful__media {
+  position: relative; align-self: stretch;
+  display: grid; align-items: center;
+  min-height: var(--sh-mindful-media-h, clamp(340px, 40vw, 560px));
+  padding: clamp(28px, 4vw, 48px) var(--sh-pad);
+  padding-inline-start: clamp(64px, 9vw, 150px);
+}
+/* (0,2,0), not a bare block class: `.sh img { height: auto }` is (0,1,1) and
+   for an abs-positioned REPLACED element height:auto resolves to the intrinsic
+   ratio even with inset:0 — the photo stopped 127px short of the band. */
+.sh .sh-mindful__photo {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  object-fit: cover;
+  /* Stated rather than merely absent, as at :746-750: the previous build
+     scrimmed the whole band and the split design shows the photo untreated. */
+  filter: none; opacity: 1;
+}
+/* Feathers the photo's left edge into the cream panel — identical technique
+   to .sh-story__media::after (:752-759). Fading to the `transparent` KEYWORD
+   is safe (premultiplied-alpha interpolation, no grey midpoint) and the same
+   var paints the section bg, so panel and feather can never drift. */
+.sh-mindful__media::after {
+  content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none;
+  background: linear-gradient(to right, var(--sh-mindful-bg) 0%, transparent 17%);
+}
+
+.sh-mindful__title { font-size: clamp(1.8rem, 3.2vw, 2.7rem); margin-bottom: 22px; }
 .sh-mindful__text {
-  font-size: .9rem; line-height: 1.8; color: var(--sh-muted-light);
-  max-width: 34ch; margin-bottom: 32px;
+  font-size: 1rem; line-height: 1.75; color: var(--sh-mindful-body);
+  max-width: 42ch; margin-bottom: 32px;
 }
+/* Global focus ring is --sh-gold, 1.95:1 on cream. Scoped to __copy, not the
+   section: the steps plate is still a dark surface. */
+.sh-mindful__copy a:focus-visible { outline-color: var(--sh-mindful-ink); }
 
 /* One frosted plate behind all four steps, not one per step: the arc joins them
    into a single sequence, so a shared surface is what that reads as. Tokens are
@@ -1083,6 +1215,10 @@ a.sh-story__play:hover {
 .sh-steps {
   --sh-steps-pad-x: clamp(14px, 1.6vw, 24px);
   --sh-steps-pad-y: 34px;
+  z-index: 2;                            /* above the feather's z-index:1 */
+  width: 100%;
+  max-width: calc(var(--sh-max) * .54);  /* ultra-wide cap */
+  justify-self: end;
   position: relative; display: grid; grid-template-columns: repeat(4, 1fr);
   gap: clamp(10px, 1.6vw, 24px);
   padding: var(--sh-steps-pad-y) var(--sh-steps-pad-x);
@@ -1177,7 +1313,12 @@ a.sh-story__play:hover {
    ============================================================ */
 .sh-footer { background: var(--sh-green-900); color: var(--sh-light); padding-block: clamp(56px, 6vw, 82px) 0; }
 .sh-footer__grid {
-  display: grid; grid-template-columns: 1.3fr 1.05fr .8fr .8fr;
+  /* Five tracks: newsletter, brand, then one per link column. The count is
+     FIXED, so it must be re-counted whenever a column is added or removed —
+     a third column against the old four-track rule silently orphans onto a
+     second row. The max-content floor is load-bearing: plain fr tracks squeeze
+     to ~122px near 1025px and wrap help@shudhiherbals.com (~143px). */
+  display: grid; grid-template-columns: 1.15fr 1fr repeat(3, minmax(max-content, .7fr));
   gap: clamp(30px, 4vw, 56px); align-items: start;
 }
 .sh-footer__title {
@@ -1291,6 +1432,11 @@ a.sh-story__play:hover {
    one field. Padding is asymmetric: the top pad clears the header, the bottom
    is tighter so the band hands off to the section below.
    ============================================================ */
+/* timber's .main-content { margin-top: 30px } (timber.scss.liquid:743) is only
+   zeroed for template-index, so on every page opening with this band the white
+   body bg shows as a stripe under the solid header. Same fix
+   shudhi-story.css:738 already makes for .sh-story-hero. */
+.main-content:has(.sh-pagehead) { margin-top: 0; }
 .sh-pagehead {
   background: var(--sh-green-900); color: var(--sh-light);
   padding-block: clamp(46px, 6vw, 76px) clamp(36px, 4.5vw, 58px);
@@ -1331,6 +1477,35 @@ a.sh-story__play:hover {
   max-width: 52ch; margin-inline: auto; margin-top: 18px;
   text-wrap: balance;
 }
+/* Optional soap cut-out (show_soap) — same asset as the home ritual band, but
+   :991's rules are scoped .sh-ritual and don't reach here. Compound selector
+   for the same reason as :991 — a bare class loses to `.sh img` at :114. */
+.sh-pagehead .sh-pagehead__soap {
+  display: block;
+  width: min(100%, 380px);
+  height: auto;
+  margin-inline: auto;
+  filter: drop-shadow(0 30px 44px rgba(0,0,0,.5));
+}
+.sh-pagehead__soapwrap { margin-top: clamp(28px, 4vw, 44px); }
+@media (max-width: 768px) {
+  .sh-pagehead .sh-pagehead__soap { width: min(62vw, 250px); }  /* mirrors :1592 */
+}
+/* Light variant — the section adds the class itself when the merchant picks a
+   bright bg (color_brightness > 128), so a cream band never ships light-on-light
+   text. Same trio + values every light band declares on its root (.sh-story:710,
+   .sh-fgrid:1990, …): --sh-gold and --sh-muted-light both fail AA on cream. */
+.sh-pagehead--light {
+  --sh-story-ink:      #1b2a12;   /* heading + lede — 13.1:1 on cream */
+  --sh-story-gold-ink: #7a5d2e;   /* the gold dark enough to be READ — 5.3:1 */
+  color: var(--sh-story-ink);
+}
+.sh-pagehead--light .sh-pagehead__eyebrow { color: var(--sh-story-gold-ink); }
+/* Compound, not `.sh .sh-pagehead--light` — both classes sit on the SAME
+   element, so the descendant form never matches. (0,3,0) beats the base
+   colour on `.sh .sh-pagehead__text` (0,2,0) above. Full ink, not the usual
+   muted body tone — requested black for maximum legibility. */
+.sh.sh-pagehead--light .sh-pagehead__text { color: var(--sh-story-ink); }
 
 /* ============================================================
    14bb. STORY HERO — the Our Story page's opening block
@@ -1472,7 +1647,8 @@ a.sh-story__play:hover {
 .sh-story-hero__trust {
   position: absolute; left: 50%; bottom: 26px; z-index: 6;
   transform: translateX(-50%);
-  width: min(1180px, calc(100% - 2 * var(--sh-pad)));
+  /* Same derivation as .sh-hero__trust (:651) — kept in step with it. */
+  width: calc(min(var(--sh-max), 100%) - 2 * var(--sh-pad));
 }
 
 /* ============================================================
@@ -1490,46 +1666,120 @@ a.sh-story__play:hover {
   .sh-header__inner { grid-template-columns: auto 1fr; }
   .sh-hero__copy { max-width: 64%; }
   .sh-hero__pager { display: none; }
-  .sh-mindful__grid { grid-template-columns: 1fr; }
 
   /* Single column, photo first. The copy never sits ON the photo here — it
      keeps its own cream panel below — so there is nothing to scrim. */
   .sh-story__grid {
     --sh-story-media-h: clamp(280px, 46vw, 400px);
+    /* One knob for the seal: .sh-story__seal reads it for its width and
+       .sh-story__copy reads it for the top padding that keeps the eyebrow
+       clear of it, so the two can never drift apart. */
+    --sh-story-seal: clamp(126px, 14vw, 186px);
     grid-template-columns: 1fr; min-height: 0;
   }
   .sh-story__media { order: -1; }
-  /* Feather rotates with the stack: the seam is now horizontal. */
+  /* (0,2,0) is load-bearing: `.sh img { height: auto }` at :142 is (0,1,1) and
+     out-specifies the bare `.sh-story__photo { height: 100% }` (0,1,0) at :777.
+     For an absolutely-positioned replaced element that resolves to the intrinsic
+     ratio, so the 2000x1000 photo rendered 195px tall inside the 280px box at
+     390px wide — 85px of bare cream below it, a hard unblended edge, and the
+     feather below ramping over empty panel instead of over the photo. */
+  .sh-story .sh-story__photo { height: 100%; }
+  /* Feather rotates with the stack: the seam is now horizontal. Ramp starts at
+     55%, not 76% — over 280px that is ~126px of fade instead of ~67px, which
+     reads as a blend rather than a band on a busy photo. Interpolation to the
+     `transparent` keyword is premultiplied, so there is no grey midpoint; this
+     avoids color-mix(), whose failure mode would invalidate the whole
+     declaration and fall back to the DESKTOP `to right` gradient. */
   .sh-story__media::after {
-    background: linear-gradient(to bottom, transparent 76%, var(--sh-story-bg) 100%);
+    background: linear-gradient(to bottom, transparent 55%, var(--sh-story-bg) 100%);
   }
+  /* padding-block first, then the longhand — order matters, the shorthand
+     would otherwise reset the top back to the clamp. */
   .sh-story__copy { margin-left: 0; max-width: none; padding-block: clamp(40px, 6vw, 64px); }
-  /* Re-centred on the new seam. `top` resolves against the grid's padding box
-     and the photo is row 1 at exactly --sh-story-media-h, so this lands the
-     seal's centre on the join without measuring anything at runtime. */
-  .sh-story__seal { left: 50%; top: var(--sh-story-media-h); }
+  .sh-story__copy { padding-top: calc(var(--sh-story-seal) / 2 + 26px); }
+  /* Centred on the new seam. `top` resolves against the grid's padding box and
+     the photo is row 1 at exactly --sh-story-media-h, so this lands the seal's
+     centre on the join without measuring anything at runtime — which only became
+     true once .sh-story__photo above actually filled that box. */
+  .sh-story__seal { left: 50%; top: var(--sh-story-media-h); width: var(--sh-story-seal); }
+
+  /* Single column, photo (with the steps plate) first — same stack as
+     .sh-story above; the copy keeps its own cream panel below. The plate is
+     in flow, so --sh-mindful-media-h is only a floor: the column can never be
+     shorter than plate + padding. */
+  .sh-mindful__grid {
+    --sh-mindful-media-h: clamp(320px, 52vw, 480px);
+    grid-template-columns: 1fr; min-height: 0;
+  }
+  .sh-mindful__media { order: -1; padding-inline: var(--sh-pad); }
+  /* Feather rotates with the stack: the seam is now the photo's bottom edge,
+     the one that meets the copy panel below. */
+  .sh-mindful__media::after {
+    background: linear-gradient(to bottom, transparent 76%, var(--sh-mindful-bg) 100%);
+  }
+  .sh-mindful__copy { margin-left: 0; max-width: none; padding-block: clamp(40px, 6vw, 64px); }
   .sh-mindful__text { max-width: 52ch; }
+  /* The desktop cap/right-pin served the 54% column; stacked, the plate fills
+     the padded width like the old wrapped layout did. */
+  .sh-steps { max-width: none; }
   .sh-footer__grid { grid-template-columns: 1fr 1fr; }
   .sh-footer__brand { grid-column: 1 / -1; order: -1; margin-bottom: 12px; }
 }
 
 @media (max-width: 768px) {
-  .sh-hero__pin { height: 100svh; }
-  .sh-hero__content { padding-bottom: 190px; }
+  /* Full-bleed portrait stage. svh, not dvh/vh: shudhi-hero.js:577 copies this
+     computed height onto the section wrapper once at boot, and svh is the stable
+     small-viewport unit that does not move with the URL bar (see the comment at
+     shudhi-hero.js:139-146). No JS change is needed for the same reason. */
+  .sh-hero__pin { height: calc(100svh - var(--sh-announce-h, 0px)); }
+  /* Bottom-weighted instead of the desktop centring: over a full-height 9:16
+     video the type reads better low on the frame. padding-bottom is the knob
+     for how far down; it is raised again below 576px to clear the tab bar. */
+  .sh-hero__content {
+    align-items: flex-end;
+    padding-top: calc(var(--sh-header-h) + 4px); padding-bottom: 92px;
+  }
   .sh-hero__copy { max-width: 100%; }
-  .sh-hero__title { font-size: clamp(2rem, 8vw, 2.6rem); }
-  .sh-hero__scroll, .sh-hero__badge { display: none; }
+  .sh-hero__title { font-size: clamp(1.5rem, 6vw, 2rem); }
+  .sh-hero__rule { margin: 10px 0 8px; }
+  /* Label, body paragraph and the secondary "Discover the ritual" link are
+     dropped on mobile only (same treatment as .sh-hero__scroll/__badge below) —
+     the H1 stays as the section's accessible name/content; reviewed with
+     accessibility-lead: acceptable responsive content reduction, not a WCAG
+     issue (the #our-story destination the discover link jumps to is still
+     reachable via normal scroll and via the mobile nav drawer). */
+  .sh-hero__scroll, .sh-hero__badge, .sh-hero__label, .sh-hero__text, .sh-discover { display: none; }
+  /* The base scrim at :519 is a radial anchored lower-LEFT at 6% 76%, aimed at a
+     wide landscape box. Over a full-height 9:16 video it leaves the centred
+     headline on bare footage, so rotate to a bottom-weighted linear ramp — the
+     same trade .sh-story-hero__scrim makes at this breakpoint. */
+  .sh-hero__scrim {
+    background: linear-gradient(to top,
+      rgba(20, 14, 12, .86) 0%, rgba(20, 14, 12, .70) 22%,
+      rgba(20, 14, 12, .46) 46%, rgba(20, 14, 12, .22) 70%, rgba(20, 14, 12, .06) 100%);
+  }
   /* Drop backdrop-filter entirely on phones — a full-width blur over an
      animating canvas is the single most expensive thing on mobile GPUs.
      The opaque background is visually near-identical at this size. */
   .sh-trust {
-    grid-template-columns: 1fr 1fr; gap: 12px 0; border-radius: 16px;
+    grid-template-columns: repeat(4, 1fr); gap: 4px; padding: 8px 4px; border-radius: 10px;
     -webkit-backdrop-filter: none; backdrop-filter: none;
     background: rgba(20, 18, 12, .94);
   }
-  .sh-hero__trust { bottom: 18px; }
-  .sh-trust__item { padding-inline: 10px; }
+  /* Dropped on mobile (owner call): over a full-bleed portrait video the plate
+     crowded the CTA and fought the fixed reel/chat bubbles in the bottom-right.
+     The claims are not lost — sh-trust-marquee carries them further down the
+     page at every width. Hero-scoped, so .sh-story-hero__trust on
+     /pages/our-story and the desktop hero bar are both untouched. */
+  .sh-hero__trust { display: none; }
+  /* Icon-over-label, not the desktop's icon-left/text-right — fits 4 across a
+     phone width. Badge title text stays at the file's existing .68rem floor
+     (accessibility review: don't shrink further, it's the only surviving text
+     once .sh-trust__item small is hidden below) — the icon shrinks instead. */
+  .sh-trust__item { flex-direction: column; gap: 4px; padding-inline: 2px; text-align: center; }
   .sh-trust__item + .sh-trust__item::before { display: none; }
+  .sh-trust__item small { display: none; }
 
   /* Copy sits fully over the photo at this width, so the scrim rotates to a
      bottom-weighted vertical one — same fix as .sh-story below. */
@@ -1543,9 +1793,23 @@ a.sh-story__play:hover {
   .sh-story__copy { text-align: center; }
   .sh-story__eyebrow { justify-content: center; }
   .sh-story__text { margin-inline: auto; }
+
+  .sh-mindful__copy { text-align: center; }
+  .sh-mindful__text { margin-inline: auto; }
   .sh-story__play { width: 60px; height: 60px; }
-  .sh-story__seal { width: clamp(104px, 30vw, 132px); }
-  .sh-trust__item > .sh-icon { width: 34px; height: 34px; padding: 8px; }
+  /* Retunes the token, not the seal directly, so .sh-story__copy's top padding
+     tracks it (see the <=1024px block). */
+  .sh-story__grid { --sh-story-seal: clamp(104px, 30vw, 132px); }
+  /* 2x2 stat grid: separators only mid-row, never at a row's left edge.
+     position:static is the load-bearing line: on phones the copy owns the
+     band's lower half (the photo stacks on top), so the desktop overlay would
+     sit directly on the paragraph and the CTA — verified. Down here the strip
+     rejoins the flow below the copy instead. */
+  .sh-story__stats { position: static; padding: 10px 0 12px; }
+  .sh-story__stats-row { grid-template-columns: 1fr 1fr; row-gap: 12px; }
+  .sh-story__stat { justify-content: flex-start; }
+  .sh-story__stat:nth-child(odd) { border-left: 0; }
+  .sh-trust__item > .sh-icon { width: 22px; height: 22px; padding: 5px; }
 
   .sh-ritual__side { display: none; }
   .sh-ritual__cols { grid-template-columns: 1fr; gap: 26px; }
@@ -1553,10 +1817,13 @@ a.sh-story__play:hover {
      `.sh img, .sh svg, .sh canvas { display: block }` is (0,1,1) and a bare
      (0,1,0) class loses to it — a media query adds no specificity, so this
      rule silently did nothing and the dotted connectors have been painting
-     across the stacked cards on every phone. __center is a div, has nothing
-     competing, and is left as it was. */
-  .sh-ritual__center { display: none; }
+     across the stacked cards on every phone. __center now carries the soap
+     cut-out, so it stays visible and the stack reads cards, soap, cards. */
+  .sh-ritual__center { display: block; }
+  .sh-ritual .sh-ritual__soap { width: min(62vw, 250px); }
   .sh-ritual .sh-ritual__connectors { display: none; }
+  /* No connectors to attach to at this width, so no attach-point dots. */
+  .sh-ritual__item::before { display: none; }
   /* The two rules that used to sit here — flex-direction:row and
      margin-left:0 on the left column — existed only to undo §10's
      row-reverse/text-align:right, which no longer exists. Both columns read
@@ -1594,6 +1861,16 @@ a.sh-story__play:hover {
   .sh-social { justify-content: center; }
   .sh-totop { right: 16px; bottom: 16px; }
   .sh-totop { right: 76px; }
+}
+
+/* Below 576px the fixed mobile furniture appears: .menu_toolbar is a 50px bar
+   (Bootstrap d-sm-none, engo-customizes.css.liquid:25203) and the chat bubble /
+   reel popup lift to 62px / 128px in this same tier (houseofveda-modern.css:1656,
+   hov-reel-popup.liquid:306). Clear the bar; the right gutter set at <=768px
+   already clears the two bubbles. Must stay AFTER the <=768px block — equal
+   specificity, so source order decides. */
+@media (max-width: 575.98px) {
+  .sh-hero__content { padding-bottom: calc(var(--hov-bottomnav-height, 50px) + 40px); }
 }
 
 /* ============================================================
@@ -1780,6 +2057,11 @@ a.sh-story__play:hover {
   background-color: var(--sh-split-bg);
   background-image: linear-gradient(135deg, rgba(27, 42, 18, .10), rgba(27, 42, 18, .04));
 }
+/* Band 4's bundled fallback artwork is a wide transparent branch, not a photo:
+   cover would zoom it to fill the column height and crowd the copy. Contain
+   shows the whole branch at its natural proportions, held against the right
+   viewport edge, with the panel colour showing through around it. */
+.sh-split--purpose .sh-split__photo { object-fit: contain; object-position: right center; }
 /* Feathers the photo's inner edge into the panel, mirrored by --sh-split-feather.
    Fading a colour to the `transparent` KEYWORD is safe: every current engine
    interpolates gradients in premultiplied alpha, so there is no grey midpoint to
@@ -2751,8 +3033,34 @@ a.sh-story__play:hover {
 
 /* ---- Responsive -------------------------------------------------------- */
 @media (max-width: 989px) {
-  .sh-signature__grid { grid-template-columns: 1fr; }
+  .sh-signature__grid { grid-template-columns: 1fr; gap: 20px; }
   .sh-signature__media { max-width: 520px; margin-inline: auto; }
+  .sh-signature__head { margin-bottom: 18px; }
+
+  /* "Our Signature Soap" sub-eyebrow is supplementary (the section's own
+     "Our Signature" eyebrow above already covers the same ground) so it's
+     dropped outright. The product name (h3) is NOT — accessibility review:
+     nothing else in this section's accessible text restates "Shudhi Herbals
+     Soap" (the body paragraph is generic, the plate SVG is aria-hidden with no
+     alt), and this file's own heading structure is documented as a deliberate
+     h2->h3->h4 chain (sh-signature-product.liquid:57-60) that display:none
+     would skip. Visually hidden instead, via the same clip-pattern as
+     .sh-visually-hidden (:163) — stays in the accessibility tree, gone for
+     sighted mobile users. The CTA row moves up to take the freed-up space via
+     order below; body text + features stay, reflowed after the buttons. */
+  .sh-signature__content > .sh-eyebrow { display: none; }
+  .sh-signature__name {
+    position: absolute !important; width: 1px; height: 1px;
+    padding: 0; margin: -1px; overflow: hidden;
+    clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap;
+  }
+
+  .sh-signature__content { display: flex; flex-direction: column; }
+  /* Visual-only reorder: order moves the CTA to the top of the column, DOM/
+     reading order is untouched (accessibility review: body -> features -> CTA
+     stays a coherent AT sequence; the two CTA links are the only focusable
+     content in this column either way, so there's no tab-order jump). */
+  .sh-signature__cta { order: -1; justify-content: center; }
 
   /* §21's mobile rule (:2292) is a BARE .sh-gen and returns every seal on the
      site to normal flow. It cannot reach this one: `.sh-signature .sh-gen`
@@ -4284,10 +4592,20 @@ a.sh-story__play:hover {
 }
 .sh-ritual.is-armed.is-shown .sh-ritual__connectors { opacity: 1; }
 
+/* The soap lands between the heading (.8s window) and the cards (~1.17s+) —
+   same fails-open shape as everything above: rest = visible, .is-armed is the
+   pre-state, .is-shown clears it. */
+.sh-ritual.is-armed .sh-ritual__soap {
+  opacity: 0; transform: translateY(14px) scale(.97);
+  transition: opacity .8s var(--sh-r-ease) .95s, transform .8s var(--sh-r-ease) .95s;
+}
+.sh-ritual.is-armed.is-shown .sh-ritual__soap { opacity: 1; transform: none; }
+
 /* ---- Card interaction -------------------------------------------------- */
 /* perspective on the item is safe: it establishes a containing block and a
-   stacking context, and the item has no absolutely positioned descendants —
-   backdrop-filter had already made it a stacking context anyway. */
+   stacking context, and the one absolutely positioned descendant — the
+   ::before attach-point dot — carries only a 2D translateY, which perspective
+   leaves alone. backdrop-filter had already made it a stacking context anyway. */
 .sh-ritual__item {
   perspective: 760px;
   transition: border-color .45s var(--sh-r-ease-in),
@@ -4322,6 +4640,26 @@ a.sh-story__play:hover {
   border-color: rgba(201, 168, 106, .8); color: var(--sh-accent-soft);
 }
 
+/* The attach point: a small indicator lamp on the card's inner edge, exactly
+   where the connector tucks under it. Dark at rest; hover/focus fills it gold
+   with a glow, in step with the trace charging along the line — the "switch
+   on". 2D transform only (see the perspective note above). */
+.sh-ritual__item::before {
+  content: ""; position: absolute; top: 50%; width: 9px; height: 9px;
+  border-radius: 50%; transform: translateY(-50%);
+  background: var(--sh-green-900); border: 1px solid rgba(201, 168, 106, .55);
+  transition: background .45s var(--sh-r-ease-in),
+              box-shadow .45s var(--sh-r-ease-in),
+              border-color .45s var(--sh-r-ease-in);
+}
+.sh-ritual__col--left  .sh-ritual__item::before { right: -5px; }
+.sh-ritual__col--right .sh-ritual__item::before { left: -5px; }
+.sh-ritual__item:hover::before,
+.sh-ritual__item:focus-within::before {
+  background: var(--sh-accent-soft); border-color: var(--sh-accent-soft);
+  box-shadow: 0 0 10px 2px rgba(220, 192, 132, .55);
+}
+
 /* The others quiet. :not(:hover) on the siblings rather than a lift on the
    hovered one, so the active card stays where it is and it is the field around
    it that recedes.
@@ -4353,8 +4691,11 @@ a.sh-story__play:hover {
    Same reason stroke and stroke-width are restated here rather than left to
    the shorthand above. */
 .sh-ritual__connectors .sh-ritual__trace {
-  fill: none; stroke: var(--sh-accent-soft); stroke-width: 1.6; stroke-linecap: round;
+  fill: none; stroke: var(--sh-accent-soft); stroke-width: 2.2; stroke-linecap: round;
   stroke-dasharray: 1; stroke-dashoffset: 1; opacity: .85;
+  /* Constant on purpose: while dashoffset rests at 1 nothing is drawn, so the
+     glow only exists once the charge is. */
+  filter: drop-shadow(0 0 5px rgba(220, 192, 132, .55));
   transition: stroke-dashoffset .9s var(--sh-r-ease) .35s;
 }
 .sh-ritual__connectors .sh-ritual__conn { transition: stroke .5s var(--sh-r-ease) .35s; }
@@ -4370,21 +4711,30 @@ a.sh-story__play:hover {
   opacity: 1; transition-duration: .5s; transition-delay: 0s;
 }
 
-.sh-ritual:has(.sh-ritual__item[data-ritual="aura"]:hover) .sh-ritual__trace[data-ritual="aura"],
-.sh-ritual:has(.sh-ritual__item[data-ritual="aura"]:focus-within) .sh-ritual__trace[data-ritual="aura"],
-.sh-ritual:has(.sh-ritual__item[data-ritual="cleanse"]:hover) .sh-ritual__trace[data-ritual="cleanse"],
-.sh-ritual:has(.sh-ritual__item[data-ritual="cleanse"]:focus-within) .sh-ritual__trace[data-ritual="cleanse"],
-.sh-ritual:has(.sh-ritual__item[data-ritual="ayurveda"]:hover) .sh-ritual__trace[data-ritual="ayurveda"],
-.sh-ritual:has(.sh-ritual__item[data-ritual="ayurveda"]:focus-within) .sh-ritual__trace[data-ritual="ayurveda"],
-.sh-ritual:has(.sh-ritual__item[data-ritual="intention"]:hover) .sh-ritual__trace[data-ritual="intention"],
-.sh-ritual:has(.sh-ritual__item[data-ritual="intention"]:focus-within) .sh-ritual__trace[data-ritual="intention"] {
+/* Paired by BLOCK INDEX, not by scene state. The old keys were the four scene
+   highlights (aura/cleanse/ayurveda/intention), so a card whose state was
+   "none" — Negativity Buster, Stress Buster — had no trace at all. data-i is
+   forloop.index0, identical in the connector loop and both column loops, and
+   six pairs is exhaustive because the schema caps max_blocks at 6. */
+.sh-ritual:has(.sh-ritual__item[data-i="0"]:hover) .sh-ritual__trace[data-i="0"],
+.sh-ritual:has(.sh-ritual__item[data-i="0"]:focus-within) .sh-ritual__trace[data-i="0"],
+.sh-ritual:has(.sh-ritual__item[data-i="1"]:hover) .sh-ritual__trace[data-i="1"],
+.sh-ritual:has(.sh-ritual__item[data-i="1"]:focus-within) .sh-ritual__trace[data-i="1"],
+.sh-ritual:has(.sh-ritual__item[data-i="2"]:hover) .sh-ritual__trace[data-i="2"],
+.sh-ritual:has(.sh-ritual__item[data-i="2"]:focus-within) .sh-ritual__trace[data-i="2"],
+.sh-ritual:has(.sh-ritual__item[data-i="3"]:hover) .sh-ritual__trace[data-i="3"],
+.sh-ritual:has(.sh-ritual__item[data-i="3"]:focus-within) .sh-ritual__trace[data-i="3"],
+.sh-ritual:has(.sh-ritual__item[data-i="4"]:hover) .sh-ritual__trace[data-i="4"],
+.sh-ritual:has(.sh-ritual__item[data-i="4"]:focus-within) .sh-ritual__trace[data-i="4"],
+.sh-ritual:has(.sh-ritual__item[data-i="5"]:hover) .sh-ritual__trace[data-i="5"],
+.sh-ritual:has(.sh-ritual__item[data-i="5"]:focus-within) .sh-ritual__trace[data-i="5"] {
   stroke-dashoffset: 0; transition-duration: .62s; transition-delay: 0s;
 }
 
 /* While any benefit is active the other connectors recede, so the drawn trace
    has something to be brighter than. */
-.sh-ritual:has(.sh-ritual__item[data-ritual]:hover) .sh-ritual__conn,
-.sh-ritual:has(.sh-ritual__item[data-ritual]:focus-within) .sh-ritual__conn {
+.sh-ritual:has(.sh-ritual__item[data-i]:hover) .sh-ritual__conn,
+.sh-ritual:has(.sh-ritual__item[data-i]:focus-within) .sh-ritual__conn {
   stroke: rgba(201, 168, 106, .18); transition-delay: 0s;
 }
 
@@ -4619,7 +4969,17 @@ a.sh-story__play:hover {
   --sh-tm-dur:   var(--sh-tm-speed);
   --sh-tm-rule: rgba(27, 42, 18, .14);
   --sh-tm-ring: rgba(184, 154, 98, .42);
-  --sh-tm-fade: clamp(28px, 7%, 120px);
+  /* Was clamp(28px, 7%, 120px), which masked 120px per side at 1920 — the
+     ribbon IS full-bleed, but a quarter-metre of dissolve at each end made it
+     read as inset. 2.5%/48px keeps a real ramp (~20% of one item) while
+     letting the band visibly reach the screen edges.
+     THE PERCENTAGE RESOLVES AGAINST THE MASK BOX, NOT THE VIEWPORT. This value
+     assumes the full-bleed homepage instance. The PDP renders
+     .sh-tmarquee--icons INSIDE .sh-wrap, where 2.5% is a third of this and
+     there is no screen edge to cut against — so that instance restates the
+     wide fade in shudhi-product.css. Change one, check the other. */
+  --sh-tm-fade: clamp(20px, 2.5%, 48px);
+  --sh-tm-gap:  clamp(10px, 1.2vw, 16px);
 
   position: relative;
   /* Mobile safety. The track is width:max-content and WILL push the document
@@ -4662,8 +5022,14 @@ a.sh-story__play:hover {
 .sh-tmarquee .sh-eyebrow { color: var(--sh-story-gold-ink); }
 .sh-tmarquee__eyebrow .sh-icon { width: 14px; height: 14px; }
 .sh-tmarquee__title { font-size: clamp(1.7rem, 3vw, 2.55rem); margin: 0; }
-.sh-tmarquee__body {
+/* (0,2,0), not a bare (0,1,0) class: `.sh p { margin: 0 }` at :115 is (0,1,1)
+   and silently beats a lone class, so `margin: ... auto` never applied and the
+   46ch block sat LEFT inside the 62ch head at desktop widths — the exact trap
+   §10's margin note documents. text-align is explicit for the same reason:
+   a bare-element rule leaks text-align:left onto <p>. */
+.sh-tmarquee .sh-tmarquee__body {
   margin: 10px auto 0; max-width: 46ch;
+  text-align: center;
   color: var(--sh-story-body); font-size: .95rem; line-height: 1.6;
 }
 
@@ -4911,4 +5277,234 @@ a.sh-story__play:hover {
     opacity: 1 !important; transform: none !important;
     transition: none !important; transition-delay: 0s !important;
   }
+}
+
+
+/* ============================================================
+   28. FAQ — sections/sh-faq.liquid
+   The homepage band between Mindful Ritual and the footer: sticky editorial
+   intro on the left, native <details> rows on the right. Cream-2 surface, a
+   half-step deeper than the mindful band above, so the page steps cream ->
+   deeper cream -> forest green into the footer instead of two creams meeting
+   at a seam.
+
+   Appended as a self-contained block with its own breakpoints and its own
+   reduced-motion tier, like §27.
+
+   1. THE ACCORDION IS CSS-ONLY. ::details-content (Chrome 131, Safari 18.4,
+      Firefox 138) is the content box of a <details>; a 0fr -> 1fr grid track
+      animates it both ways, including the sibling that `name` auto-closes, and
+      the discrete content-visibility transition keeps the closing pane painted
+      until the track has collapsed. Engines without the pseudo drop those two
+      rules and snap natively. Keep the pseudo in rules of its own: one
+      unsupported selector invalidates a whole selector list. Same build as
+      shudhi-product.css §FAQ, which shipped first.
+
+   2. FOCUS IS A box-shadow RIM. style-main carries a universal
+      `outline: 0 !important`, and <summary> is not in the :245 focus list
+      (a/button/input/[tabindex]) — so the ring is drawn as an inset shadow.
+
+   3. SPECIFICITY NOTES ARE INLINE where a rule must beat a .sh reset:
+      `.sh h1..h6, .sh p { margin: 0 }` (:111) and `.sh ul { list-style: none }`
+      (:113) are (0,1,1); a bare class loses to them.
+   ============================================================ */
+
+/* Legacy heading rules uppercase h2/h3 site-wide; every sh-* section opts out.
+   h1 is in the list because sh-faq.liquid's `standalone` mode promotes the
+   title — the same opt-out .sh-pagehead h1 (:1375) already makes. */
+.sh-faq h1, .sh-faq h2, .sh-faq h3 { color: inherit; text-transform: none; margin: 0; }
+
+/* Standalone /pages/faqs: the band is the first thing under the solid header.
+   timber's .main-content { margin-top: 30px } (timber.scss.liquid:743) is
+   zeroed for template-index alone, and a page template's body class is only
+   `template-page`, so without this the white body bg shows as a 30px stripe
+   between the header and the cream. Keyed on the MODIFIER, not the base class,
+   so the homepage — where .sh-faq sits mid-page and the 30px is correct —
+   never matches. Same :has() trade as :1364 and shudhi-story.css:738: an
+   engine without :has() keeps today's stripe, degraded but never broken. */
+.main-content:has(.sh-faq--page) { margin-top: 0; }
+
+.sh-faq {
+  /* Light-surface trio re-declared, not referenced — same trade as §27:4813. */
+  --sh-faq-ink:      #1b2a12;   /* heading + questions — 13.1:1 on cream-2 */
+  --sh-faq-body:     #474a3d;   /* supporting line + answers — 7.8:1 */
+  --sh-faq-gold-ink: #7a5d2e;   /* numerals, icon, open/hover question — 5.3:1 */
+  --sh-faq-line:     rgba(27, 42, 18, .16);
+  --sh-faq-ease:     cubic-bezier(.22, .61, .36, 1);
+  /* Overridden inline from the `bg` setting; this is the fallback. */
+  --sh-faq-bg:       #e9e0cf;
+
+  position: relative;
+  background: var(--sh-faq-bg); color: var(--sh-faq-ink);
+  padding-block: clamp(56px, 7vw, 104px);
+}
+
+.sh-faq__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  gap: clamp(40px, 6vw, 96px);
+  align-items: start;              /* required, or the sticky intro has no room to slide */
+}
+
+/* --- Intro --------------------------------------------------------------- */
+.sh-faq__intro { position: sticky; top: calc(var(--sh-header-h) + 32px); }
+
+.sh-faq__eyebrow {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 16px; color: var(--sh-faq-gold-ink);
+}
+.sh-faq .sh-eyebrow { color: var(--sh-faq-gold-ink); }
+.sh-faq__eyebrow .sh-icon { width: 14px; height: 14px; }
+
+.sh-faq__title { font-size: clamp(2rem, 3.4vw, 3rem); max-width: 12ch; }
+
+/* (0,2,0) over `.sh p { margin: 0 }` (0,1,1) — see (3). */
+.sh-faq .sh-faq__body {
+  margin: 18px 0 0; max-width: 40ch;
+  font-size: 1rem; line-height: 1.75; color: var(--sh-faq-body);
+}
+
+.sh-faq__cta { margin-top: 32px; padding-top: 26px; border-top: 1px solid var(--sh-faq-line); }
+.sh-faq .sh-faq__note {
+  margin: 0 0 14px;
+  font-size: .68rem; letter-spacing: .22em; text-transform: uppercase; font-weight: 500;
+  color: var(--sh-faq-gold-ink);
+}
+/* Global focus ring is --sh-gold, 1.95:1 on cream — swap for the ink, as §12 does. */
+.sh-faq__cta a:focus-visible { outline-color: var(--sh-faq-ink); }
+
+/* Intro stagger — the §18 shape (:1991-2001): the container's own fade is
+   cancelled and the children ride in 90ms apart, capped at n+4. */
+.sh-faq__head[data-reveal] { opacity: 1; transform: none; transition: none; }
+.sh-faq__head[data-reveal] > * {
+  opacity: 0; transform: translateY(20px);
+  transition: opacity .7s var(--sh-faq-ease), transform .7s var(--sh-faq-ease);
+}
+.sh-faq__head[data-reveal].is-in > * { opacity: 1; transform: none; }
+.sh-faq__head[data-reveal] > *:nth-child(2)   { transition-delay: .09s; }
+.sh-faq__head[data-reveal] > *:nth-child(3)   { transition-delay: .18s; }
+.sh-faq__head[data-reveal] > *:nth-child(n+4) { transition-delay: .27s; }
+
+/* --- Rows ---------------------------------------------------------------- */
+.sh-faq__list { border-top: 1px solid var(--sh-faq-line); }
+
+.sh-faq__item { border-bottom: 1px solid var(--sh-faq-line); }
+
+/* A shorter rise than the 26px site default: fifteen rows arriving from 26px
+   read as a wave, 12px reads as settling. (0,2,0) ties :234 and wins on order. */
+.sh-faq__item[data-reveal] { transform: translateY(12px); }
+/* Rows that enter the viewport together fan in 60ms apart; anything past the
+   eighth is below the fold on every breakpoint and arrives on its own trigger. */
+.sh-faq__item[data-reveal]:nth-child(2) { transition-delay: .06s; }
+.sh-faq__item[data-reveal]:nth-child(3) { transition-delay: .12s; }
+.sh-faq__item[data-reveal]:nth-child(4) { transition-delay: .18s; }
+.sh-faq__item[data-reveal]:nth-child(5) { transition-delay: .24s; }
+.sh-faq__item[data-reveal]:nth-child(6) { transition-delay: .30s; }
+.sh-faq__item[data-reveal]:nth-child(7) { transition-delay: .36s; }
+.sh-faq__item[data-reveal]:nth-child(8) { transition-delay: .42s; }
+
+.sh-faq__q {
+  display: flex; align-items: baseline; gap: 18px;
+  padding: 22px 0;
+  cursor: pointer; list-style: none;
+  border-radius: 2px;
+}
+/* Marker removal, one engine per rule — see (1) on selector lists. */
+.sh-faq__q::-webkit-details-marker { display: none; }
+.sh-faq__q::marker { content: ''; }
+
+/* See (2). Inset so it never collides with the row hairlines. */
+.sh-faq__q:focus-visible { box-shadow: inset 0 0 0 2px var(--sh-faq-ink); }
+
+.sh-faq__n {
+  flex: none; width: 34px;
+  font-size: .68rem; letter-spacing: .2em; font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  color: var(--sh-faq-gold-ink);
+}
+
+.sh-faq__q-text {
+  flex: 1 1 auto; min-width: 0;
+  font-size: clamp(1.12rem, 1.5vw, 1.36rem); font-weight: 500;
+  line-height: 1.3; letter-spacing: 0;
+  transition: color .25s ease;
+}
+
+.sh-faq__icon {
+  flex: none; width: 16px; height: 16px;
+  align-self: center;
+  color: var(--sh-faq-gold-ink);
+  transition: transform .3s var(--sh-faq-ease);
+}
+
+.sh-faq__q:hover .sh-faq__q-text,
+.sh-faq__item[open] > .sh-faq__q .sh-faq__q-text { color: var(--sh-faq-gold-ink); }
+.sh-faq__item[open] > .sh-faq__q .sh-faq__icon { transform: rotate(45deg); }
+
+/* Two wrappers on purpose: __a is the 0fr grid item (no padding, or it would
+   show through at the closed state); __a-in carries the padding. */
+.sh-faq__a { min-height: 0; overflow: hidden; }
+
+.sh-faq__a-in {
+  padding: 0 44px 26px 0;           /* right inset clears the icon column */
+  max-width: 58ch;
+  font-size: .95rem; line-height: 1.75; color: var(--sh-faq-body);
+  opacity: 0; transform: translateY(6px);
+  transition: opacity .28s ease .06s, transform .32s var(--sh-faq-ease) .06s;
+}
+/* Answers sit under the question, not under the numeral: 34px + 18px gap. */
+.sh-faq--numbered .sh-faq__a-in { padding-left: 52px; }
+.sh-faq__item[open] .sh-faq__a-in { opacity: 1; transform: none; }
+
+/* Richtext answers. (0,2,1) over `.sh p` / `.sh ul` / `.sh a` (0,1,1). */
+.sh-faq .sh-faq__a-in p { margin: 0 0 .8em; }
+.sh-faq .sh-faq__a-in p:last-child { margin-bottom: 0; }
+.sh-faq .sh-faq__a-in ul,
+.sh-faq .sh-faq__a-in ol { margin: 0 0 .8em; padding-left: 1.2em; list-style: disc; }
+.sh-faq .sh-faq__a-in ol { list-style: decimal; }
+.sh-faq .sh-faq__a-in a { color: var(--sh-faq-gold-ink); text-decoration: underline; text-underline-offset: .16em; }
+.sh-faq .sh-faq__a-in a:hover { color: var(--sh-faq-ink); }
+
+/* See (1). Each pseudo in a rule of its own. */
+.sh-faq__item::details-content {
+  display: grid;
+  grid-template-rows: 0fr;
+  content-visibility: hidden;
+  transition: grid-template-rows .32s var(--sh-faq-ease),
+              content-visibility .32s allow-discrete;
+}
+.sh-faq__item[open]::details-content {
+  grid-template-rows: 1fr;
+  content-visibility: visible;
+}
+
+/* --- Breakpoints --------------------------------------------------------- */
+@media (max-width: 989px) {
+  .sh-faq__grid { grid-template-columns: 1fr; gap: 36px; }
+  .sh-faq__intro { position: static; }
+  .sh-faq__title { max-width: none; }
+  .sh-faq .sh-faq__body { max-width: 52ch; }
+}
+
+@media (max-width: 599px) {
+  .sh-faq { padding-block: 52px 60px; }
+  .sh-faq__q { padding: 18px 0; gap: 14px; }        /* still a 60px+ touch row */
+  .sh-faq__q-text { font-size: 1.1rem; }
+  .sh-faq__n { width: 30px; }
+  .sh-faq__a-in { padding: 0 34px 20px 0; }
+  .sh-faq--numbered .sh-faq__a-in { padding-left: 44px; }   /* 30px + 14px gap */
+}
+
+/* --- Reduced motion ------------------------------------------------------ */
+@media (prefers-reduced-motion: reduce) {
+  /* :1751 covers the elements CARRYING [data-reveal]; the intro stagger lives
+     on its children, so they need their own release — same as §27:5135. */
+  .sh-faq__head[data-reveal] > * {
+    opacity: 1 !important; transform: none !important;
+    transition: none !important; transition-delay: 0s !important;
+  }
+  .sh-faq__icon, .sh-faq__q-text { transition: none !important; }
+  /* Answers appear in place; panes snap open and closed. */
+  .sh-faq__a-in { opacity: 1 !important; transform: none !important; transition: none !important; }
+  .sh-faq__item::details-content { transition: none !important; }
 }

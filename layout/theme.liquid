@@ -25,25 +25,48 @@
   
 {%- comment -%} [PLACEHOLDER] Add Shudhi Herbals' own Meta Pixel init here if wanted. (Previous store's pixel removed.) {%- endcomment -%}
   
-{% if request.page_type == 'product' %}  
+{% if request.page_type == 'product' %}
+{%- liquid
+  # Every string goes through | json (it adds the quotes), so a description
+  # with quotes or line breaks can no longer break the document. aggregateRating
+  # comes ONLY from the reviews.* metafields a reviews app writes — never from
+  # the manual fallback numbers in sections/sh-product.liquid.
+  assign ld_variant = product.selected_or_first_available_variant
+  assign ld_short = product.metafields.custom.short_description | metafield_text
+  assign ld_desc = ld_short | default: page_description | default: product.description
+  assign ld_rating = product.metafields.reviews.rating.value
+  assign ld_count = product.metafields.reviews.rating_count.value | plus: 0
+-%}
 <script type="application/ld+json">
 {
-  "@context": "https://schema.org/", 
-  "@type": "Product", 
-  "name": "{{ product.title | escape }}",
-  "image": "https:{{ product | img_url }}",
-  "description": "{{ product.description }}",
+  "@context": "https://schema.org/",
+  "@type": "Product",
+  "name": {{ product.title | json }},
+  {%- if product.featured_image %}
+  "image": {{ product.featured_image | image_url: width: 1200 | prepend: 'https:' | json }},
+  {%- endif %}
+  "description": {{ ld_desc | strip_html | strip | json }},
   "brand": {
     "@type": "Brand",
     "name": "Shudhi Herbals"
   },
-  "sku": "{{ product.selected_or_first_available_variant.sku }}",
+  {%- if ld_variant.sku != blank %}
+  "sku": {{ ld_variant.sku | json }},
+  {%- endif %}
+  {%- if ld_rating.rating != blank and ld_count > 0 %}
+  "aggregateRating": {
+    "@type": "AggregateRating",
+    "ratingValue": {{ ld_rating.rating | json }},
+    "bestRating": {{ ld_rating.scale_max | json }},
+    "reviewCount": {{ ld_count | json }}
+  },
+  {%- endif %}
   "offers": {
     "@type": "Offer",
-    "url": "{{ canonical_url }}",
-    "priceCurrency": "INR",
-    "price": "{{ product.price | money_without_currency }}",
-    "availability": "https://schema.org/InStock"
+    "url": {{ canonical_url | json }},
+    "priceCurrency": {{ cart.currency.iso_code | json }},
+    "price": {{ product.price_min | divided_by: 100.0 | json }},
+    "availability": "https://schema.org/{% if product.available %}InStock{% else %}OutOfStock{% endif %}"
   }
 }
 </script>
@@ -82,7 +105,7 @@
   <link rel="canonical" href="{{ canonical_url }}">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="{{ settings.m_primary_color }}">
-  <link rel="icon" href="{{'favicon.png'| asset_url}}" type="image/png" sizes="16x16">
+  <link rel="icon" href="{{ 'SVG_Shudhi_Herbals.svg' | asset_url }}" type="image/svg+xml" sizes="any">
 
 
   <link rel="preconnect" href="https://fonts.gstatic.com">
@@ -158,6 +181,14 @@
        JS must load everywhere. The hero engine stays index-only — no other
        template has a scroll-scrub canvas for it to drive. {%- endcomment -%}
    {{ 'shudhi-home.css' | asset_url | stylesheet_tag }}
+
+   {%- comment -%} Shopify has no `policy` template type, so /policies/* is rendered by
+       Shopify straight into content_for_layout and there is no section or template file
+       to hang this off — the layout is the only hook the five policy pages have. Gated
+       so the other 30-odd templates never fetch it. {%- endcomment -%}
+   {%- if request.page_type == 'policy' -%}
+     {{ 'shudhi-policy.css' | asset_url | stylesheet_tag }}
+   {%- endif -%}
 
    {%- comment -%} Body font — Shopify font library, self-hosted on Shopify's CDN and
        chosen in Theme settings > Typography. Replaces the Jost entry that used to ride
@@ -373,8 +404,12 @@ sits in normal flow, so that padding would now double-offset every inner page.
         drawer covers mobile. It used to render unconditionally, so it was
         double-stacking a second nav under 1200px even on the homepage.
       {%- endcomment -%}
-      <main id="MainContent" class="main-content" role="main">
+      {%- comment -%} `sh sh-policy` on /policies/* is what assets/shudhi-policy.css
+          scopes to — Shopify owns the markup inside those pages, so this class and the
+          snippet below are the only two hooks the theme gets. {%- endcomment -%}
+      <main id="MainContent" class="main-content{% if request.page_type == 'policy' %} sh sh-policy{% endif %}" role="main">
         {{ content_for_layout }}
+        {%- if request.page_type == 'policy' -%}{% render 'sh-policy-links' %}{%- endif -%}
       </main>
 
       {%- comment -%} One Shudhi footer everywhere. Non-index templates
@@ -445,6 +480,17 @@ sits in normal flow, so that padding would now double-offset every inner page.
   {{ 'bootstrap.bundle.min.js' | asset_url | script_tag }}
   {{ 'instafeed.min.js' | asset_url | script_tag }}
   {{ 'jquery.fancybox.min.js' | asset_url | script_tag }}
+  <script>
+    /* History.js (bundled inside engo-plugins.js) re-serializes its whole
+       state store to sessionStorage on a 1s interval — measured as a
+       multi-second main-thread task colliding with the hero scrub. It honors
+       pre-set options (storeInterval defaults via ||), and its
+       beforeunload/unload flush still persists state, so an effectively
+       disabled interval loses nothing. Vendor file deliberately untouched. */
+    window.History = window.History || {};
+    window.History.options = window.History.options || {};
+    window.History.options.storeInterval = 3600000;
+  </script>
   {{ 'engo-plugins.js' | asset_url | script_tag }}
   {{ 'quickview.js' | asset_url | script_tag }}
   {% comment %}
@@ -549,28 +595,6 @@ sits in normal flow, so that padding would now double-offset every inner page.
 
  {% include 'smile-initializer' %}
 
-  <div class="whatsapp-icon">
-  <a href="https://wa.me/[PLACEHOLDER-whatsapp-number]?text=Hi" target="_blank">
-    <img src="https://cdn.shopify.com/s/files/1/0674/1550/7256/files/whatsapp-icon.png?v=1691402509" alt="WhatsApp">
-  </a>
-</div>
-
-
-<style>
-  /* In the whatsapp-icon  */
-  .whatsapp-icon {
-    position: fixed;
-    bottom: 5%;
-    left: 20px;
-    z-index: 9999;
-    cursor: pointer;
-  }
-  
-  .whatsapp-icon img {
-    width: 60px;
-    height: auto;
-  }
-</style>
   {% comment %}
 {% render 'add-to-cart-sticky' %}
 {% endcomment %}

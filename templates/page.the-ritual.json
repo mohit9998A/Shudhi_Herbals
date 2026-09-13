@@ -9,192 +9,156 @@
  */
 {
   "sections": {
-    "ritual_hero": {
-      "type": "sh-ritual-hero",
-      "blocks": {
-        "t1": {
-          "type": "trust",
-          "settings": {
-            "icon": "leaf",
-            "title": "100% Natural",
-            "subtitle": "No harsh chemicals"
-          }
-        },
-        "t2": {
-          "type": "trust",
-          "settings": {
-            "icon": "rabbit",
-            "title": "Cruelty Free",
-            "subtitle": "Kind to every being"
-          }
-        },
-        "t3": {
-          "type": "trust",
-          "settings": {
-            "icon": "shield",
-            "title": "No Toxins",
-            "subtitle": "Nothing but nature"
-          }
-        }
-      },
-      "block_order": ["t1", "t2", "t3"],
+    "page_header": {
+      "type": "sh-page-header",
       "settings": {
         "eyebrow": "The Ritual",
-        "title_l1": "A moment of",
-        "title_l1_em": "purity.",
-        "title_l2": "Every",
-        "title_l2_em": "day.",
-        "body": "Our rituals are simple, intentional and rooted in Ayurveda — to bring balance, clarity and a natural glow to your everyday life.",
-        "cta_label": "Discover the ritual",
-        "cta_link": "#core-ingredients",
-        "animate": true,
-        "cursor": true,
-        "bg": "#f4f2eb"
+        "title": "More than a soap. It's a Ritual.",
+        "body": "Every Shudhi bar is made to be used slowly — four mindful steps that turn a daily wash into a moment of reset.",
+        "bg": "#f2ece0",
+        "show_soap": true
       }
     },
-    "core_ingredients": {
-      "type": "sh-ritual-ingredients",
+    "ritual_energize": {
+      "type": "sh-ritual-energize",
       "blocks": {
-        "i1": {
-          "type": "ingredient",
+        "e1": {
+          "type": "step",
           "settings": {
-            "asset": "shudhi_avocado_dark_1786900795543.png",
-            "icon": "sprout",
-            "title": "Avocado Oil",
-            "text": "Nourishes the skin with antioxidants, leaving it soft, hydrated and supple."
+            "icon": "sun",
+            "title": "Solar Vitalization",
+            "text": "The power of sunlight prepares and energizes the sacred botanicals."
           }
         },
-        "i2": {
-          "type": "ingredient",
+        "e2": {
+          "type": "step",
           "settings": {
-            "asset": "shudhi_aloe_dark_1786901348454.png",
-            "icon": "plant",
-            "title": "Aloe Extract",
-            "text": "Soothes irritation, restores the skin and shields it from everyday stress."
+            "icon": "moon",
+            "title": "Lunar Conditioning",
+            "text": "Timely lunar rhythms condition the ingredients in a phase of natural alignment."
           }
         },
-        "i3": {
-          "type": "ingredient",
+        "e3": {
+          "type": "step",
           "settings": {
-            "asset": "shudhi_mint_dark_1786900807961.png",
-            "icon": "leaf",
-            "title": "Mint Extract",
-            "text": "Refreshes and cools the skin while balancing its natural oils."
+            "icon": "crystal",
+            "title": "Mineral Resonance Infusion",
+            "text": "Botanicals are immersed in a proprietary mineral resonance environment."
           }
         },
-        "i4": {
-          "type": "ingredient",
+        "e4": {
+          "type": "step",
           "settings": {
-            "asset": "",
-            "icon": "wheat",
-            "title": "Macadamia Oil",
-            "text": "Deeply hydrates, softens and helps prevent the first signs of ageing."
+            "icon": "geometry",
+            "title": "Crystal Conditioning",
+            "text": "A second crystal-based conditioning stage stabilizes and elevates the energy of the formulation."
+          }
+        },
+        "e5": {
+          "type": "step",
+          "settings": {
+            "icon": "waves",
+            "title": "Harmonic Activation",
+            "text": "The final infusion of harmonic frequencies completes the energetic preparation."
           }
         }
       },
-      "block_order": ["i1", "i2", "i3", "i4"],
+      "block_order": [
+        "e1",
+        "e2",
+        "e3",
+        "e4",
+        "e5"
+      ],
       "settings": {
-        "heading": "Core",
-        "heading_em": "Ingredients.",
-        "anchor_id": "core-ingredients",
+        "eyebrow": "Before becoming your daily cleansing ritual,",
+        "heading": "Every Sacred Ingredient Is Energized Through",
+        "heading_em": "5 Steps",
+        "autoplay": true,
+        "interval": 4,
         "animate": true,
-        "bg": "#f4f2eb"
+        "anchor_id": "ritual-energize",
+        "bg": "#1b2411"
       }
     },
-    "ritual_flow": {
-      "type": "sh-ritual-flow",
+    "ritual_protocol": {
+      "type": "sh-ritual-protocol",
       "blocks": {
-        "s1": {
-          "type": "step",
+        "r1": {
+          "type": "reason",
           "settings": {
-            "icon": "drop",
-            "label": "Cleanse",
-            "description": "Gently wash away impurities as the herbal bar clears skin and pores."
+            "icon": "shield",
+            "text": "Many products can copy ingredients."
           }
         },
-        "s2": {
-          "type": "step",
-          "settings": {
-            "icon": "leaf",
-            "label": "Tone",
-            "description": "Refresh with a natural toner to restore pH balance and prepare skin for moisture."
-          }
-        },
-        "s3": {
-          "type": "step",
-          "settings": {
-            "icon": "lotus",
-            "label": "Moisturize",
-            "description": "Nourish with natural oils for a lasting glow, softness and elasticity."
-          }
-        }
-      },
-      "block_order": ["s1", "s2", "s3"],
-      "settings": {
-        "eyebrow": "The Ritual, Step by Step",
-        "heading": "Three steps to",
-        "heading_em": "presence.",
-        "media_position": "left",
-        "min_height": 560,
-        "anchor_id": "ritual-steps",
-        "animate": true,
-        "bg": "#f6ede1"
-      }
-    },
-    "ritual_features": {
-      "type": "sh-story-handmade",
-      "blocks": {
-        "f1": {
-          "type": "feature",
-          "settings": {
-            "icon": "sprout",
-            "title": "Natural Composition",
-            "description": "Only pure herbs and plant oils."
-          }
-        },
-        "f2": {
-          "type": "feature",
-          "settings": {
-            "icon": "hands-heart",
-            "title": "Handmade",
-            "description": "Every bar crafted in small batches with care."
-          }
-        },
-        "f3": {
-          "type": "feature",
+        "r2": {
+          "type": "reason",
           "settings": {
             "icon": "mortar",
-            "title": "Ayurvedic Approach",
-            "description": "Ancient wisdom for modern skin care."
+            "text": "Very few can replicate generations of knowledge, disciplined craftsmanship, and intentional preparation."
           }
         },
-        "f4": {
-          "type": "feature",
+        "r3": {
+          "type": "reason",
           "settings": {
-            "icon": "heart",
-            "title": "Self-Care",
-            "description": "Simple rituals for beauty, balance and harmony."
+            "icon": "lock",
+            "text": "Our complete methodology remains confidential to preserve the authenticity of the Shudhi Ritual™."
+          }
+        },
+        "b1": {
+          "type": "badge",
+          "settings": {
+            "icon": "hands-heart",
+            "title": "Handmade in Small Batches"
+          }
+        },
+        "b2": {
+          "type": "badge",
+          "settings": {
+            "icon": "flask-line",
+            "title": "Lab Tested"
+          }
+        },
+        "b3": {
+          "type": "badge",
+          "settings": {
+            "icon": "leaf-line",
+            "title": "Ayurvedic Herbal Ingredients"
+          }
+        },
+        "b4": {
+          "type": "badge",
+          "settings": {
+            "icon": "heart-line",
+            "title": "Made with Intention"
           }
         }
       },
-      "block_order": ["f1", "f2", "f3", "f4"],
+      "block_order": [
+        "r1",
+        "r2",
+        "r3",
+        "b1",
+        "b2",
+        "b3",
+        "b4"
+      ],
       "settings": {
-        "eyebrow": "",
-        "heading": "",
-        "heading_em": "",
-        "columns": "4",
-        "show_circle": false,
-        "show_description": true,
-        "scheme": "light",
-        "bg": "#e9e0cf",
-        "animate": true
+        "reasons_title": "Why We Keep Our Process Private",
+        "protocol_title": "The Shudhi Protocol™",
+        "protocol_lead": "Our proprietary five-stage ritual protocol consists of multiple energetic conditioning stages that remain confidential and known only to those involved in our production process.",
+        "seal_icon": "shudhi-mark",
+        "closer": "Some traditions are preserved. Some are practiced.",
+        "closer_em": "Only a few are experienced.",
+        "animate": true,
+        "anchor_id": "ritual-protocol",
+        "bg": "#f2ece0"
       }
     }
   },
   "order": [
-    "ritual_hero",
-    "core_ingredients",
-    "ritual_flow",
-    "ritual_features"
+    "page_header",
+    "ritual_energize",
+    "ritual_protocol"
   ]
 }

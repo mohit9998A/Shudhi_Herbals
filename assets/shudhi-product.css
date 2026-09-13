@@ -1,0 +1,2204 @@
+/* ============================================================
+   SHUDHI — PRODUCT PAGE (sections/sh-product.liquid)
+
+   Page-scoped by the same bargain shudhi-story.css strikes: shudhi-home.css
+   is the everywhere budget, this file loads only where the section renders
+   (Shopify dedupes the stylesheet_tag). Everything here is scoped under
+   .sh-pdp — no bare-element selectors, ever.
+
+   The --sh-* base tokens come from shudhi-home.css, which loads globally.
+   The light-surface trio is restated on the root below, the way .sh-story,
+   .sh-signature and .sh-tmarquee each restate it: gold that CARRIES TEXT on
+   a light surface must be --sh-story-gold-ink (#7a5d2e, 5.3:1) — --sh-gold
+   is 1.95:1 on cream and is decoration only.
+
+   Two scoped repaints of shared components live here, both with a precedent:
+   - .sh-pdp .sh-pdp__buy .sh-pdp__atc repaints the .hov-cart__btn conversion applied by
+     assets/hov-cart-checkout.js (same move as .sh-signature .sh-btn--solid
+     repainting the shared button). Its loading/success state colours are
+     restated below because THIS stylesheet loads after hov-cart-checkout.css
+     — at equal specificity our base rule would flatten the state feedback,
+     so the states are re-declared rather than left to inheritance.
+   - .sh-pdp .shopify-payment-button__button--unbranded gets the dark ink
+     treatment (the "SHOP NOW" bargain from shudhi-home.css §22).
+
+   Selector depth on buttons is deliberate: shudhi-home.css resets
+   `.sh button:not(.sh-btn)` at (0,2,1) — background none, border 0,
+   padding 0 — so every styled <button> here is reached at (0,3,0)+ or it
+   renders as bare text. Two classes are not enough.
+
+   Breakpoints follow the house ladder: 989 stacks the split grid, 599 is
+   phone tuning, and the reduced-motion block sits adjacent at the bottom —
+   both properties killed, never just the transition (a snap is louder than
+   the motion it replaces).
+   ============================================================ */
+
+.sh-pdp {
+  --sh-story-ink: #1b2a12;
+  --sh-story-body: #474a3d;
+  --sh-story-gold: #b8965c;
+  --sh-story-gold-ink: #7a5d2e;
+
+  --sh-pdp-bg: #fdfbf7;            /* fallback; the section's inline prop wins */
+  --sh-pdp-card: #ffffff;
+  --sh-pdp-line: #e5e1d8;
+  --sh-pdp-line-strong: rgba(27, 42, 18, 0.35);
+  --sh-pdp-tint: #f7f3ea;
+  --sh-pdp-blush: #fbeeea;
+  --sh-pdp-blush-ink: #a53d2e;
+  --sh-pdp-green: #3f9a4f;
+  --sh-pdp-radius: 10px;
+
+  position: relative;
+  background: var(--sh-pdp-bg);
+  color: var(--sh-story-ink);
+  padding-block: var(--sh-pdp-pad-top, 24px) var(--sh-pdp-pad-bottom, 48px);
+}
+
+/* Legacy leak neutralisers — houseofveda-modern.css paints h1-h6 in
+   --hov-dark and timber.scss capitalises them. Every heading rendered by
+   this section opts back out, the way every sh-* section does. */
+.sh-pdp h1,
+.sh-pdp h2,
+.sh-pdp h3 {
+  color: inherit;
+  text-transform: none;
+  margin: 0;
+}
+
+.sh-pdp img { max-width: 100%; }
+
+/* Focus indicators. The !important is required, not decorative: style-main
+   carries a universal `outline: 0 !important` and the ring loses without it
+   (same note as shudhi-home.css:2949). */
+.sh-pdp a:focus-visible,
+.sh-pdp button:focus-visible,
+.sh-pdp input:focus-visible,
+.sh-pdp summary:focus-visible {
+  outline: 2px solid var(--sh-story-ink) !important;
+  outline-offset: 3px;
+}
+
+/* ---------------------------------------------------------- breadcrumb */
+
+.sh-pdp__crumbs {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 100%;
+  padding: 9px 18px;
+  margin-bottom: clamp(18px, 2.5vw, 30px);
+  background: var(--sh-pdp-tint);
+  border: 1px solid var(--sh-pdp-line);
+  border-radius: 999px;
+  font-size: 0.82rem;
+}
+
+.sh-pdp__crumbs a {
+  color: var(--sh-story-ink);
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sh-pdp__crumbs a[aria-current="page"] {
+  color: var(--sh-story-body);
+  font-weight: 400;
+}
+
+.sh-pdp__crumbs a:hover { color: var(--sh-story-gold-ink); }
+
+.sh-pdp__crumbs .sh-icon {
+  width: 12px;
+  height: 12px;
+  flex: none;
+  color: var(--sh-story-body);
+}
+
+/* ---------------------------------------------------------- split grid */
+
+.sh-pdp__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 11fr) minmax(0, 9fr);
+  gap: clamp(28px, 4.5vw, 72px);
+  align-items: start;
+}
+
+/* Desktop placement only. DOM order is gallery, info, perks, why, so the
+   one-column layout below 990px needs no overrides and reads
+   gallery -> buy box -> benefits -> why. The 1fr last row is load-bearing:
+   the info column spans all three rows, and with 1fr its extra height lands
+   under the why panel instead of opening gaps between the left blocks. */
+@media (min-width: 990px) {
+  .sh-pdp__grid { grid-template-rows: auto auto 1fr; row-gap: 20px; }
+  .sh-pdp__gallery { grid-column: 1; grid-row: 1; }
+  .sh-pdp__perks   { grid-column: 1; grid-row: 2; }
+  .sh-pdp__why     { grid-column: 1; grid-row: 3; align-self: start; }
+  .sh-pdp__info    { grid-column: 2; grid-row: 1 / span 3; }
+}
+
+/* --sh-max went fluid (shudhi-home.css:63), so above ~1650 the 9fr buy column
+   passes 560px and keeps growing. .sh-pdp__atc is flex:1 inside .sh-pdp__buy
+   (:937), so every pixel past that stretches the gold Add to Cart into a bar
+   with letterspaced text floating in the middle of it — the one place the
+   widening reads as cheap rather than generous. Pin the buy column and give
+   the surplus to the photograph, which is what a premium PDP wants anyway.
+   NEITHER NUMBER IS ARBITRARY AND THEY MOVE TOGETHER. 1700 is where 9fr
+   naturally reaches 600 under --sh-max: clamp(1280px, 91vw, 1760px), so the
+   column width is continuous across the boundary and nothing jumps. Re-solve
+   9/20 * (wrapContent - 72) = cap whenever that token changes — the previous
+   pass was 560 at 1650, against the old 88vw/1600.
+   Must come after :122's unconditional grid-template-columns; :134's block
+   only sets rows, so there is no conflict with it. */
+@media (min-width: 1700px) {
+  .sh-pdp__grid { grid-template-columns: minmax(0, 1fr) minmax(0, 600px); }
+}
+
+/* ---------------------------------------------------------- gallery */
+
+.sh-pdp__gallery { min-width: 0; }
+
+.sh-pdp__stage {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--sh-pdp-radius);
+  background: var(--sh-pdp-tint);
+  touch-action: pan-y pinch-zoom;
+}
+
+.sh-pdp__slide { display: none; margin: 0; }
+.sh-pdp__slide.is-active { display: block; }
+
+/* crossfade only after the first user navigation (.is-live): an opacity-from-0
+   keyframe on the initial slide would delay the LCP paint */
+.sh-pdp__stage.is-live .sh-pdp__slide.is-active { animation: sh-pdp-slide-in 0.22s ease both; }
+@keyframes sh-pdp-slide-in { from { opacity: 0; } }
+
+/* (0,2,1): aspect-ratio on the img, not the stage — it degrades to the natural
+   ratio on engines without it, and the width/height attributes already
+   describe the same square, so nothing shifts */
+.sh-pdp .sh-pdp__slide img,
+.sh-pdp .sh-pdp__placeholder {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  border-radius: 0;
+  cursor: zoom-in;
+  -webkit-user-drag: none;
+}
+
+/* arrows + zoom pill: (0,3,0) over `.sh button:not(.sh-btn)` (0,2,1) */
+.sh-pdp .sh-pdp__stage .sh-pdp__nav {
+  position: absolute;
+  top: 50%;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  margin-top: -20px;
+  border: 1px solid var(--sh-pdp-line);
+  border-radius: 50%;
+  background: rgba(253, 251, 247, 0.92);
+  color: var(--sh-story-ink);
+  box-shadow: 0 4px 14px rgba(27, 42, 18, 0.12);
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.sh-pdp__nav--prev { left: 12px; }
+.sh-pdp__nav--next { right: 12px; }
+
+.sh-pdp .sh-pdp__stage .sh-pdp__nav:hover { background: #fff; transform: scale(1.05); }
+.sh-pdp .sh-pdp__stage .sh-pdp__nav .sh-icon { width: 18px; height: 18px; }
+
+.sh-pdp .sh-pdp__stage .sh-pdp__zoom {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border: 1px solid var(--sh-pdp-line);
+  border-radius: 999px;
+  background: rgba(253, 251, 247, 0.94);
+  color: var(--sh-story-ink);
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  box-shadow: 0 4px 14px rgba(27, 42, 18, 0.12);
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.sh-pdp .sh-pdp__stage .sh-pdp__zoom:hover { background: var(--sh-story-ink); color: #f4efe6; }
+.sh-pdp .sh-pdp__stage .sh-pdp__zoom .sh-icon { width: 15px; height: 15px; }
+
+/* Thumbs: the base is a horizontal strip (phones, tablets); desktop hangs it
+   as a rail on the left, absolutely positioned so it is exactly the stage's
+   height and scrolls when a product has many images. The rail comes AFTER
+   the stage in the DOM on purpose (header note 4: first <img> = main image). */
+.sh-pdp__thumbs {
+  position: relative;
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+  padding: 2px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x proximity;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.sh-pdp__thumbs::-webkit-scrollbar { display: none; }
+
+.sh-pdp .sh-pdp__thumbs .sh-pdp__thumb {
+  display: block;
+  flex: none;
+  width: 72px;
+  height: 72px;
+  padding: 0;
+  background: var(--sh-pdp-card);
+  border: 1px solid var(--sh-pdp-line);
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: pointer;
+  opacity: 0.75;
+  scroll-snap-align: center;
+  transition: border-color 0.2s ease, opacity 0.2s ease;
+}
+
+.sh-pdp .sh-pdp__thumbs .sh-pdp__thumb img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.sh-pdp .sh-pdp__thumbs .sh-pdp__thumb:hover { opacity: 1; }
+.sh-pdp .sh-pdp__thumbs .sh-pdp__thumb:focus-visible { outline-offset: -3px; }
+
+.sh-pdp .sh-pdp__thumbs .sh-pdp__thumb[aria-current="true"] {
+  opacity: 1;
+  border-color: var(--sh-story-ink);
+  box-shadow: inset 0 0 0 1px var(--sh-story-ink);
+}
+
+@media (min-width: 990px) {
+  .sh-pdp__gallery--rail { position: relative; padding-left: 90px; }   /* 76 rail + 14 gap */
+
+  .sh-pdp__gallery--rail .sh-pdp__thumbs {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 76px;
+    margin: 0;
+    flex-direction: column;
+    overflow-x: hidden;
+    overflow-y: auto;
+    scroll-snap-type: y proximity;
+  }
+}
+/* ---------------------------------------------------------- title row */
+
+.sh-pdp__head {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.sh-pdp__title {
+  font-size: clamp(1.55rem, 2.4vw, 2.1rem);
+  font-weight: 500;
+  line-height: 1.15;
+  letter-spacing: -0.005em;
+}
+
+/* hov-wishlist.css positions every heart absolute top/right 12px for the
+   product cards; here it sits in the title row, so put it back in flow */
+.sh-pdp__head .hov-wish__btn {
+  position: relative;
+  top: auto;
+  right: auto;
+  flex: none;
+  margin-left: auto;
+  margin-top: 2px;
+}
+
+.sh-pdp__dot {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  margin-left: 8px;
+  border-radius: 50%;
+  background: var(--sh-pdp-green);
+  vertical-align: middle;
+}
+
+.sh-pdp__dot.is-out { background: var(--sh-pdp-blush-ink); }
+
+/* ---------------------------------------------------------- rating */
+
+.sh-pdp__rating {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+/* Two stacked copies of the same five stars: the outline base underneath, the
+   gold copy on top clipped to --sh-rating (set inline by the section), so a
+   4.9 paints nine tenths of the fifth star. Both keyframes below only supply a
+   `from` — the resting declared values ARE the finished state, so the row is
+   complete with no JS and with animations unsupported or disabled. */
+.sh-pdp__stars {
+  position: relative;
+  display: inline-block;
+  width: 116px;
+  height: 20px;
+  flex: none;
+  color: var(--sh-story-gold-ink);
+}
+
+.sh-pdp__stars-defs {
+  position: absolute;
+  width: 0;
+  height: 0;
+}
+
+.sh-pdp__stars-base,
+.sh-pdp__stars-fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  height: 100%;
+  overflow: hidden;
+}
+
+.sh-pdp__stars-base { width: 100%; opacity: 0.8; }   /* ~3.8:1 on the cream page ground */
+
+.sh-pdp__stars-fill {
+  width: var(--sh-rating, 0%);
+  animation: sh-pdp-fill 0.9s cubic-bezier(0.22, 0.61, 0.36, 1) 0.15s backwards;
+}
+
+/* (0,2,1): `.sh svg { display:block; max-width:100% }` would SHRINK the clipped
+   copy to its narrower wrapper instead of letting the wrapper crop it. */
+.sh-pdp .sh-pdp__stars .sh-pdp__stars-svg {
+  display: block;
+  width: 116px;
+  max-width: none;
+  height: 20px;
+}
+
+/* one-time shine across the gold stars, after the fill has landed */
+.sh-pdp__stars-fill::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  width: 40%;
+  pointer-events: none;
+  background: linear-gradient(100deg, transparent, rgba(255, 255, 255, 0.55), transparent);
+  transform: translateX(-120%);
+  animation: sh-pdp-shine 1.1s ease-out 1.05s 1 both;
+}
+
+.sh-pdp__rating-num {
+  font-size: 1.15rem;
+  line-height: 1;
+  color: var(--sh-story-ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.sh-pdp__rating-count {
+  font-size: 0.85rem;
+  color: var(--sh-story-body);
+}
+
+/* reserve the digits' width so shudhi-home.js's count-up (0 -> N) never reflows the row */
+.sh-pdp__rating-count [data-count-to] {
+  display: inline-block;
+  min-width: 2ch;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* `.sh a` (0,1,1) strips underlines; (0,2,1) here */
+.sh-pdp a.sh-pdp__rating-count {
+  text-decoration: underline;
+  text-decoration-color: var(--sh-story-gold);
+  text-underline-offset: 3px;
+  transition: color 0.25s ease, text-decoration-color 0.25s ease;
+}
+
+.sh-pdp a.sh-pdp__rating-count:hover {
+  color: var(--sh-story-gold-ink);
+  text-decoration-color: currentColor;
+}
+
+@keyframes sh-pdp-fill { from { width: 0; } }
+@keyframes sh-pdp-shine { to { transform: translateX(320%); } }
+
+/* ---------------------------------------------------------- short description */
+
+/* (0,2,0)/(0,2,1) throughout: `.sh p { margin: 0 }` is (0,1,1) and beats any
+   single-class <p> margin in this file — which is also why .sh-pdp__cost below
+   renders with a 0 top margin. Left alone on purpose: the price row must not
+   move. The blurb's own bottom margin is the gap above the price now. */
+.sh-pdp .sh-pdp__blurb {
+  margin: 12px 0 14px;
+  max-width: 58ch;
+  font-size: 0.95rem;
+  line-height: 1.7;
+  color: var(--sh-story-body);
+}
+
+.sh-pdp .sh-pdp__blurb p { margin: 0; }
+.sh-pdp .sh-pdp__blurb p + p { margin-top: 0.6em; }
+
+.sh-pdp__blurb strong,
+.sh-pdp__blurb b {
+  font-weight: 600;
+  color: var(--sh-story-ink);
+}
+
+/* ---------------------------------------------------------- price */
+
+.sh-pdp__cost {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 10px;
+  margin: 12px 0 0;
+}
+
+.sh-pdp__price {
+  font-size: 1.35rem;
+  font-weight: 600;
+  color: var(--sh-story-ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.sh-pdp__tax {
+  font-size: 0.85rem;
+  color: var(--sh-story-body);
+}
+
+/* The lead row's M.R.P. and discount pill. .sh-pdp__was is block-level for the
+   pack cards' stacked money column, so the lead copy resets that to inline. The
+   pill is blush rather than ink on purpose: it reads as the limited-period offer
+   and ties to the countdown above it, leaving the dark pill on the cards below to
+   mean one thing only — this pack's own discount. */
+.sh-pdp__was--lead {
+  display: inline;
+  margin-top: 0;
+  font-size: 0.95rem;
+}
+
+.sh-pdp__off {
+  padding: 3px 9px;
+  background: var(--sh-pdp-blush);
+  color: var(--sh-pdp-blush-ink);
+  border-radius: 999px;
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  white-space: nowrap;
+}
+
+.sh-pdp__was--lead.is-hidden,
+.sh-pdp__off.is-hidden { display: none; }
+
+/* ---------------------------------------------------------- countdown */
+
+.sh-pdp__timer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 16px;
+  padding: 11px 16px;
+  background: var(--sh-pdp-blush);
+  border: 1px solid rgba(165, 61, 46, 0.16);
+  border-radius: var(--sh-pdp-radius);
+}
+
+.sh-pdp__timer-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--sh-pdp-blush-ink);
+}
+
+.sh-pdp__timer-digits {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.sh-pdp__timer-seg {
+  display: inline-block;
+  min-width: 2.2em;
+  padding: 3px 7px;
+  background: var(--sh-story-ink);
+  color: #f4efe6;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.sh-pdp__timer-colon {
+  color: var(--sh-pdp-blush-ink);
+  font-weight: 600;
+}
+
+/* ---------------------------------------------------------- pack cards */
+
+.sh-pdp__form { margin-top: 18px; }
+
+.sh-pdp__packs {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.sh-pdp__pack {
+  display: block;
+  position: relative;
+  margin: 0;              /* bootstrap gives every <label> margin-bottom .5rem */
+  cursor: pointer;
+}
+
+.sh-pdp__pack.is-soldout { cursor: not-allowed; }
+
+.sh-pdp__pack-card {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 14px;
+  position: relative;
+  padding: 15px 18px;
+  background: var(--sh-pdp-card);
+  border: 1px solid var(--sh-pdp-line);
+  border-radius: var(--sh-pdp-radius);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+.sh-pdp__pack:hover .sh-pdp__pack-card {
+  border-color: var(--sh-pdp-line-strong);
+}
+
+.sh-pdp__pack.is-soldout .sh-pdp__pack-card {
+  opacity: 0.55;
+}
+
+.sh-pdp__pack.is-soldout:hover .sh-pdp__pack-card {
+  border-color: var(--sh-pdp-line);
+}
+
+/* Selected: the second line is an inset shadow, not a wider border — a border
+   width change would shift the card's content by a pixel on every toggle. */
+.sh-pdp__pack-input:checked + .sh-pdp__pack-card {
+  border-color: var(--sh-story-ink);
+  box-shadow: inset 0 0 0 1px var(--sh-story-ink), 0 10px 24px rgba(27, 42, 18, 0.10);
+}
+
+.sh-pdp__pack-input:focus-visible + .sh-pdp__pack-card {
+  outline: 2px solid var(--sh-story-ink);
+  outline-offset: 3px;
+}
+
+/* the drawn radio */
+.sh-pdp__pack-radio {
+  position: relative;
+  width: 20px;
+  height: 20px;
+  flex: none;
+  border: 1.5px solid rgba(71, 74, 61, 0.45);
+  border-radius: 50%;
+  transition: border-color 0.2s ease;
+}
+
+.sh-pdp__pack-radio::after {
+  content: "";
+  position: absolute;
+  inset: 4px;
+  border-radius: 50%;
+  background: var(--sh-story-ink);
+  transform: scale(0);
+  transition: transform 0.15s ease;
+}
+
+.sh-pdp__pack-input:checked + .sh-pdp__pack-card .sh-pdp__pack-radio {
+  border-color: var(--sh-story-ink);
+}
+
+.sh-pdp__pack-input:checked + .sh-pdp__pack-card .sh-pdp__pack-radio::after {
+  transform: scale(1);
+}
+
+.sh-pdp__pack-name {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--sh-story-ink);
+}
+
+.sh-pdp__pack-off {
+  padding: 3px 8px;
+  background: var(--sh-story-ink);
+  color: #f4efe6;
+  border-radius: 999px;
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.sh-pdp__pack-note {
+  display: block;
+  margin-top: 3px;
+  font-size: 0.85rem;
+  color: var(--sh-story-body);
+}
+
+/* The money column is a two-rung ladder — M.R.P. struck by the pack price under
+   it, the lower rung larger, so the eye falls to the live number at the bottom. */
+.sh-pdp__pack-money {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.sh-pdp__pack-amount {
+  display: block;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--sh-story-ink);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Top rung: smaller and fainter than the live price under it. */
+.sh-pdp__was {
+  display: block;
+  font-size: 0.8rem;
+  color: rgba(71, 74, 61, 0.6);
+  font-variant-numeric: tabular-nums;
+}
+
+.sh-pdp__pack-flag {
+  position: absolute;
+  top: -10px;
+  right: 14px;
+  padding: 4px 10px;
+  background: var(--sh-story-ink);
+  color: #f4efe6;
+  border-radius: 999px;
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.sh-pdp__noscript {
+  margin: 8px 0 0;
+  font-size: 0.82rem;
+  color: var(--sh-story-body);
+}
+
+/* ---------------------------------------------------------- savings */
+
+.sh-pdp__saving {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 14px 0 0;
+  padding: 12px 16px;
+  background: var(--sh-pdp-tint);
+  border-radius: 8px;
+  font-size: 0.92rem;
+  color: var(--sh-story-body);
+}
+
+.sh-pdp__saving.is-hidden { display: none; }
+
+.sh-pdp__saving .sh-icon {
+  width: 16px;
+  height: 16px;
+  flex: none;
+  color: var(--sh-story-gold-ink);
+}
+
+.sh-pdp__saving strong {
+  color: var(--sh-story-ink);
+  font-weight: 600;
+}
+
+/* (0,2,0): the margin declared above is a bare (0,1,0) <p> rule, which never beat
+   `.sh p { margin: 0 }` (0,1,1). It went unnoticed while this row was hidden on a
+   product with no compare-at prices; with an M.R.P. it renders, and it needs the
+   gap. Same reason the coupon row below is written at (0,2,0). */
+.sh-pdp .sh-pdp__saving { margin-top: 14px; }
+
+/* ---------------------------------------------------------- checkout coupon */
+
+/* The dashed edge is the one bit of costume in the buy box — it says "coupon" at
+   a glance and costs nothing. Otherwise it mirrors .sh-pdp__saving's box so the
+   two rows read as one pair under the pack list. */
+.sh-pdp .sh-pdp__coupon {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 8px 0 0;
+  padding: 12px 16px;
+  background: var(--sh-pdp-card);
+  border: 1px dashed rgba(122, 93, 46, 0.45);
+  border-radius: 8px;
+  font-size: 0.88rem;
+  line-height: 1.5;
+  color: var(--sh-story-body);
+}
+
+.sh-pdp__coupon.is-hidden { display: none; }
+
+.sh-pdp__coupon .sh-icon {
+  width: 16px;
+  height: 16px;
+  flex: none;
+  color: var(--sh-story-gold-ink);
+}
+
+.sh-pdp__coupon strong {
+  color: var(--sh-story-ink);
+  font-weight: 600;
+}
+
+.sh-pdp__coupon-code {
+  display: inline-block;
+  padding: 1px 7px;
+  background: var(--sh-pdp-tint);
+  border: 1px solid rgba(122, 93, 46, 0.3);
+  border-radius: 5px;
+  color: var(--sh-story-gold-ink);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+/* ---------------------------------------------------------- trust */
+
+.sh-pdp__trust {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.sh-pdp__trust-item {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 12px 14px;
+  background: var(--sh-pdp-tint);
+  border-radius: 8px;
+}
+
+.sh-pdp__trust-item > .sh-icon {
+  width: 34px;
+  height: 34px;
+  flex: none;
+  padding: 7px;
+  background: var(--sh-story-ink);
+  color: #f4efe6;
+  border-radius: 8px;
+}
+
+.sh-pdp__trust-item:last-child {
+  background: transparent;
+  border: 1px solid var(--sh-pdp-line);
+  justify-content: center;
+}
+
+.sh-pdp__trust-item:last-child > .sh-icon {
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  background: none;
+  color: var(--sh-story-gold-ink);
+}
+
+.sh-pdp__trust-copy {
+  font-size: 0.8rem;
+  line-height: 1.45;
+  color: var(--sh-story-body);
+}
+
+.sh-pdp__trust-copy strong {
+  display: block;
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: var(--sh-story-ink);
+}
+
+.sh-pdp__trust-item:last-child .sh-pdp__trust-copy strong { display: inline; }
+
+/* ---------------------------------------------------------- buy row */
+
+.sh-pdp__buy {
+  display: flex;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.sh-pdp__qty {
+  display: flex;
+  align-items: stretch;
+  flex: none;
+  height: 52px;
+  background: var(--sh-pdp-card);
+  border: 1px solid var(--sh-pdp-line);
+  border-radius: 8px;
+}
+
+.sh-pdp .sh-pdp__qty button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  padding: 0;
+  background: none;
+  border: 0;
+  color: var(--sh-story-ink);
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.sh-pdp .sh-pdp__qty button:first-child { border-radius: 7px 0 0 7px; }
+.sh-pdp .sh-pdp__qty button:last-child { border-radius: 0 7px 7px 0; }
+
+.sh-pdp .sh-pdp__qty button:hover { background: var(--sh-pdp-tint); }
+
+.sh-pdp .sh-pdp__qty button .sh-icon { width: 14px; height: 14px; }
+
+/* (0,2,1) so houseofveda-modern.css's input[type="text"] border/padding/
+   width:100% rule never wins a tie */
+.sh-pdp .sh-pdp__qty input {
+  width: 44px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  text-align: center;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--sh-story-ink);
+}
+
+/* The gold Add to Cart. This selector must keep winning after
+   hov-cart-checkout.js adds .hov-cart__btn to the same element — see the
+   header comment for why the busy states are restated below. */
+.sh-pdp .sh-pdp__buy .sh-pdp__atc {
+  flex: 1;
+  height: auto;
+  min-height: 52px;
+  min-width: 0;
+  padding: 0 20px;
+  border: 0;
+  border-radius: 8px;
+  background-color: var(--sh-accent);
+  background-image: linear-gradient(100deg, var(--sh-accent-soft) 0%, var(--sh-accent) 46%, var(--sh-accent-deep) 100%);
+  color: var(--sh-accent-fg);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+  /* gold fill alone has no 3:1 boundary on a light page — WCAG 1.4.11 rim.
+     shudhi-home.css:2979 draws it with outline, but style-main carries a
+     universal `outline: 0 !important` that wins here, so this one is an
+     inset shadow: nothing overlays the fill on this button, so it stays
+     visible on hover (the reason the .sh-btn variant avoided it). */
+  box-shadow: inset 0 0 0 1px var(--sh-accent-edge);
+  transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.sh-pdp .sh-pdp__buy .sh-pdp__atc:hover:not([data-state]):not(:disabled) {
+  background-image: linear-gradient(100deg, var(--sh-accent) 0%, var(--sh-accent-deep) 100%);
+  transform: translateY(-1px);
+  box-shadow: inset 0 0 0 1px var(--sh-accent-edge), 0 6px 18px rgba(138, 106, 44, 0.28);
+}
+
+.sh-pdp .sh-pdp__buy .sh-pdp__atc:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* busy states — same data-state contract hov-cart-checkout.css defines,
+   re-coloured for the gold surface */
+.sh-pdp .sh-pdp__buy .sh-pdp__atc[data-state="loading"] {
+  background-image: none;
+  background-color: var(--sh-accent-deep);
+  pointer-events: none;
+}
+
+.sh-pdp .sh-pdp__buy .sh-pdp__atc[data-state="success"] {
+  background-image: none;
+  background-color: #1e5c31;
+  color: #f4efe6;
+  pointer-events: none;
+}
+
+/* ---------------------------------------------------------- buy it now */
+
+.sh-pdp__paybtn { margin-top: 12px; }
+
+/* The !importants here are matched, not gratuitous: engo-customizes.css and
+   houseofveda-modern.css both style this exact class with !important
+   (height 48px, border-radius, letter-spacing, hover background #335030,
+   25px vertical margins), and the .sh button reset out-specifies a
+   two-class selector for colour/background. Every declaration below either
+   beats a legacy !important or the (0,2,1) reset. */
+.sh-pdp .sh-pdp__paybtn .shopify-payment-button__button--unbranded {
+  width: 100% !important;
+  max-width: 100% !important;
+  height: 52px !important;
+  min-height: 52px !important;
+  margin: 0 !important;
+  padding: 0 20px !important;
+  border: 0 !important;
+  border-radius: 8px !important;
+  background: var(--sh-story-ink) !important;
+  color: #f4efe6 !important;
+  font-size: 0.78rem !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.14em !important;
+  text-transform: uppercase !important;
+  transition: background-color 0.3s ease;
+}
+
+.sh-pdp .sh-pdp__paybtn .shopify-payment-button__button--unbranded:hover:not([disabled]) {
+  background: #0f1a08 !important;
+}
+
+.sh-pdp__paybtn .shopify-payment-button__more-options {
+  color: var(--sh-story-body);
+  font-size: 0.8rem;
+}
+
+/* ---------------------------------------------------------- note pill */
+
+/* a <p>, so (0,2,0) — see the short-description note above */
+.sh-pdp .sh-pdp__note {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 16px 0 0;
+  padding: 11px 14px;
+  background: rgba(196, 163, 93, 0.2);
+  border: 1px solid rgba(184, 150, 92, 0.35);
+  border-radius: 8px;
+  font-size: 0.85rem;
+  line-height: 1.45;
+  color: var(--sh-story-ink);
+}
+
+.sh-pdp__note .sh-icon {
+  width: 16px;
+  height: 16px;
+  flex: none;
+  color: var(--sh-story-gold-ink);
+}
+
+/* ---------------------------------------------------------- FAQ accordion */
+
+.sh-pdp__faq {
+  margin-top: 18px;
+  border-top: 1px solid var(--sh-pdp-line);
+}
+
+.sh-pdp__faq-item { border-bottom: 1px solid var(--sh-pdp-line); }
+
+.sh-pdp__faq-q {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 15px 2px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.sh-pdp__faq-q::-webkit-details-marker { display: none; }
+
+/* .sh-pdp h3 (top of file) already resets colour, transform and margin */
+.sh-pdp__faq-glyph {
+  width: 18px;
+  height: 18px;
+  flex: none;
+  color: var(--sh-story-gold-ink);
+}
+
+.sh-pdp__faq-title {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 1.08rem;
+  font-weight: 500;
+  transition: color 0.25s ease;
+}
+
+.sh-pdp__faq-q:hover .sh-pdp__faq-title,
+.sh-pdp__faq-item[open] > .sh-pdp__faq-q .sh-pdp__faq-title {
+  color: var(--sh-story-gold-ink);
+}
+
+.sh-pdp__faq-icon {
+  width: 15px;
+  height: 15px;
+  flex: none;
+  color: var(--sh-story-gold-ink);
+  transition: transform 0.3s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.sh-pdp__faq-item[open] > .sh-pdp__faq-q .sh-pdp__faq-icon { transform: rotate(45deg); }
+
+/* Two wrappers on purpose: __faq-a is the 0fr grid item (no padding, or it
+   would show through at the closed state); __faq-a-in carries the padding. */
+.sh-pdp__faq-a {
+  min-height: 0;
+  overflow: hidden;
+}
+
+.sh-pdp__faq-a-in {
+  padding: 0 2px 18px;
+  max-width: 60ch;
+  font-size: 0.92rem;
+  line-height: 1.7;
+  color: var(--sh-story-body);
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.28s ease 0.06s, transform 0.32s cubic-bezier(0.22, 0.61, 0.36, 1) 0.06s;
+}
+
+.sh-pdp__faq-item[open] .sh-pdp__faq-a-in {
+  opacity: 1;
+  transform: none;
+}
+
+/* (0,2,1) over `.sh p` */
+.sh-pdp .sh-pdp__faq-a-in p { margin: 0 0 0.8em; }
+.sh-pdp .sh-pdp__faq-a-in p:last-child { margin-bottom: 0; }
+
+/* `.sh ul, .sh ol` strip markers and padding; richtext answers may use lists */
+.sh-pdp .sh-pdp__faq-a-in ul,
+.sh-pdp .sh-pdp__faq-a-in ol {
+  margin: 0 0 0.8em;
+  padding-left: 1.2em;
+  list-style: disc;
+}
+
+.sh-pdp .sh-pdp__faq-a-in ol { list-style: decimal; }
+
+.sh-pdp .sh-pdp__faq-a-in a {
+  color: var(--sh-story-gold-ink);
+  text-decoration: underline;
+}
+
+.sh-pdp__faq-desc { margin-bottom: 0.8em; }
+
+/* CSS-only open/close. ::details-content (Chrome 131, Safari 18.4, Firefox 138)
+   is the content box of a <details>; a 0fr -> 1fr grid track animates it both
+   ways, including the sibling the `name` attribute auto-closes, and the
+   discrete content-visibility transition keeps the closing pane painted until
+   the track has collapsed. Engines without the pseudo drop these two rules and
+   snap natively — every answer is still reachable. interpolate-size is
+   deliberately not used: it is still Chromium-only. Keep the pseudo in rules of
+   its own: one unsupported selector invalidates a whole selector list. */
+.sh-pdp__faq-item::details-content {
+  display: grid;
+  grid-template-rows: 0fr;
+  content-visibility: hidden;
+  transition: grid-template-rows 0.32s cubic-bezier(0.22, 0.61, 0.36, 1),
+              content-visibility 0.32s allow-discrete;
+}
+
+.sh-pdp__faq-item[open]::details-content {
+  grid-template-rows: 1fr;
+  content-visibility: visible;
+}
+
+/* ---------------------------------------------------------- meta */
+
+/* (0,2,0): the (0,1,0) version never beat `.sh p { margin: 0 }` */
+.sh-pdp .sh-pdp__meta {
+  margin: 18px 0 0;
+  font-size: 0.85rem;
+  color: var(--sh-story-body);
+}
+
+.sh-pdp__meta-label { font-weight: 600; color: var(--sh-story-ink); }
+
+.sh-pdp__meta a {
+  color: var(--sh-story-body);
+  text-decoration: none;
+}
+
+.sh-pdp__meta a:hover {
+  color: var(--sh-story-gold-ink);
+  text-decoration: underline;
+}
+
+/* ---------------------------------------------------------- product details rows */
+
+/* the "Product details" FAQ block's definition list */
+.sh-pdp__facts {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: 8px 22px;
+  margin: 0;
+}
+
+.sh-pdp__facts dt { font-weight: 600; color: var(--sh-story-ink); }
+.sh-pdp__facts dd { margin: 0; }
+
+/* ---------------------------------------------------------- benefit strip */
+
+.sh-pdp__perks {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin: 0;
+  padding: 16px 18px;
+  background: var(--sh-pdp-tint);
+  border: 1px solid var(--sh-pdp-line);
+  border-radius: var(--sh-pdp-radius);
+}
+
+.sh-pdp__perk {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+/* mirrors .sh-collection__strip-item (shudhi-home.css) so the two strips read as one family */
+.sh-pdp__perk > .sh-icon {
+  width: 40px;
+  height: 40px;
+  padding: 9px;
+  flex: none;
+  border: 1px solid rgba(27, 42, 18, 0.18);
+  border-radius: 50%;
+  color: var(--sh-story-gold-ink);
+}
+
+.sh-pdp__perk-copy { display: block; min-width: 0; }
+
+.sh-pdp__perk b {
+  display: block;
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: var(--sh-story-ink);
+}
+
+.sh-pdp__perk small {
+  display: block;
+  margin-top: 2px;
+  font-size: 0.7rem;
+  line-height: 1.35;
+  color: var(--sh-story-body);
+}
+
+/* the left column is ~470px at 990-1199 — four items do not fit there either */
+@media (max-width: 599px), (min-width: 990px) and (max-width: 1199px) {
+  .sh-pdp__perks {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px 10px;
+    padding: 14px;
+  }
+}
+
+/* ---------------------------------------------------------- why you'll love it */
+
+.sh-pdp__why {
+  position: relative;
+  overflow: hidden;
+  padding: clamp(24px, 3vw, 36px) clamp(18px, 2.4vw, 30px);
+  border-radius: var(--sh-pdp-radius);
+  background: var(--sh-green-900, #1b2411);
+  color: var(--sh-light, #f4efe6);
+}
+
+/* inset:0 sizes the photo, so `.sh img { height: auto }` cannot shorten it */
+.sh-pdp .sh-pdp__why-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: var(--sh-pdp-why-photo, 0.18);
+  pointer-events: none;
+}
+
+.sh-pdp__why-in { position: relative; z-index: 1; }
+
+/* (0,2,0) beats `.sh-pdp h2 { color: inherit }` (0,1,1) */
+.sh-pdp .sh-pdp__why-title {
+  margin: 0 0 clamp(18px, 2.4vw, 26px);
+  text-align: center;
+  color: var(--sh-light, #f4efe6);
+  font-size: clamp(1.35rem, 1.8vw, 1.7rem);
+  font-weight: 500;
+}
+
+/* `.sh em` is sans !important at (0,1,1); this is (0,2,1) !important */
+.sh-pdp .sh-pdp__why-title em {
+  font-style: normal;
+  color: var(--sh-gold, #c9a86a);
+  font-family: var(--sh-serif) !important;
+}
+
+.sh-pdp__why-grid {
+  --sh-why-gap: 16px;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 20px var(--sh-why-gap);
+  margin: 0;
+  padding: 0;
+}
+
+.sh-pdp__why-item {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  align-content: start;
+  gap: 8px;
+  text-align: center;
+}
+
+/* hairline hung in the middle of the column gap — the .sh-fgrid recipe */
+.sh-pdp__why-item::after {
+  content: "";
+  position: absolute;
+  top: 10%;
+  bottom: 10%;
+  right: calc(var(--sh-why-gap) / -2);
+  width: 1px;
+  background: rgba(244, 239, 230, 0.18);
+  pointer-events: none;
+}
+
+.sh-pdp__why-item:last-child::after,
+.sh-pdp__why-item:nth-child(4n)::after { display: none; }
+
+.sh-pdp__why-icon {
+  display: inline-grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border: 1px solid rgba(201, 168, 106, 0.45);
+  border-radius: 50%;
+  color: var(--sh-gold, #c9a86a);
+  transition: transform 0.3s ease;
+}
+
+.sh-pdp__why-icon .sh-icon { width: 22px; height: 22px; }
+.sh-pdp__why-item:hover .sh-pdp__why-icon { transform: scale(1.08); }
+
+.sh-pdp .sh-pdp__why-label {
+  font-size: 0.92rem;
+  font-weight: 500;
+  line-height: 1.3;
+  color: var(--sh-light, #f4efe6);
+}
+
+.sh-pdp .sh-pdp__why-text {
+  margin: 0;
+  max-width: 22ch;
+  font-size: 0.76rem;
+  line-height: 1.55;
+  color: rgba(244, 239, 230, 0.74);
+}
+
+@media (max-width: 599px), (min-width: 990px) and (max-width: 1199px) {
+  .sh-pdp__why-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .sh-pdp__why-item:nth-child(2n)::after { display: none; }
+}
+
+/* ------------------------------------------------------- key ingredients */
+
+/* Four photo cards under the split grid. Unlike .sh-pdp__why-grid — which is
+   trapped in the ~470px buy column and so drops to 2-up as early as 990px —
+   this band spans the full .sh-wrap, so it holds four across down to 900px.
+
+   The circle is the load-bearing part. The shipped ingredient photographs are
+   landscape 3:2 with dark vignetted backgrounds, not cut-outs, so they are
+   masked into a round well and cover-cropped rather than dropped flat onto the
+   card. object-fit does the crop; asset_img_url cannot (it has no crop param).
+   Keep overflow: hidden on the well — without it the photo escapes the mask. */
+
+.sh-pdp__ing {
+  margin-top: clamp(28px, 4vw, 52px);
+}
+
+.sh-pdp .sh-pdp__ing-title {
+  margin: 0 0 clamp(16px, 2vw, 24px);
+  font-size: clamp(1.35rem, 1.8vw, 1.7rem);
+  color: var(--sh-story-ink);
+}
+
+.sh-pdp__ing-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(14px, 1.6vw, 20px);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sh-pdp__ing-card {
+  display: grid;
+  justify-items: center;
+  align-content: start;
+  gap: 12px;
+  padding: clamp(20px, 2.2vw, 28px) clamp(14px, 1.6vw, 20px);
+  text-align: center;
+  background: var(--sh-pdp-card);
+  border: 1px solid var(--sh-pdp-line);
+  border-radius: var(--sh-pdp-radius);
+  transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
+}
+
+.sh-pdp__ing-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--sh-pdp-line-strong);
+  box-shadow: 0 10px 24px rgba(27, 42, 18, 0.08);
+}
+
+.sh-pdp__ing-media {
+  display: block;
+  /* Was a flat 110px. The four cards widen from 273 to ~386px as --sh-max
+     opens up between 1407 and 1934 (shudhi-home.css:63), and a frozen
+     medallion turns that new width into dead air — the card doesn't stretch,
+     it goes EMPTY, which is the failure mode this brand actually cares about.
+     8.2vw holds the circle at ~40% of the card's inner box at every width,
+     which is the ratio the shipped 110-on-273 already had. The floor keeps
+     small screens on that original 110px; the ceiling stays inside what the
+     480w src (sh-product.liquid:830) can serve at 2x (168 * 2 = 336 <= 480).
+     Height tracks width — border-radius:50% needs them equal or the medallion
+     goes oval. The <=599 override at :1433 still wins on source order. */
+  width:  clamp(110px, 8.2vw, 168px);
+  height: clamp(110px, 8.2vw, 168px);
+  overflow: hidden;
+  border: 1px solid rgba(184, 150, 92, 0.38);
+  border-radius: 50%;
+  transition: transform 0.3s ease;
+}
+
+.sh-pdp .sh-pdp__ing-media img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+.sh-pdp__ing-card:hover .sh-pdp__ing-media { transform: scale(1.05); }
+
+.sh-pdp .sh-pdp__ing-name {
+  font-family: var(--sh-sans);
+  font-size: 0.78rem;
+  font-weight: 500;
+  line-height: 1.3;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--sh-story-ink);
+}
+
+.sh-pdp .sh-pdp__ing-text {
+  margin: 0;
+  max-width: 26ch;
+  font-size: 0.76rem;
+  line-height: 1.55;
+  color: var(--sh-story-body);
+}
+
+@media (max-width: 899px) {
+  .sh-pdp__ing-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 599px) {
+  .sh-pdp__ing-media { width: 84px; height: 84px; }
+}
+
+/* --------------------------------------------------------- benefits band */
+
+/* Six label tiles on a blush card, under the ingredient band. Deliberately
+   the quietest thing on the page: one glyph and one word per tile, no
+   photography and no sub-copy, so it reads as a spec strip rather than a
+   second pitch after "Why you'll love it".
+
+   Two decisions worth keeping:
+
+   - THE TILE BORDER IS TRANSPARENT AT REST, not absent. The card is white on
+     blush, so it needs no resting outline, but the 1px has to exist or the
+     hover border would grow the tile by 2px and nudge its five neighbours.
+   - SIX FIXED COLUMNS, not auto-fit — see (b) in the section comment. It
+     steps to 3-up at 899 and 2-up at 599, which keeps every tile above the
+     ~110px at which "AURA CLEANSING" starts breaking mid-word. */
+
+.sh-pdp__ben {
+  margin-top: clamp(28px, 4vw, 52px);
+  padding: clamp(22px, 3vw, 36px) clamp(16px, 2.4vw, 34px);
+  background: var(--sh-pdp-blush);
+  border-radius: var(--sh-pdp-radius);
+}
+
+.sh-pdp .sh-pdp__ben-title {
+  margin: 0 0 clamp(16px, 2vw, 24px);
+  font-size: clamp(1.35rem, 1.8vw, 1.7rem);
+  color: var(--sh-story-ink);
+}
+
+.sh-pdp__ben-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: clamp(10px, 1.3vw, 18px);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sh-pdp__ben-card {
+  display: grid;
+  justify-items: center;
+  align-content: start;
+  gap: 14px;
+  padding: clamp(18px, 2vw, 26px) 10px;
+  text-align: center;
+  background: var(--sh-pdp-card);
+  border: 1px solid transparent;
+  border-radius: var(--sh-pdp-radius);
+  transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
+}
+
+.sh-pdp__ben-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--sh-pdp-line);
+  box-shadow: 0 10px 24px rgba(27, 42, 18, 0.08);
+}
+
+.sh-pdp__ben-icon {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--sh-pdp-tint);
+  color: var(--sh-story-ink);
+  transition: transform 0.25s ease;
+}
+
+.sh-pdp__ben-icon .sh-icon { width: 24px; height: 24px; }
+.sh-pdp__ben-card:hover .sh-pdp__ben-icon { transform: scale(1.08); }
+
+.sh-pdp .sh-pdp__ben-label {
+  font-family: var(--sh-sans);
+  font-size: 0.72rem;
+  font-weight: 500;
+  line-height: 1.35;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--sh-story-body);
+}
+
+@media (max-width: 899px) {
+  .sh-pdp__ben-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+@media (max-width: 599px) {
+  .sh-pdp__ben-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .sh-pdp__ben-icon { width: 46px; height: 46px; }
+}
+
+/* ---------------------------------------------------------- trust ribbon */
+
+/* The homepage trust marquee, icons only, under the split grid. Everything
+   that makes it work — the medallion glass, the glyph gradients, the looping
+   track, the edge mask, the hover pause, the three responsive bands and the
+   reduced-motion wrap — is shudhi-home.css §26 and is reused untouched. This
+   block only undoes the two things a full-width SECTION does that a strip
+   inside a page must not: paint its own band background, and carry
+   section-sized vertical padding.
+
+   Deliberately NOT a copy of §26 under a .sh-pdp__ prefix. One ribbon that
+   renders identically in two places is worth more than two that drift, and
+   this file already loads after shudhi-home.css, so a two-class override is
+   all the extra specificity the variant needs.
+
+   --sh-tm-icon and --sh-tm-speed arrive inline from the section and must stay
+   there: an inline custom property beats any rule here, media query included.
+   The 31s is not the homepage's 52s because velocity is groupWidth/duration,
+   and a labelless item is roughly half as wide — the same 52s would read as
+   half the speed. The two move together: enlarging the icon widens every item,
+   so a bigger --sh-tm-icon needs a proportionally longer --sh-tm-speed or the
+   ribbon quietly slows down. */
+.sh-pdp .sh-tmarquee--icons {
+  --sh-tm-bg: transparent;
+  /* The homepage ribbon dropped to clamp(20px, 2.5%, 48px) so that a FULL-BLEED
+     band actually reaches the screen edge. This instance is the opposite case
+     and must not inherit that: it sits INSIDE .sh-wrap, so the mask percentage
+     resolves against ~1472px rather than the viewport (2.5% = ~37px, not the
+     ~103px it used to get), and it ends on transparent ground mid-page with no
+     screen edge to cut against. An inset ribbon has to dissolve or the track
+     visibly begins and ends. Restated, deliberately, not inherited. */
+  --sh-tm-fade: clamp(28px, 7%, 120px);
+  margin-top: clamp(28px, 3.6vw, 44px);
+  padding-block: 0;
+}
+
+/* Stacked, not the homepage's icon-beside-label row: the glyph reads as the
+   subject and the heading as its caption, which is the layout this strip was
+   asked for. gap is a real vertical gutter now, so it comes back from the 0
+   this instance used while it was labelless. */
+.sh-pdp .sh-tmarquee--icons .sh-tmarquee__item {
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(10px, 1.1vw, 14px);
+  text-align: center;
+  padding-inline: clamp(16px, 2.2vw, 30px);
+  padding-block: clamp(16px, 1.8vw, 22px);
+}
+
+/* --- Flat ink variant -------------------------------------------------- */
+
+/* --ink is the whole of the difference from the homepage band: the medallion
+   loses its glass and the glyph goes black. It is a MODIFIER ON THIS INSTANCE,
+   never an edit to §26 — sections/sh-trust-marquee.liquid renders the same
+   markup on the homepage and must keep the engraved-glass treatment.
+
+   ONE INK VALUE, DECLARED ONCE. §26 hands this component --sh-story-ink
+   #1b2a12, the warm near-black the rest of the page sets headings in, which is
+   still visibly green next to a black line drawing. This strip was asked for
+   in black, so the heading and the strokes both take --sh-tm-ink and there is
+   no second place for the two to drift apart. */
+.sh-pdp .sh-tmarquee--ink { --sh-tm-ink: #161616; }
+
+/* The glass, undone. All of it goes at once — background, ring, the two depth
+   insets, the clip — because any one left behind still reads as a chip behind
+   the glyph, which is exactly what this variant removes. overflow is the
+   non-obvious one: §26 clips the medallion so the sweep cannot escape it, and
+   a clipped box would shear the jelly's overshoot below. */
+.sh-pdp .sh-tmarquee--ink .sh-tmarquee__medallion {
+  overflow: visible;
+  border: 0;
+  background: none;
+  box-shadow: none;
+}
+
+/* The specular cap and the travelling sweep ARE the glass. content:none, not
+   opacity or display: it takes both pseudo-elements out of the box tree, so
+   the sweep's 7.5s infinite animation — and the eight nth-child delays driving
+   it — stop being generated at all rather than animating invisibly. */
+.sh-pdp .sh-tmarquee--ink .sh-tmarquee__medallion::before,
+.sh-pdp .sh-tmarquee--ink .sh-tmarquee__medallion::after { content: none; }
+
+/* The glyph fills its box now that there is no ring to sit inside; 58% was the
+   inset the medallion needed. The 0 0 32 32 grid holds every path to
+   y ∈ [5, 27] (snippets/sh-trust-icon.liquid:61), so 58px of box paints ~40px
+   of drawing. stroke-width drops 1.3 -> 1.2 for the same reason: the attribute
+   is in USER UNITS, so growing the box grows the line with it, and 1.3 at 58px
+   lands at 2.4px — heavy for line art. */
+.sh-pdp .sh-tmarquee--ink .sh-tmarquee__glyph {
+  width: 100%;
+  height: 100%;
+  opacity: 1;
+  stroke-width: 1.2;
+}
+
+/* Black strokes, and the descendant half of the selector is load-bearing. The
+   snippet paints with PRESENTATION ATTRIBUTES — stroke="url(#gid-gold)" on the
+   <svg>, stroke="url(#gid-sage)" on individual paths — and an inherited value
+   loses to a presentation attribute set on the element itself. Repainting the
+   root alone would leave every sage path sage. Any CSS declaration beats a
+   presentation attribute, hence the second selector.
+
+   Why not drop the gradients from the snippet instead: it is shared with the
+   homepage band, where they are the whole look. See (a) in the section. */
+.sh-pdp .sh-tmarquee--ink .sh-tmarquee__glyph,
+.sh-pdp .sh-tmarquee--ink .sh-tmarquee__glyph :is(path, circle) {
+  stroke: var(--sh-tm-ink);
+}
+
+/* Some glyphs FILL rather than stroke — `cruelty`'s eye dot, today the only
+   one — and carry stroke="none" so the fill is not ringed. The rule above
+   would hand that dot a 1.2-unit stroke and swell it into a blob at this size.
+   (0,3,0) against that rule's (0,2,1); the attribute selector is what wins it,
+   and what keeps this right if another glyph adopts the pattern. */
+.sh-pdp .sh-tmarquee--ink .sh-tmarquee__glyph [fill^="url"] { fill: var(--sh-tm-ink); }
+.sh-pdp .sh-tmarquee--ink .sh-tmarquee__glyph [stroke="none"] { stroke: none; }
+
+/* The specular highlight strokes — one per glyph, all named -glass — are the
+   reflection ON the glass. Repainted black they become a second, meaningless
+   arc floating inside the drawing. Removed, not dimmed. */
+.sh-pdp .sh-tmarquee--ink .sh-tmarquee__glyph [stroke*="-glass"] { display: none; }
+
+/* The heading. Size and tracking come from .sh-tmarquee__label untouched, so
+   the two placements keep one voice; only the wrap rules are new here. §26
+   sets white-space:nowrap on the item for a single-line row, and a
+   25-character claim would make one 210px item and a visibly faster ribbon —
+   so it wraps instead, and 15ch is what holds the longest of the eight to two
+   lines. min-height reserves that second line on every item, so the icons of
+   the one-line claims do not sit lower than their neighbours. */
+.sh-pdp .sh-tmarquee--ink .sh-tmarquee__text {
+  max-width: 15ch;
+  white-space: normal;
+}
+.sh-pdp .sh-tmarquee--ink .sh-tmarquee__label {
+  min-height: 2.5em;
+  color: var(--sh-tm-ink);
+}
+
+/* No vertical rule between items. §26 draws one because its items are a wide
+   icon-and-label ROW that needs separating; these are narrow stacked columns,
+   where a 34px hairline cuts between an icon and the heading beside it rather
+   than between two claims. The horizontal --ruled frame stays — it is what
+   holds the strip apart from the benefits panel above it. */
+.sh-pdp .sh-tmarquee--ink .sh-tmarquee__item + .sh-tmarquee__item::before,
+.sh-pdp .sh-tmarquee--ink .sh-tmarquee__group + .sh-tmarquee__group > .sh-tmarquee__item:first-child::before {
+  content: none;
+}
+
+/* --- Hover: one jelly -------------------------------------------------- */
+
+/* Non-uniform scale, so it squashes and stretches rather than pulsing. Five
+   crossings, each roughly 40% of the last, is what makes it read as a settling
+   wobble; an even ease would read as a bounce. Ends on the identity transform,
+   so dropping the animation on mouse-out cannot snap. */
+@keyframes sh-pdp-jelly {
+  0%   { transform: scale(1, 1); }
+  22%  { transform: scale(1.14, 0.86); }
+  40%  { transform: scale(0.90, 1.10); }
+  56%  { transform: scale(1.06, 0.94); }
+  72%  { transform: scale(0.97, 1.03); }
+  86%  { transform: scale(1.01, 0.99); }
+  100% { transform: scale(1, 1); }
+}
+
+/* Gated exactly like §26's hover block — desktop, real pointer — and for the
+   same reason: on touch there is no mouse-out to end the state. It sits INSIDE
+   that same query rather than carrying one of its own so the track pause and
+   the wobble can never disagree about what counts as a hover.
+
+   ONE SHOT, and the shorthand is what makes it so: no iteration count means 1.
+   It replays on the next mouse-out/mouse-in because the declaration is removed
+   and re-applied with the hover — a shake per hover, not a loop. */
+@media (min-width: 1025px) and (hover: hover) and (pointer: fine) {
+  .sh-pdp .sh-tmarquee--ink .sh-tmarquee__item:hover .sh-tmarquee__medallion {
+    /* §26 lifts the medallion to scale(1.045) over a .42s transition on hover.
+       Both have to go, or the jelly ends by snapping to 1.045 and holding
+       there, and the transition fights the keyframes on the way in. */
+    transform: none;
+    transition: none;
+    /* The house ease-out, the same curve §26 transitions this element on, and
+       NOT a springy bezier: animation-timing-function applies BETWEEN EVERY
+       PAIR of keyframes, so an overshooting curve would add a bounce to each
+       of the six crossings on top of the amplitude they already carry. The
+       wobble is in the keyframes; the curve only has to land it. */
+    animation: sh-pdp-jelly .62s cubic-bezier(.22, .61, .36, 1) both;
+  }
+}
+
+/* No reduced-motion block of its own. shudhi-home.css:5194 already forces
+   animation/transform/transition to none !important on .sh-tmarquee__medallion
+   under that query — this element — and !important beats the rule above. A
+   second copy here could only drift out of step with it. */
+
+/* ---------------------------------------------------------- social proof */
+
+.sh-pdp__proof {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.3fr) minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(18px, 3vw, 40px);
+  margin-top: clamp(28px, 4vw, 48px);
+  padding: clamp(18px, 2.4vw, 28px) clamp(18px, 3vw, 36px);
+  background: var(--sh-pdp-tint);
+  border: 1px solid var(--sh-pdp-line);
+  border-radius: var(--sh-pdp-radius);
+}
+
+.sh-pdp__proof--two { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+
+.sh-pdp .sh-pdp__proof-title {
+  margin: 0 0 10px;
+  font-size: 1.05rem;
+  font-weight: 500;
+  color: var(--sh-story-ink);
+}
+
+.sh-pdp__proof-avatars { display: flex; align-items: center; }
+
+.sh-pdp__avatar {
+  display: inline-grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  margin-left: -10px;
+  overflow: hidden;
+  border: 2px solid var(--sh-pdp-tint);
+  border-radius: 50%;
+  background: #d9d3c4;
+  color: var(--sh-story-ink);
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+
+.sh-pdp__avatar:first-child { margin-left: 0; }
+.sh-pdp__avatar:nth-child(2n) { background: #cfd8c3; }
+.sh-pdp__avatar:nth-child(3n) { background: #e6d6b8; }
+.sh-pdp__avatar .sh-icon { width: 18px; height: 18px; opacity: 0.7; }
+.sh-pdp .sh-pdp__avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+.sh-pdp__avatar--more {
+  background: var(--sh-story-ink);
+  color: #f4efe6;
+  font-size: 0.66rem;
+}
+
+.sh-pdp__proof-quote { margin: 0; text-align: center; }
+.sh-pdp__proof-quote .sh-pdp__stars { display: block; margin: 0 auto 8px; }
+.sh-pdp__proof .sh-pdp__stars-fill { animation: none; }
+.sh-pdp__proof .sh-pdp__stars-fill::after { display: none; }
+.sh-pdp .sh-pdp__proof-quote blockquote { margin: 0; }
+
+.sh-pdp .sh-pdp__proof-quote p {
+  margin: 0;
+  font-size: 0.98rem;
+  line-height: 1.55;
+  color: var(--sh-story-ink);
+}
+
+.sh-pdp__proof-quote figcaption {
+  margin-top: 6px;
+  font-size: 0.8rem;
+  color: var(--sh-story-body);
+}
+
+.sh-pdp__proof-tiles { display: grid; gap: 10px; margin: 0; padding: 0; }
+
+.sh-pdp__proof-tile {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 11px 14px;
+  background: var(--sh-pdp-card);
+  border: 1px solid var(--sh-pdp-line);
+  border-radius: 8px;
+}
+
+/* mirrors .sh-pdp__trust-item */
+.sh-pdp__proof-tile > .sh-icon {
+  width: 34px;
+  height: 34px;
+  padding: 7px;
+  flex: none;
+  background: var(--sh-story-ink);
+  color: #f4efe6;
+  border-radius: 8px;
+}
+
+.sh-pdp__proof-tile b { display: block; font-size: 0.86rem; font-weight: 600; color: var(--sh-story-ink); }
+.sh-pdp__proof-tile small { display: block; font-size: 0.78rem; color: var(--sh-story-body); }
+
+@media (max-width: 989px) {
+  .sh-pdp__proof,
+  .sh-pdp__proof--two { grid-template-columns: minmax(0, 1fr); text-align: center; }
+  .sh-pdp__proof-avatars { justify-content: center; }
+}
+
+/* ---------------------------------------------------------- lightbox */
+
+/* No `display` on the base rule: the UA's dialog:not([open]) { display: none }
+   must stand. showModal() puts it in the top layer, so no z-index games with
+   the chat widget. The scroll lock is a class on <html> — never
+   body.style.overflow, which three theme scripts already write. */
+.sh-pdp .sh-pdp__lightbox {
+  position: fixed;
+  inset: 0;
+  width: auto;
+  height: auto;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: rgba(14, 19, 9, 0.97);
+  color: var(--sh-light, #f4efe6);
+}
+
+.sh-pdp .sh-pdp__lightbox[open] { display: grid; grid-template-rows: auto minmax(0, 1fr); }
+.sh-pdp__lightbox::backdrop { background: rgba(14, 19, 9, 0.6); }
+
+.sh-pdp__lb-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px;
+}
+
+.sh-pdp__lb-actions { display: flex; gap: 8px; }
+
+.sh-pdp__lb-count {
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  color: rgba(244, 239, 230, 0.8);
+  font-variant-numeric: tabular-nums;
+}
+
+.sh-pdp__lb-stage {
+  position: relative;
+  min-height: 0;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  overscroll-behavior: contain;
+}
+
+/* (0,2,1): beats `.sh-pdp img { max-width: 100% }` and `.sh img { height: auto }` */
+.sh-pdp .sh-pdp__lightbox img {
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  cursor: zoom-in;
+  user-select: none;
+  -webkit-user-drag: none;
+  transform-origin: var(--sh-lb-ox, 50%) var(--sh-lb-oy, 50%);
+  transition: opacity 0.2s ease, transform 0.25s ease;
+}
+
+.sh-pdp .sh-pdp__lightbox.is-loading img { opacity: 0; }
+.sh-pdp .sh-pdp__lightbox.is-zoomed img { transform: scale(2); cursor: zoom-out; }
+
+.sh-pdp__lb-stage::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 36px;
+  height: 36px;
+  margin: -18px 0 0 -18px;
+  border: 2px solid rgba(244, 239, 230, 0.25);
+  border-top-color: #f4efe6;
+  border-radius: 50%;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.sh-pdp__lightbox.is-loading .sh-pdp__lb-stage::after { opacity: 1; animation: sh-pdp-spin 0.8s linear infinite; }
+@keyframes sh-pdp-spin { to { transform: rotate(360deg); } }
+
+/* (0,3,0) over `.sh button:not(.sh-btn)` (0,2,1) */
+.sh-pdp .sh-pdp__lightbox .sh-pdp__lb-btn {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid rgba(244, 239, 230, 0.25);
+  border-radius: 50%;
+  background: rgba(244, 239, 230, 0.1);
+  color: inherit;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.sh-pdp .sh-pdp__lightbox .sh-pdp__lb-btn:hover { background: rgba(244, 239, 230, 0.2); }
+.sh-pdp .sh-pdp__lightbox .sh-pdp__lb-btn[aria-pressed="true"] { background: var(--sh-gold, #c9a86a); color: #1e1810; }
+.sh-pdp .sh-pdp__lightbox .sh-pdp__lb-btn .sh-icon { width: 20px; height: 20px; }
+.sh-pdp .sh-pdp__lightbox .sh-pdp__lb-nav { position: absolute; top: 50%; margin-top: -22px; z-index: 1; }
+.sh-pdp__lb-nav--prev { left: 16px; }
+.sh-pdp__lb-nav--next { right: 16px; }
+
+/* (0,3,1) !important over `.sh-pdp button:focus-visible` — a dark ring is invisible here */
+.sh-pdp .sh-pdp__lightbox button:focus-visible { outline-color: var(--sh-gold, #c9a86a) !important; }
+
+html.sh-pdp-lightbox-open { overflow: hidden; }
+
+/* ---------------------------------------------------------- reviews */
+
+.sh-pdp__reviews {
+  margin-top: clamp(40px, 5vw, 64px);
+  scroll-margin-top: 110px;   /* clears the sticky header when the review count links here */
+}
+
+.sh-pdp .sh-pdp__reviews-title {
+  margin-bottom: 18px;
+  font-size: clamp(1.4rem, 2vw, 1.8rem);
+  font-weight: 500;
+}
+
+/* ---------------------------------------------------------- sticky bar */
+
+.sh-pdp__sticky {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  /* above page chrome (header is 900), below every overlay/drawer (100000+) */
+  z-index: 950;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  background: var(--sh-pdp-card);
+  border-top: 1px solid var(--sh-pdp-line);
+  box-shadow: 0 -8px 24px rgba(27, 42, 18, 0.10);
+  transform: translateY(110%);
+  transition: transform 0.3s ease;
+}
+
+.sh-pdp__sticky[hidden] { display: none; }
+
+.sh-pdp__sticky.is-up { transform: translateY(0); }
+
+.sh-pdp__sticky img {
+  width: 44px;
+  height: 44px;
+  flex: none;
+  border-radius: 6px;
+  object-fit: cover;
+}
+
+.sh-pdp__sticky-txt {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.sh-pdp__sticky-title {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--sh-story-ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sh-pdp__sticky-amt {
+  font-size: 0.82rem;
+  color: var(--sh-story-body);
+  font-variant-numeric: tabular-nums;
+}
+
+.sh-pdp .sh-pdp__sticky .sh-pdp__sticky-atc {
+  flex: none;
+  margin-left: auto;
+  min-height: 44px;
+  padding: 0 20px;
+  border: 0;
+  border-radius: 8px;
+  background-color: var(--sh-accent);
+  background-image: linear-gradient(100deg, var(--sh-accent-soft) 0%, var(--sh-accent) 46%, var(--sh-accent-deep) 100%);
+  color: var(--sh-accent-fg);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: inset 0 0 0 1px var(--sh-accent-edge);
+}
+
+.sh-pdp .sh-pdp__sticky .sh-pdp__sticky-atc:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* While the bar is up, the two floating bubbles (theme.liquid's .whatsapp-icon,
+   bottom-left; snippets/hov-chatbot.liquid's #hov-chat-widget, bottom-right)
+   would sit on top of it. sh-product.js flags the root while the bar is
+   shown; they slide up by the bar's height and come back when it hides.
+   transform only — their own bottom/left/right logic is untouched. */
+html.sh-pdp-sticky-up .whatsapp-icon,
+html.sh-pdp-sticky-up #hov-chat-widget {
+  transform: translateY(-70px);
+  transition: transform 0.3s ease;
+}
+
+/* desktop never shows the bar, whatever JS thinks */
+@media (min-width: 990px) {
+  .sh-pdp__sticky { display: none; }
+}
+
+/* the fixed mobile bottom nav (.menu_toolbar, 50px, <576px only) owns the
+   bottom edge there — stack this bar directly above it */
+@media (max-width: 575.98px) {
+  .sh-pdp__sticky { bottom: 50px; }
+}
+
+/* ---------------------------------------------------------- responsive */
+
+@media (max-width: 989px) {
+  .sh-pdp__grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 26px;
+  }
+
+  .sh-pdp__title { font-size: clamp(1.4rem, 4.6vw, 1.8rem); }
+}
+
+@media (max-width: 599px) {
+  .sh-pdp__crumbs {
+    padding: 8px 14px;
+    font-size: 0.78rem;
+  }
+
+  .sh-pdp .sh-pdp__thumbs .sh-pdp__thumb { width: 60px; height: 60px; }
+
+  .sh-pdp__trust { grid-template-columns: minmax(0, 1fr); }
+
+  .sh-pdp__pack-card {
+    gap: 11px;
+    padding: 13px 14px;
+  }
+
+  /* A pack block's name is far longer than the variant title it replaces
+     ("Buy 3 — Ritual Pack" against "Pack of 3"), and the card still owes the
+     money column a full price. Buy the width back from the type, not the
+     padding, so the three columns stay on one line each. */
+  .sh-pdp__pack-name {
+    gap: 6px;
+    font-size: 0.92rem;
+  }
+
+  .sh-pdp__pack-note { font-size: 0.78rem; }
+
+  /* Both rungs tighten with the card. */
+  .sh-pdp__pack-amount { font-size: 1rem; }
+  .sh-pdp__was { font-size: 0.75rem; }
+
+  .sh-pdp .sh-pdp__coupon {
+    align-items: flex-start;
+    padding: 11px 13px;
+    font-size: 0.82rem;
+  }
+
+  .sh-pdp__coupon .sh-icon { margin-top: 2px; }
+
+  .sh-pdp__buy { gap: 10px; }
+
+  .sh-pdp__qty { height: 48px; }
+  .sh-pdp .sh-pdp__qty button { width: 40px; }
+  .sh-pdp .sh-pdp__qty input { width: 36px; }
+
+  .sh-pdp .sh-pdp__buy .sh-pdp__atc {
+    min-height: 48px;
+    padding: 0 12px;
+    letter-spacing: 0.1em;
+  }
+
+  .sh-pdp__faq-q { padding: 13px 0; }
+  .sh-pdp__faq-title { font-size: 1rem; }
+  .sh-pdp__faq-a-in { padding: 0 0 16px; }
+
+  .sh-pdp .sh-pdp__stage .sh-pdp__nav { width: 36px; height: 36px; margin-top: -18px; }
+  .sh-pdp .sh-pdp__stage .sh-pdp__zoom { padding: 9px; }
+  .sh-pdp .sh-pdp__stage .sh-pdp__zoom span {
+    position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0);   /* icon only; the aria-label carries the name */
+  }
+  .sh-pdp .sh-pdp__lightbox .sh-pdp__lb-btn { width: 40px; height: 40px; }
+  .sh-pdp .sh-pdp__lightbox .sh-pdp__lb-nav { margin-top: -20px; }
+  .sh-pdp__lb-nav--prev { left: 8px; }
+  .sh-pdp__lb-nav--next { right: 8px; }
+}
+
+/* ---------------------------------------------------------- reduced motion */
+
+@media (prefers-reduced-motion: reduce) {
+  .sh-pdp__pack-card,
+  .sh-pdp__pack-radio,
+  .sh-pdp__pack-radio::after,
+  .sh-pdp .sh-pdp__thumbs .sh-pdp__thumb,
+  .sh-pdp__faq-icon,
+  .sh-pdp__faq-title,
+  .sh-pdp a.sh-pdp__rating-count,
+  .sh-pdp .sh-pdp__qty button,
+  .sh-pdp .sh-pdp__buy .sh-pdp__atc,
+  .sh-pdp .sh-pdp__paybtn .shopify-payment-button__button--unbranded {
+    transition: none !important;
+  }
+
+  .sh-pdp .sh-pdp__buy .sh-pdp__atc:hover:not([data-state]):not(:disabled) {
+    transform: none !important;
+  }
+
+  /* the bar still appears/disappears, it just stops sliding */
+  .sh-pdp__sticky,
+  html.sh-pdp-sticky-up .whatsapp-icon,
+  html.sh-pdp-sticky-up #hov-chat-widget {
+    transition: none !important;
+  }
+
+  /* the star row: its resting values are the finished state, so just stop the motion */
+  .sh-pdp__stars-fill { animation: none !important; }
+  .sh-pdp__stars-fill::after { display: none; }
+
+  /* the FAQ: answers appear in place, panes snap open and closed */
+  .sh-pdp__faq-a-in {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+
+  .sh-pdp__faq-item::details-content { transition: none !important; }
+
+  /* gallery + lightbox: no crossfade, no hover lift, no spinner */
+  .sh-pdp__stage.is-live .sh-pdp__slide.is-active { animation: none !important; }
+  .sh-pdp .sh-pdp__stage .sh-pdp__nav,
+  .sh-pdp .sh-pdp__stage .sh-pdp__zoom,
+  .sh-pdp__why-icon,
+  .sh-pdp .sh-pdp__lightbox img,
+  .sh-pdp .sh-pdp__lightbox .sh-pdp__lb-btn { transition: none !important; }
+  .sh-pdp__ben-card,
+  .sh-pdp__ben-icon { transition: none !important; }
+  .sh-pdp .sh-pdp__stage .sh-pdp__nav:hover,
+  .sh-pdp__ben-card:hover,
+  .sh-pdp__ben-card:hover .sh-pdp__ben-icon,
+  .sh-pdp__why-item:hover .sh-pdp__why-icon { transform: none !important; }
+  .sh-pdp__lightbox.is-loading .sh-pdp__lb-stage::after { animation: none !important; }
+}
+
+/* ---------------------------------------------------------- print */
+
+@media print {
+  .sh-pdp__lightbox,
+  .sh-pdp__nav,
+  .sh-pdp__zoom,
+  .sh-pdp__thumbs { display: none !important; }
+
+  /* cream-on-dark would print as cream-on-white */
+  .sh-pdp__why { background: #fff; color: #000; border: 1px solid #ccc; }
+  .sh-pdp .sh-pdp__why-bg { display: none; }
+  .sh-pdp .sh-pdp__why-title,
+  .sh-pdp .sh-pdp__why-label { color: #000; }
+  .sh-pdp .sh-pdp__why-text { color: #333; }
+}

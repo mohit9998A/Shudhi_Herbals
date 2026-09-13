@@ -1,0 +1,130 @@
+/* ===========================================================================
+   SHUDHI — THE FIVE RITUAL STAGES
+   sections/sh-ritual-stages.liquid. A dedicated sheet, not a block of
+   shudhi-home.css (236KB, global) and not shudhi-ritual.css (exists on the
+   live theme only, with other content) — so the band ports as two files.
+
+   Loads after shudhi-story.css from the same section, which is where every
+   motion primitive it uses ([data-sh-fade], [data-sh-line], --e, --sh-e-in,
+   --sh-dur) is declared. Nothing here writes a pre-state outside
+   [data-sh-reveal].is-armed — resting state is the finished state.
+   =========================================================================== */
+
+.sh-rstages {
+  --sh-story-ink:      #1b2a12;   /* heading, titles, numbers — 13.1:1 on cream */
+  --sh-story-body:     #474a3d;
+  --sh-story-gold-ink: #7a5d2e;   /* gold dark enough to be READ */
+  --sh-rstages-card:   #fbfaf5;   /* card face — one step lighter than the band */
+  --sh-rstages-edge:   rgba(201, 168, 106, .62);   /* --sh-gold at hairline strength */
+  --sh-rstages-gap:    clamp(12px, 1.6vw, 22px);
+
+  position: relative;
+  overflow: hidden;
+  background: var(--sh-rstages-bg, #f4f2eb);
+  color: var(--sh-story-ink);
+  padding-block: clamp(56px, 7vw, 96px);
+}
+.sh-rstages[data-sh-reveal] { --sh-spread: .64s; }   /* seven rungs; 450ms would pile the last three */
+
+/* ---- Head -------------------------------------------------------------- */
+.sh-rstages__head { text-align: center; margin-bottom: clamp(30px, 4vw, 48px); }
+.sh-rstages__title {
+  font-size: clamp(1.2rem, 2vw, 1.7rem);
+  letter-spacing: .22em; text-transform: uppercase;
+  font-weight: 500; line-height: 1.2;
+  color: var(--sh-story-ink);
+}
+.sh-rstages__orn {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  margin-top: 12px; color: var(--sh-gold, #c9a86a);
+}
+.sh-rstages__orn i { display: block; width: 26px; height: 1px; background: currentColor; opacity: .75; }
+.sh-rstages__orn .sh-icon { width: 18px; height: 18px; }
+
+/* ---- Track + hairline --------------------------------------------------- */
+.sh-rstages__track { position: relative; }
+.sh-rstages__line {
+  position: absolute; left: 0; right: 0; top: 50%;
+  height: 1px; background: var(--sh-rstages-edge);
+  pointer-events: none;
+}
+
+/* ---- Cards -------------------------------------------------------------- */
+.sh-rstages__list {
+  position: relative; z-index: 1;
+  display: flex; flex-wrap: wrap; justify-content: center;
+  gap: var(--sh-rstages-gap);
+}
+.sh-rstages__card {
+  flex: 0 1 calc((100% - 4 * var(--sh-rstages-gap)) / 5);
+  min-width: 0;   /* flex items default to min-content; the 1024px <img> would refuse the 2-up phone row */
+  display: flex; flex-direction: column; align-items: center; gap: 12px;
+  padding: clamp(16px, 1.7vw, 24px) clamp(12px, 1.3vw, 18px) clamp(18px, 1.8vw, 26px);
+  background: var(--sh-rstages-card);
+  border: 1px solid var(--sh-rstages-edge);
+  border-radius: clamp(44px, 4.6vw, 66px);
+  box-shadow: 0 18px 40px -30px rgba(27, 42, 18, .45);
+  transition: transform .3s ease, box-shadow .3s ease;
+}
+.sh-rstages__card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 26px 46px -28px rgba(27, 42, 18, .5);
+}
+
+.sh-rstages__num {
+  width: 38px; height: 38px; border-radius: 50%;
+  display: grid; place-items: center;
+  background: var(--sh-green-800, #26331a);
+  color: var(--sh-cream, #f2ece0);
+  font-family: var(--sh-serif) !important;
+  font-size: 1rem; font-weight: 500; line-height: 1;
+}
+
+/* The .sh typography defence forces every h3 to the serif; the reference sets
+   these in the tracked sans, so this restates the face at higher specificity. */
+.sh .sh-rstages__name {
+  font-family: var(--sh-sans) !important;
+  font-size: .66rem; letter-spacing: .14em; text-transform: uppercase;
+  font-weight: 600; line-height: 1.55; text-align: center;
+  color: var(--sh-story-ink);
+  min-height: 3.1em;                 /* two lines, so the five arches share a top edge */
+  display: flex; align-items: center; justify-content: center;
+}
+
+.sh-rstages__media {
+  display: block; width: 100%; min-width: 0; aspect-ratio: 4 / 5;
+  border-radius: 999px 999px 14px 14px;   /* the arch */
+  overflow: hidden;
+  border: 1px solid rgba(122, 93, 46, .22);
+  box-shadow: 0 14px 28px -20px rgba(27, 42, 18, .5);
+}
+.sh-rstages__media img { width: 100%; height: 100%; object-fit: cover; }
+
+.sh-rstages__icon { display: block; margin-top: 4px; color: var(--sh-gold, #c9a86a); }
+.sh-rstages__icon .sh-icon { width: 24px; height: 24px; }
+
+/* ---- Entrance: blur-fade, same as the live ritual bands ---------------- */
+.sh-rstages[data-sh-reveal].is-armed [data-sh-fade]:not(img) {
+  filter: blur(6px);
+  transition: opacity   var(--sh-dur) var(--sh-e-in) var(--e, 0s),
+              transform var(--sh-dur) var(--sh-e-in) var(--e, 0s),
+              filter    var(--sh-dur) var(--sh-e-in) var(--e, 0s);
+}
+.sh-rstages[data-sh-reveal].is-armed.is-shown [data-sh-fade]:not(img) { filter: none; }
+
+/* ---- Responsive --------------------------------------------------------- */
+@media (max-width: 1023px) {
+  .sh-rstages__card { flex-basis: calc((100% - 2 * var(--sh-rstages-gap)) / 3); }
+  .sh-rstages__line { display: none; }   /* a wrapped row has no single mid-line */
+}
+@media (max-width: 599px) {
+  .sh-rstages__card { flex-basis: calc((100% - var(--sh-rstages-gap)) / 2); }
+  .sh-rstages__title { font-size: 1.05rem; letter-spacing: .18em; }
+}
+
+/* ---- Reduced motion: arrive finished, not empty ------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  .sh-rstages[data-sh-reveal].is-armed [data-sh-fade] { filter: none !important; }
+  .sh-rstages__card { transition: none; }
+  .sh-rstages__card:hover { transform: none; }
+}

@@ -84,18 +84,17 @@
                loading="lazy" decoding="async">
         </div>
       {%- else -%}
-        {%- comment -%}
-          Final photography is not in yet. An empty <img> would render as a broken
-          image glyph and read as a bug in review; this block is tinted from the
-          band's own surface colour so the composition, the feathered seam and the
-          copy alignment can all be judged on a page that still looks finished.
-
-          No frame on this branch, and therefore no settle: scaling a flat tint by
-          2% is invisible, and wrapping it would put a transformed element in the
-          tree for no payoff. The settle ships as dead code until a photo lands —
-          judging it on the current build is a false negative.
-        {%- endcomment -%}
-        <div class="sh-split__photo sh-split__photo--blank" aria-hidden="true"></div>
+        {%- comment -%} No photo picked in the editor yet — fall back to the bundled
+            botanical asset so the band never ships a blank panel. Same frame + photo
+            structure as the branch above: the settle rides the frame, the parallax
+            rides the photo. A photo picked in the theme editor still wins. {%- endcomment -%}
+        <div class="sh-split__frame">
+          <img class="sh-split__photo"{% if s.animate %} data-parallax{% endif %}
+               src="{{ 'rightauttam.png' | asset_url }}"
+               alt=""
+               width="2171" height="724"
+               loading="lazy" decoding="async">
+        </div>
       {%- endif -%}
     </div>
 
@@ -154,7 +153,7 @@
 
     { "type": "header", "content": "Media" },
     { "type": "image_picker", "id": "image", "label": "Image",
-      "info": "Full-bleed to the viewport edge on its side. A neutral tinted panel stands in until one is picked — the photo's entrance only runs once a real image is here." },
+      "info": "Full-bleed to the viewport edge on its side. The bundled blossom artwork stands in until one is picked — a photo chosen here replaces it." },
     { "type": "select", "id": "media_position", "label": "Image side", "default": "right",
       "info": "Below 768px the image is always shown first, whichever side is chosen.",
       "options": [ { "value": "left", "label": "Left" }, { "value": "right", "label": "Right" } ] },

@@ -425,6 +425,7 @@
   transition: transform 0.25s;
 }
 .hov-so__featured-card:hover { transform: translateY(-3px); }
+.hov-so__featured-card--wide { grid-column: 1 / -1; min-height: 180px; }
 .hov-so__featured-overlay {
   position: absolute; inset: 0;
   background: linear-gradient(120deg, rgba(20,35,22,0.78) 0%, rgba(20,35,22,0.35) 55%, rgba(20,35,22,0.15) 100%);

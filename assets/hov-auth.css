@@ -343,7 +343,9 @@
 /* ── SOCIAL BUTTONS ── */
 .hov-auth__social-btns {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  /* Single full-width strip. Was `1fr 1fr` from when an Apple button sat
+     beside Google; with only Google left that rendered it at half width. */
+  grid-template-columns: 1fr;
   gap: 12px;
   margin-bottom: 12px;
 }
@@ -475,6 +477,5 @@
 /* Very small: 360px phones */
 @media (max-width: 380px) {
   .hov-auth__title   { font-size: 18px; }
-  .hov-auth__social-btns { grid-template-columns: 1fr; }
   .hov-auth__logo-emblem { height: 32px; }
 }
